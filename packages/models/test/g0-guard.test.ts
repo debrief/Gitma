@@ -5,26 +5,35 @@ import { describe, expect, it } from "vitest";
 import { g0Passed } from "../src/g0-guard.js";
 import { tempDir } from "./helpers.js";
 
-function experiment(
-  dir: string,
-  id: string,
-  gate: string,
-  result: string,
-  generator = GENERATOR_VERSION,
-) {
+interface Exp {
+  gate?: string;
+  result?: string;
+  created: string;
+  generator?: string;
+  dirty?: boolean;
+  commit?: string;
+}
+
+function experiment(dir: string, id: string, e: Exp): void {
   mkdirSync(join(dir, id));
   writeFileSync(
     join(dir, id, "verdict.json"),
-    JSON.stringify({ gate, result, checks: [], decided_by: "test" }),
+    JSON.stringify({
+      gate: e.gate ?? "G0",
+      result: e.result ?? "pass",
+      checks: [],
+      decided_by: "t",
+    }),
   );
   writeFileSync(
     join(dir, id, "manifest.json"),
     JSON.stringify({
       id,
-      created: "2026-10-11T00:00:00Z",
-      git_commit: "x",
+      created: e.created,
+      git_commit: e.commit ?? "verified",
+      git_dirty: e.dirty ?? false,
       schema_version: "0.4.0",
-      generator_version: generator,
+      generator_version: e.generator ?? GENERATOR_VERSION,
       datasets: [],
       estimators: [],
       command_lines: [],
@@ -32,37 +41,60 @@ function experiment(
   );
 }
 
+const T1 = "2026-10-11T01:00:00Z";
+const T2 = "2026-10-11T02:00:00Z";
+const guard = (dir: string) => g0Passed(dir, { generatorUnchanged: (c) => c === "verified" });
+
 describe("G0 guard (constitution V)", () => {
   it("refuses without a passing G0 and allows with one", () => {
     const dir = tempDir();
-    expect(g0Passed(join(dir, "missing"))).toBeNull();
-    experiment(dir, "a", "G0", "fail");
-    expect(g0Passed(dir)).toBeNull();
-    experiment(dir, "b", "G0", "pass");
-    expect(g0Passed(dir)).toBe("b");
+    expect(guard(join(dir, "missing"))).toBeNull();
+    experiment(dir, "a", { result: "fail", created: T1 });
+    expect(guard(dir)).toBeNull();
+    experiment(dir, "b", { created: T2 });
+    expect(guard(dir)).toBe("b");
   });
 
-  it("a newer G0 failure blocks training despite an older pass", () => {
+  it("the latest by created time decides, whatever the folder names", () => {
     const dir = tempDir();
-    experiment(dir, "a", "G0", "pass");
-    experiment(dir, "b", "G0", "fail");
-    expect(g0Passed(dir)).toBeNull();
+    experiment(dir, "z-pass", { created: T1 });
+    experiment(dir, "a-fail", { result: "fail", created: T2 });
+    expect(guard(dir)).toBeNull();
   });
 
   it("later gates do not hide the latest G0", () => {
     const dir = tempDir();
-    experiment(dir, "a", "G0", "pass");
-    experiment(dir, "b", "G1", "fail");
-    expect(g0Passed(dir)).toBe("a");
+    experiment(dir, "a", { created: T1 });
+    experiment(dir, "b", { gate: "G1", result: "fail", created: T2 });
+    expect(guard(dir)).toBe("a");
   });
 
-  it("refuses a G0 pass judged on a different generator version", () => {
+  it("refuses ties, dirty runs, other generator versions and changed generator source", () => {
+    const tie = tempDir();
+    experiment(tie, "a", { created: T1 });
+    experiment(tie, "b", { created: T1 });
+    expect(guard(tie)).toBeNull();
+    for (const e of [{ dirty: true }, { generator: "0.0.0-other" }, { commit: "elsewhere" }]) {
+      const dir = tempDir();
+      experiment(dir, "a", { created: T1, ...e });
+      expect(guard(dir)).toBeNull();
+    }
+  });
+
+  it("refuses a G0 verdict without a manifest", () => {
     const dir = tempDir();
-    experiment(dir, "a", "G0", "pass", "0.0.0-other");
-    expect(g0Passed(dir)).toBeNull();
+    experiment(dir, "a", { created: T1 });
+    mkdirSync(join(dir, "b"));
+    writeFileSync(
+      join(dir, "b", "verdict.json"),
+      JSON.stringify({ gate: "G0", result: "pass", checks: [], decided_by: "t" }),
+    );
+    expect(guard(dir)).toBeNull();
   });
 
-  it("accepts the committed G0 experiments", () => {
-    expect(g0Passed(new URL("../../../experiments", import.meta.url).pathname)).toMatch(/-g0/);
+  it("accepts the committed G0 experiments (real git check)", () => {
+    expect(g0Passed(new URL("../../../experiments", import.meta.url).pathname)).toMatch(
+      /^20261011-g0-r\d+$/,
+    );
   });
 });

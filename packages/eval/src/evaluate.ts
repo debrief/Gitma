@@ -46,6 +46,7 @@ function record(label: string, slice: string, point: string, b: Bucket): Metrics
     speed_kt_median: median(sk),
     speed_kt_p90: percentile(sk, 0.9),
     gross_error_rate: b.errors.filter((e) => e.gross).length / n,
+    non_converged_rate: b.errors.filter((e) => !e.converged).length / n,
     position_m_mean: mean(b.errors.map((e) => e.position_m).filter(Number.isFinite)),
   });
 }
@@ -133,6 +134,7 @@ export function evaluate(
           course_deg_median: median(ascending(errs.map((e) => e.course_deg))),
           speed_kt_median: median(ascending(errs.map((e) => e.speed_kt))),
           gross_error_rate: errs.filter((e) => e.gross).length / errs.length,
+          non_converged_rate: errs.filter((e) => !e.converged).length / errs.length,
         }),
       );
     }

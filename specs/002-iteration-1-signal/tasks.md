@@ -88,7 +88,7 @@ description: "Task list for 002 — Iteration 1, is the signal learnable (G1)"
 - [ ] T030 Generate iteration-1 data and features (quickstart §1); record digests
 - [ ] T031 Train five models in the background with checkpoints (quickstart §2); commit each manifest as it finishes; every configuration tried (≤ 4 per model) is kept and listed in the experiment manifest, not only the best (FR-009)
 - [ ] T032 Reproducibility check on a reduced config (quickstart §4)
-- [ ] T033 `tma-g1` → commit `experiments/<date>-g1/` (verdict, metrics, curves, manifests, weights)
+- [ ] T033 `tma-g1` → commit `experiments/<date>-g1/` (verdict, metrics, curves, manifests, weights); report a paired bootstrap 95% CI of each model/naive median ratio at zig+300s and call G1 "inconclusive" if it crosses 0.5 (G0 panel round 2); run the agent panel on the G1 evidence before the decision
 
 ---
 

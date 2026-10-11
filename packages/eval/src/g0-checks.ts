@@ -73,7 +73,11 @@ export function checkPerTimestepRecovery(
 /** RMS bearing residual limit: a few float32 ulps of 2π (≈ 4.8e-7 rad). */
 export const RESIDUAL_RMS_LIMIT_RAD = 1e-6;
 
-/** Final-mode solution's RMS bearing residual: any model mismatch shows here, whatever the geometry. */
+/**
+ * Final-mode solution's RMS bearing residual: a mismatch between the stored observations and the
+ * constant-velocity fit (timing skew, ownship bias) shows here whatever the geometry. A frame error
+ * shared by generator and solver does not; `checkIndependentGeometry` covers that.
+ */
 export function checkBearingResiduals(truth: Iterable<Scenario>): GateCheck {
   let n = 0;
   let bad = 0;
@@ -129,6 +133,19 @@ export function checkIndependentGeometry(truth: Iterable<Scenario>): GateCheck {
   const want = Math.atan2(5000, -10 * 200);
   if (!(Math.abs(angleDiff(abeam[20] ?? NaN, want)) < 1e-6)) fails.push("abeam case");
   if (!((abeam[20] ?? 0) > (abeam[0] ?? 0))) fails.push("abeam bearing does not draw aft");
+  // Leg 2: ownship north at 10 m/s, zig +60° at t = 300 s, stationary target at (5000, 0). At
+  // t = 400 s ownship is at (1000 sin 60°, 3000 + 1000 cos 60°) = (866.03, 3500).
+  const leg2 = bearingsOf({
+    ...KNOWN,
+    target_bearing0_rad: Math.PI / 2,
+    target_range0_m: 5000,
+  })[40];
+  const want2 = Math.atan2(
+    5000 - 1000 * Math.sin(Math.PI / 3),
+    -(3000 + 1000 * Math.cos(Math.PI / 3)),
+  );
+  if (!(Math.abs(angleDiff(leg2 ?? NaN, want2)) < 1e-6))
+    fails.push(`leg-2 case gave ${String(leg2)}`);
   let n = 0;
   for (const s of truth) {
     const p = s.metadata.parameters;
@@ -155,7 +172,7 @@ export function checkIndependentGeometry(truth: Iterable<Scenario>): GateCheck {
     "independent-geometry",
     fails.length === 0,
     fails.length === 0
-      ? `hand-computed 315° and abeam cases match; t = 0 bearing and range match the drawn parameters on ${String(n)} scenarios`
+      ? `hand-computed 315°, abeam and leg-2 cases match; t = 0 bearing and range match the drawn parameters on ${String(n)} scenarios`
       : fails.slice(0, 6).join("; "),
   );
 }

@@ -16,7 +16,7 @@
       "result": "pass"
     },
     {
-      "detail": "hand-computed 315° and abeam cases match; t = 0 bearing and range match the drawn parameters on 4 scenarios",
+      "detail": "hand-computed 315°, abeam and leg-2 cases match; t = 0 bearing and range match the drawn parameters on 4 scenarios",
       "name": "independent-geometry",
       "result": "pass"
     },

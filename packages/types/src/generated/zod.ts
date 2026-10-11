@@ -7,6 +7,7 @@ export const CurvePoint = z.strictObject({
   estimator: z.string(),
   gross_error_rate: z.number(),
   n: z.number().int(),
+  non_converged_rate: z.number().nullish(),
   /** Absent when not finite (more than half the rows non-converged), as in MetricsRecord. */
   range_rel_median: z.number().nullish(),
   range_rel_p90: z.number().nullish(),
@@ -120,6 +121,8 @@ export const ExperimentManifest = z.strictObject({
   /** True when the working tree had uncommitted changes (absent before schema 0.4.0). */
   git_dirty: z.boolean().nullish(),
   id: z.string(),
+  /** Node.js version that ran the experiment (byte identity is promised per pinned Node). */
+  node_version: z.string().nullish(),
   normalisation: NormalisationConstants.nullish(),
   schema_version: z.string(),
 });
@@ -163,6 +166,8 @@ export const MetricsRecord = z.strictObject({
   excluded: z.number().int(),
   gross_error_rate: z.number().nullish(),
   n: z.number().int(),
+  /** Fraction of rows with no estimate (scored +∞; explains absent medians/P90). */
+  non_converged_rate: z.number().nullish(),
   /** "final" or "zig+<n>s". */
   point: z.string(),
   /** Mean position error over converged rows (non-converged rows count in gross_error_rate). */

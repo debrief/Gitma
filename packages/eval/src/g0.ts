@@ -97,6 +97,17 @@ export function runG0(dataDir: string, experiment: string, commandLine: string):
           name: CLASSICAL,
           settings: { method: "levenberg-marquardt", max_iterations: 50, mode: "final" },
         },
+        {
+          name: `${CLASSICAL}:per_timestep`,
+          settings: {
+            method: "levenberg-marquardt",
+            max_iterations: 50,
+            grid_every: 6,
+            mode: "per_timestep",
+            scenarios: sub.length,
+            note: "first scenarios of the test split, for check classical-per-timestep-recovers",
+          },
+        },
       ],
       [truth.header.created_by, commandLine],
     ),

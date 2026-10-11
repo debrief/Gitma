@@ -21,13 +21,13 @@
     "tma-naive": "node packages/classical/dist/cli-naive.js",
     "tma-eval": "node packages/eval/dist/cli-eval.js",
     "tma-gate": "node packages/eval/dist/cli-gate.js",
-    "tma-g0": "node packages/eval/dist/cli-g0.js",
+    "tma-g0": "tsc -b && node packages/eval/dist/cli-g0.js",
     "tma-features": "node packages/features/dist/cli.js",
     "site:build": "pnpm --filter @tma/site build",
     "site:start": "pnpm --filter @tma/site start",
-    "tma-train": "node packages/models/dist/cli-train.js",
+    "tma-train": "tsc -b && node packages/models/dist/cli-train.js",
     "tma-model-predict": "node packages/models/dist/cli-predict.js",
-    "tma-g1": "node packages/models/dist/cli-g1.js"
+    "tma-g1": "tsc -b && node packages/models/dist/cli-g1.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

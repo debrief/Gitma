@@ -1,7 +1,8 @@
 // experiments/<id>/ writer (contracts/file-formats.md).
 import { execFileSync } from "node:child_process";
 import { mkdirSync, renameSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { fileDigest } from "@tma/classical";
 import { canonicalJson, UsageError } from "@tma/data";
 import { GENERATOR_VERSION } from "@tma/sim";
@@ -25,9 +26,12 @@ function write(dir: string, name: string, text: string): void {
 export const prettyJson = (v: unknown): string =>
   `${JSON.stringify(JSON.parse(canonicalJson(v)), null, 2)}\n`;
 
+/** Git runs in this package's checkout, not wherever the command was started. */
+const GIT_CWD = dirname(fileURLToPath(import.meta.url));
+
 export function gitCommit(): string {
   try {
-    return execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+    return execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8", cwd: GIT_CWD }).trim();
   } catch {
     return "unknown";
   }
@@ -36,7 +40,10 @@ export function gitCommit(): string {
 /** True when the working tree has uncommitted changes (untracked files included; ignored ones not). */
 function gitStatusDirty(): boolean {
   try {
-    return execFileSync("git", ["status", "--porcelain"], { encoding: "utf8" }).trim() !== "";
+    return (
+      execFileSync("git", ["status", "--porcelain"], { encoding: "utf8", cwd: GIT_CWD }).trim() !==
+      ""
+    );
   } catch {
     return true;
   }
@@ -73,6 +80,7 @@ export function makeManifest(
     created: new Date().toISOString(),
     git_commit: gitCommit(),
     git_dirty: gitDirty(),
+    node_version: process.version,
     schema_version: SCHEMA_VERSION,
     generator_version: GENERATOR_VERSION,
     datasets: datasets.map((d) => ({ ...d, digest: fileDigest(d.path) })),

@@ -290,6 +290,9 @@ classes:
       speed_kt_median: { range: float }
       speed_kt_p90: { range: float }
       gross_error_rate: { range: float }
+      non_converged_rate:
+        range: float
+        description: Fraction of rows with no estimate (scored +∞; explains absent medians/P90).
       position_m_mean:
         range: float
         description: Mean position error over converged rows (non-converged rows count in gross_error_rate).
@@ -316,6 +319,9 @@ classes:
       git_dirty:
         range: boolean
         description: True when the working tree had uncommitted changes (absent before schema 0.4.0).
+      node_version:
+        range: string
+        description: Node.js version that ran the experiment (byte identity is promised per pinned Node).
       schema_version: { range: string, required: true }
       generator_version: { range: string, required: true }
       datasets: { range: DatasetRef, multivalued: true, inlined_as_list: true, required: true }
@@ -369,6 +375,7 @@ classes:
       course_deg_median: { range: float }
       speed_kt_median: { range: float }
       gross_error_rate: { range: float, required: true }
+      non_converged_rate: { range: float }
 
   TrainingConfig:
     description: "Hyperparameters and seeds for one training run (SRD §4; constitution III)."

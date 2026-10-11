@@ -10,6 +10,7 @@ export interface RowError {
   position_m: number;
   /** Range error > 50% or the estimator did not converge. */
   gross: boolean;
+  converged: boolean;
 }
 
 export const GROSS_RANGE_REL = 0.5;
@@ -36,6 +37,7 @@ export function rowError(s: Scenario, row: PredictionRow): RowError {
       speed_kt: Infinity,
       position_m: Infinity,
       gross: true,
+      converged: false,
     };
   }
   const range = Math.hypot(t.x_m - o.x_m, t.y_m - o.y_m);
@@ -47,5 +49,6 @@ export function rowError(s: Scenario, row: PredictionRow): RowError {
     speed_kt: Math.abs(mpsToKt(row.speed_mps - t.speed_mps)),
     position_m: Math.hypot(row.x_m - t.x_m, row.y_m - t.y_m),
     gross: !(rangeRel <= GROSS_RANGE_REL),
+    converged: true,
   };
 }

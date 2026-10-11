@@ -46,6 +46,13 @@ function median(metrics: MetricsRecord[], estimator: string, point: string): num
   return record(metrics, estimator, point).range_rel_median ?? Infinity;
 }
 
+/** R8 "same scenarios": both estimators scored on the same rows at `point`. */
+function sameSample(metrics: MetricsRecord[], a: string, b: string, point: string): boolean {
+  const ra = record(metrics, a, point);
+  const rb = record(metrics, b, point);
+  return ra.n === rb.n && ra.excluded === rb.excluded;
+}
+
 function g1Check(name: string, metrics: MetricsRecord[], id: string): GateCheck {
   const nv = record(metrics, "naive", G1_POINT);
   const mv = record(metrics, id, G1_POINT);
@@ -81,7 +88,8 @@ export function checkConsistency(curves: CurvePoint[], ids: G1Ids): GateCheck {
     n++;
     const lv = l.range_rel_median ?? Infinity;
     const iv = i.range_rel_median ?? Infinity;
-    if (!(lv <= CONSISTENCY_SLACK * iv)) bad.push(`t=${String(t)}s ${fmt(lv)} > ${fmt(iv)}`);
+    if (!(Number.isFinite(lv) && lv <= CONSISTENCY_SLACK * iv))
+      bad.push(`t=${String(t)}s ${fmt(lv)} > ${fmt(iv)}`);
   }
   const tail = ` (${String(skipped)} later points with n < ${String(CONSISTENCY_MIN_N)} reported, not gated)`;
   return check(
@@ -104,7 +112,12 @@ export function checkBeatsControl(
   const parts = [G1_POINT, "final"].map((p) => {
     const m = median(metrics, model, p);
     const c = median(metrics, control, p);
-    return { p, ok: m < c, text: `${p}: ${fmt(m)} vs ${fmt(c)}` };
+    const same = sameSample(metrics, model, control, p);
+    return {
+      p,
+      ok: same && m < c,
+      text: `${p}: ${fmt(m)} vs ${fmt(c)}${same ? "" : " (sample mismatch)"}`,
+    };
   });
   return check(
     name,
@@ -117,10 +130,11 @@ export function checkLeakage(metrics: MetricsRecord[], shuffled: string): GateCh
   const naive = median(metrics, "naive", G1_POINT);
   const s = median(metrics, shuffled, G1_POINT);
   const ratio = s / naive;
+  const same = sameSample(metrics, shuffled, "naive", G1_POINT);
   return check(
     "shuffled-labels-at-naive",
-    Math.abs(ratio - 1) <= LEAKAGE_BAND,
-    `${shuffled} median range error ${fmt(s)} = ${ratio.toFixed(3)} × naive ${fmt(naive)} (allowed 1 ± ${String(LEAKAGE_BAND)}) at ${G1_POINT}`,
+    same && Math.abs(ratio - 1) <= LEAKAGE_BAND,
+    `${shuffled} median range error ${fmt(s)} = ${ratio.toFixed(3)} × naive ${fmt(naive)} (allowed 1 ± ${String(LEAKAGE_BAND)}) at ${G1_POINT}${same ? "" : " — sample mismatch"}`,
   );
 }
 

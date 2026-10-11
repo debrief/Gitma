@@ -19,6 +19,12 @@
         "n": {
           "type": "integer"
         },
+        "non_converged_rate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "range_rel_median": {
           "description": "Absent when not finite (more than half the rows non-converged), as in MetricsRecord.",
           "type": [
@@ -223,6 +229,13 @@
         "id": {
           "type": "string"
         },
+        "node_version": {
+          "description": "Node.js version that ran the experiment (byte identity is promised per pinned Node).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "normalisation": {
           "anyOf": [
             {
@@ -397,6 +410,13 @@
         },
         "n": {
           "type": "integer"
+        },
+        "non_converged_rate": {
+          "description": "Fraction of rows with no estimate (scored +∞; explains absent medians/P90).",
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "point": {
           "description": "\"final\" or \"zig+<n>s\".",

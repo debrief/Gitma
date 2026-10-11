@@ -72,8 +72,9 @@ export default function Home() {
         <h2>Current gate status</h2>
         <GateStatus />
         <p>
-          Machine verdicts come from <code>experiments/*/verdict.json</code>. The team review takes
-          the final decision.
+          Machine verdicts come from <code>experiments/*/verdict.json</code>. An agent review panel
+          (five independent specialist reviewers, iterated until none rejects) takes the decision;
+          its record is <code>review.md</code> in the experiment folder.
         </p>
 
         <h2>The plan</h2>

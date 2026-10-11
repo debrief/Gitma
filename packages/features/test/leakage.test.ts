@@ -49,6 +49,8 @@ describe("normalisation leakage (constitution IV)", () => {
         },
         metadata: {
           ...s.metadata,
+          mean_range_m: s.metadata.mean_range_m * 7,
+          min_range_m: s.metadata.min_range_m / 3,
           parameters: {
             ...p,
             target_range0_m: p.target_range0_m * 3,
