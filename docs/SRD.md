@@ -140,7 +140,7 @@ Success is staged: clear the naive baseline first, then approach classical-solve
 
 Medians and 90th percentiles rather than means: TMA failure modes are heavy-tailed and a mean hides them.
 
-The instantaneous variant is scored at every timestep after the zig and reported as a curve of each metric against time-since-zig. Gate thresholds for it are applied at 5 minutes after the zig; the full curve shows how fast the solution converges, which is the operationally interesting number.
+The instantaneous variant is scored at every timestep after the zig and reported as a curve of each metric against time-since-zig. Gate thresholds for it are applied at 5 minutes after the zig, except G2's speed threshold, which is applied at 10 minutes (amended 2026-10-11: at σ = 1° the classical solver's median speed error is 1.28 kt at 5 minutes and 0.61 kt at 10, so a 5-minute speed threshold of 1 kt would ask the model to beat the classical reference; spec 003 research R12); the full curve shows how fast the solution converges, which is the operationally interesting number.
 
 **Gates**
 
@@ -148,7 +148,7 @@ The instantaneous variant is scored at every timestep after the zig and reported
 | --- | --- | --- |
 | G0 — pipeline | Classical solver recovers noise-free truth; naive baseline numbers reproduced | Fix the generator before any training |
 | G1 — signal exists | Model median range error < 50% of naive baseline's, on both variants | Stop: ML not extracting the signal; report and close |
-| G2 — useful | Median range error < 20%, course < 10°, speed < 1 kt at σ = 1° | Iterate features/architecture once; if still failed, stop |
+| G2 — useful | Median range error < 20%, course < 10° (5 min after the zig), speed < 1 kt (10 min after the zig) at σ = 1° | Iterate features/architecture once; if still failed, stop |
 | G3 — classical parity (stretch) | Model within 1.2× classical solver on every metric, and lower gross-error rate | Not a stop condition; defines the bar for the next phase |
 
 G3 is the interesting outcome either way: parity on clean data would be unremarkable, but a lower gross-error rate on noisy or near-unobservable geometries is the case for ML over classical methods.
@@ -231,7 +231,7 @@ Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; 
 **Decisions taken** (11 Oct 2026)
 
 - Window length is sampled per scenario, 10–40 min; models take variable-length, masked input from iteration 1.
-- The instantaneous model is scored at every timestep after the zig and reported as an error-vs-time curve; gates use the 5-minute point.
+- The instantaneous model is scored at every timestep after the zig and reported as an error-vs-time curve; gates use the 5-minute point (G2 speed: the 10-minute point, amended 2026-10-11).
 - Batch least-squares is the only classical reference up to G3; an EKF is added only if G3 is reached.
 - Gate verdicts are taken by an agent review panel (amended 2026-10-11; replaces the team review): independent AI reviewers with distinct specialities review the evidence, their findings are fixed or answered, and they are re-invited until all approve. No human sign-off is required.
 
