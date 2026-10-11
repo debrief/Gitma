@@ -73,3 +73,13 @@ tma-gate g0 --experiment <experiments/<id>> --noise-free-pred <pred.ndjson> --tr
 
 Writes `verdict.json`; exit 0 on pass, 3 on fail. Checks: (1) classical recovers noise-free truth within
 SC-001 tolerance on 100% of scenarios; (2) two independent naive runs produce identical metrics.
+
+## `tma-g0` (workspace script, `scripts/g0.ts`)
+
+```
+tma-g0 --data <dir> --experiment <experiments/<id>>
+```
+
+Convenience wrapper for quickstart §3: expects `<dir>/{test.f32pack,classical.ndjson,naive.ndjson}`;
+runs `tma-eval` twice for the naive baseline (to check reproducibility), once for classical, then
+`tma-gate g0`. Exit code is `tma-gate`'s.
