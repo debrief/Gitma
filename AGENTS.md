@@ -15,7 +15,7 @@ Where this file and the SRD disagree, the SRD wins; flag the conflict.
 
 Spec Kit is installed (`.specify/`, skills in `.claude/skills/speckit-*`). Feature work follows:
 
-1. `/speckit-constitution` — project principles (`.specify/memory/constitution.md`; derive from SRD §6 and §9)
+1. `/speckit-constitution` — project principles, ratified in `.specify/memory/constitution.md` (v1.0.0). Plans MUST pass its checks.
 2. `/speckit-specify` — feature spec, traced to SRD sections
 3. `/speckit-clarify` — optional, de-risk ambiguity
 4. `/speckit-plan` → `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement`

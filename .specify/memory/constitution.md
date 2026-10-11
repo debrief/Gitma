@@ -1,50 +1,109 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# TMA via ML Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Single Source of Truth for Types (NON-NEGOTIABLE)
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+- Every data type (scenario, track, observation, feature tensor layout, model manifest, metrics
+  record) MUST be defined once in LinkML under `schema/`.
+- TypeScript types, JSON Schema, `zod` validators and the data dictionary MUST be generated from
+  that schema; hand-written equivalents are forbidden.
+- Generated output in `packages/types/` is committed; CI MUST fail if it is stale.
+- Every file read at runtime MUST be validated with the generated validators.
+- Tensor shapes MUST be recorded in the LinkML description of each feature type.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+Rationale: the later Python/Java port starts from identical types, and the data dictionary can
+never drift from the code.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. Determinism and Reproducibility (NON-NEGOTIABLE)
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+- All randomness MUST come from a seeded PRNG keyed by a 64-bit seed; `Math.random` is forbidden.
+- The same seed MUST reproduce the same scenario byte-for-byte on any platform.
+- Every dataset file MUST carry the schema and generator version; mismatched files are rejected.
+- Every training run MUST be reproducible from its manifest (hyperparameters, dataset seed,
+  normalisation constants, generator version) plus its dataset.
+- Every package MUST have a golden-file test: fixed seed in, byte-identical output out.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Rationale: a go/no-go verdict is worthless if the experiment behind it cannot be re-run.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### III. Portability by Construction
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+- `sim` and `features` MUST be plain functions over numeric arrays: no classes with hidden state,
+  no TS-only idioms.
+- Models MUST use only layers with direct Keras equivalents (LSTM, Bidirectional, Conv1D, Dense,
+  Masking); hyperparameters live in the manifest, not in code.
+- Each pipeline stage MUST be a separate CLI reading and writing files, so any stage can be
+  replaced (e.g. generator by Stone Soup, training by PyTorch) without touching the others.
+- A port is accepted when it reproduces the golden files.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Rationale: TypeScript is the proof-of-concept vehicle, not the destination.
+
+### IV. Honest Measurement
+
+- Model results MUST NOT be reported without the naive baseline and classical solver numbers on
+  the same test set beside it.
+- Metrics MUST be reported as median and 90th percentile, overall and sliced by range band, zig
+  angle and noise σ; gross-error rate MUST be reported alongside.
+- Normalisation statistics MUST be computed from inputs only; a shuffled-label leakage test MUST
+  score at naive-baseline level.
+- The time-late variant MUST score at least as well as the instantaneous variant at every point;
+  if not, the pipeline is treated as suspect before any ML conclusion is drawn.
+- Recurrent models MUST beat their non-recurrent control to claim sequential learning.
+
+Rationale: TMA failure modes are heavy-tailed, and the main risk is a model that learns the
+generator's priors rather than geometry.
+
+### V. Fail Fast Through Gates
+
+- Work proceeds through gates G0 (pipeline) → G1 (signal) → G2 (useful) → G3 (parity, stretch) as
+  defined in `docs/SRD.md` §5.
+- No training MAY begin until G0 passes: the classical solver recovers noise-free truth and the
+  naive baseline is reproduced.
+- A failed G1 ends the project with a short write-up; a failed G2 allows one further iteration.
+- Hyperparameter search is capped at a handful of runs per iteration; the question is whether the
+  signal exists, not how good the best model can be.
+
+Rationale: the project exists to answer one question cheaply, not to build a product.
+
+## Technical Constraints
+
+- Node 22 LTS, TypeScript 5 with `strict` and `noUncheckedIndexedAccess`, ESM, `pnpm` workspace.
+- No `any` outside generated code.
+- `@tensorflow/tfjs-node` for training and inference (GPU optional, never assumed); `vitest` for
+  tests.
+- LinkML toolchain is a Python dev dependency only, managed with `uv`.
+- Frame: flat-earth Cartesian, x east, y north, metres. Bearings true, clockwise from north, in
+  radians internally. Speeds in m/s; knots only for reporting.
+- Scope is single target, constant velocity, Gaussian bearing noise and dropouts only; anything
+  beyond `docs/SRD.md` §1 scope requires an SRD amendment first.
+- The repository is public: nothing above OFFICIAL, and only mock data with no real-world
+  provenance.
+
+## Development Workflow
+
+- Every change lands via a PR against `main`; no direct pushes.
+- CI on each PR MUST run lint, typecheck, unit and golden-file tests, schema regeneration check
+  and site build; all MUST pass before merge.
+- A PR that adds a concept, data type, algorithm or result MUST add or update the matching page
+  under `site/` (glossary, data dictionary regeneration, algorithm note or blog post). Reviewers
+  may block on a missing page.
+- Each iteration produces an `experiments/<id>/` folder (manifest, dataset seeds, metrics CSV,
+  gate verdict) and a blog post with the gate decision.
+- Feature work follows the Spec Kit flow (specify → plan → tasks → implement); each spec MUST
+  cite the SRD section(s) it implements.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- This constitution governs all development practice; `docs/SRD.md` governs requirements. Where
+  they conflict, raise it and amend one of them — do not silently pick.
+- Amendments are made by PR that updates this file, states the version bump and its rationale,
+  and updates `AGENTS.md` if agent guidance changes.
+- Versioning is semantic: MAJOR for removing or redefining a principle, MINOR for adding a
+  principle or materially expanding guidance, PATCH for clarifications.
+- Every PR review MUST check compliance with the principles above; any justified exception is
+  recorded in the PR description.
+- Gate verdicts are taken at a team review against SRD §5 metrics; Doc holds the casting vote
+  where the numbers are borderline.
+- Runtime guidance for agents lives in `AGENTS.md`.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-11
