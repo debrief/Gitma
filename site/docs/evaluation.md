@@ -48,6 +48,23 @@ On a noise-free test split (`tma-g0`):
    the drawn parameters. This catches frame errors that generator and solver would share.
 5. **Naive determinism**: two in-process fits give identical metrics.
 
+### G1 checks and how they combine
+
+G1 scores each model against naive 5 minutes after the zig, using a paired bootstrap 95% interval
+of the ratio of median range errors. A ratio check passes when the whole interval is below 0.5,
+fails when it is wholly at or above 0.5, and is otherwise inconclusive. The other checks combine
+by a tiered rule:
+
+| Check | If it fails |
+| --- | --- |
+| Ratio, both variants | G1 fails (an inconclusive interval makes G1 inconclusive) |
+| Shuffled labels at naive | The evidence is invalid (possible leakage): G1 fails |
+| Time-late not worse than instantaneous | The pipeline is suspect: G1 is at best inconclusive until investigated |
+| Each recurrent model beats its control | Reported only: G1 can pass, but without a "sequential learning" claim |
+
+If G1 is inconclusive, the panel may order one re-score on a larger test set drawn from a new
+seed. If that is still inconclusive, G1 fails.
+
 Run gates through `pnpm tma-g0` / `pnpm tma-g1`: they rebuild first and refuse a dirty working tree,
 and the manifest records the commit, Node version and SHA-256 of every dataset.
 
