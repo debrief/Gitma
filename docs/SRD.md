@@ -115,7 +115,7 @@ The time-late variant has strictly more information at every timestep, so it mus
 **TensorFlow.js constraints**
 
 - `@tensorflow/tfjs-node` for training; `tfjs-node-gpu` optional, not assumed.
-- Expect throughput roughly an order of magnitude below PyTorch; iteration-1 datasets are about 10^5 scenarios. Each model trains for at most 4 hours wall-clock on a 4-core CPU (amended 2026-10-11 from "under an hour": measured throughput of ≈ 110–200 windows/s allows only ≈ 4 BiLSTM epochs in an hour; see spec 002 research R1). Training stops earlier on early stopping.
+- Expect throughput roughly an order of magnitude below PyTorch; iteration-1 datasets are about 10^5 scenarios. Each model trains for at most 6 hours wall-clock on a 4-core CPU (amended 2026-10-11 from "under an hour": measured throughput of ≈ 110–200 windows/s allows only ≈ 4 BiLSTM epochs in an hour; see spec 002 research R1). Training stops earlier on early stopping.
 - Only layers with direct Keras equivalents (LSTM, Bidirectional, Conv1D, Dense, Masking), so a port to Keras or PyTorch is mechanical.
 - Models saved in the `tfjs` layers format plus a JSON manifest (hyperparameters, dataset seed, normalisation constants, generator version); every run is reproducible from manifest plus dataset.
 
@@ -233,7 +233,7 @@ Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; 
 - Window length is sampled per scenario, 10–40 min; models take variable-length, masked input from iteration 1.
 - The instantaneous model is scored at every timestep after the zig and reported as an error-vs-time curve; gates use the 5-minute point.
 - Batch least-squares is the only classical reference up to G3; an EKF is added only if G3 is reached.
-- Gate verdicts are taken at a team review; Doc holds the casting vote.
+- Gate verdicts are taken by an agent review panel (amended 2026-10-11; replaces the team review): independent AI reviewers with distinct specialities review the evidence, their findings are fixed or answered, and they are re-invited until all approve. No human sign-off is required.
 
 ## 9. Development practice and public site
 
