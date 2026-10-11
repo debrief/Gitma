@@ -27,6 +27,8 @@ pnpm tma-convert -- --check data/s1c/test.ndjson data/s1c/test.f32pack
 
 Expected: generation < 2 min; `diff` silent; `--check` exit 0.
 
+Measured on a clean clone (2026-10-11): 12–14 s per 10^5-scenario generation; `diff` identical.
+
 ## 3. G0 run (SC-001, SC-005, SC-006)
 
 ```
@@ -51,10 +53,14 @@ pnpm tma-eval  -- --truth data/n1/test.f32pack --pred data/n1/classical.ndjson d
 Expected: classical errors grow with σ; classical beats naive on median range error in every σ slice;
 `curves.csv` shows error falling with time since zig.
 
+Measured (2026-10-11, after the per-timestep fix): per-timestep solve ≈ 1 min for 1,000 test
+scenarios. Classical median range error at zig+300 s is 0.09 (P90 0.59) against naive 0.38. Before
+the fix this run showed P90 ≈ 5×10⁷; see research R5.
+
 ## 5. Leakage check on features
 
 ```
-pnpm --filter @tma/features test -- leakage
+pnpm vitest run packages/features/test/leakage
 ```
 
 Expected: normalisation constants identical with labels shuffled.

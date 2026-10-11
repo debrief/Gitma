@@ -29,23 +29,40 @@ Specs live under `specs/<NNN-feature>/`. Each spec should cite the SRD section(s
 - LinkML (Python, dev-only, managed with `uv`) → JSON Schema → TS types + `zod` validators.
 - Docusaurus site under `site/`, deployed to `gh-pages`; PR previews at `/pr/N/`.
 
-## Repository layout (target)
+## Repository layout
 
 ```
-schema/       LinkML source of truth for all data types
+schema/tma.yaml        LinkML source of truth for all data types (version in `version:`)
 packages/
-  types/      generated TS types + zod validators (CI-generated, committed)
-  sim/        ownship + target motion, bearing observer
-  data/       batch generation CLI, NDJSON <-> Float32 pack, splits
-  features/   window -> tensor for each variant, normalisation stats
-  models/     tfjs model definitions + training CLI + manifests
-  classical/  naive baseline, least-squares bearings-only solver
-  eval/       metrics, slicing, gate checks, report generation
-  demos/      browser apps for PR previews (tfjs in-browser)
-experiments/  one folder per run: manifest, metrics, plots
-site/         GH Pages: welcome, blog, glossary, data dictionary, algorithms
-docs/         SRD and other project documents
+  types/               generated zod schemas + types in src/generated/ (pnpm schema:gen)
+  sim/                 PRNG, geometry, scenario generator (pure functions)
+  data/                NDJSON + .f32pack I/O, splits; CLIs tma-generate, tma-convert
+  features/            model tensors, inputs-only normalisation; CLI tma-features
+  classical/           naive baseline, least-squares solver; CLIs tma-naive, tma-solve
+  eval/                metrics, slices, curves, gates; CLIs tma-eval, tma-gate, tma-g0
+experiments/<id>/      committed run outputs: manifest, metrics, curves, verdict, seeds
+site/                  Docusaurus site (docs, blog); data dictionary generated at build
+specs/                 Spec Kit features (spec, plan, research, contracts, tasks)
+docs/SRD.md            requirements
 ```
+
+## Commands
+
+```
+pnpm install && uv sync          # Node deps + LinkML (dev-only Python)
+pnpm build                       # tsc -b (CLIs run from dist/)
+pnpm lint                        # ESLint + Prettier check
+pnpm typecheck                   # project build + tests/scripts
+pnpm test                        # vitest: unit, golden, e2e (~30 s)
+UPDATE_GOLDEN=1 pnpm test        # regenerate golden files; review the diff, say why in the PR
+pnpm schema:gen                  # after editing schema/tma.yaml; bump its version
+pnpm schema:check                # fails if generated types are stale
+pnpm site:build                  # data dictionary + gate status + site; fails on broken links
+pnpm tma-generate --seed 42 --count 100000 --noise-free --out data/g0
+pnpm tma-g0 --data data/g0 --experiment experiments/<id>
+```
+
+Full walkthrough: `specs/001-iteration-0-pipeline/quickstart.md`.
 
 ## Hard rules
 
@@ -72,8 +89,21 @@ docs/         SRD and other project documents
 - All changes via PR against `main`; no direct pushes.
 - A PR that adds a concept, data type, algorithm or result also adds/updates the matching `site/` page
   (glossary, data dictionary regeneration, algorithm note, or blog post).
-- Before pushing, run lint, typecheck, unit + golden tests, schema regeneration check, and site build
-  (commands to be added as the toolchain lands in iteration 0).
+- Before pushing: `pnpm lint && pnpm typecheck && pnpm test && pnpm schema:check && pnpm site:build`.
+- Use the PR template (`.github/pull_request_template.md`): constitution and site-page checklists.
+
+## Gotchas (learned in iteration 0)
+
+- Stored floats go through `f32()` from `@tma/sim` (float32, and −0 → +0, which JSON cannot hold).
+- Records are written as canonical JSON (sorted keys) via `canonicalJson` from `@tma/data`; zod
+  re-orders keys on parse, so insertion order is not stable.
+- Prettier honours `.gitignore`; generated or committed machine output (`experiments/`, golden
+  files) is in `.prettierignore` so it stays byte-identical to tool output.
+- `site/package.json` must not set `"type": "module"`; Docusaurus's SSR build breaks.
+- G0 passing does not prove the frame is right (generator-only frame errors pass it); the
+  known-answer and t = 0 invariant tests in `packages/sim` are what catch those.
+- Per-timestep classical estimates restart from the grid and flag implausible solutions; never
+  remove that without re-running quickstart §4 (runaway ranges of 10¹² m otherwise).
 
 ## Gates (SRD §5)
 

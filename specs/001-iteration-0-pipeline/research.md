@@ -109,3 +109,22 @@ Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternati
   50–70, 70–90°; σ as stored. Experiment id `YYYYMMDD-<slug>` (e.g. `20261011-g0`).
 - **Rationale**: roughly equal scenario counts per range band under log-uniform sampling; the 20–30 km
   band only populates in the held-out geometry set.
+
+## R9. Adversarial review of G0 (T079, 2026-10-11)
+
+Mutation tests, each run then reverted:
+
+| Mutant | G0 check 1 | Known-answer tests | t = 0 invariant (added) |
+| --- | --- | --- | --- |
+| `bearingOf` measures anticlockwise from east (shared by generator and solver) | **fails** | 3 of 4 fail | — |
+| Generator mirrors the target's initial x (frame error confined to the generator) | **passes** | 1 of 4 fails | fails |
+
+The second row is the case the plan warned about: the solver fits whatever the stored bearings say,
+so G0 cannot see a generator-only frame error. Only one hand-computed test caught it, so a second,
+independent check was added: over 1,000 seeds, the noise-free bearing and range at t = 0 must
+equal the drawn `target_bearing0_rad` and `target_range0_m`.
+
+Remaining blind spot: an error that is consistent across the generator, the drawn parameters and
+the hand-computed expectations (for example, a wrong definition of "clockwise" written into the
+tests themselves). Only human review of `site/docs/algorithms/generator.md` against SRD §2 covers
+that.
