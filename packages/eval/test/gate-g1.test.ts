@@ -153,6 +153,20 @@ describe("G1 gate", () => {
     expect(parseCurvesCsv(toCsv(CURVE_COLUMNS, GOOD_CURVES))).toEqual(GOOD_CURVES);
   });
 
+  it("tiered verdict: ratio decides; leakage voids; consistency suspends; controls report only", () => {
+    const verdict = (m: Medians, c = GOOD_CURVES) => g1Verdict(g1Checks(metrics(m), c, IDS)).result;
+    expect(verdict({ ...BASE, cnn: { z300: 0.3, final: 0.1 } })).toBe("pass");
+    expect(verdict({ ...BASE, mlp: { z300: 0.12, final: 0.15 } })).toBe("pass");
+    expect(verdict({ ...BASE, "lstm-shuffled": { z300: 0.3, final: 0.4 } })).toBe("fail");
+    expect(verdict(BASE, curves([0.3, 0.2, 0.15], [0.25, 0.211, 0.12]))).toBe("inconclusive");
+    expect(
+      verdict(
+        { ...BASE, lstm: { z300: 0.2, final: 0.1 } },
+        curves([0.3, 0.2, 0.15], [0.25, 0.211, 0.12]),
+      ),
+    ).toBe("fail");
+  });
+
   it("with bootstrap intervals: pass below, fail above, inconclusive across the 0.5 ratio", () => {
     const ci = (lo: number, hi: number) => ({
       ratio: (lo + hi) / 2,

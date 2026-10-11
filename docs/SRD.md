@@ -147,7 +147,7 @@ The instantaneous variant is scored at every timestep after the zig and reported
 | Gate | Criterion | Decision if failed |
 | --- | --- | --- |
 | G0 — pipeline | Classical solver recovers noise-free truth; naive baseline numbers reproduced | Fix the generator before any training |
-| G1 — signal exists | Model median range error < 50% of naive baseline's, on both variants | Stop: ML not extracting the signal; report and close |
+| G1 — signal exists | Model median range error < 50% of naive baseline's, on both variants (95% interval wholly below; a shuffled-label failure voids the evidence, a time-late consistency failure makes it inconclusive; amended 2026-10-11) | Stop: ML not extracting the signal; report and close |
 | G2 — useful | Median range error < 20%, course < 10° (5 min after the zig), speed < 1 kt (10 min after the zig) at σ = 1° | Iterate features/architecture once; if still failed, stop |
 | G3 — classical parity (stretch) | Model within 1.2× classical solver on every metric, and lower gross-error rate | Not a stop condition; defines the bar for the next phase |
 
@@ -193,7 +193,7 @@ site/         GH Pages content: welcome, blog, glossary, data dictionary, algori
 
 ## 7. Experiment plan
 
-Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; a failed G1 at the end of iteration 1 ends the project with a short write-up. Each gate verdict is taken at a team review against the metrics in section 5; Doc has the casting vote where the numbers are borderline.
+Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; a failed G1 at the end of iteration 1 ends the project with a short write-up. Each gate verdict is taken by the agent review panel (section 8) against the metrics in section 5. Borderline numbers are not settled by a casting vote: an inconclusive interval allows one re-score on a larger fresh-seed test set, then fails (amended 2026-10-11).
 
 | Iteration | Builds | Gate | Exit if failed |
 | --- | --- | --- | --- |
