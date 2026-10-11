@@ -33,7 +33,7 @@ generator. US3 and US4 (P2) are independent of each other.
 - [x] T005 [P] Configure vitest workspace in `vitest.workspace.ts`
 - [x] T006 [P] Create `pyproject.toml` + `uv.lock` pinning `linkml==1.12.*` as a dev dependency
 - [x] T007 Scaffold packages `types`, `sim`, `data`, `features`, `classical`, `eval` under `packages/<name>/` each with `package.json` (`@tma/<name>`), `tsconfig.json`, `src/index.ts`, `test/`
-- [ ] T008 (partial: build/lint/typecheck/test/schema scripts done; CLI scripts land with their stories) Add root scripts in `package.json`: `build`, `lint`, `typecheck`, `test`, `test:golden`, `schema:gen`, `schema:check`, `site:build`, `site:start`, and one script per CLI (`tma-generate`, `tma-convert`, `tma-features`, `tma-naive`, `tma-solve`, `tma-eval`, `tma-gate`, `tma-g0`)
+- [x] T008 Add root scripts in `package.json`: `build`, `lint`, `typecheck`, `test`, `test:golden`, `schema:gen`, `schema:check`, `site:build`, `site:start`, and one script per CLI (`tma-generate`, `tma-convert`, `tma-features`, `tma-naive`, `tma-solve`, `tma-eval`, `tma-gate`, `tma-g0`)
 - [x] T009 Create `.github/workflows/ci.yml`: setup Node from `.nvmrc`, pnpm, uv; run lint, typecheck, test, `schema:check`; later steps (golden, e2e, site) added by their stories
 
 **Checkpoint**: `pnpm install && pnpm build && pnpm lint && pnpm test` pass on an empty workspace in CI.
@@ -196,10 +196,10 @@ generator. US3 and US4 (P2) are independent of each other.
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T076 [P] Update `AGENTS.md` "Workflow" with the real commands (lint, typecheck, test, golden, schema:check, site:build)
-- [ ] T077 [P] README.md: one-paragraph purpose, link to site, SRD and quickstart
-- [ ] T078 Run full `specs/001-iteration-0-pipeline/quickstart.md` on a clean clone; record timings against SC-002 and SC-006 in the iteration-0 blog post
-- [ ] T079 Adversarial review of G0: confirm T020 known-answer tests would catch a shared sign/frame error that the solver alone would not
+- [x] T076 [P] Update `AGENTS.md` "Workflow" with the real commands (lint, typecheck, test, golden, schema:check, site:build)
+- [x] T077 [P] README.md: one-paragraph purpose, link to site, SRD and quickstart
+- [x] T078 Run full `specs/001-iteration-0-pipeline/quickstart.md` on a clean clone; record timings against SC-002 and SC-006 in the iteration-0 blog post
+- [x] T079 Adversarial review of G0: confirm T020 known-answer tests would catch a shared sign/frame error that the solver alone would not
 
 ---
 

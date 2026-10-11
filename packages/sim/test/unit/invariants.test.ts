@@ -1,6 +1,6 @@
 import type { Scenario } from "@tma/types";
 import { describe, expect, it } from "vitest";
-import { TWO_PI } from "../../src/geometry.js";
+import { angleDiff, TWO_PI } from "../../src/geometry.js";
 import { DEFAULT_RANGES, noiseFree } from "../../src/ranges.js";
 import { generateScenario } from "../../src/scenario.js";
 
@@ -75,6 +75,21 @@ describe("scenario invariants over 1,000 seeds", () => {
   it("is deterministic per (seed, index) and differs across indices", () => {
     expect(generateScenario(99n, 5, DEFAULT_RANGES).scenario).toEqual(scenarios[5]);
     expect(scenarios[5]?.metadata.seed).not.toBe(scenarios[6]?.metadata.seed);
+  });
+
+  it("t = 0 geometry matches the drawn initial bearing and range (frame check, T079)", () => {
+    // G0 cannot see a frame error confined to the generator (the solver fits whatever the stored
+    // bearings say), so tie the stored truth back to the drawn parameters directly.
+    for (let i = 0; i < 1000; i++) {
+      const s = generateScenario(77n, i, noiseFree(DEFAULT_RANGES)).scenario;
+      const p = s.metadata.parameters;
+      const o = s.ownship.states[0];
+      const t = s.target.states[0];
+      const z = s.observations[0];
+      if (o === undefined || t === undefined || z === undefined) throw new Error();
+      expect(Math.abs(angleDiff(z.bearing_rad, p.target_bearing0_rad))).toBeLessThan(1e-6);
+      expect(Math.hypot(t.x_m - o.x_m, t.y_m - o.y_m) / p.target_range0_m).toBeCloseTo(1, 6);
+    }
   });
 
   it("noise-free scenarios have σ = 0 and no dropouts", () => {
