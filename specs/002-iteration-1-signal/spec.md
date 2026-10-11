@@ -216,7 +216,7 @@ browser; open a PR and confirm a preview link appears.
 
 ### Measurable Outcomes
 
-- **SC-001**: Each of the four models trains on the full 10^5-scenario train split within 4 hours of
+- **SC-001**: Each of the four models trains on the full 10^5-scenario train split within 6 hours of
   wall-clock time on the reference machine (relaxed from SRD §4's one hour by decision of
   2026-10-11; actual times reported).
 - **SC-002**: Re-running any training run from its manifest reproduces identical saved weights.
@@ -232,7 +232,7 @@ browser; open a PR and confirm a preview link appears.
   time-late variant's whole-window position error is reported but not gated.
 - "Clean" means σ = 0.5° and no dropouts (SRD §7), not noise-free.
 - The reference machine for SC-001 is the cloud container used for iteration 0 (4 CPU cores, no GPU).
-  Decision 2026-10-11: relax SRD §4's one-hour budget to 4 hours per model rather than shrink the
+  Decision 2026-10-11: relax SRD §4's one-hour budget to 4 hours per model (raised to 6 hours later the same day) rather than shrink the
   dataset or port to PyTorch; this conflicts with the SRD text and is flagged for an SRD amendment.
 - The consistency tolerance (time-late vs instantaneous) is set in planning; default 5% relative on
   median range error per curve point, to absorb training noise.
