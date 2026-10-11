@@ -19,5 +19,7 @@ export default defineConfig({
   test: {
     include: ["packages/*/test/**/*.test.ts"],
     passWithNoTests: true,
+    // CPU-heavy solver tests share 2–4 cores with tfjs training tests; 5 s is too tight on CI.
+    testTimeout: 60_000,
   },
 });
