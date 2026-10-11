@@ -216,8 +216,9 @@ browser; open a PR and confirm a preview link appears.
 
 ### Measurable Outcomes
 
-- **SC-001**: Each of the four models trains on the 10^5-scenario train split in under one hour on
-  the reference machine (SRD §4).
+- **SC-001**: Each of the four models trains on the full 10^5-scenario train split within 4 hours of
+  wall-clock time on the reference machine (relaxed from SRD §4's one hour by decision of
+  2026-10-11; actual times reported).
 - **SC-002**: Re-running any training run from its manifest reproduces identical saved weights.
 - **SC-003**: A G1 verdict exists in `experiments/` with model, naive and classical numbers on the
   same test scenarios.
@@ -230,9 +231,9 @@ browser; open a PR and confirm a preview link appears.
 - G1 is judged at the 5-minute post-zig point for both variants, using per-timestep predictions; the
   time-late variant's whole-window position error is reported but not gated.
 - "Clean" means σ = 0.5° and no dropouts (SRD §7), not noise-free.
-- The reference machine for SC-001 is the CI/cloud container used for iteration 0 (CPU only, no GPU);
-  if training exceeds the budget, the shortfall is reported rather than hidden, and porting training
-  to PyTorch is the SRD §8 fallback, raised as a decision for the team.
+- The reference machine for SC-001 is the cloud container used for iteration 0 (4 CPU cores, no GPU).
+  Decision 2026-10-11: relax SRD §4's one-hour budget to 4 hours per model rather than shrink the
+  dataset or port to PyTorch; this conflicts with the SRD text and is flagged for an SRD amendment.
 - The consistency tolerance (time-late vs instantaneous) is set in planning; default 5% relative on
   median range error per curve point, to absorb training noise.
 - Training starts only after G0's machine verdict passes; the team's sign-off on G0 is expected
