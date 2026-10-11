@@ -198,5 +198,8 @@ The open questions were put to the user one at a time; all recommendations accep
 7. **Inconclusive interval**: the panel may order one larger fresh-seed test set (e.g. 5× the test
    split); still inconclusive then counts as a fail.
 
+8. **G2 speed point** (after the achievability check, research R12): range and course are judged
+   at zig + 300 s, speed (< 1 kt) at zig + 600 s; SRD amended in its own PR.
+
 Exit codes follow PR #21 (already implemented): **3 for any gate result other than pass**
 (fail or inconclusive); the verdict file distinguishes them.
