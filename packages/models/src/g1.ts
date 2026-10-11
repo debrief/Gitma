@@ -109,8 +109,10 @@ export async function runG1(opts: G1Options): Promise<GateVerdict> {
   const log = opts.log ?? ((l: string) => process.stderr.write(`${l}\n`));
   const { ids, models } = findModels(opts.models);
   const trainPath = join(opts.data, "train.f32pack");
-  const naive = fitNaive(readDataset(trainPath).scenarios(), fileDigest(trainPath));
+  const train = readDataset(trainPath);
+  const naive = fitNaive(train.scenarios(), fileDigest(trainPath));
   const predDir = join(opts.data, "predictions");
+  const notes = new Set<string>();
   mkdirSync(predDir, { recursive: true });
 
   interface Scored {
@@ -144,7 +146,14 @@ export async function runG1(opts: G1Options): Promise<GateVerdict> {
     try {
       for (const m of models) {
         log(`${split}: predicting ${m.manifest.id}`);
-        requireSameNormalisation(features, m.manifest.normalisation, m.manifest.id);
+        const note = requireSameNormalisation(features, m.manifest.normalisation, m.manifest.id, {
+          header: train.header,
+          modelSchemaVersion: m.manifest.schema_version,
+        });
+        if (note !== undefined) {
+          log(`${split}: ${note}`);
+          notes.add(note);
+        }
         const model = await loadModel(m.dir);
         const ps = predictScenarios(
           model,
@@ -234,7 +243,7 @@ export async function runG1(opts: G1Options): Promise<GateVerdict> {
           },
         })),
       ],
-      [opts.commandLine],
+      [opts.commandLine, ...Array.from(notes, (n) => `# ${n}`)],
     ),
   );
   return verdict;
