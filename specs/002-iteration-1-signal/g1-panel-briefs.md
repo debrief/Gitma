@@ -309,18 +309,9 @@ tests (`packages/models/test/causality.test.ts`), `packages/data/src/` (splits),
    the panel may order **one** re-score of the committed models on a larger test set generated from
    a fresh, recorded seed. Still inconclusive on that set → G1 **fails**. No re-training, no further
    re-scores.
+2. **Tiered verdict** (PR #26; SRD §5 amended). The ratio checks decide. A shuffled-label failure
+   voids the evidence (fail). A time-late-not-worse failure makes G1 at best inconclusive until the
+   pipeline is investigated. A control failure is reported only: G1 may pass, but the claim is
+   "signal exists" without "sequential learning".
+3. **No casting vote** (SRD §7 amended). Borderline numbers are handled by rule 1, not by judgement.
 
-## Open questions for the panel
-
-The process does not yet answer these; the panel should record its position on each in the review
-record rather than decide them case by case after seeing the numbers.
-
-1. **Non-G1 check failures.** The machine verdict fails if a control or consistency check fails,
-   but SRD §5's G1 criterion is the ratio alone; constitution IV says a recurrent model must beat its
-   control "to claim sequential learning", and SRD §4 says a time-late failure makes the pipeline
-   "suspect". Agreed reading proposed for the panel: leakage failure → G1 evidence invalid;
-   time-late-not-worse failure → pipeline suspect, investigate before deciding; control failure → G1
-   may still pass on the ratio, but the claim is "signal exists" without "sequential learning".
-2. **Borderline numbers.** SRD §7 still says "Doc has the casting vote where the numbers are
-   borderline"; §8 and the constitution replace the team review with the panel. Flag for an SRD
-   wording fix.
