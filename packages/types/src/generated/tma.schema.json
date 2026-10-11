@@ -1,5 +1,47 @@
 {
   "$defs": {
+    "CurvePoint": {
+      "additionalProperties": false,
+      "description": "One point of an error-vs-time-since-zig curve (curves.csv row).",
+      "properties": {
+        "course_deg_median": {
+          "type": "number"
+        },
+        "estimator": {
+          "type": "string"
+        },
+        "gross_error_rate": {
+          "type": "number"
+        },
+        "n": {
+          "type": "integer"
+        },
+        "range_rel_median": {
+          "type": "number"
+        },
+        "range_rel_p90": {
+          "type": "number"
+        },
+        "speed_kt_median": {
+          "type": "number"
+        },
+        "t_since_zig_s": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "estimator",
+        "t_since_zig_s",
+        "n",
+        "range_rel_median",
+        "range_rel_p90",
+        "course_deg_median",
+        "speed_kt_median",
+        "gross_error_rate"
+      ],
+      "title": "CurvePoint",
+      "type": "object"
+    },
     "DatasetHeader": {
       "additionalProperties": false,
       "description": "First record of every dataset file.",
@@ -353,6 +395,65 @@
         "excluded"
       ],
       "title": "MetricsRecord",
+      "type": "object"
+    },
+    "NaiveMeans": {
+      "additionalProperties": false,
+      "description": "Training-set means used by the naive baseline for one prediction mode.",
+      "properties": {
+        "course_cos": {
+          "type": "number"
+        },
+        "course_sin": {
+          "type": "number"
+        },
+        "log_range_km": {
+          "description": "Mean of ln(range in km).",
+          "type": "number"
+        },
+        "n": {
+          "description": "Number of labels averaged.",
+          "type": "integer"
+        },
+        "speed_mps": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "log_range_km",
+        "course_sin",
+        "course_cos",
+        "speed_mps",
+        "n"
+      ],
+      "title": "NaiveMeans",
+      "type": "object"
+    },
+    "NaiveModel": {
+      "additionalProperties": false,
+      "description": "Naive baseline (SRD §5): predicts training-set means. final uses each scenario's last-sample label; per_timestep uses every post-zig label.",
+      "properties": {
+        "final": {
+          "$ref": "#/$defs/NaiveMeans"
+        },
+        "per_timestep": {
+          "$ref": "#/$defs/NaiveMeans"
+        },
+        "schema_version": {
+          "type": "string"
+        },
+        "train_digest": {
+          "description": "SHA-256 of the train file.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "train_digest",
+        "final",
+        "per_timestep"
+      ],
+      "title": "NaiveModel",
       "type": "object"
     },
     "NormalisationConstants": {
@@ -856,5 +957,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.1.0"
+  "version": "0.2.0"
 }

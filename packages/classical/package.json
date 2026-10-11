@@ -16,6 +16,7 @@
     "@tma/data": "workspace:*"
   },
   "bin": {
-    "tma-solve": "./dist/cli-solve.js"
+    "tma-solve": "./dist/cli-solve.js",
+    "tma-naive": "./dist/cli-naive.js"
   }
 }

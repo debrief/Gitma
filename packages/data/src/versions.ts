@@ -1,14 +1,24 @@
 import { RecordError, SCHEMA_VERSION } from "@tma/types";
 import { GENERATOR_VERSION } from "@tma/sim";
 
-const majorMinor = (v: string): string => v.split(".").slice(0, 2).join(".");
+const parts = (v: string): [number, number] => {
+  const [major = NaN, minor = NaN] = v.split(".").map(Number);
+  return [major, minor];
+};
 
-/** Reject files written by a different schema MAJOR.MINOR or generator version (FR-007). */
+/** Compatible when MAJOR matches and the file's MINOR is not newer than this build's. */
+function compatible(file: string, build: string): boolean {
+  const [fMaj, fMin] = parts(file);
+  const [bMaj, bMin] = parts(build);
+  return fMaj === bMaj && fMin <= bMin;
+}
+
+/** Reject files from an incompatible schema version or a different generator version (FR-007). */
 export function checkVersions(
   file: string,
   header: { schema_version: string; generator_version?: string },
 ): void {
-  if (majorMinor(header.schema_version) !== majorMinor(SCHEMA_VERSION)) {
+  if (!compatible(header.schema_version, SCHEMA_VERSION)) {
     throw new RecordError(
       file,
       "header",

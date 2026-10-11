@@ -9,5 +9,17 @@
       "default": "./dist/index.js"
     }
   },
-  "scripts": {}
+  "bin": {
+    "tma-eval": "./dist/cli-eval.js",
+    "tma-gate": "./dist/cli-gate.js",
+    "tma-g0": "./dist/cli-g0.js"
+  },
+  "scripts": {},
+  "dependencies": {
+    "@tma/classical": "workspace:*",
+    "@tma/data": "workspace:*",
+    "@tma/sim": "workspace:*",
+    "@tma/types": "workspace:*",
+    "zod": "^4.6.5"
+  }
 }
