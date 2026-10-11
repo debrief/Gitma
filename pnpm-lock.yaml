@@ -30,7 +30,17 @@ importers:
         specifier: ^3.2.0
         version: 3.2.7(@types/node@22.20.5)
 
-  packages/classical: {}
+  packages/classical:
+    dependencies:
+      '@tma/data':
+        specifier: workspace:*
+        version: link:../data
+      '@tma/sim':
+        specifier: workspace:*
+        version: link:../sim
+      '@tma/types':
+        specifier: workspace:*
+        version: link:../types
 
   packages/data:
     dependencies:

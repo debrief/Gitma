@@ -4,3 +4,4 @@ export * from "./f32pack.js";
 export * from "./generate.js";
 export * from "./ndjson.js";
 export * from "./versions.js";
+export * from "./cli.js";
