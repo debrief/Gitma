@@ -20,8 +20,9 @@ Expected: all pass; `schema:check` fails if `packages/types/` is stale.
 ```
 time pnpm tma-generate -- --seed 1 --count 100000 --out data/s1
 pnpm tma-generate -- --seed 1 --count 100000 --out data/s1b
+pnpm tma-generate -- --seed 1 --count 1000 --out data/s1c --format both
 diff -r data/s1 data/s1b
-pnpm tma-convert -- --check data/s1/test.ndjson data/s1/test.f32pack
+pnpm tma-convert -- --check data/s1c/test.ndjson data/s1c/test.f32pack
 ```
 
 Expected: generation < 2 min; `diff` silent; `--check` exit 0.

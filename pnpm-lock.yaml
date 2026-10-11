@@ -32,13 +32,24 @@ importers:
 
   packages/classical: {}
 
-  packages/data: {}
+  packages/data:
+    dependencies:
+      '@tma/sim':
+        specifier: workspace:*
+        version: link:../sim
+      '@tma/types':
+        specifier: workspace:*
+        version: link:../types
 
   packages/eval: {}
 
   packages/features: {}
 
-  packages/sim: {}
+  packages/sim:
+    dependencies:
+      '@tma/types':
+        specifier: workspace:*
+        version: link:../types
 
   packages/types:
     dependencies:

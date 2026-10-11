@@ -6,8 +6,11 @@ Field definitions live in `schema/tma.yaml`; this page fixes the byte layout.
 
 - UTF-8, `\n` line endings, no trailing whitespace, final newline.
 - Line 1: `DatasetHeader` record with `"record": "header"`.
-- Lines 2…: one `Scenario` per line with `"record": "scenario"`; keys in schema slot order.
-- Numbers: JS shortest round-trip string of the float32-rounded value; integers without decimal point;
+- Lines 2…: one `Scenario` per line with `"record": "scenario"`.
+- Canonical JSON: object keys sorted alphabetically at every level, no whitespace. (Schema slot
+  order is not used: zod re-orders keys on parse, and sorted keys are trivial to reproduce in a port.)
+- Numbers: JS shortest round-trip string of the float32-rounded value (negative zero is stored as
+  +0, since JSON cannot represent it); integers without decimal point;
   `seed` as a decimal string (uint64 exceeds JS safe integers).
 
 ## `.f32pack` (training)
@@ -29,7 +32,7 @@ Scenario block:
 | Field | Encoding |
 | --- | --- |
 | metadata length `M` | uint32 |
-| metadata | UTF-8 `ScenarioMetadata` JSON, space-padded to a multiple of 4 |
+| metadata | UTF-8 canonical `ScenarioMetadata` JSON, space-padded to a multiple of 4 |
 | samples `S` | uint32 |
 | ownship | Float32 × S × 5 (timestamp_s, x_m, y_m, course_rad, speed_mps), row-major |
 | target | Float32 × S × 5 |

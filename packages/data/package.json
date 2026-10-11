@@ -9,5 +9,13 @@
       "default": "./dist/index.js"
     }
   },
-  "scripts": {}
+  "scripts": {},
+  "dependencies": {
+    "@tma/types": "workspace:*",
+    "@tma/sim": "workspace:*"
+  },
+  "bin": {
+    "tma-generate": "./dist/cli-generate.js",
+    "tma-convert": "./dist/cli-convert.js"
+  }
 }

@@ -116,6 +116,7 @@ ExperimentManifest 1──* MetricsRecord, 1── GateVerdict
 - Angles stored in [0, 2π); course differences computed as wrapped `atan2(sin Δ, cos Δ)`.
 - `samples = window_s / dt_s` ∈ [60, 240].
 - `zig_index` ∈ [0.4·samples, 0.6·samples].
-- `valid=false` count / samples ≤ `dropout_fraction` rounding up.
+- Each bearing is dropped independently with probability `dropout_fraction` (so the per-scenario
+  count varies; the aggregate rate matches).
 - `min_range_m > 0` (generator rejects and redraws geometries with range < 100 m; count reported in header).
 - Every file read is validated by generated zod schemas; failure names file and line/record.
