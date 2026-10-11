@@ -29,6 +29,27 @@ export interface TrainOptions {
 
 const url = (dir: string): string => `file://${resolve(dir)}`;
 
+/**
+ * Save to `<dir>.tmp`, then swap it in, so a copy taken at any moment (CI checkpoint sync) sees a
+ * complete model in `dir` or, during the swap only, in `<dir>.old`.
+ */
+async function saveAtomic(model: tf.LayersModel, dir: string): Promise<void> {
+  const tmp = `${dir}.tmp`;
+  const old = `${dir}.old`;
+  rmSync(tmp, { recursive: true, force: true });
+  await model.save(url(tmp));
+  rmSync(old, { recursive: true, force: true });
+  if (existsSync(dir)) renameSync(dir, old);
+  renameSync(tmp, dir);
+  rmSync(old, { recursive: true, force: true });
+}
+
+/** `dir` if it holds a saved model, else `<dir>.old` (a swap was interrupted), else null. */
+function savedModelDir(dir: string): string | null {
+  for (const d of [dir, `${dir}.old`]) if (existsSync(join(d, "model.json"))) return d;
+  return null;
+}
+
 function writeJson(path: string, value: unknown): void {
   const tmp = `${path}.tmp-${String(process.pid)}`;
   writeFileSync(tmp, `${JSON.stringify(JSON.parse(canonicalJson(value)), null, 2)}\n`);
@@ -119,13 +140,17 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
           "manifest",
         )
       : null;
+    const ckptSaved = savedModelDir(ckptDir);
     if (
       prior !== null &&
       !prior.complete &&
       canonicalJson(prior.config) === canonicalJson(config) &&
-      existsSync(join(ckptDir, "model.json"))
+      ckptSaved !== null
     ) {
-      model = await tf.loadLayersModel(`${url(ckptDir)}/model.json`);
+      model = await tf.loadLayersModel(`${url(ckptSaved)}/model.json`);
+      // An interrupted swap of best/ leaves only best.old: restore it as best/.
+      const bestSaved = savedModelDir(bestDir);
+      if (bestSaved !== null && bestSaved !== bestDir) renameSync(bestSaved, bestDir);
       epochs = prior.epochs;
       bestEpoch = prior.best_epoch;
       best = epochs.find((e) => e.epoch === bestEpoch)?.val_loss ?? Infinity;
@@ -199,9 +224,9 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       if (valLoss < best) {
         best = valLoss;
         bestEpoch = e;
-        await model.save(url(bestDir));
+        await saveAtomic(model, bestDir);
       }
-      await model.save(url(ckptDir));
+      await saveAtomic(model, ckptDir);
       writeJson(manifestPath, manifest(undefined, false, join(bestDir, "weights.bin")));
       if (e - bestEpoch >= config.patience) {
         stop = "early_stopping";
@@ -224,10 +249,13 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
     }
     const bestModel = await tf.loadLayersModel(`${url(bestDir)}/model.json`);
     await bestModel.save(url(outDir));
-    rmSync(ckptDir, { recursive: true, force: true });
-    rmSync(bestDir, { recursive: true, force: true });
+    // Mark complete before removing the checkpoints, so a copy taken in between never shows an
+    // unfinished run with nothing to resume from.
     const m = manifest(stop, true, join(outDir, "weights.bin"));
     writeJson(manifestPath, m);
+    for (const d of [ckptDir, bestDir]) {
+      for (const x of [d, `${d}.tmp`, `${d}.old`]) rmSync(x, { recursive: true, force: true });
+    }
     return m;
   } finally {
     trainFile.close();

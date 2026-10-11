@@ -2,6 +2,9 @@ name: Train iteration 1 (G1)
 
 # Which models to train, and an earlier run whose model artifacts fill in the rest, come from
 # .github/train-plan.json (so a push can train a subset; e.g. after a cancelled job).
+# Each training job also pushes its output folder to `checkpoints/<branch>/<model>` after every
+# epoch (scripts/train-checkpoint.sh) and restores it at start, so a cancelled or crashed job
+# resumes where it stopped, and a completed model is reused instead of retrained.
 #
 # Spec 002 T031/T033 on GitHub-hosted runners: one job per model (≤ 5.5 h each, GitHub's job
 # limit is 6 h), then the G1 evaluation. Data and features are regenerated in every job from the
@@ -66,12 +69,29 @@ jobs:
             pnpm tma-features build --in "$DATA/$s.f32pack" --norm "$DATA/norm.json" --out "$DATA/$s.features.bin"
           done
           sha256sum "$DATA"/*.f32pack "$DATA"/*.features.bin
+      - name: Restore checkpoint (resume a cancelled or crashed run)
+        run: |
+          echo "OUT=$RUNNER_TEMP/models/${{ matrix.model }}" >> "$GITHUB_ENV"
+          echo "CKPT=checkpoints/${GITHUB_REF_NAME}/${{ matrix.model }}" >> "$GITHUB_ENV"
+          scripts/train-checkpoint.sh restore "$RUNNER_TEMP/models/${{ matrix.model }}" \
+            "checkpoints/${GITHUB_REF_NAME}/${{ matrix.model }}"
       - name: Train ${{ matrix.model }}
         shell: bash # -o pipefail, so a failed run is not hidden by tee
         run: |
+          if [ -f "$OUT/manifest.json" ] && jq -e .complete "$OUT/manifest.json" >/dev/null; then
+            echo "$CKPT holds a completed model: not retraining"
+            echo "restored complete model from $CKPT" > "$RUNNER_TEMP/train.log"
+            exit 0
+          fi
+          # Push the output folder to $CKPT after every epoch (manifest change).
+          scripts/train-checkpoint.sh watch "$OUT" "$CKPT" &
+          WATCH=$!
+          trap 'kill $WATCH 2>/dev/null || true' EXIT
           pnpm tma-train --config configs/iter1/${{ matrix.model }}.json \
             --train "$DATA/train.features.bin" --val "$DATA/validation.features.bin" \
-            --out "$RUNNER_TEMP/models/${{ matrix.model }}" 2>&1 | tee "$RUNNER_TEMP/train.log"
+            --out "$OUT" 2>&1 | tee "$RUNNER_TEMP/train.log"
+          kill $WATCH
+          scripts/train-checkpoint.sh sync "$OUT" "$CKPT"
           lscpu | grep "Model name"
       - uses: actions/upload-artifact@v4
         if: always()

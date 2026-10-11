@@ -34,7 +34,12 @@ which see the whole window anyway. Every model is still **scored** only after th
 - After each epoch: validation loss on all 10,000 validation windows; best-epoch weights kept.
 - Stops at the first of: `max_epochs`, `patience` epochs without improvement (early stopping),
   the 6-hour wall-clock cap, or a non-finite loss (`diverged`).
-- Checkpoint every epoch; a restarted run resumes (the Adam state restarts, recorded in the log).
+- Checkpoint every epoch (saved atomically: written to a temporary folder, then swapped in); a
+  restarted run resumes (the Adam state restarts, recorded in the log) and the wall-clock cap
+  counts the time already spent.
+- On GitHub Actions each job pushes its output folder to a `checkpoints/<branch>/<model>` git
+  branch after every epoch and restores it at start, so a cancelled or crashed job resumes and a
+  completed model is not retrained.
 - Training refuses to start without a passing G0 verdict in `experiments/`.
 
 ## Determinism

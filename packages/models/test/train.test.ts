@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, renameSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { train } from "../src/train.js";
@@ -67,4 +67,44 @@ describe("training loop", () => {
     });
     expect(m.stop_reason).toBe("diverged");
   }, 60_000);
+
+  it("resumes an interrupted run from its checkpoint, even mid-swap (CI checkpoints)", async () => {
+    const out = tempDir();
+    const config = tinyConfig("instantaneous", { max_epochs: 3 });
+    let lines = 0;
+    // Interrupt during epoch 1, after epoch 0's checkpoint and manifest were written.
+    await expect(
+      train({
+        config,
+        trainPath: data.train,
+        valPath: data.val,
+        outDir: out,
+        log: () => {
+          if (++lines === 2) throw new Error("job cancelled");
+        },
+      }),
+    ).rejects.toThrow("job cancelled");
+    const partial = JSON.parse(readFileSync(join(out, "manifest.json"), "utf8")) as {
+      complete: boolean;
+      epochs: unknown[];
+    };
+    expect(partial.complete).toBe(false);
+    expect(partial.epochs).toHaveLength(1);
+    // A sync taken during the atomic swap only has checkpoint.old.
+    renameSync(join(out, "checkpoint"), join(out, "checkpoint.old"));
+    const resumed: string[] = [];
+    const m = await train({
+      config,
+      trainPath: data.train,
+      valPath: data.val,
+      outDir: out,
+      log: (l) => resumed.push(l),
+    });
+    expect(resumed[0]).toMatch(/resuming .* after epoch 0/);
+    expect(m.complete).toBe(true);
+    expect(m.epochs.map((e) => e.epoch)).toEqual([0, 1, 2]);
+    for (const d of ["checkpoint", "checkpoint.old", "best", "best.tmp"]) {
+      expect(existsSync(join(out, d))).toBe(false);
+    }
+  }, 120_000);
 });
