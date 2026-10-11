@@ -34,7 +34,7 @@ export function gitCommit(): string {
 }
 
 /** True when the working tree has uncommitted changes (untracked files included; ignored ones not). */
-export function gitDirty(): boolean {
+function gitStatusDirty(): boolean {
   try {
     return execFileSync("git", ["status", "--porcelain"], { encoding: "utf8" }).trim() !== "";
   } catch {
@@ -46,6 +46,14 @@ export function gitDirty(): boolean {
  * Experiments must trace to a commit (constitution II): refuse a dirty tree unless the caller
  * explicitly allows it, in which case the manifest records `git_dirty: true`.
  */
+/**
+ * Tree state when this process started, before it wrote any experiment files (which are untracked
+ * until committed and would otherwise mark every run dirty).
+ */
+const DIRTY_AT_START = gitStatusDirty();
+
+export const gitDirty = (): boolean => DIRTY_AT_START;
+
 export function requireCleanTree(allowDirty: boolean): void {
   if (!allowDirty && gitDirty()) {
     throw new UsageError(
