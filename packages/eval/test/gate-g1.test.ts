@@ -152,4 +152,29 @@ describe("G1 gate", () => {
   it("reads back curves.csv as written", () => {
     expect(parseCurvesCsv(toCsv(CURVE_COLUMNS, GOOD_CURVES))).toEqual(GOOD_CURVES);
   });
+
+  it("with bootstrap intervals: pass below, fail above, inconclusive across the 0.5 ratio", () => {
+    const ci = (lo: number, hi: number) => ({
+      ratio: (lo + hi) / 2,
+      lo,
+      hi,
+      n: 1000,
+      resamples: 2000,
+      seed: "1",
+    });
+    const run = (lo: number, hi: number) =>
+      g1Verdict(
+        g1Checks(metrics(BASE), GOOD_CURVES, IDS, {
+          instantaneous: ci(lo, hi),
+          timeLate: ci(0.2, 0.3),
+        }),
+      );
+    expect(run(0.3, 0.45).result).toBe("pass");
+    expect(run(0.55, 0.7).result).toBe("fail");
+    const v = run(0.45, 0.55);
+    expect(v.result).toBe("inconclusive");
+    expect(v.checks.find((c) => c.name === "g1-instantaneous")?.detail).toMatch(
+      /95% CI \[0\.450, 0\.550\]/,
+    );
+  });
 });

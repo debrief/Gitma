@@ -30,7 +30,8 @@ export async function main(argv: string[]): Promise<unknown> {
     experiment: values.experiment,
     commandLine: ["tma-g1", ...argv].join(" "),
   });
-  if (verdict.result === "fail") process.exitCode = EXIT_GATE_FAILED;
+  // Fail or inconclusive: the gate is not passed.
+  if (verdict.result !== "pass") process.exitCode = EXIT_GATE_FAILED;
   return {
     experiment: values.experiment,
     gate: verdict.gate,

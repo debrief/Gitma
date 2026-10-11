@@ -1,0 +1,62 @@
+name: Evaluate G1 (re-score committed models)
+
+# Re-runs `tma-g1` with the current code on models already committed under
+# experiments/<id>/models/ (e.g. to add bootstrap intervals, T033, or to reproduce a verdict).
+# Push a branch named `eval/**` that contains the experiment folder. Output goes to a new
+# experiment folder pushed as `results/g1-eval-<run id>`; nothing is merged automatically.
+
+on:
+  push:
+    branches: ["eval/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  DATA: ${{ github.workspace }}/../i1-data
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Find the latest committed G1 models
+        run: |
+          SRC=$(ls -d experiments/*-g1*/models 2>/dev/null | sort | tail -1)
+          test -n "$SRC" || { echo "no experiments/*-g1*/models folder"; exit 1; }
+          echo "SRC=$SRC" >> "$GITHUB_ENV"
+          echo "EXP=${SRC%/models}-r2" >> "$GITHUB_ENV"
+          ls -R "$SRC"
+      - name: Data and features (seed 101, all splits)
+        run: |
+          pnpm tma-generate --seed 101 --count 100000 --ranges configs/iter1-ranges.json \
+            --heldout-ranges configs/iter1-heldout-ranges.json --out "$DATA"
+          pnpm tma-features norm --train "$DATA/train.f32pack" --out "$DATA/norm.json"
+          for s in train validation test heldout; do
+            pnpm tma-features build --in "$DATA/$s.f32pack" --norm "$DATA/norm.json" --out "$DATA/$s.features.bin"
+          done
+      - name: G1 with bootstrap intervals (exit 3 = gate not passed, a result)
+        shell: bash
+        run: |
+          cp -r "$SRC" "$RUNNER_TEMP/models"
+          pnpm tma-g1 --data "$DATA" --models "$RUNNER_TEMP/models" --experiment "$EXP" || [ $? -eq 3 ]
+          cat "$EXP/verdict.json" "$EXP/bootstrap.json"
+      - name: Push results branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "results/g1-eval-${{ github.run_id }}"
+          git add "$EXP"
+          git commit -qm "experiments: G1 re-scored with bootstrap intervals (run ${{ github.run_id }}, ${{ github.sha }})"
+          git push origin "results/g1-eval-${{ github.run_id }}"

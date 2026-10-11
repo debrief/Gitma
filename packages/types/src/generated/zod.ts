@@ -136,7 +136,7 @@ export const FeatureLayout = z.strictObject({
 });
 export type FeatureLayout = z.infer<typeof FeatureLayout>;
 
-export const GateResult = z.enum(["pass", "fail"]);
+export const GateResult = z.enum(["pass", "fail", "inconclusive"]);
 export type GateResult = z.infer<typeof GateResult>;
 
 export const GateCheck = z.strictObject({

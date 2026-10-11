@@ -47,7 +47,7 @@ function GateStatus() {
               </a>
             </td>
             <td>{g.gate}</td>
-            <td className={g.result === "pass" ? "gate-pass" : "gate-fail"}>{g.result}</td>
+            <td className={`gate-${g.result}`}>{g.result}</td>
             <td>{g.decided_by}</td>
           </tr>
         ))}

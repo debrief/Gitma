@@ -13,6 +13,9 @@ const METRICS = {
 
 const COLOURS = ["#1f5f8b", "#c0392b", "#27ae60", "#8e44ad", "#d35400", "#7f8c8d", "#16a085"];
 const name = (label) => label.replace(/:per_timestep$/, "");
+/** CSS class for a gate or check result (pass / fail / inconclusive). */
+const resultClass = (r) => `gate-${r}`;
+
 const fmtCell = (key, v) => (v === null || v === undefined ? "–" : METRICS[key].fmt(v));
 
 function Curves({ curves }) {
@@ -174,13 +177,59 @@ function SliceTable({ metrics }) {
               </td>
               {slices.map((s) => {
                 const m = rows.find((r) => r.estimator === e && r.slice === s);
-                return <td key={s}>{fmtCell("range_rel_median", m?.range_rel_median)}</td>;
+                return (
+                  <td key={s}>
+                    {fmtCell("range_rel_median", m?.range_rel_median)}{" "}
+                    <small style={{ opacity: m && m.n < 200 ? 1 : 0.6 }}>
+                      n {m?.n ?? 0}
+                      {m && m.n < 200 ? " (too few to judge)" : ""}
+                    </small>
+                  </td>
+                );
               })}
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+  );
+}
+
+function Intervals({ bootstrap }) {
+  const rows = Object.entries(bootstrap).filter(([, v]) => typeof v === "object" && v !== null);
+  return (
+    <>
+      <h2>Uncertainty at the G1 point</h2>
+      <p>
+        Median range error of each model divided by naive's, 5 minutes after the zig, with a paired
+        bootstrap 95% interval. G1 passes only if the whole interval is below 0.5; an interval that
+        straddles 0.5 is <em>inconclusive</em>.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Ratio</th>
+            <th>95% interval</th>
+            <th>n</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([id, ci]) => (
+            <tr key={id}>
+              <td>
+                <code>{id}</code>
+              </td>
+              <td>{ci.ratio.toFixed(3)}</td>
+              <td>
+                [{ci.lo.toFixed(3)}, {ci.hi.toFixed(3)}]
+              </td>
+              <td>{ci.n}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   );
 }
 
@@ -203,7 +252,7 @@ export default function ResultsReview({ gate }) {
           <code>{run.id}</code>
         </a>
         : machine verdict{" "}
-        <strong className={v.result === "pass" ? "gate-pass" : "gate-fail"}>
+        <strong className={resultClass(v.result)}>
           {v.gate} {v.result}
         </strong>{" "}
         ({v.decided_by}).
@@ -222,12 +271,13 @@ export default function ResultsReview({ gate }) {
               <td>
                 <code>{c.name}</code>
               </td>
-              <td className={c.result === "pass" ? "gate-pass" : "gate-fail"}>{c.result}</td>
+              <td className={resultClass(c.result)}>{c.result}</td>
               <td>{c.detail}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      {run.bootstrap && <Intervals bootstrap={run.bootstrap} />}
       <h2>Error against time since the zig</h2>
       <p>Dashed lines are the naive and classical baselines; test split, all scenarios.</p>
       <Curves curves={run.curves} />

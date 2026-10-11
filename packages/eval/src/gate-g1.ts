@@ -1,8 +1,10 @@
 // G1 (SRD §5): both model variants beat half the naive baseline's median range error at zig+300s,
 // plus the consistency, control and shuffled-label checks of spec 002 (research R8).
-import type { CurvePoint, GateCheck, GateVerdict, MetricsRecord } from "@tma/types";
+import type { CurvePoint, GateCheck, GateResult, GateVerdict, MetricsRecord } from "@tma/types";
+import type { RatioInterval } from "./bootstrap.js";
 
-export const G1_POINT = "zig+300s";
+export const G1_SECONDS = 300;
+export const G1_POINT = `zig+${String(G1_SECONDS)}s`;
 /** G1 threshold: model median range error < this × naive. */
 export const G1_RATIO = 0.5;
 /** Time-late may be at most this much worse than instantaneous at any curve point. */
@@ -11,6 +13,12 @@ export const CONSISTENCY_SLACK = 1.05;
 export const LEAKAGE_BAND = 0.1;
 /** Curve points with fewer scenarios are reported but not gated (median too noisy). */
 export const CONSISTENCY_MIN_N = 500;
+
+/** Paired bootstrap intervals of model/naive median range error at the G1 point (T033). */
+export interface G1Intervals {
+  instantaneous?: RatioInterval;
+  timeLate?: RatioInterval;
+}
 
 export interface G1Ids {
   instantaneous: string;
@@ -53,7 +61,12 @@ function sameSample(metrics: MetricsRecord[], a: string, b: string, point: strin
   return ra.n === rb.n && ra.excluded === rb.excluded;
 }
 
-function g1Check(name: string, metrics: MetricsRecord[], id: string): GateCheck {
+function g1Check(
+  name: string,
+  metrics: MetricsRecord[],
+  id: string,
+  ci?: RatioInterval,
+): GateCheck {
   const nv = record(metrics, "naive", G1_POINT);
   const mv = record(metrics, id, G1_POINT);
   const naive = nv.range_rel_median ?? Infinity;
@@ -61,13 +74,29 @@ function g1Check(name: string, metrics: MetricsRecord[], id: string): GateCheck 
   const limit = G1_RATIO * naive;
   // R8 "same scenarios": the model and naive must be scored on the same rows at the gate point.
   const same = mv.n === nv.n && mv.excluded === nv.excluded;
-  return check(
+  let result: GateResult = same && model < limit ? "pass" : "fail";
+  let ciText = "; no bootstrap interval";
+  if (ci !== undefined) {
+    // With an interval, the point estimate alone does not decide: the whole 95% interval of
+    // model/naive must sit below the ratio to pass, above it to fail; otherwise inconclusive.
+    result = !same
+      ? "fail"
+      : ci.hi < G1_RATIO
+        ? "pass"
+        : ci.lo >= G1_RATIO
+          ? "fail"
+          : "inconclusive";
+    ciText = `; model/naive ${ci.ratio.toFixed(3)}, 95% CI [${ci.lo.toFixed(3)}, ${ci.hi.toFixed(3)}] (paired bootstrap, ${String(ci.resamples)} resamples, n ${String(ci.n)})`;
+  }
+  return {
     name,
-    same && model < limit,
-    `${id} median range error ${fmt(model)} vs limit ${fmt(limit)} (${String(G1_RATIO)} × naive ${fmt(naive)}) at ${G1_POINT}; ` +
+    result,
+    detail:
+      `${id} median range error ${fmt(model)} vs limit ${fmt(limit)} (${String(G1_RATIO)} × naive ${fmt(naive)}) at ${G1_POINT}; ` +
       `n ${String(mv.n)} (naive ${String(nv.n)}), excluded ${String(mv.excluded)} (naive ${String(nv.excluded)})` +
-      (same ? "" : " — sample mismatch"),
-  );
+      (same ? "" : " — sample mismatch") +
+      ciText,
+  };
 }
 
 export function checkConsistency(curves: CurvePoint[], ids: G1Ids): GateCheck {
@@ -147,11 +176,16 @@ function requireBaselineMetrics(metrics: MetricsRecord[]): void {
   }
 }
 
-export function g1Checks(metrics: MetricsRecord[], curves: CurvePoint[], ids: G1Ids): GateCheck[] {
+export function g1Checks(
+  metrics: MetricsRecord[],
+  curves: CurvePoint[],
+  ids: G1Ids,
+  intervals: G1Intervals = {},
+): GateCheck[] {
   requireBaselineMetrics(metrics);
   const checks = [
-    g1Check("g1-instantaneous", metrics, ids.instantaneous),
-    g1Check("g1-time-late", metrics, ids.timeLate),
+    g1Check("g1-instantaneous", metrics, ids.instantaneous, intervals.instantaneous),
+    g1Check("g1-time-late", metrics, ids.timeLate, intervals.timeLate),
     checkConsistency(curves, ids),
     checkBeatsControl("instantaneous-beats-control", metrics, ids.instantaneous, ids.causalControl),
     checkBeatsControl("time-late-beats-control", metrics, ids.timeLate, ids.mlpControl),
@@ -163,7 +197,11 @@ export function g1Checks(metrics: MetricsRecord[], curves: CurvePoint[], ids: G1
 export function g1Verdict(checks: GateCheck[]): GateVerdict {
   return {
     gate: "G1",
-    result: checks.every((c) => c.result === "pass") ? "pass" : "fail",
+    result: checks.some((c) => c.result === "fail")
+      ? "fail"
+      : checks.some((c) => c.result === "inconclusive")
+        ? "inconclusive"
+        : "pass",
     checks,
     decided_by: "harness (pending agent panel review)",
   };
