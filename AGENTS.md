@@ -15,7 +15,7 @@ Where this file and the SRD disagree, the SRD wins; flag the conflict.
 
 Spec Kit is installed (`.specify/`, skills in `.claude/skills/speckit-*`). Feature work follows:
 
-1. `/speckit-constitution` — project principles, ratified in `.specify/memory/constitution.md` (v1.0.0). Plans MUST pass its checks.
+1. `/speckit-constitution` — project principles, ratified in `.specify/memory/constitution.md` (v1.1.0). Plans MUST pass its checks.
 2. `/speckit-specify` — feature spec, traced to SRD sections
 3. `/speckit-clarify` — optional, de-risk ambiguity
 4. `/speckit-plan` → `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement`
@@ -53,7 +53,8 @@ docs/         SRD and other project documents
   scenarios, tracks, observations, feature layouts, manifests or metrics records. Regenerate
   `packages/types/` after schema changes; CI fails on stale output.
 - **No `any`** outside generated code.
-- **Determinism:** seeded PRNG only — never `Math.random`. Same 64-bit seed ⇒ byte-identical output.
+- **Determinism:** seeded PRNG only — never `Math.random`. Same 64-bit seed ⇒ byte-identical output
+  under the pinned Node version. Stored floats are float32-rounded at generation.
 - **Golden tests:** every package has a fixed-seed, byte-identical golden-file test.
 - **Portability:** `sim` and `features` are plain functions over numeric arrays — no classes with hidden
   state. Models use only layers with direct Keras equivalents (LSTM, Bidirectional, Conv1D, Dense, Masking);

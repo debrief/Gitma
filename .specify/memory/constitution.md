@@ -18,7 +18,10 @@ never drift from the code.
 ### II. Determinism and Reproducibility (NON-NEGOTIABLE)
 
 - All randomness MUST come from a seeded PRNG keyed by a 64-bit seed; `Math.random` is forbidden.
-- The same seed MUST reproduce the same scenario byte-for-byte on any platform.
+- The same seed MUST reproduce the same scenario byte-for-byte on any OS under the pinned Node
+  runtime version (`.nvmrc`); changing the pin MAY require regenerating golden files.
+- Stored floating-point values MUST be rounded to float32 at generation time, so last-bit
+  differences in maths libraries do not reach stored data.
 - Every dataset file MUST carry the schema and generator version; mismatched files are rejected.
 - Every training run MUST be reproducible from its manifest (hyperparameters, dataset seed,
   normalisation constants, generator version) plus its dataset.
@@ -34,9 +37,12 @@ Rationale: a go/no-go verdict is worthless if the experiment behind it cannot be
   Masking); hyperparameters live in the manifest, not in code.
 - Each pipeline stage MUST be a separate CLI reading and writing files, so any stage can be
   replaced (e.g. generator by Stone Soup, training by PyTorch) without touching the others.
-- A port is accepted when it reproduces the golden files.
+- A port is accepted when it reproduces the golden files: integers, flags, seeds and strings
+  byte-identical; floats equal after float32 rounding, with any residual mismatch no greater than
+  1 float32 ulp and reported.
 
-Rationale: TypeScript is the proof-of-concept vehicle, not the destination.
+Rationale: TypeScript is the proof-of-concept vehicle, not the destination. Transcendental maths
+functions are not bit-identical across languages, so ports are judged at float32 precision.
 
 ### IV. Honest Measurement
 
@@ -106,4 +112,4 @@ Rationale: the project exists to answer one question cheaply, not to build a pro
   where the numbers are borderline.
 - Runtime guidance for agents lives in `AGENTS.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-11
+**Version**: 1.1.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-11
