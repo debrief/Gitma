@@ -51,7 +51,23 @@ importers:
         specifier: workspace:*
         version: link:../types
 
-  packages/eval: {}
+  packages/eval:
+    dependencies:
+      '@tma/classical':
+        specifier: workspace:*
+        version: link:../classical
+      '@tma/data':
+        specifier: workspace:*
+        version: link:../data
+      '@tma/sim':
+        specifier: workspace:*
+        version: link:../sim
+      '@tma/types':
+        specifier: workspace:*
+        version: link:../types
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
 
   packages/features:
     dependencies:

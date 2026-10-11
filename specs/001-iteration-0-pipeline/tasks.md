@@ -128,26 +128,26 @@ generator. US3 and US4 (P2) are independent of each other.
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T046 [P] [US3] Metric unit tests (relative range error, wrapped course error 359°/1° = 2°, speed in kt, median/P90 on known arrays, gross-error rate counts non-converged) in `packages/eval/test/metrics.test.ts`
-- [ ] T047 [P] [US3] Slicing tests (range/zig/σ bands from research R8, empty slice handling) in `packages/eval/test/slices.test.ts`
-- [ ] T048 [P] [US3] 5-minute point exclusion test (short window → excluded and counted) in `packages/eval/test/curves.test.ts`
-- [ ] T049 [P] [US3] Report refusal test: `tma-eval` without naive + classical inputs exits non-zero (FR-019) in `packages/eval/test/cli-eval.test.ts`
-- [ ] T050 [P] [US3] G0 gate tests (pass case; fail when one scenario exceeds tolerance; fail when naive runs differ) in `packages/eval/test/gate.test.ts`
-- [ ] T081 [P] [US3] Golden test for `packages/eval`: fixed truth + fixed naive/classical predictions → byte-compare `metrics.csv`, `metrics.json`, `curves.csv`, `verdict.json` (timestamps and git commit masked) with `packages/eval/test/golden/` in `packages/eval/test/golden.test.ts`
-- [ ] T051 [P] [US3] Naive baseline tests (training means of log range, course unit vector, speed; deterministic) in `packages/classical/test/naive.test.ts`
+- [x] T046 [P] [US3] Metric unit tests (relative range error, wrapped course error 359°/1° = 2°, speed in kt, median/P90 on known arrays, gross-error rate counts non-converged) in `packages/eval/test/metrics.test.ts`
+- [x] T047 [P] [US3] Slicing tests (range/zig/σ bands from research R8, empty slice handling) in `packages/eval/test/slices.test.ts`
+- [x] T048 [P] [US3] 5-minute point exclusion test (short window → excluded and counted) in `packages/eval/test/curves.test.ts`
+- [x] T049 [P] [US3] Report refusal test: `tma-eval` without naive + classical inputs exits non-zero (FR-019) in `packages/eval/test/cli-eval.test.ts`
+- [x] T050 [P] [US3] G0 gate tests (pass case; fail when one scenario exceeds tolerance; fail when naive runs differ) in `packages/eval/test/gate.test.ts`
+- [x] T081 [P] [US3] Golden test for `packages/eval`: fixed truth + fixed naive/classical predictions → byte-compare `metrics.csv`, `metrics.json`, `curves.csv`, `verdict.json` (timestamps and git commit masked) with `packages/eval/test/golden/` in `packages/eval/test/golden.test.ts`
+- [x] T051 [P] [US3] Naive baseline tests (training means of log range, course unit vector, speed; deterministic) in `packages/classical/test/naive.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T052 [P] [US3] Naive baseline fit/predict (final and `--per-timestep` modes) in `packages/classical/src/naive.ts` and `tma-naive` CLI in `packages/classical/src/cli-naive.ts`
-- [ ] T053 [P] [US3] Metrics (final-point and per-row) in `packages/eval/src/metrics.ts`
-- [ ] T054 [P] [US3] Slices in `packages/eval/src/slices.ts`
-- [ ] T055 [US3] Time-since-zig curves and `zig+300s` point with exclusions in `packages/eval/src/curves.ts`
-- [ ] T056 [US3] Manifest writer (git commit, versions, datasets, command lines) and `seeds.txt` in `packages/eval/src/manifest.ts`
-- [ ] T057 [US3] `tma-eval` CLI writing `metrics.csv`, `metrics.json`, `curves.csv`; dataset digest check; FR-019 refusal in `packages/eval/src/cli-eval.ts`
-- [ ] T058 [US3] G0 gate logic and `tma-gate` CLI writing `verdict.json` (exit 3 on fail) in `packages/eval/src/gate.ts` and `packages/eval/src/cli-gate.ts`
-- [ ] T059 [US3] `tma-g0` orchestration script (two naive evals + gate) in `scripts/g0.ts`
-- [ ] T060 [US3] CI end-to-end G0 on 1,000 noise-free scenarios in `.github/workflows/ci.yml`
-- [ ] T061 [US3] Run quickstart §3 at 10^5 scenarios and commit `experiments/20261011-g0/` (manifest, metrics, verdict, seeds)
+- [x] T052 [P] [US3] Naive baseline fit/predict (final and `--per-timestep` modes) in `packages/classical/src/naive.ts` and `tma-naive` CLI in `packages/classical/src/cli-naive.ts`
+- [x] T053 [P] [US3] Metrics (final-point and per-row) in `packages/eval/src/metrics.ts`
+- [x] T054 [P] [US3] Slices in `packages/eval/src/slices.ts`
+- [x] T055 [US3] Time-since-zig curves and `zig+300s` point with exclusions in `packages/eval/src/curves.ts`
+- [x] T056 [US3] Manifest writer (git commit, versions, datasets, command lines) and `seeds.txt` in `packages/eval/src/manifest.ts`
+- [x] T057 [US3] `tma-eval` CLI writing `metrics.csv`, `metrics.json`, `curves.csv`; dataset digest check; FR-019 refusal in `packages/eval/src/cli-eval.ts`
+- [x] T058 [US3] G0 gate logic and `tma-gate` CLI writing `verdict.json` (exit 3 on fail) in `packages/eval/src/gate.ts` and `packages/eval/src/cli-gate.ts`
+- [x] T059 [US3] `tma-g0` orchestration (two naive fits + evals + gate, in-process) in `packages/eval/src/g0.ts` and `cli-g0.ts`
+- [x] T060 [US3] CI end-to-end G0 on 1,000 noise-free scenarios in `.github/workflows/ci.yml`
+- [x] T061 [US3] Run quickstart §3 at 10^5 scenarios and commit `experiments/20261011-g0/` (manifest, metrics, verdict, seeds)
 
 **Checkpoint**: **G0 verdict exists**. Iteration 1 may start once team review accepts it.
 

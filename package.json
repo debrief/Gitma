@@ -18,6 +18,10 @@
     "tma-generate": "node packages/data/dist/cli-generate.js",
     "tma-convert": "node packages/data/dist/cli-convert.js",
     "tma-solve": "node packages/classical/dist/cli-solve.js",
+    "tma-naive": "node packages/classical/dist/cli-naive.js",
+    "tma-eval": "node packages/eval/dist/cli-eval.js",
+    "tma-gate": "node packages/eval/dist/cli-gate.js",
+    "tma-g0": "node packages/eval/dist/cli-g0.js",
     "tma-features": "node packages/features/dist/cli.js"
   },
   "devDependencies": {
