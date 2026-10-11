@@ -171,3 +171,13 @@ jobs:
           git add "$EXP"
           git commit -qm "experiments: G1 run ${{ github.run_id }} (CI, ${{ github.sha }})"
           git push origin "results/g1-${{ github.run_id }}"
+      - name: Delete checkpoint branches (this run's, and any whose train branch is gone)
+        run: |
+          heads=$(git ls-remote --heads origin | awk '{print $2}' | sed 's#^refs/heads/##')
+          for b in $(echo "$heads" | grep '^checkpoints/' || true); do
+            src=${b#checkpoints/}
+            src=${src%/*}
+            if [ "$src" = "$GITHUB_REF_NAME" ] || ! echo "$heads" | grep -qxF "$src"; then
+              git push origin --delete "$b" && echo "deleted $b"
+            fi
+          done

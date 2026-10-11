@@ -39,7 +39,8 @@ which see the whole window anyway. Every model is still **scored** only after th
   counts the time already spent.
 - On GitHub Actions each job pushes its output folder to a `checkpoints/<branch>/<model>` git
   branch after every epoch and restores it at start, so a cancelled or crashed job resumes and a
-  completed model is not retrained.
+  completed model is not retrained. Once the G1 results branch is pushed, the run deletes its
+  own checkpoint branches and any whose train branch no longer exists.
 - Training refuses to start without a passing G0 verdict in `experiments/`.
 
 ## Determinism
