@@ -1,0 +1,317 @@
+id: https://github.com/debrief/gitma/schema/tma
+name: tma
+title: TMA via ML data types
+description: >-
+  Single source of truth for every data type in the TMA via ML proof of concept (constitution
+  principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
+  window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
+  Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
+version: 0.1.0
+license: Apache-2.0
+prefixes:
+  linkml: https://w3id.org/linkml/
+  tma: https://github.com/debrief/gitma/schema/tma/
+  UCUM: http://unitsofmeasure.org/
+default_prefix: tma
+default_range: string
+imports:
+  - linkml:types
+
+enums:
+  RecordKind:
+    description: Discriminator for records in NDJSON files.
+    permissible_values:
+      header: { description: Dataset or prediction file header (first line). }
+      scenario: { description: One Scenario. }
+      prediction: { description: One Prediction. }
+  Split:
+    description: Dataset split. Train/validation/test are 80/10/10 by scenario index.
+    permissible_values:
+      train: {}
+      validation: {}
+      test: {}
+      heldout: { description: Held-out geometry with parameter ranges outside training. }
+  TrackId:
+    permissible_values:
+      ownship: {}
+      target: {}
+  RangeDistribution:
+    permissible_values:
+      uniform: {}
+      log_uniform: {}
+  PredictionMode:
+    permissible_values:
+      final: { description: One row at the last timestep of the window. }
+      per_timestep: { description: One row per post-zig timestep using bearings up to that time. }
+  GateId:
+    permissible_values:
+      G0: { description: Pipeline verified. }
+      G1: {}
+      G2: {}
+      G3: {}
+  GateResult:
+    permissible_values:
+      pass: {}
+      fail: {}
+
+classes:
+  FloatRange:
+    description: Closed interval [min, max].
+    attributes:
+      min: { range: float, required: true }
+      max: { range: float, required: true }
+
+  ScenarioParameters:
+    description: The random draws that define one scenario.
+    attributes:
+      window_s:
+        {
+          range: float,
+          required: true,
+          unit: { ucum_code: s },
+          description: Window length; multiple of dt_s.,
+        }
+      dt_s: { range: float, required: true, unit: { ucum_code: s }, description: Bearing interval. }
+      ownship_speed_mps: { range: float, required: true, unit: { ucum_code: m/s } }
+      ownship_course0_rad:
+        {
+          range: float,
+          required: true,
+          unit: { ucum_code: rad },
+          description: Ownship course on leg 1.,
+        }
+      zig_angle_rad:
+        range: float
+        required: true
+        unit: { ucum_code: rad }
+        description: Signed course change at the zig; positive is clockwise.
+      zig_fraction:
+        { range: float, required: true, description: Zig time as a fraction of the window. }
+      target_range0_m:
+        {
+          range: float,
+          required: true,
+          unit: { ucum_code: m },
+          description: Range at window start.,
+        }
+      target_bearing0_rad:
+        {
+          range: float,
+          required: true,
+          unit: { ucum_code: rad },
+          description: True bearing at window start.,
+        }
+      target_speed_mps: { range: float, required: true, unit: { ucum_code: m/s } }
+      target_course_rad: { range: float, required: true, unit: { ucum_code: rad } }
+      noise_sigma_rad:
+        {
+          range: float,
+          required: true,
+          unit: { ucum_code: rad },
+          description: Bearing noise σ; 0 = noise-free.,
+        }
+      dropout_fraction:
+        { range: float, required: true, description: Probability each bearing is missing. }
+
+  ParameterRanges:
+    description: >-
+      Ranges from which ScenarioParameters are drawn. Initial ownship course, target bearing and
+      target course are always uniform on [0, 2π); zig sign is uniform ±.
+    attributes:
+      window_s: { range: FloatRange, required: true, inlined: true }
+      dt_s: { range: float, required: true }
+      ownship_speed_mps: { range: FloatRange, required: true, inlined: true }
+      zig_angle_abs_rad: { range: FloatRange, required: true, inlined: true }
+      zig_fraction: { range: FloatRange, required: true, inlined: true }
+      target_range0_m: { range: FloatRange, required: true, inlined: true }
+      range_distribution: { range: RangeDistribution, required: true }
+      target_speed_mps: { range: FloatRange, required: true, inlined: true }
+      noise_sigma_rad_values:
+        {
+          range: float,
+          multivalued: true,
+          required: true,
+          description: σ drawn uniformly from this set.,
+        }
+      dropout_fraction: { range: FloatRange, required: true, inlined: true }
+      min_range_m:
+        {
+          range: float,
+          required: true,
+          description: Geometries closer than this at any sample are redrawn.,
+        }
+
+  PlatformState:
+    description: One platform state. Stone Soup analogue GroundTruthState.
+    attributes:
+      timestamp_s: { range: float, required: true, unit: { ucum_code: s } }
+      x_m: { range: float, required: true, unit: { ucum_code: m } }
+      y_m: { range: float, required: true, unit: { ucum_code: m } }
+      course_rad: { range: float, required: true, unit: { ucum_code: rad } }
+      speed_mps: { range: float, required: true, unit: { ucum_code: m/s } }
+
+  Track:
+    description: Time-ordered states of one platform. Stone Soup analogue GroundTruthPath.
+    attributes:
+      id: { range: TrackId, required: true }
+      states: { range: PlatformState, multivalued: true, inlined_as_list: true, required: true }
+
+  Observation:
+    description: >-
+      One bearing from ownship to target. Stone Soup analogue Detection. When valid is false
+      (dropout) bearing_rad is 0 and must be ignored.
+    attributes:
+      timestamp_s: { range: float, required: true, unit: { ucum_code: s } }
+      bearing_rad: { range: float, required: true, unit: { ucum_code: rad } }
+      valid: { range: boolean, required: true }
+
+  ScenarioMetadata:
+    description: Seed, parameter draws and derived slicing keys for one scenario.
+    attributes:
+      seed:
+        { range: string, required: true, description: Scenario seed as a decimal uint64 string. }
+      index: { range: integer, required: true, description: Scenario index within the dataset. }
+      parameters: { range: ScenarioParameters, required: true, inlined: true }
+      samples: { range: integer, required: true, description: Number of timesteps (60–240). }
+      zig_index: { range: integer, required: true, description: First timestep on leg 2. }
+      zig_time_s: { range: float, required: true, unit: { ucum_code: s } }
+      mean_range_m: { range: float, required: true, unit: { ucum_code: m } }
+      min_range_m: { range: float, required: true, unit: { ucum_code: m } }
+
+  Scenario:
+    description: One ownship-vs-target run over a window.
+    tree_root: true
+    attributes:
+      record: { range: RecordKind, required: true }
+      metadata: { range: ScenarioMetadata, required: true, inlined: true }
+      ownship: { range: Track, required: true, inlined: true }
+      target: { range: Track, required: true, inlined: true }
+      observations: { range: Observation, multivalued: true, inlined_as_list: true, required: true }
+
+  DatasetHeader:
+    description: First record of every dataset file.
+    attributes:
+      record: { range: RecordKind, required: true }
+      schema_version: { range: string, required: true }
+      generator_version: { range: string, required: true }
+      dataset_seed: { range: string, required: true, description: Decimal uint64 string. }
+      split: { range: Split, required: true }
+      scenario_count: { range: integer, required: true }
+      index_start:
+        { range: integer, required: true, description: First scenario index (inclusive). }
+      index_end: { range: integer, required: true, description: Last scenario index (exclusive). }
+      parameter_ranges: { range: ParameterRanges, required: true, inlined: true }
+      redraw_count:
+        {
+          range: integer,
+          required: true,
+          description: Geometries rejected for violating min_range_m.,
+        }
+      created_by:
+        { range: string, required: true, description: Command line that produced the file. }
+
+  NormalisationConstants:
+    description: Fixed scaling constants computed from the train split's input channels only.
+    attributes:
+      position_scale_km: { range: float, required: true }
+      speed_scale_mps: { range: float, required: true }
+      time_scale_s: { range: float, required: true }
+      computed_from: { range: string, required: true, description: Always "inputs_only". }
+      train_header_digest:
+        { range: string, required: true, description: SHA-256 of the train header. }
+
+  FeatureLayout:
+    description: >-
+      Documents the model tensors (not stored as records). inputs [N, 240, 10]: bearing_sin,
+      bearing_cos, own_x_km, own_y_km, own_course_sin, own_course_cos, own_speed_scaled,
+      time_scaled, valid, window_mask. targets [N, 240, 6]: log_range_km, course_sin, course_cos,
+      speed_scaled, x_km, y_km. loss_mask [N, 240]: window_mask and t ≥ zig_time.
+    attributes:
+      rows: { range: integer, required: true }
+      input_channels: { range: string, multivalued: true, required: true }
+      target_channels: { range: string, multivalued: true, required: true }
+
+  PredictionRow:
+    description: An estimator's target estimate at one timestep.
+    attributes:
+      timestamp_s: { range: float, required: true, unit: { ucum_code: s } }
+      range_m: { range: float, required: true, unit: { ucum_code: m } }
+      course_rad: { range: float, required: true, unit: { ucum_code: rad } }
+      speed_mps: { range: float, required: true, unit: { ucum_code: m/s } }
+      x_m: { range: float, required: true, unit: { ucum_code: m } }
+      y_m: { range: float, required: true, unit: { ucum_code: m } }
+      converged: { range: boolean, required: true }
+      iterations: { range: integer }
+
+  Prediction:
+    description: One estimator's output for one scenario.
+    attributes:
+      record: { range: RecordKind, required: true }
+      scenario_index: { range: integer, required: true }
+      estimator: { range: string, required: true }
+      mode: { range: PredictionMode, required: true }
+      rows: { range: PredictionRow, multivalued: true, inlined_as_list: true, required: true }
+
+  PredictionHeader:
+    description: First record of every prediction file.
+    attributes:
+      record: { range: RecordKind, required: true }
+      schema_version: { range: string, required: true }
+      estimator: { range: string, required: true }
+      mode: { range: PredictionMode, required: true }
+      dataset_digest: { range: string, required: true, description: SHA-256 of the truth file. }
+
+  MetricsRecord:
+    description: Metric values for one estimator on one slice at one evaluation point.
+    attributes:
+      estimator: { range: string, required: true }
+      slice:
+        { range: string, required: true, description: '"overall" or e.g. "range_band=5-10km".' }
+      point: { range: string, required: true, description: '"final" or "zig+<n>s".' }
+      n: { range: integer, required: true }
+      excluded: { range: integer, required: true }
+      range_rel_median: { range: float }
+      range_rel_p90: { range: float }
+      course_deg_median: { range: float }
+      course_deg_p90: { range: float }
+      speed_kt_median: { range: float }
+      speed_kt_p90: { range: float }
+      gross_error_rate: { range: float }
+      position_m_mean: { range: float }
+
+  DatasetRef:
+    attributes:
+      path: { range: string, required: true }
+      header: { range: DatasetHeader, required: true, inlined: true }
+
+  EstimatorRef:
+    attributes:
+      name: { range: string, required: true }
+      settings_json: { range: string, required: true, description: Estimator settings as JSON. }
+
+  ExperimentManifest:
+    description: Everything needed to reproduce an experiment run.
+    attributes:
+      id: { range: string, required: true }
+      created: { range: string, required: true, description: ISO 8601 timestamp. }
+      git_commit: { range: string, required: true }
+      schema_version: { range: string, required: true }
+      generator_version: { range: string, required: true }
+      datasets: { range: DatasetRef, multivalued: true, inlined_as_list: true, required: true }
+      estimators: { range: EstimatorRef, multivalued: true, inlined_as_list: true, required: true }
+      normalisation: { range: NormalisationConstants, inlined: true }
+      command_lines: { range: string, multivalued: true, required: true }
+
+  GateCheck:
+    attributes:
+      name: { range: string, required: true }
+      result: { range: GateResult, required: true }
+      detail: { range: string, required: true }
+
+  GateVerdict:
+    description: Machine verdict for a gate; the team review records the final decision.
+    attributes:
+      gate: { range: GateId, required: true }
+      result: { range: GateResult, required: true }
+      checks: { range: GateCheck, multivalued: true, inlined_as_list: true, required: true }
+      decided_by: { range: string, required: true }

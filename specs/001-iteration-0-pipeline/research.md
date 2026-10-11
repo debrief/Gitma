@@ -16,6 +16,10 @@ Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternati
 - **Follow-up**: first task is a spike confirming `json-schema-to-zod` handles `$defs`, enums and
   nullable arrays; if not, fall back to a ~100-line in-repo JSON-Schema→zod generator (still generated,
   still no hand-written types).
+- **Spike result (T010, 2026-10-11)**: `json-schema-to-zod` 2.8 emits `z.any()` for every `$ref`
+  between `$defs`, losing nested typing. Fallback taken: `packages/types/scripts/codegen.ts` emits
+  named zod schemas in dependency order to `packages/types/src/generated/` (path moved under `src/`
+  so it compiles with the package). Zod 4's runtime `z.fromJSONSchema` was rejected: no static types.
 
 ## R2. Seeded PRNG
 

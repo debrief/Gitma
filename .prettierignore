@@ -1,0 +1,14 @@
+dist/
+node_modules/
+pnpm-lock.yaml
+uv.lock
+packages/types/src/generated/
+**/test/golden/
+.specify/
+.claude/
+specs/
+docs/
+AGENTS.md
+CLAUDE.md
+LICENSE
+.venv/

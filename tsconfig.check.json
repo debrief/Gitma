@@ -1,0 +1,25 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "@tma/types": ["./packages/types/src/index.ts"],
+      "@tma/sim": ["./packages/sim/src/index.ts"],
+      "@tma/data": ["./packages/data/src/index.ts"],
+      "@tma/features": ["./packages/features/src/index.ts"],
+      "@tma/classical": ["./packages/classical/src/index.ts"],
+      "@tma/eval": ["./packages/eval/src/index.ts"]
+    }
+  },
+  "include": [
+    "packages/*/src",
+    "packages/*/test",
+    "packages/*/scripts",
+    "scripts",
+    "vitest.config.ts"
+  ]
+}
