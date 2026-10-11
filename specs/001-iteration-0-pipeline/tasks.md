@@ -181,14 +181,14 @@ generator. US3 and US4 (P2) are independent of each other.
 
 **Independent Test**: stale schema PR fails CI; site builds with data dictionary listing every class.
 
-- [ ] T068 [US5] Scaffold Docusaurus 3 in `site/` (docs + blog), base URL for GitHub Pages
-- [ ] T069 [P] [US5] `site:dictionary` script copying `gen-markdown` output to `site/docs/data-dictionary/`; add to `schema:gen`
-- [ ] T070 [P] [US5] Welcome page reading latest `experiments/*/verdict.json` at build time in `site/src/pages/index.tsx`
-- [ ] T071 [P] [US5] Glossary in `site/docs/glossary.md` (ownship, zig, observability, bearing, time-late, instantaneous, gate, gross error, held-out geometry)
-- [ ] T072 [P] [US5] Algorithm notes with formulae: `site/docs/algorithms/generator.md`, `feature-layout.md`, `naive-baseline.md`, `least-squares-solver.md`
-- [ ] T073 [P] [US5] Blog post for iteration 0 with G0 verdict in `site/blog/<YYYY-MM-DD>-iteration-0.md` (date set when G0 is judged)
-- [ ] T074 [US5] Add `site:build` to `.github/workflows/ci.yml`; create `.github/workflows/deploy-site.yml` (main → `gh-pages`, `keep_files: true`)
-- [ ] T075 [P] [US5] `.github/pull_request_template.md` with site-page checklist and constitution check
+- [x] T068 [US5] Scaffold Docusaurus 3 in `site/` (docs + blog), base URL for GitHub Pages
+- [x] T069 [P] [US5] data dictionary generated at site build (`site/scripts/prebuild.mjs`: `gen-markdown-datadict` + units table from `packages/types/scripts/units.py`), not committed
+- [x] T070 [P] [US5] Welcome page reading latest `experiments/*/verdict.json` at build time in `site/src/pages/index.tsx`
+- [x] T071 [P] [US5] Glossary in `site/docs/glossary.md` (ownship, zig, observability, bearing, time-late, instantaneous, gate, gross error, held-out geometry)
+- [x] T072 [P] [US5] Algorithm notes with formulae: `site/docs/algorithms/generator.md`, `feature-layout.md`, `naive-baseline.md`, `least-squares-solver.md`
+- [x] T073 [P] [US5] Blog post for iteration 0 with G0 verdict in `site/blog/<YYYY-MM-DD>-iteration-0.md` (date set when G0 is judged)
+- [x] T074 [US5] Add `site:build` to `.github/workflows/ci.yml`; create `.github/workflows/deploy-site.yml` (main → `gh-pages`, `keep_files: true`)
+- [x] T075 [P] [US5] `.github/pull_request_template.md` with site-page checklist and constitution check
 
 **Checkpoint**: quickstart §6 passes; site live.
 

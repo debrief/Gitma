@@ -22,7 +22,9 @@
     "tma-eval": "node packages/eval/dist/cli-eval.js",
     "tma-gate": "node packages/eval/dist/cli-gate.js",
     "tma-g0": "node packages/eval/dist/cli-g0.js",
-    "tma-features": "node packages/features/dist/cli.js"
+    "tma-features": "node packages/features/dist/cli.js",
+    "site:build": "pnpm --filter @tma/site build",
+    "site:start": "pnpm --filter @tma/site start"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
