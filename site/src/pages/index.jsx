@@ -113,6 +113,10 @@ export default function Home() {
           <li>
             <Link to="/docs/evaluation">Evaluation and gates</Link>: metric definitions.
           </li>
+          <li>
+            <Link to="/docs/results/iteration-1">Results</Link>: iteration-1 models beside the
+            baselines, with error-vs-time curves.
+          </li>
         </ul>
       </main>
     </Layout>

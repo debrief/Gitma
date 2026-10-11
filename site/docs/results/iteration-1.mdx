@@ -1,0 +1,26 @@
+---
+title: "Results: iteration 1 (G1)"
+description: Error-vs-time curves and sliced metrics for the iteration-1 models beside the naive and classical baselines.
+---
+
+import ResultsReview from "@site/src/components/ResultsReview";
+
+# Results: iteration 1 (G1)
+
+**Question:** is there a learnable signal? G1 passes if both the
+[instantaneous](../glossary.md) and [time-late](../glossary.md) models' median range error,
+5 minutes after the zig, is below half of the [naive baseline](../algorithms/naive-baseline.md)'s.
+The [models](../algorithms/models.md) page describes the four architectures; the
+[evaluation](../evaluation.md) page defines the metrics.
+
+Additional checks, recorded in the verdict:
+
+- `time-late-not-worse`: the time-late model is never more than 5% worse than the instantaneous
+  one at any point on the curve (it sees strictly more data).
+- `*-beats-control`: each recurrent model beats its control (causal CNN, MLP) at 5 minutes after
+  the zig and at the end of the window.
+- `shuffled-labels-at-naive`: a model trained on shuffled labels scores within ±10% of naive.
+
+All numbers below are from the committed experiment folder, generated at site build time.
+
+<ResultsReview gate="G1" />

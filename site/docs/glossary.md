@@ -17,7 +17,15 @@ is causal.
 **Classical baseline** — The batch least-squares bearings-only solver; the yardstick a model must
 approach for G3. See [least-squares solver](algorithms/least-squares-solver.md).
 
+**Control model** — A deliberately simpler model trained on the same data as a sequence model
+(a causal CNN for the instantaneous LSTM, an MLP for the BiLSTM). If the sequence model cannot
+beat its control, its result says little about learning the geometry. See
+[models](algorithms/models.md).
+
 **Dropout** — A missing bearing sample (`valid = false`). Drawn independently per sample.
+
+**Early stopping** — Ending training when validation loss has not improved for `patience` epochs;
+the best epoch's weights are kept.
 
 **Gate** — A pass/fail decision at the end of an iteration (G0–G3), judged on fixed metrics. See
 [evaluation](evaluation.md).
@@ -46,6 +54,10 @@ it weakly observable.
 
 **Scenario** — One ownship-versus-target run over a window: two tracks, the bearings and the
 metadata that generated them. See the [data dictionary](data-dictionary).
+
+**Shuffled-label test** — A leakage check: the instantaneous model trained with each scenario's
+targets swapped for another's. It should do no better than the naive baseline; if it does, the
+inputs leak the answer.
 
 **Time-late variant** — The model that reconstructs the target track after the fact, using the
 whole window (non-causal). It has strictly more information than the instantaneous variant, so it

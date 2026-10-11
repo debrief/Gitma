@@ -1,0 +1,59 @@
+name: PR preview
+
+# Builds the site for a same-repo PR and publishes it to gh-pages/pr/<N>/ (spec 002 R9).
+# Fork PRs get no write token, so they are skipped.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - uses: astral-sh/setup-uv@v6
+      - run: pnpm install --frozen-lockfile
+      - run: uv sync --frozen
+      - run: pnpm site:build
+        env:
+          SITE_BASE_URL: /Gitma/pr/${{ github.event.pull_request.number }}/
+      - name: Publish to gh-pages/pr/<N>/
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: site/build
+          destination_dir: pr/${{ github.event.pull_request.number }}
+          keep_files: true
+      - name: Comment the preview link (once per PR)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const n = context.payload.pull_request.number;
+            const url = `https://${context.repo.owner}.github.io/Gitma/pr/${n}/`;
+            const marker = "<!-- pr-preview -->";
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              ...context.repo,
+              issue_number: n,
+            });
+            if (comments.some((c) => c.body?.includes(marker))) return;
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: n,
+              body: `${marker}\nSite preview: ${url} (updates on every push; removed when the PR closes).`,
+            });
