@@ -53,7 +53,17 @@ importers:
 
   packages/eval: {}
 
-  packages/features: {}
+  packages/features:
+    dependencies:
+      '@tma/data':
+        specifier: workspace:*
+        version: link:../data
+      '@tma/sim':
+        specifier: workspace:*
+        version: link:../sim
+      '@tma/types':
+        specifier: workspace:*
+        version: link:../types
 
   packages/sim:
     dependencies:

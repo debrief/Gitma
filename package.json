@@ -17,7 +17,8 @@
     "schema:check": "node packages/types/scripts/check.ts",
     "tma-generate": "node packages/data/dist/cli-generate.js",
     "tma-convert": "node packages/data/dist/cli-convert.js",
-    "tma-solve": "node packages/classical/dist/cli-solve.js"
+    "tma-solve": "node packages/classical/dist/cli-solve.js",
+    "tma-features": "node packages/features/dist/cli.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
