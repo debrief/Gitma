@@ -17,6 +17,14 @@ import type { GateVerdict, NaiveModel, Prediction } from "@tma/types";
 import { evaluate } from "./evaluate.js";
 import { makeManifest, writeEvaluation, writeManifest, writeVerdict } from "./experiment.js";
 import { checkNaiveReproducible, checkNoiseFreeRecovery, g0Verdict } from "./gate.js";
+import {
+  checkBearingResiduals,
+  checkIndependentGeometry,
+  checkPerTimestepRecovery,
+} from "./g0-checks.js";
+
+/** Test scenarios also solved per timestep (≈ 10^5 rows; the whole split would take ~15 min). */
+export const G0_PER_TIMESTEP_SCENARIOS = 1000;
 
 function writePredictions(
   path: string,
@@ -63,8 +71,13 @@ export function runG0(dataDir: string, experiment: string, commandLine: string):
   const evA = evaluate(scenarios, [set(NAIVE, predA), set(CLASSICAL, classical)]);
   const evB = evaluate(scenarios, [set(NAIVE, predB), set(CLASSICAL, classical)]);
 
+  const sub = scenarios.slice(0, G0_PER_TIMESTEP_SCENARIOS);
+  const perTimestep = sub.map((s) => classicalPredict(s, "per_timestep"));
   const verdict = g0Verdict([
     checkNoiseFreeRecovery(truth.header, scenarios, byIndex(classical)),
+    checkPerTimestepRecovery(sub, byIndex(perTimestep)),
+    checkBearingResiduals(scenarios),
+    checkIndependentGeometry(scenarios),
     checkNaiveReproducible(evA.metrics, evB.metrics),
   ]);
   writeEvaluation(experiment, evA);
@@ -85,7 +98,7 @@ export function runG0(dataDir: string, experiment: string, commandLine: string):
           settings: { method: "levenberg-marquardt", max_iterations: 50, mode: "final" },
         },
       ],
-      [commandLine],
+      [truth.header.created_by, commandLine],
     ),
   );
   return { verdict, experiment };

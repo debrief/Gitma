@@ -68,9 +68,10 @@ function mainG1(v: G1Args): GateVerdict {
   const timeLate = v["time-late"];
   const causalControl = v["causal-control"];
   const mlpControl = v["mlp-control"];
-  if (!experiment || !instantaneous || !timeLate || !causalControl || !mlpControl) {
+  const { shuffled } = v;
+  if (!experiment || !instantaneous || !timeLate || !causalControl || !mlpControl || !shuffled) {
     throw new UsageError(
-      "usage: tma-gate g1 --experiment <dir> --instantaneous <id> --time-late <id> --causal-control <id> --mlp-control <id> [--shuffled <id>]",
+      "usage: tma-gate g1 --experiment <dir> --instantaneous <id> --time-late <id> --causal-control <id> --mlp-control <id> --shuffled <id>",
     );
   }
   const metrics = loadMetrics(join(experiment, "metrics.json"));
@@ -81,7 +82,7 @@ function mainG1(v: G1Args): GateVerdict {
       timeLate,
       causalControl,
       mlpControl,
-      ...(v.shuffled === undefined ? {} : { shuffled: v.shuffled }),
+      shuffled,
     }),
   );
   writeVerdict(experiment, verdict);

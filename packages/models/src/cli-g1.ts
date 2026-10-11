@@ -1,5 +1,6 @@
 import { parseArgs } from "node:util";
 import { isMain, UsageError } from "@tma/data";
+import { requireCleanTree } from "@tma/eval";
 import { runAsyncCli } from "./cli-run.js";
 import { runG1 } from "./g1.js";
 
@@ -14,11 +15,15 @@ export async function main(argv: string[]): Promise<unknown> {
       data: { type: "string" },
       models: { type: "string" },
       experiment: { type: "string" },
+      "allow-dirty": { type: "boolean", default: false },
     },
   });
   if (!values.data || !values.models || !values.experiment) {
-    throw new UsageError("usage: tma-g1 --data <dir> --models <dir> --experiment <experiments/id>");
+    throw new UsageError(
+      "usage: tma-g1 --data <dir> --models <dir> --experiment <experiments/id> [--allow-dirty]",
+    );
   }
+  requireCleanTree(values["allow-dirty"]);
   const verdict = await runG1({
     data: values.data,
     models: values.models,

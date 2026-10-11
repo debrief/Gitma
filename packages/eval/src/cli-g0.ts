@@ -2,19 +2,25 @@ import { parseArgs } from "node:util";
 import type { GateVerdict } from "@tma/types";
 import { isMain, runCli, UsageError } from "@tma/data";
 import { EXIT_GATE_FAILED } from "./cli-gate.js";
+import { requireCleanTree } from "./experiment.js";
 import { runG0 } from "./g0.js";
 
 export function main(argv: string[]): GateVerdict {
   const { values } = parseArgs({
     args: argv,
     strict: true,
-    options: { data: { type: "string" }, experiment: { type: "string" } },
+    options: {
+      data: { type: "string" },
+      experiment: { type: "string" },
+      "allow-dirty": { type: "boolean", default: false },
+    },
   });
   if (values.data === undefined || values.experiment === undefined) {
     throw new UsageError(
-      "usage: tma-g0 --data <noise-free dataset dir> --experiment <experiments/id>",
+      "usage: tma-g0 --data <noise-free dataset dir> --experiment <experiments/id> [--allow-dirty]",
     );
   }
+  requireCleanTree(values["allow-dirty"]);
   const r = runG0(values.data, values.experiment, ["tma-g0", ...argv].join(" "));
   return r.verdict;
 }

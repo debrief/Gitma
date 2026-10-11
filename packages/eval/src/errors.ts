@@ -24,14 +24,28 @@ export function rowError(s: Scenario, row: PredictionRow): RowError {
       `scenario ${String(s.metadata.index)}: no truth at t=${String(row.timestamp_s)}`,
     );
   }
+  const tSinceZig = row.timestamp_s - s.metadata.zig_time_s;
+  // A non-converged row has no estimate: score it as the worst possible on every metric, so a
+  // failure can never rank better than a bad estimate (round-1 panel review). Placeholder values
+  // in the row (zeros, or an implausible solution) are ignored.
+  if (!row.converged) {
+    return {
+      t_since_zig_s: tSinceZig,
+      range_rel: Infinity,
+      course_deg: Infinity,
+      speed_kt: Infinity,
+      position_m: Infinity,
+      gross: true,
+    };
+  }
   const range = Math.hypot(t.x_m - o.x_m, t.y_m - o.y_m);
   const rangeRel = Math.abs(row.range_m - range) / range;
   return {
-    t_since_zig_s: row.timestamp_s - s.metadata.zig_time_s,
+    t_since_zig_s: tSinceZig,
     range_rel: rangeRel,
     course_deg: Math.abs(radToDeg(angleDiff(row.course_rad, t.course_rad))),
     speed_kt: Math.abs(mpsToKt(row.speed_mps - t.speed_mps)),
     position_m: Math.hypot(row.x_m - t.x_m, row.y_m - t.y_m),
-    gross: !row.converged || !(rangeRel <= GROSS_RANGE_REL),
+    gross: !(rangeRel <= GROSS_RANGE_REL),
   };
 }

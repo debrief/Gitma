@@ -94,7 +94,7 @@ describe("tma-eval", () => {
 describe("tma-g0 and tma-gate", () => {
   it("passes G0 on noise-free data and writes a golden verdict", () => {
     const { dir, exp } = pipeline(true);
-    expect(runCli(g0, ["--data", dir, "--experiment", exp])).toBe(0);
+    expect(runCli(g0, ["--data", dir, "--experiment", exp, "--allow-dirty"])).toBe(0);
     const verdict = readFileSync(join(exp, "verdict.json"), "utf8");
     if (process.env.UPDATE_GOLDEN === "1") writeFileSync(new URL("verdict.json", GOLDEN), verdict);
     expect(verdict === readFileSync(new URL("verdict.json", GOLDEN), "utf8")).toBe(true);

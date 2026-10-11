@@ -6,12 +6,27 @@
       "result": "pass"
     },
     {
-      "detail": "two independent naive runs gave identical metrics",
+      "detail": "4 scenarios, 274 rows: 0 non-converged; 254/254 rows ≥ 60 s after the zig within tolerance (worst range 6.46e-6); worst range in the first 60 s 4.05e-5 (reported, not gated)",
+      "name": "classical-per-timestep-recovers",
+      "result": "pass"
+    },
+    {
+      "detail": "4/4 final solutions with RMS bearing residual ≤ 0.000001 rad; worst 1.15e-7 rad",
+      "name": "bearing-residuals-at-float32-precision",
+      "result": "pass"
+    },
+    {
+      "detail": "hand-computed 315° and abeam cases match; t = 0 bearing and range match the drawn parameters on 4 scenarios",
+      "name": "independent-geometry",
+      "result": "pass"
+    },
+    {
+      "detail": "two in-process naive fits gave identical metrics (determinism only; cross-process and cross-commit reproduction is shown by re-running G0 from the manifest)",
       "name": "naive-baseline-reproduces",
       "result": "pass"
     }
   ],
-  "decided_by": "harness (pending team review)",
+  "decided_by": "harness (pending agent panel review)",
   "gate": "G0",
   "result": "pass"
 }

@@ -2,7 +2,8 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { canonicalJson } from "@tma/data";
+import { fileDigest } from "@tma/classical";
+import { canonicalJson, UsageError } from "@tma/data";
 import { GENERATOR_VERSION } from "@tma/sim";
 import {
   type DatasetHeader,
@@ -32,6 +33,27 @@ export function gitCommit(): string {
   }
 }
 
+/** True when the working tree has uncommitted changes (untracked files included; ignored ones not). */
+export function gitDirty(): boolean {
+  try {
+    return execFileSync("git", ["status", "--porcelain"], { encoding: "utf8" }).trim() !== "";
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Experiments must trace to a commit (constitution II): refuse a dirty tree unless the caller
+ * explicitly allows it, in which case the manifest records `git_dirty: true`.
+ */
+export function requireCleanTree(allowDirty: boolean): void {
+  if (!allowDirty && gitDirty()) {
+    throw new UsageError(
+      "working tree has uncommitted changes: commit first, or pass --allow-dirty (recorded as git_dirty)",
+    );
+  }
+}
+
 export function makeManifest(
   id: string,
   datasets: { path: string; header: DatasetHeader }[],
@@ -42,9 +64,10 @@ export function makeManifest(
     id,
     created: new Date().toISOString(),
     git_commit: gitCommit(),
+    git_dirty: gitDirty(),
     schema_version: SCHEMA_VERSION,
     generator_version: GENERATOR_VERSION,
-    datasets,
+    datasets: datasets.map((d) => ({ ...d, digest: fileDigest(d.path) })),
     estimators: estimators.map((e) => ({ name: e.name, settings_json: canonicalJson(e.settings) })),
     command_lines: commandLines,
   };

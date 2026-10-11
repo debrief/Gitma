@@ -46,7 +46,7 @@ function curves(lstm: number[], bilstm: number[]): CurvePoint[] {
     vs.map((v, i) => ({
       estimator: `${id}:per_timestep`,
       t_since_zig_s: 60 * (i + 1),
-      n: 100,
+      n: 1000,
       range_rel_median: v,
       range_rel_p90: 2 * v,
       course_deg_median: 10,
@@ -109,10 +109,38 @@ describe("G1 gate", () => {
     expect(at(0.45)["shuffled-labels-at-naive"]).toBe("fail");
   });
 
-  it("omits the leakage check without a shuffled model", () => {
-    const ids: G1Ids = { ...IDS };
-    delete ids.shuffled;
-    expect(result(BASE, GOOD_CURVES, ids)).not.toHaveProperty("shuffled-labels-at-naive");
+  it("fails G1 when the model was scored on different scenarios from naive", () => {
+    const ms = metrics(BASE).map((m) =>
+      m.estimator === "lstm:per_timestep" && m.point === "zig+300s"
+        ? { ...m, n: 90, excluded: 10 }
+        : m,
+    );
+    const c = g1Checks(ms, GOOD_CURVES, IDS).find((x) => x.name === "g1-instantaneous");
+    expect(c?.result).toBe("fail");
+    expect(c?.detail).toMatch(/sample mismatch/);
+  });
+
+  it("treats a missing (non-finite) median as worse than any limit", () => {
+    const ms = metrics(BASE).map((m) => {
+      if (m.estimator !== "bilstm:per_timestep") return m;
+      const rest = { ...m };
+      delete rest.range_rel_median;
+      return rest;
+    });
+    expect(
+      Object.fromEntries(g1Checks(ms, GOOD_CURVES, IDS).map((x) => [x.name, x.result]))[
+        "g1-time-late"
+      ],
+    ).toBe("fail");
+  });
+
+  it("does not gate curve points with fewer than 500 scenarios", () => {
+    const c = curves([0.3, 0.2, 0.15], [0.25, 0.18, 0.5]).map((p) =>
+      p.t_since_zig_s === 180 ? { ...p, n: 35 } : p,
+    );
+    const check = g1Checks(metrics(BASE), c, IDS).find((x) => x.name === "time-late-not-worse");
+    expect(check?.result).toBe("pass");
+    expect(check?.detail).toMatch(/1 later points with n < 500/);
   });
 
   it("refuses without both baselines (FR-019)", () => {

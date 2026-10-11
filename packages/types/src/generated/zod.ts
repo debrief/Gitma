@@ -3,13 +3,14 @@ import { z } from "zod";
 
 /** One point of an error-vs-time-since-zig curve (curves.csv row). */
 export const CurvePoint = z.strictObject({
-  course_deg_median: z.number(),
+  course_deg_median: z.number().nullish(),
   estimator: z.string(),
   gross_error_rate: z.number(),
   n: z.number().int(),
-  range_rel_median: z.number(),
-  range_rel_p90: z.number(),
-  speed_kt_median: z.number(),
+  /** Absent when not finite (more than half the rows non-converged), as in MetricsRecord. */
+  range_rel_median: z.number().nullish(),
+  range_rel_p90: z.number().nullish(),
+  speed_kt_median: z.number().nullish(),
   t_since_zig_s: z.number(),
 });
 export type CurvePoint = z.infer<typeof CurvePoint>;
@@ -72,6 +73,8 @@ export const DatasetHeader = z.strictObject({
 export type DatasetHeader = z.infer<typeof DatasetHeader>;
 
 export const DatasetRef = z.strictObject({
+  /** SHA-256 of the dataset file (absent in manifests written before schema 0.4.0). */
+  digest: z.string().nullish(),
   header: DatasetHeader,
   path: z.string(),
 });
@@ -114,6 +117,8 @@ export const ExperimentManifest = z.strictObject({
   estimators: z.array(EstimatorRef),
   generator_version: z.string(),
   git_commit: z.string(),
+  /** True when the working tree had uncommitted changes (absent before schema 0.4.0). */
+  git_dirty: z.boolean().nullish(),
   id: z.string(),
   normalisation: NormalisationConstants.nullish(),
   schema_version: z.string(),
@@ -160,6 +165,7 @@ export const MetricsRecord = z.strictObject({
   n: z.number().int(),
   /** "final" or "zig+<n>s". */
   point: z.string(),
+  /** Mean position error over converged rows (non-converged rows count in gross_error_rate). */
   position_m_mean: z.number().nullish(),
   range_rel_median: z.number().nullish(),
   range_rel_p90: z.number().nullish(),
