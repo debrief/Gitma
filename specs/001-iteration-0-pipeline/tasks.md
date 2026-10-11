@@ -102,19 +102,19 @@ generator. US3 and US4 (P2) are independent of each other.
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T036 [P] [US2] Noise-free recovery test over 500 scenarios (SC-001 tolerances) in `packages/classical/test/lsq-noise-free.test.ts`
-- [ ] T037 [P] [US2] Noisy behaviour test: every scenario returns estimate or `converged=false`; median error increases with σ in `packages/classical/test/lsq-noisy.test.ts`
-- [ ] T038 [P] [US2] Per-timestep test: estimates at each post-zig step use only bearings ≤ t (assert by perturbing future bearings and checking earlier rows unchanged) in `packages/classical/test/lsq-causal.test.ts`
-- [ ] T039 [P] [US2] Golden test: seed 1, 20 scenarios → byte-compare predictions in `packages/classical/test/golden.test.ts`
+- [x] T036 [P] [US2] Noise-free recovery test over 500 scenarios (SC-001 tolerances) in `packages/classical/test/lsq-noise-free.test.ts`
+- [x] T037 [P] [US2] Noisy behaviour test: every scenario returns estimate or `converged=false`; median error increases with σ in `packages/classical/test/lsq-noisy.test.ts`
+- [x] T038 [P] [US2] Per-timestep test: estimates at each post-zig step use only bearings ≤ t (assert by perturbing future bearings and checking earlier rows unchanged) in `packages/classical/test/lsq-causal.test.ts`
+- [x] T039 [P] [US2] Golden test: seed 1, 20 scenarios → byte-compare predictions in `packages/classical/test/golden.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T040 [P] [US2] Bearing residuals and analytic Jacobian for state (x0, y0, vx, vy), skipping invalid rows, in `packages/classical/src/residuals.ts`
-- [ ] T041 [P] [US2] Coarse grid initialiser (12 log ranges 1–40 km × 8 courses × 3 speeds along first valid bearing) in `packages/classical/src/grid-init.ts`
-- [ ] T042 [US2] Levenberg–Marquardt Gauss–Newton loop with convergence criteria, iteration cap, 4×4 covariance, `converged` flag in `packages/classical/src/lsq.ts`
-- [ ] T043 [US2] Per-timestep mode with warm start in `packages/classical/src/lsq.ts`
-- [ ] T044 [US2] Prediction NDJSON writer (header with estimator, mode, dataset SHA-256) in `packages/classical/src/predictions.ts`
-- [ ] T045 [US2] `tma-solve` CLI in `packages/classical/src/cli-solve.ts`
+- [x] T040 [P] [US2] Bearing residuals and analytic Jacobian for state (x0, y0, vx, vy), skipping invalid rows, in `packages/classical/src/residuals.ts`
+- [x] T041 [P] [US2] Coarse grid initialiser (12 log ranges 1–40 km × 8 courses × 3 speeds along first valid bearing) in `packages/classical/src/grid-init.ts`
+- [x] T042 [US2] Levenberg–Marquardt Gauss–Newton loop with convergence criteria, iteration cap, `converged` flag (covariance deferred: no schema slot and no consumer in iteration 0) in `packages/classical/src/lsq.ts`
+- [x] T043 [US2] Per-timestep mode with warm start in `packages/classical/src/lsq.ts`
+- [x] T044 [US2] Prediction NDJSON writer (header with estimator, mode, dataset SHA-256) in `packages/classical/src/predictions.ts`
+- [x] T045 [US2] `tma-solve` CLI in `packages/classical/src/cli-solve.ts`
 
 **Checkpoint**: generator verified — G0 check (1) demonstrable from the command line.
 

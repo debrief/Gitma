@@ -72,7 +72,12 @@ Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternati
   Residual = wrapped bearing difference `atan2(sin Δ, cos Δ)`, dropouts skipped. Initialisation: grid of
   ranges along the first valid bearing (log-spaced, 1–40 km, 12 values) × target courses (8) × speeds
   (3); best grid cost seeds LM. Converged when relative cost change < 1e-12 or step < 1e-6 m, max 50
-  iterations. Reports `converged`, `iterations`, `final_cost`, and the 4×4 covariance.
+  iterations. Reports `converged` and `iterations` (covariance deferred until a consumer needs it).
+- **Implementation note (2026-10-11)**: per-timestep rows start at `zig_index + 1`: the ownship
+  position at `zig_index` is the turn point, still on the leg-1 line, so range is not yet observable.
+  Noise-free final-mode recovery is ≈ 10⁻⁶ relative range; per-timestep rows in the first few samples
+  after the zig can reach 0.4% (float32 bearing rounding on a barely observable geometry), so G0 uses
+  final mode.
 - **Instantaneous mode**: for each post-zig timestep, re-solve using bearings up to t, warm-started from
   the previous timestep's solution (grid only at the first post-zig step).
 - **Rationale**: plain Gauss–Newton diverges on poor geometry; LM damping is a one-line change and is
