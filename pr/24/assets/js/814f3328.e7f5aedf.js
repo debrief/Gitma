@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_tma_site=self.webpackChunk_tma_site||[]).push([[7472],{5513(e){e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Iteration 0: G0 passes \u2014 the pipeline is verified","permalink":"/Gitma/pr/24/blog/2026/10/11/g0-pipeline-verified","unlisted":false,"date":"2026-10-11T00:00:00.000Z"}]}')}}]);
