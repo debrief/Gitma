@@ -199,8 +199,8 @@ training noise.
    test-set sampling only: not training-seed variance, not CPU-dependent training trajectories. Is
    that the right uncertainty for a go/no-go claim? Is 2,000 resamples enough for stable 2.5/97.5
    percentiles? Are +∞ errors handled correctly in a resample (median of a sample with ∞)?
-3. **Inconclusive.** If either G1 check is `inconclusive`, what does the evidence support? (There is
-   no pre-registered follow-up; see "Open questions".)
+3. **Inconclusive.** If either G1 check is `inconclusive`, the pre-registered rule applies (see
+   "Decided rules"): should the panel order the one larger fresh-seed test set, and how large?
 4. **Small curve-point n.** `time-late-not-worse` gates only curve points with n ≥ 500 (G0 M6). How
    many points were gated and how many skipped? Is a 5% slack on a median at n ≈ 500–1,000
    meaningful, or would an interval-based consistency check change the outcome?
@@ -303,20 +303,24 @@ tests (`packages/models/test/causality.test.ts`), `packages/data/src/` (splits),
 
 ---
 
+## Decided rules (user, 2026-10-11)
+
+1. **Inconclusive G1** (same rule as G2, spec 003 decision 7). If either G1 interval straddles 0.5,
+   the panel may order **one** re-score of the committed models on a larger test set generated from
+   a fresh, recorded seed. Still inconclusive on that set → G1 **fails**. No re-training, no further
+   re-scores.
+
 ## Open questions for the panel
 
 The process does not yet answer these; the panel should record its position on each in the review
 record rather than decide them case by case after seeing the numbers.
 
-1. **Inconclusive G1.** If either G1 interval straddles 0.5: stop (as a fail), re-score on a larger
-   fresh test set (new seed, recorded), or re-train with more seeds? The constitution and SRD define
-   pass and fail only.
-2. **Non-G1 check failures.** The machine verdict fails if a control or consistency check fails,
+1. **Non-G1 check failures.** The machine verdict fails if a control or consistency check fails,
    but SRD §5's G1 criterion is the ratio alone; constitution IV says a recurrent model must beat its
    control "to claim sequential learning", and SRD §4 says a time-late failure makes the pipeline
    "suspect". Agreed reading proposed for the panel: leakage failure → G1 evidence invalid;
    time-late-not-worse failure → pipeline suspect, investigate before deciding; control failure → G1
    may still pass on the ratio, but the claim is "signal exists" without "sequential learning".
-3. **Borderline numbers.** SRD §7 still says "Doc has the casting vote where the numbers are
+2. **Borderline numbers.** SRD §7 still says "Doc has the casting vote where the numbers are
    borderline"; §8 and the constitution replace the team review with the panel. Flag for an SRD
    wording fix.
