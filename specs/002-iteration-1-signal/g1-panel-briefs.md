@@ -39,7 +39,7 @@ finding rather than reinterpreting it.
   of the machine verdict, which is `fail` if any check fails. The panel must say explicitly, for
   each failed non-G1 check, whether it (a) invalidates the G1 evidence (pipeline suspect, leakage)
   or (b) qualifies the claim (e.g. "signal exists, but no evidence of sequential learning") without
-  changing the SRD §5 outcome. See "Open questions for the panel" below.
+  changing the SRD §5 outcome. See "Decided rules" below.
 
 ### Severity
 
