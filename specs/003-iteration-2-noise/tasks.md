@@ -85,7 +85,7 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 - [ ] T027 [US4] Window-mean position slots in `packages/eval/src/evaluate.ts`
 - [ ] T028 [US4] Seeded percentile bootstrap (+ paired) in `packages/eval/src/bootstrap.ts`; `--bootstrap`, `--bootstrap-seed` in `cli-eval.ts` **[G1-dependent: reuse if spec 002 T033 built it]**
 - [ ] T029 [US4] Common-row comparison in `packages/eval/src/compare.ts`; `--compare-to` in `cli-eval.ts`
-- [ ] T030 [US4] G2 checks in `packages/eval/src/gate-g2.ts` (reusing `gate-g1.ts` checks); `tma-gate g2` in `cli-gate.ts`; exit 4 on inconclusive
+- [ ] T030 [US4] G2 checks in `packages/eval/src/gate-g2.ts` (reusing `gate-g1.ts` checks); `tma-gate g2` in `cli-gate.ts`; exit 3 on fail or inconclusive (as PR #21)
 - [ ] T031 [US4] Update eval goldens with reason (new slices and optional slots)
 
 ---

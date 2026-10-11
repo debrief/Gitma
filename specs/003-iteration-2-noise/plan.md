@@ -183,18 +183,20 @@ refuse); provenance capture in `data` (the producer); bootstrap and comparison i
 | Test split looked at early by accident | Low | Biased gate | `tma-g2 --split test` requires a committed decision record when phase B exists; commit order audited |
 | GitHub runner CPU differs between jobs | Medium | Weights not identical across reruns | Expected (spec 002 R2); metrics robust; `cpu_model` recorded |
 
-## Open questions (need user decisions)
+## Decisions (user, 2026-10-11)
 
-1. **Rate-limited ownship turn in iteration 2?** Recommended yes (research R3): SRD §3 schedules it,
-   and PR A already forces a G0 re-run. Alternative: defer to iteration 3.
-2. **Turn-rate range** if yes: proposed 0.5–3°/s uniform; no SRD value exists.
-3. **Which variants must pass G2?** Proposed both (mirrors G1); alternative: instantaneous only
-   (the operator's solution), time-late reported.
-4. **Run phase B even if phase A passes?** Proposed no (SRD §4 "if raw features stall"); running it
-   anyway costs ≈ 6 h CI and tests the derived features.
-5. **Does phase B count as SRD §5's "iterate once"?** Proposed: phase B is §7's in-iteration round;
-   a G2 fail then allows one further iteration (2b) per §7 before stopping. The alternative reading
-   (phase B *is* the one retry, so a fail stops the project) is stricter.
-6. **Dropouts**: per-scenario fraction uniform 0–10% (SRD §3) or fixed 10% (literal SRD §7)?
-7. **Inconclusive gate**: if a CI straddles a threshold, accept the panel deciding on a larger test
-   set from a fresh seed, or treat inconclusive as fail?
+The open questions were put to the user one at a time; all recommendations accepted.
+
+1. **Rate-limited ownship turn**: in iteration 2 (US6 stays in scope), sharing the G0 re-run that
+   the provenance change forces.
+2. **Turn rate**: uniform 0.5–3°/s per scenario.
+3. **G2 scope**: both variants must pass (mirrors G1).
+4. **Phase B**: only if phase A stalls on validation (SRD §4 "if raw features stall").
+5. **G2 fail after phase B**: one more iteration (2b) is allowed before stopping; phase B is the
+   in-iteration round of SRD §7, not the SRD §5 "iterate once".
+6. **Dropouts**: per-scenario uniform 0–10% (SRD §3), dropout becomes a slice.
+7. **Inconclusive interval**: the panel may order one larger fresh-seed test set (e.g. 5× the test
+   split); still inconclusive then counts as a fail.
+
+Exit codes follow PR #21 (already implemented): **3 for any gate result other than pass**
+(fail or inconclusive); the verdict file distinguishes them.

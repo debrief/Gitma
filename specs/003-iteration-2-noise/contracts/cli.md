@@ -1,7 +1,7 @@
 # Contract: Iteration-2 CLI changes
 
 Same conventions as specs 001/002: JSON summary on stdout, exit 0 success, 1 usage, 2 refused or
-invalid input, 3 failed gate; **new: exit 4 for an `inconclusive` gate**. Atomic writes; every input
+invalid input, 3 failed or inconclusive gate (as PR #21; `verdict.json` tells them apart). Atomic writes; every input
 validated with the generated validators.
 
 ## `tma-generate` (packages/data) — changed
