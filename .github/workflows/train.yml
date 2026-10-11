@@ -1,5 +1,8 @@
 name: Train iteration 1 (G1)
 
+# Which models to train, and an earlier run whose model artifacts fill in the rest, come from
+# .github/train-plan.json (so a push can train a subset; e.g. after a cancelled job).
+#
 # Spec 002 T031/T033 on GitHub-hosted runners: one job per model (≤ 5.5 h each, GitHub's job
 # limit is 6 h), then the G1 evaluation. Data and features are regenerated in every job from the
 # fixed seed (byte-identical, constitution II). Outputs are pushed to `results/g1-<run id>` for
@@ -12,6 +15,7 @@ on:
 
 permissions:
   contents: write
+  actions: read # download model artifacts from the plan's reuse_run
 
 concurrency:
   group: train-${{ github.ref }}
@@ -21,13 +25,27 @@ env:
   DATA: ${{ github.workspace }}/../i1-data
 
 jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      models: ${{ steps.plan.outputs.models }}
+      reuse_run: ${{ steps.plan.outputs.reuse_run }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        run: |
+          echo "models=$(jq -c .models .github/train-plan.json)" >> "$GITHUB_OUTPUT"
+          echo "reuse_run=$(jq -r '.reuse_run // ""' .github/train-plan.json)" >> "$GITHUB_OUTPUT"
+          cat .github/train-plan.json
+
   train:
+    needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 358
     strategy:
       fail-fast: false
       matrix:
-        model: [instantaneous, time-late, causal-cnn, mlp, instantaneous-shuffled]
+        model: ${{ fromJSON(needs.plan.outputs.models) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -65,9 +83,10 @@ jobs:
             ${{ runner.temp }}/models/${{ matrix.model }}/weights.bin
             ${{ runner.temp }}/train.log
           retention-days: 30
+          overwrite: true
 
   g1:
-    needs: train
+    needs: [plan, train]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 240
@@ -85,12 +104,26 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: ${{ runner.temp }}/artifacts
-      - name: Collect trained models
+      - uses: actions/download-artifact@v4
+        if: needs.plan.outputs.reuse_run != ''
+        with:
+          path: ${{ runner.temp }}/artifacts-reused
+          run-id: ${{ needs.plan.outputs.reuse_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Collect trained models (this run first, then the plan's reuse_run)
         run: |
           for m in instantaneous time-late causal-cnn mlp instantaneous-shuffled; do
-            mkdir -p "$RUNNER_TEMP/models/$m"
+            mkdir -p "$RUNNER_TEMP/models/$m" "$RUNNER_TEMP/logs"
             # upload-artifact strips the common prefix ($RUNNER_TEMP): models/<m>/… and train.log
-            cp "$RUNNER_TEMP/artifacts/model-$m/models/$m/"* "$RUNNER_TEMP/models/$m/"
+            for src in "$RUNNER_TEMP/artifacts/model-$m" "$RUNNER_TEMP/artifacts-reused/model-$m"; do
+              if [ -f "$src/models/$m/weights.bin" ]; then
+                cp "$src/models/$m/"* "$RUNNER_TEMP/models/$m/"
+                cp "$src/train.log" "$RUNNER_TEMP/logs/$m.log"
+                echo "$m <- $src"
+                break
+              fi
+            done
+            test -f "$RUNNER_TEMP/models/$m/weights.bin" || { echo "no trained $m"; exit 1; }
           done
           find "$RUNNER_TEMP/models" -type f | sort
       - name: Data and features (all splits)
@@ -108,9 +141,7 @@ jobs:
           echo "EXP=$EXP" >> "$GITHUB_ENV"
           pnpm tma-g1 --data "$DATA" --models "$RUNNER_TEMP/models" --experiment "$EXP" || [ $? -eq 3 ]
           mkdir -p "$EXP/logs"
-          for m in instantaneous time-late causal-cnn mlp instantaneous-shuffled; do
-            cp "$RUNNER_TEMP/artifacts/model-$m/train.log" "$EXP/logs/$m.log"
-          done
+          cp "$RUNNER_TEMP/logs/"*.log "$EXP/logs/"
           cat "$EXP/verdict.json"
       - name: Push results branch for the agent panel
         run: |
