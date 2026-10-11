@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { isMain, UsageError } from "@tma/data";
 import { parseRecord, RecordError, TrainingConfig } from "@tma/types";
+import { runAsyncCli } from "./cli-run.js";
 import { g0Passed } from "./g0-guard.js";
 import { train } from "./train.js";
 
@@ -53,14 +54,4 @@ export async function main(argv: string[]): Promise<unknown> {
   };
 }
 
-if (isMain(import.meta.url)) {
-  main(process.argv.slice(2)).then(
-    (summary) => {
-      process.stdout.write(`${JSON.stringify(summary)}\n`);
-    },
-    (e: unknown) => {
-      process.stderr.write(`${e instanceof Error ? e.message : String(e)}\n`);
-      process.exitCode = e instanceof UsageError ? 1 : 2;
-    },
-  );
-}
+if (isMain(import.meta.url)) runAsyncCli(main, process.argv.slice(2));

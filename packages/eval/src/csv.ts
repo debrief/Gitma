@@ -1,3 +1,5 @@
+import { CurvePoint } from "@tma/types";
+
 /** CSV with a fixed column order; missing values are empty cells. */
 export function toCsv(columns: readonly string[], rows: readonly object[]): string {
   const cell = (v: unknown): string => {
@@ -40,3 +42,24 @@ export const CURVE_COLUMNS = [
   "speed_kt_median",
   "gross_error_rate",
 ] as const;
+
+/** Reads a curves.csv written by `toCsv(CURVE_COLUMNS, …)`; empty cells become absent. */
+export function parseCurvesCsv(text: string): CurvePoint[] {
+  const [head, ...lines] = text.split("\n").filter((l) => l !== "");
+  if (head !== CURVE_COLUMNS.join(",")) throw new Error("curves.csv: unexpected columns");
+  return lines.map((line, i) => {
+    const cells = line.split(",");
+    if (cells.length !== CURVE_COLUMNS.length) {
+      throw new Error(
+        `curves.csv line ${String(i + 2)}: expected ${String(CURVE_COLUMNS.length)} cells`,
+      );
+    }
+    const rec: Record<string, string | number> = {};
+    CURVE_COLUMNS.forEach((c, k) => {
+      const v = cells[k] ?? "";
+      if (v === "") return;
+      rec[c] = c === "estimator" ? v : Number(v);
+    });
+    return CurvePoint.parse(rec);
+  });
+}

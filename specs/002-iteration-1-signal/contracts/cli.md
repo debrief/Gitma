@@ -28,17 +28,20 @@ derive position (never target truth).
 ## `tma-gate g1` (packages/eval)
 
 ```
-tma-gate g1 --experiment <dir> --metrics <metrics.json>
+tma-gate g1 --experiment <dir>
             --instantaneous <id> --time-late <id> --causal-control <id> --mlp-control <id>
             [--shuffled <id>]
 ```
 
-Reads the evaluation written by `tma-eval` (which must include naive and classical per-timestep
-predictions) and writes `verdict.json` with gate `G1` and checks:
+Reads `<dir>/metrics.json` and `<dir>/curves.csv` written by `tma-eval` (which must include naive
+and classical per-timestep predictions; refuses otherwise, FR-019) and writes `verdict.json` with gate `G1` and checks:
 `g1-instantaneous`, `g1-time-late`, `time-late-not-worse`, `instantaneous-beats-control`,
 `time-late-beats-control`, `shuffled-labels-at-naive` (when `--shuffled` is given).
 
-## `tma-g1` (packages/eval)
+## `tma-g1` (packages/models)
+
+Lives in `packages/models` (not `eval`, as first planned) so tfjs-node stays out of the evaluation
+package; the gate logic itself is `@tma/eval`'s `g1Checks`.
 
 ```
 tma-g1 --data <dir> --models <dir> --experiment <experiments/<id>>
@@ -48,3 +51,11 @@ One-command run for quickstart: expects `<dir>/{train,test}.f32pack`, `<dir>/*.f
 `<dir>/norm.json` and trained models under `--models`; runs naive (per-timestep), classical
 (per-timestep), every model's predictions, `tma-eval` and `tma-gate g1`, then copies model manifests
 and weights into the experiment folder.
+
+Models are found under `--models` by `model_kind` (exactly one each of `instantaneous`,
+`time_late`, `causal_cnn`, `mlp`, plus at most one `instantaneous` with `shuffle_labels`); other
+configurations tried for FR-009 must sit outside that directory. Prediction files go to
+`<data>/predictions/` (too large to commit); the classical per-timestep file there is reused on a
+re-run. Experiment layout: `metrics.{json,csv}`, `curves.csv`, `verdict.json`, `manifest.json`,
+`seeds.txt`, `heldout/` (FR-014, reported not gated) and `models/<id>/{manifest.json,model.json,weights.bin}`.
+Exit 3 when the gate fails.

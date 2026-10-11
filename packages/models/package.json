@@ -11,12 +11,15 @@
   },
   "bin": {
     "tma-train": "./dist/cli-train.js",
-    "tma-model-predict": "./dist/cli-predict.js"
+    "tma-model-predict": "./dist/cli-predict.js",
+    "tma-g1": "./dist/cli-g1.js"
   },
   "scripts": {},
   "dependencies": {
     "@tensorflow/tfjs-node": "4.22.0",
+    "@tma/classical": "workspace:*",
     "@tma/data": "workspace:*",
+    "@tma/eval": "workspace:*",
     "@tma/features": "workspace:*",
     "@tma/sim": "workspace:*",
     "@tma/types": "workspace:*"

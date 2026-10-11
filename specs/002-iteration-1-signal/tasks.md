@@ -59,27 +59,27 @@ description: "Task list for 002 — Iteration 1, is the signal learnable (G1)"
 
 ### Tests ⚠️
 
-- [ ] T020 [P] [US2] Prediction conversion: truth-valued outputs give zero error through `rowError`; non-finite outputs give `converged = false`, in `packages/models/test/predict.test.ts`
-- [ ] T021 [P] [US2] G1 gate: passes when both variants < 0.5 × naive at `zig+300s`, fails when either is not, in `packages/eval/test/gate-g1.test.ts`
+- [x] T020 [P] [US2] Prediction conversion: truth-valued outputs give zero error through `rowError`; non-finite outputs give `converged = false`, in `packages/models/test/predict.test.ts`
+- [x] T021 [P] [US2] G1 gate: passes when both variants < 0.5 × naive at `zig+300s`, fails when either is not, in `packages/eval/test/gate-g1.test.ts`
 
 ### Implementation
 
-- [ ] T022 [US2] Model → Prediction rows (R7) in `packages/models/src/predict.ts`; `tma-model-predict` CLI in `packages/models/src/cli-predict.ts`
-- [ ] T023 [US2] G1 check and verdict assembly in `packages/eval/src/gate-g1.ts`; `tma-gate g1` subcommand in `packages/eval/src/cli-gate.ts`
-- [ ] T024 [US2] `tma-g1` one-command run (naive + classical per-timestep, model predictions, eval, gate, copy manifests/weights into the experiment; also scores the held-out geometry split into `heldout/` metrics, reported but not gated — FR-014) in `packages/eval/src/g1.ts`, `cli-g1.ts`
-- [ ] T025 [US2] CI end-to-end on a tiny config: generate 300 scenarios, features, train each model 1 epoch, `tma-g1` runs and writes a verdict (result not asserted), in `.github/workflows/ci.yml`
+- [x] T022 [US2] Model → Prediction rows (R7) in `packages/models/src/predict.ts`; `tma-model-predict` CLI in `packages/models/src/cli-predict.ts`
+- [x] T023 [US2] G1 check and verdict assembly in `packages/eval/src/gate-g1.ts`; `tma-gate g1` subcommand in `packages/eval/src/cli-gate.ts`
+- [x] T024 [US2] `tma-g1` one-command run (implemented in `packages/models/src/g1.ts` to keep tfjs out of `eval`) (naive + classical per-timestep, model predictions, eval, gate, copy manifests/weights into the experiment; also scores the held-out geometry split into `heldout/` metrics, reported but not gated — FR-014) in `packages/eval/src/g1.ts`, `cli-g1.ts`
+- [x] T025 [US2] CI end-to-end on a tiny config: generate 300 scenarios, features, train each model 1 epoch, `tma-g1` runs and writes a verdict (result not asserted), in `.github/workflows/ci.yml`
 
 ---
 
 ## Phase 5: User Story 3 — Controls and consistency (P2)
 
-- [ ] T026 [P] [US3] Tests: consistency check flags a curve point where time-late > 1.05 × instantaneous; control check flags a recurrent model not beating its control, in `packages/eval/test/gate-g1.test.ts`
-- [ ] T027 [US3] Consistency and control checks in `packages/eval/src/gate-g1.ts`
+- [x] T026 [P] [US3] Tests: consistency check flags a curve point where time-late > 1.05 × instantaneous; control check flags a recurrent model not beating its control, in `packages/eval/test/gate-g1.test.ts`
+- [x] T027 [US3] Consistency and control checks in `packages/eval/src/gate-g1.ts`
 
 ## Phase 6: User Story 4 — Shuffled-label leakage check (P2)
 
-- [ ] T028 [P] [US4] Test: label shuffling permutes targets across scenarios but not inputs; leakage check passes within ±10% of naive and fails outside, in `packages/models/test/batches.test.ts`, `packages/eval/test/gate-g1.test.ts`
-- [ ] T029 [US4] Leakage check in `packages/eval/src/gate-g1.ts`; `instantaneous-shuffled` config wired into `tma-g1`
+- [x] T028 [P] [US4] Test: label shuffling permutes targets across scenarios but not inputs; leakage check passes within ±10% of naive and fails outside, in `packages/models/test/batches.test.ts`, `packages/eval/test/gate-g1.test.ts`
+- [x] T029 [US4] Leakage check in `packages/eval/src/gate-g1.ts`; `instantaneous-shuffled` config wired into `tma-g1`
 
 ---
 

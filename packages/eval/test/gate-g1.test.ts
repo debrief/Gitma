@@ -1,0 +1,127 @@
+import type { CurvePoint, MetricsRecord } from "@tma/types";
+import { describe, expect, it } from "vitest";
+import { CURVE_COLUMNS, parseCurvesCsv, toCsv } from "../src/csv.js";
+import { type G1Ids, g1Checks, g1Verdict } from "../src/gate-g1.js";
+
+const IDS: G1Ids = {
+  instantaneous: "lstm",
+  timeLate: "bilstm",
+  causalControl: "cnn",
+  mlpControl: "mlp",
+  shuffled: "lstm-shuffled",
+};
+
+type Medians = Record<string, { z300: number; final: number }>;
+
+const BASE: Medians = {
+  naive: { z300: 0.4, final: 0.4 },
+  classical: { z300: 0.1, final: 0.05 },
+  lstm: { z300: 0.15, final: 0.1 },
+  bilstm: { z300: 0.12, final: 0.08 },
+  cnn: { z300: 0.3, final: 0.25 },
+  mlp: { z300: 0.2, final: 0.15 },
+  "lstm-shuffled": { z300: 0.41, final: 0.4 },
+};
+
+function metrics(m: Medians): MetricsRecord[] {
+  return Object.entries(m).flatMap(([id, v]) =>
+    (
+      [
+        ["zig+300s", v.z300],
+        ["final", v.final],
+      ] as const
+    ).map(([point, median]) => ({
+      estimator: `${id}:per_timestep`,
+      slice: "overall",
+      point,
+      n: 100,
+      excluded: 0,
+      range_rel_median: median,
+    })),
+  );
+}
+
+function curves(lstm: number[], bilstm: number[]): CurvePoint[] {
+  const pts = (id: string, vs: number[]): CurvePoint[] =>
+    vs.map((v, i) => ({
+      estimator: `${id}:per_timestep`,
+      t_since_zig_s: 60 * (i + 1),
+      n: 100,
+      range_rel_median: v,
+      range_rel_p90: 2 * v,
+      course_deg_median: 10,
+      speed_kt_median: 1,
+      gross_error_rate: 0,
+    }));
+  return [...pts("lstm", lstm), ...pts("bilstm", bilstm)];
+}
+
+const GOOD_CURVES = curves([0.3, 0.2, 0.15], [0.25, 0.18, 0.12]);
+const result = (m: Medians, c = GOOD_CURVES, ids = IDS) =>
+  Object.fromEntries(g1Checks(metrics(m), c, ids).map((x) => [x.name, x.result]));
+
+describe("G1 gate", () => {
+  it("passes when both variants beat half of naive and every check holds", () => {
+    const checks = g1Checks(metrics(BASE), GOOD_CURVES, IDS);
+    expect(checks.map((c) => c.name)).toEqual([
+      "g1-instantaneous",
+      "g1-time-late",
+      "time-late-not-worse",
+      "instantaneous-beats-control",
+      "time-late-beats-control",
+      "shuffled-labels-at-naive",
+    ]);
+    expect(g1Verdict(checks)).toMatchObject({ gate: "G1", result: "pass" });
+  });
+
+  it("fails when either variant is not below 0.5 × naive", () => {
+    expect(result({ ...BASE, lstm: { z300: 0.2, final: 0.1 } })["g1-instantaneous"]).toBe("fail");
+    expect(result({ ...BASE, bilstm: { z300: 0.21, final: 0.1 } })["g1-time-late"]).toBe("fail");
+    const v = g1Verdict(
+      g1Checks(metrics({ ...BASE, lstm: { z300: 0.2, final: 0.1 } }), GOOD_CURVES, IDS),
+    );
+    expect(v.result).toBe("fail");
+  });
+
+  it("flags a curve point where time-late > 1.05 × instantaneous", () => {
+    expect(result(BASE, curves([0.3, 0.2, 0.15], [0.25, 0.211, 0.12]))["time-late-not-worse"]).toBe(
+      "fail",
+    );
+    expect(result(BASE, curves([0.3, 0.2, 0.15], [0.25, 0.209, 0.12]))["time-late-not-worse"]).toBe(
+      "pass",
+    );
+  });
+
+  it("flags a recurrent model that does not beat its control at zig+300s or final", () => {
+    expect(result({ ...BASE, cnn: { z300: 0.3, final: 0.1 } })["instantaneous-beats-control"]).toBe(
+      "fail",
+    );
+    expect(result({ ...BASE, mlp: { z300: 0.12, final: 0.15 } })["time-late-beats-control"]).toBe(
+      "fail",
+    );
+  });
+
+  it("leakage check passes within ±10% of naive and fails outside", () => {
+    const at = (z300: number) => result({ ...BASE, "lstm-shuffled": { z300, final: 0.4 } });
+    expect(at(0.37)["shuffled-labels-at-naive"]).toBe("pass");
+    expect(at(0.43)["shuffled-labels-at-naive"]).toBe("pass");
+    expect(at(0.35)["shuffled-labels-at-naive"]).toBe("fail");
+    expect(at(0.45)["shuffled-labels-at-naive"]).toBe("fail");
+  });
+
+  it("omits the leakage check without a shuffled model", () => {
+    const ids: G1Ids = { ...IDS };
+    delete ids.shuffled;
+    expect(result(BASE, GOOD_CURVES, ids)).not.toHaveProperty("shuffled-labels-at-naive");
+  });
+
+  it("refuses without both baselines (FR-019)", () => {
+    const noClassical: Medians = { ...BASE };
+    delete noClassical.classical;
+    expect(() => g1Checks(metrics(noClassical), GOOD_CURVES, IDS)).toThrow(/classical/);
+  });
+
+  it("reads back curves.csv as written", () => {
+    expect(parseCurvesCsv(toCsv(CURVE_COLUMNS, GOOD_CURVES))).toEqual(GOOD_CURVES);
+  });
+});
