@@ -101,9 +101,9 @@ description: "Task list for 002 — Iteration 1, is the signal learnable (G1)"
 
 ## Phase 9: Polish
 
-- [ ] T038 [P] Update `AGENTS.md` and README (models package, training commands, budget, G1 status)
+- [x] T038 [P] Update `AGENTS.md` and README (models package, training commands, budget, G1 status)
 - [ ] T039 [P] Propose SRD amendment for the 6 h budget (PR #18) (separate PR against `docs/SRD.md`)
-- [ ] T040 Adversarial review of G1: confirm a model given truth as input would be caught by the leakage check only if inputs leak, and record what G1 cannot detect
+- [x] T040 Adversarial review of G1: confirm a model given truth as input would be caught by the leakage check only if inputs leak, and record what G1 cannot detect (`g1-limits.md`; panel briefs in `g1-panel-briefs.md`)
 
 ---
 
