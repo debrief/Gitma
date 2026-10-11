@@ -9,5 +9,13 @@
       "default": "./dist/index.js"
     }
   },
-  "scripts": {}
+  "bin": {
+    "tma-features": "./dist/cli.js"
+  },
+  "scripts": {},
+  "dependencies": {
+    "@tma/data": "workspace:*",
+    "@tma/sim": "workspace:*",
+    "@tma/types": "workspace:*"
+  }
 }

@@ -161,15 +161,15 @@ generator. US3 and US4 (P2) are independent of each other.
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T062 [P] [US4] Layout tests: 240 rows, window mask, valid flag at dropouts, sin/cos channels, km scaling, post-zig loss mask, on a hand-built scenario in `packages/features/test/layout.test.ts`
-- [ ] T063 [P] [US4] Leakage test: normalisation constants identical with target tracks shuffled across scenarios in `packages/features/test/leakage.test.ts`
-- [ ] T064 [P] [US4] Golden test: seed 1, 20 scenarios → byte-compare features binary in `packages/features/test/golden.test.ts`
+- [x] T062 [P] [US4] Layout tests: 240 rows, window mask, valid flag at dropouts, sin/cos channels, km scaling, post-zig loss mask, on a hand-built scenario in `packages/features/test/layout.test.ts`
+- [x] T063 [P] [US4] Leakage test: normalisation constants identical with target tracks shuffled across scenarios in `packages/features/test/leakage.test.ts`
+- [x] T064 [P] [US4] Golden test: seed 1, 20 scenarios → byte-compare features binary in `packages/features/test/golden.test.ts`
 
 ### Implementation for User Story 4
 
-- [ ] T065 [P] [US4] Normalisation constants from train-split inputs only in `packages/features/src/normalise.ts`
-- [ ] T066 [US4] Window → inputs/targets/masks as pure functions over `Float32Array` in `packages/features/src/layout.ts`
-- [ ] T067 [US4] Features binary writer (shape header + Float32 tensors) and `tma-features` CLI (`norm`, `build`) in `packages/features/src/cli.ts`
+- [x] T065 [P] [US4] Normalisation constants from train-split inputs only in `packages/features/src/normalise.ts`
+- [x] T066 [US4] Window → inputs/targets/masks as pure functions over `Float32Array` in `packages/features/src/layout.ts`
+- [x] T067 [US4] Features binary writer (shape header + Float32 tensors) and `tma-features` CLI (`norm`, `build`) in `packages/features/src/cli.ts`
 
 **Checkpoint**: iteration 1 training can consume `*.features.bin` directly.
 

@@ -74,9 +74,9 @@ train-split header digest. Computed from **input channels of the train split onl
 
 | Tensor | Shape | Channels |
 | --- | --- | --- |
-| `inputs` | [N, 240, 10] | bearing_sin, bearing_cos, own_x_km, own_y_km, own_course_sin, own_course_cos, own_speed_scaled, time_scaled, valid, window_mask |
+| `inputs` | [N, 240, 10] | bearing_sin, bearing_cos, own_x_scaled, own_y_scaled (km ÷ position_scale_km), own_course_sin, own_course_cos, own_speed_scaled, time_scaled, valid, window_mask |
 | `targets` | [N, 240, 6] | log_range_km, course_sin, course_cos, speed_scaled, x_km, y_km |
-| `loss_mask` | [N, 240] | 1 where window_mask = 1 and t ≥ zig_time (causal variant) |
+| `loss_mask` | [N, 240] | 1 where window_mask = 1 and row > zig_index (first row off the leg-1 line) |
 
 ### Prediction
 
