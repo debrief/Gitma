@@ -115,7 +115,7 @@ The time-late variant has strictly more information at every timestep, so it mus
 **TensorFlow.js constraints**
 
 - `@tensorflow/tfjs-node` for training; `tfjs-node-gpu` optional, not assumed.
-- Expect throughput roughly an order of magnitude below PyTorch; iteration-1 datasets sized so a run completes in under an hour on a developer laptop (about 10^5 scenarios).
+- Expect throughput roughly an order of magnitude below PyTorch; iteration-1 datasets are about 10^5 scenarios. Each model trains for at most 4 hours wall-clock on a 4-core CPU (amended 2026-10-11 from "under an hour": measured throughput of ≈ 110–200 windows/s allows only ≈ 4 BiLSTM epochs in an hour; see spec 002 research R1). Training stops earlier on early stopping.
 - Only layers with direct Keras equivalents (LSTM, Bidirectional, Conv1D, Dense, Masking), so a port to Keras or PyTorch is mechanical.
 - Models saved in the `tfjs` layers format plus a JSON manifest (hyperparameters, dataset seed, normalisation constants, generator version); every run is reproducible from manifest plus dataset.
 
