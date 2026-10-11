@@ -81,6 +81,13 @@ describe("G0 guard (constitution V)", () => {
     }
   });
 
+  it("refuses when any G0 manifest has an unparseable created time", () => {
+    const dir = tempDir();
+    experiment(dir, "a", { created: T1 });
+    experiment(dir, "b", { created: "not a date" });
+    expect(guard(dir)).toBeNull();
+  });
+
   it("refuses a G0 verdict without a manifest", () => {
     const dir = tempDir();
     experiment(dir, "a", { created: T1 });

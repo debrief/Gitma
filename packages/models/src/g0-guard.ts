@@ -9,7 +9,7 @@ import { GENERATOR_VERSION } from "@tma/sim";
 import { ExperimentManifest, GateVerdict, parseRecord } from "@tma/types";
 
 /** Paths whose code produced the verified data. */
-export const GENERATOR_PATHS = ["packages/sim/src"];
+export const GENERATOR_PATHS = ["packages/sim/src", "packages/data/src"];
 
 /** Repository root of this checkout (git paths are relative to it). */
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -59,6 +59,8 @@ export function g0Passed(experimentsDir: string, opts: G0GuardOptions = {}): str
   // A G0 verdict without a manifest cannot be dated or traced: refuse rather than guess.
   if (g0s.length === 0 || g0s.some((g) => g.manifest === null)) return null;
   const created = (g: (typeof g0s)[number]): number => Date.parse(g.manifest?.created ?? "");
+  // An unparseable date would make the ordering depend on directory order: refuse.
+  if (g0s.some((g) => Number.isNaN(created(g)))) return null;
   g0s.sort((a, b) => created(b) - created(a));
   const [latest, next] = g0s;
   if (latest?.manifest == null) return null;
