@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.4.0
+version: 0.5.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -66,6 +66,8 @@ enums:
     permissible_values:
       pass: {}
       fail: {}
+      inconclusive:
+        description: The 95% bootstrap interval straddles the threshold (G1 report, T033).
 
 classes:
   FloatRange:

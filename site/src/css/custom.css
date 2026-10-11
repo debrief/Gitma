@@ -32,3 +32,8 @@
   color: var(--ifm-color-danger-darkest);
   font-weight: 600;
 }
+
+.gate-inconclusive {
+  color: var(--ifm-color-warning-darkest);
+  font-weight: 600;
+}

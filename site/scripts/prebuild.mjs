@@ -50,12 +50,14 @@ function results() {
     if (!existsSync(join(base, "curves.csv")) || !existsSync(join(base, "verdict.json"))) continue;
     const read = (f) => JSON.parse(readFileSync(join(base, f), "utf8"));
     const heldout = join(base, "heldout", "metrics.json");
+    const bootstrap = join(base, "bootstrap.json");
     out.push({
       id,
       verdict: read("verdict.json"),
       metrics: read("metrics.json"),
       curves: readCsv(join(base, "curves.csv")),
       heldout: existsSync(heldout) ? JSON.parse(readFileSync(heldout, "utf8")) : [],
+      bootstrap: existsSync(bootstrap) ? JSON.parse(readFileSync(bootstrap, "utf8")) : null,
     });
   }
   writeFileSync(join(site, "src", "generated", "results.json"), `${JSON.stringify(out)}\n`);

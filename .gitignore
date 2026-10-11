@@ -157,3 +157,4 @@ site/build/
 site/docs/data-dictionary.md
 site/src/generated/
 /models/
+.claude/worktrees/

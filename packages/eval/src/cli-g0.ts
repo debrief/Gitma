@@ -28,5 +28,6 @@ export function main(argv: string[]): GateVerdict {
 if (isMain(import.meta.url)) {
   let verdict: GateVerdict | undefined;
   const code = runCli((argv) => (verdict = main(argv)), process.argv.slice(2));
-  process.exitCode = code === 0 && verdict?.result === "fail" ? EXIT_GATE_FAILED : code;
+  process.exitCode =
+    code === 0 && verdict !== undefined && verdict.result !== "pass" ? EXIT_GATE_FAILED : code;
 }

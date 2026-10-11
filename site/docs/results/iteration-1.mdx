@@ -13,6 +13,10 @@ import ResultsReview from "@site/src/components/ResultsReview";
 The [models](../algorithms/models.md) page describes the four architectures; the
 [evaluation](../evaluation.md) page defines the metrics.
 
+With the experiment's paired bootstrap (2,000 resamples of the test scenarios), each G1 check
+passes only if the whole 95% interval of model/naive is below 0.5, fails if it is wholly above,
+and is otherwise **inconclusive**.
+
 Additional checks, recorded in the verdict:
 
 - `time-late-not-worse`: the time-late model is never more than 5% worse than the instantaneous

@@ -24,7 +24,12 @@ import { readDataset } from "@tma/data";
 import {
   evaluate,
   type G1Ids,
+  bootstrapMedianRatio,
+  G1_SECONDS,
   g1Checks,
+  pairedRangeErrors,
+  prettyJson,
+  type RatioInterval,
   g1Verdict,
   loadPredictionSet,
   makeManifest,
@@ -108,7 +113,12 @@ export async function runG1(opts: G1Options): Promise<GateVerdict> {
   const predDir = join(opts.data, "predictions");
   mkdirSync(predDir, { recursive: true });
 
-  const score = async (split: "test" | "heldout"): Promise<ReturnType<typeof evaluate>> => {
+  interface Scored {
+    evaluation: ReturnType<typeof evaluate>;
+    scenarios: Scenario[];
+    sets: PredictionSet[];
+  }
+  const score = async (split: "test" | "heldout"): Promise<Scored> => {
     const truthPath = join(opts.data, `${split}.f32pack`);
     const scenarios: Scenario[] = [...readDataset(truthPath).scenarios()];
     const sets: PredictionSet[] = [
@@ -155,15 +165,40 @@ export async function runG1(opts: G1Options): Promise<GateVerdict> {
     } finally {
       features.close();
     }
-    return evaluate(scenarios, sets);
+    return { evaluation: evaluate(scenarios, sets), scenarios, sets };
   };
 
-  const test = await score("test");
-  const verdict = g1Verdict(g1Checks(test.metrics, test.curves, ids));
+  const scored = await score("test");
+  const test = scored.evaluation;
+  // T033: paired bootstrap interval of each G1 model's median range error over naive's.
+  const bySet = (estimator: string): PredictionSet => {
+    const found = scored.sets.find((x) => x.estimator === estimator);
+    if (found === undefined) throw new Error(`no predictions for ${estimator}`);
+    return found;
+  };
+  const interval = (id: string): RatioInterval => {
+    const e = pairedRangeErrors(scored.scenarios, bySet(id), bySet(NAIVE), G1_SECONDS);
+    return bootstrapMedianRatio(e.a, e.b);
+  };
+  const intervals = {
+    instantaneous: interval(ids.instantaneous),
+    timeLate: interval(ids.timeLate),
+  };
+  mkdirSync(opts.experiment, { recursive: true });
+  writeFileSync(
+    join(opts.experiment, "bootstrap.json"),
+    prettyJson({
+      point: "zig+300s",
+      ratio: "median range error, model / naive",
+      [ids.instantaneous]: intervals.instantaneous,
+      [ids.timeLate]: intervals.timeLate,
+    }),
+  );
+  const verdict = g1Verdict(g1Checks(test.metrics, test.curves, ids, intervals));
   writeEvaluation(opts.experiment, test);
   writeVerdict(opts.experiment, verdict);
   // FR-014: the held-out geometry split is scored and reported, not gated.
-  writeEvaluation(join(opts.experiment, "heldout"), await score("heldout"));
+  writeEvaluation(join(opts.experiment, "heldout"), (await score("heldout")).evaluation);
 
   for (const m of models) {
     const dest = join(opts.experiment, "models", m.manifest.id);
