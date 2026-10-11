@@ -1,5 +1,6 @@
 // G1 (SRD §5): both model variants beat half the naive baseline's median range error at zig+300s,
-// plus the consistency, control and shuffled-label checks of spec 002 (research R8).
+// plus the consistency, control and shuffled-label checks of spec 002 (research R8), combined by
+// the tiered rule in g1Verdict.
 import type { CurvePoint, GateCheck, GateResult, GateVerdict, MetricsRecord } from "@tma/types";
 import type { RatioInterval } from "./bootstrap.js";
 
@@ -194,15 +195,24 @@ export function g1Checks(
   return checks;
 }
 
+/** The two SRD §5 ratio checks: they alone decide G1 when the evidence is valid. */
+export const G1_RATIO_CHECKS = ["g1-instantaneous", "g1-time-late"];
+
+/**
+ * Tiered G1 verdict (user, 2026-10-11): the ratio checks decide, except that a shuffled-label
+ * failure voids the evidence (fail) and a time-late consistency failure makes the pipeline suspect
+ * (at best inconclusive, investigate). Control checks are reported only: failing one removes the
+ * "sequential learning" claim, not the G1 pass.
+ */
 export function g1Verdict(checks: GateCheck[]): GateVerdict {
-  return {
-    gate: "G1",
-    result: checks.some((c) => c.result === "fail")
+  const failed = (name: string): boolean =>
+    checks.some((c) => c.name === name && c.result === "fail");
+  const ratio = checks.filter((c) => G1_RATIO_CHECKS.includes(c.name));
+  const result: GateResult =
+    failed("shuffled-labels-at-naive") || ratio.some((c) => c.result === "fail")
       ? "fail"
-      : checks.some((c) => c.result === "inconclusive")
+      : failed("time-late-not-worse") || ratio.some((c) => c.result === "inconclusive")
         ? "inconclusive"
-        : "pass",
-    checks,
-    decided_by: "harness (pending agent panel review)",
-  };
+        : "pass";
+  return { gate: "G1", result, checks, decided_by: "harness (pending agent panel review)" };
 }
