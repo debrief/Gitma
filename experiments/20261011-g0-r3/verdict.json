@@ -1,22 +1,22 @@
 {
   "checks": [
     {
-      "detail": "10000/10000 scenarios within tolerance (range 0.001, course 0.1°, speed 0.01 kt); worst range 2.87e-4, course 1.63e-2°, speed 2.10e-3 kt",
+      "detail": "10000/10000 scenarios within tolerance (range 0.001, course 0.1\u00b0, speed 0.01 kt); worst range 2.87e-4, course 1.63e-2\u00b0, speed 2.10e-3 kt",
       "name": "classical-recovers-noise-free-truth",
       "result": "pass"
     },
     {
-      "detail": "1000 scenarios, 74923 rows: 0 non-converged; 69923/69923 rows ≥ 60 s after the zig within tolerance (worst range 1.66e-4); worst range in the first 60 s 3.14e-3 (reported, not gated)",
+      "detail": "1000 scenarios, 74923 rows: 0 non-converged; 69923/69923 rows \u2265 60 s after the zig within tolerance (worst range 1.66e-4); worst range in the first 60 s 3.14e-3 (reported, not gated)",
       "name": "classical-per-timestep-recovers",
       "result": "pass"
     },
     {
-      "detail": "10000/10000 final solutions with RMS bearing residual ≤ 0.000001 rad; worst 4.84e-7 rad",
+      "detail": "10000/10000 final solutions with RMS bearing residual \u2264 0.000001 rad; worst 4.84e-7 rad",
       "name": "bearing-residuals-at-float32-precision",
       "result": "pass"
     },
     {
-      "detail": "hand-computed 315°, abeam and leg-2 cases match; t = 0 bearing and range match the drawn parameters on 10000 scenarios",
+      "detail": "hand-computed 315\u00b0, abeam and leg-2 cases match; t = 0 bearing and range match the drawn parameters on 10000 scenarios",
       "name": "independent-geometry",
       "result": "pass"
     },
@@ -26,7 +26,7 @@
       "result": "pass"
     }
   ],
-  "decided_by": "harness (pending agent panel review)",
+  "decided_by": "agent review panel, round 3 (no rejections; no open blocker or major findings): see review.md",
   "gate": "G0",
   "result": "pass"
 }

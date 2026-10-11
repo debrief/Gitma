@@ -33,7 +33,7 @@ Measured on a clean clone (2026-10-11): 12–14 s per 10^5-scenario generation; 
 
 ```
 pnpm tma-generate -- --seed 42 --count 100000 --noise-free --out data/g0
-pnpm tma-g0       -- --data data/g0 --experiment experiments/20261011-g0
+pnpm tma-g0       -- --data data/g0 --experiment experiments/<date>-g0   # always via pnpm: rebuilds first; refuses a dirty tree
 ```
 
 Expected: `experiments/20261011-g0/verdict.json` → `"result": "pass"`; whole sequence < 15 min

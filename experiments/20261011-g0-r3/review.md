@@ -84,6 +84,34 @@ All round-1 majors confirmed resolved by the reviewers who raised them.
 | Per-timestep check covers 1,000 scenarios | Enough for G0; the full split runs in `tma-g1` for the G1 report |
 | Guard does not require a panel mark on the verdict | Accepted: the panel record is this file; the verdict's `decided_by` is updated on approval |
 
-## Round 3
+## Round 3 (2026-10-11)
 
-Pending: red team and reproducibility reviewers re-invited on 3c9aeb3 and this folder.
+Re-invited: the reviewers with open findings (red team: two majors; reproducibility: minors).
+
+| Reviewer | Verdict |
+| --- | --- |
+| Red team | approve-with-findings (minor only; both majors confirmed resolved) |
+| Reproducibility (reproduced round 3 at 3c9aeb3: verdict, metrics, seeds and data digests byte-identical; git cwd fix verified) | **approve** |
+
+| Minor finding | Response |
+| --- | --- |
+| Unparseable `created` makes the guard's order depend on directory listing | Guard refuses any unparseable G0 date; test added (103e097) |
+| `packages/data/src` (serialisation) not protected | Added to the guard's generator paths (103e097) |
+| Dataset headers carry no generator commit, so data from since-reverted code would pass | Deferred to iteration 2 (schema change + regeneration). Current data verified by the red team: `packages/sim/src` last changed at ec1550f, before G0 and before the iteration-1 data were generated |
+| Running `node …/dist/cli-g0.js` directly skips the rebuild; a hand-edited `dist/` survives `tsc -b` | Documented: gates run via `pnpm tma-*` (quickstart, evaluation page); hashing `dist/` judged out of proportion for a PoC |
+| Round-1 manifest records the wrong commit (cfbeb16; code was 6a27730) | Left as written and explained here; rounds 2–3 carry the trustworthy record |
+
+## Decision
+
+After round 3 no reviewer rejects and no blocker or major finding is open:
+
+| Reviewer | Final verdict (round) |
+| --- | --- |
+| TMA geometry | approve (2) |
+| Estimation and numerics | approve-with-findings, minor only (2) |
+| Evaluation statistics | approve-with-findings, minor only (2) |
+| Reproducibility | approve (3) |
+| Red team | approve-with-findings, minor only (3) |
+
+**G0: pass**, decided by the agent review panel, round 3, on `experiments/20261011-g0-r3/`
+(commit 3c9aeb3). Training for iteration 1 may proceed.
