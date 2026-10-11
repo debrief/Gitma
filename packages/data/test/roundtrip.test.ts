@@ -23,9 +23,9 @@ describe("round-trip NDJSON ↔ f32pack", () => {
     const out = tempDir();
     convertDataset(join(dir, "train.f32pack"), join(out, "t.ndjson"));
     convertDataset(join(dir, "train.ndjson"), join(out, "t.f32pack"));
-    expect(readFileSync(join(out, "t.ndjson")).equals(readFileSync(join(dir, "train.ndjson")))).toBe(
-      true,
-    );
+    expect(
+      readFileSync(join(out, "t.ndjson")).equals(readFileSync(join(dir, "train.ndjson"))),
+    ).toBe(true);
     expect(
       readFileSync(join(out, "t.f32pack")).equals(readFileSync(join(dir, "train.f32pack"))),
     ).toBe(true);

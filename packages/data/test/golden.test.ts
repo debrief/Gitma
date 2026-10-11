@@ -16,7 +16,12 @@ describe("golden: data", () => {
   it("seed 1, count 10: every output file is byte-identical to the committed golden", () => {
     const dir = makeDataset(1n, 10);
     const digests = Object.fromEntries(
-      FILES.map((f) => [f, createHash("sha256").update(readFileSync(join(dir, f))).digest("hex")]),
+      FILES.map((f) => [
+        f,
+        createHash("sha256")
+          .update(readFileSync(join(dir, f)))
+          .digest("hex"),
+      ]),
     );
     const testText = readFileSync(join(dir, "test.ndjson"), "utf8");
     if (process.env.UPDATE_GOLDEN === "1") {

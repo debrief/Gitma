@@ -178,7 +178,11 @@ export function readPack(path: string): Dataset {
     if (table.length < 8 * (n + 1)) throw new RecordError(path, "header", "truncated offsets");
     const offsets = Array.from({ length: n + 1 }, (_, j) => Number(table.readBigUInt64LE(8 * j)));
     if (offsets[n] !== size) {
-      throw new RecordError(path, "end", `file is ${String(size)} bytes, expected ${String(offsets[n])}`);
+      throw new RecordError(
+        path,
+        "end",
+        `file is ${String(size)} bytes, expected ${String(offsets[n])}`,
+      );
     }
     return {
       header,

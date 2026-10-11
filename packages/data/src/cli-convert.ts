@@ -15,7 +15,8 @@ export function main(argv: string[]): unknown {
   });
   if (values.check) {
     const [a, b] = positionals;
-    if (a === undefined || b === undefined) throw new UsageError("usage: tma-convert --check <a> <b>");
+    if (a === undefined || b === undefined)
+      throw new UsageError("usage: tma-convert --check <a> <b>");
     const r = sameDataset(a, b);
     if (!r.same) throw new Error(`datasets differ: ${r.detail}`);
     return { same: true, detail: r.detail };

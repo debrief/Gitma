@@ -29,7 +29,8 @@ export function main(argv: string[]): unknown {
     );
   }
   const count = Number(values.count);
-  if (!Number.isInteger(count) || count < 1) throw new UsageError("--count must be a positive integer");
+  if (!Number.isInteger(count) || count < 1)
+    throw new UsageError("--count must be a positive integer");
   const format = values.format as Format;
   if (!["ndjson", "f32pack", "both"].includes(format)) throw new UsageError("bad --format");
   let ranges = values.ranges === undefined ? DEFAULT_RANGES : loadRanges(values.ranges);
