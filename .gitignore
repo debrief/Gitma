@@ -154,3 +154,5 @@ vite.config.ts.timestamp-*
 *.tsbuildinfo
 site/.docusaurus/
 site/build/
+site/docs/data-dictionary.md
+site/src/generated/

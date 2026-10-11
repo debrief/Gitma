@@ -33,3 +33,5 @@ jobs:
         run: |
           pnpm tma-generate --seed 42 --count 1000 --noise-free --out "$RUNNER_TEMP/g0"
           pnpm tma-g0 --data "$RUNNER_TEMP/g0" --experiment "$RUNNER_TEMP/exp/g0"
+      - name: Site build (data dictionary, gate status, links)
+        run: pnpm site:build
