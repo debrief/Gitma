@@ -69,26 +69,26 @@ generator. US3 and US4 (P2) are independent of each other.
 
 ### Tests for User Story 1 ⚠️ write first, confirm they fail
 
-- [ ] T020 [P] [US1] Hand-computed known-answer geometry tests (independent of the solver; plan "G0 is necessary, not sufficient"): target dead ahead closing → constant bearing; target abeam stationary → bearing rate sign; ownship zig changes ownship course by exactly the drawn angle — in `packages/sim/test/unit/known-answer.test.ts`
-- [ ] T021 [P] [US1] Property tests over 1,000 seeds (samples 60–240, zig index in 40–60%, target constant velocity, ranges > 100 m, dropout count ≤ fraction, all floats are float32) in `packages/sim/test/unit/invariants.test.ts`
-- [ ] T022 [P] [US1] Golden test: seed 1, 20 scenarios → byte-compare NDJSON and `.f32pack` with `packages/data/test/golden/` in `packages/data/test/golden.test.ts`
-- [ ] T023 [P] [US1] Round-trip test NDJSON ↔ `.f32pack`, version-mismatch rejection, and truncated/corrupted file tests (both formats fail naming file and record) in `packages/data/test/roundtrip.test.ts`
-- [ ] T080 [P] [US1] Golden test for `packages/sim`: seed 1, 20 scenarios → byte-compare canonical JSON of `generateScenario` output with `packages/sim/test/golden/` in `packages/sim/test/golden.test.ts`
-- [ ] T024 [P] [US1] Throughput test: ≥ 1,000 scenarios/s single thread (skipped below a CPU-speed floor in CI, always run in `pnpm bench`) in `packages/data/test/throughput.test.ts`
+- [x] T020 [P] [US1] Hand-computed known-answer geometry tests (independent of the solver; plan "G0 is necessary, not sufficient"): target dead ahead closing → constant bearing; target abeam stationary → bearing rate sign; ownship zig changes ownship course by exactly the drawn angle — in `packages/sim/test/unit/known-answer.test.ts`
+- [x] T021 [P] [US1] Property tests over 1,000 seeds (samples 60–240, zig index in 40–60%, target constant velocity, ranges > 100 m, dropout count ≤ fraction, all floats are float32) in `packages/sim/test/unit/invariants.test.ts`
+- [x] T022 [P] [US1] Golden test: seed 1, 20 scenarios → byte-compare NDJSON and `.f32pack` with `packages/data/test/golden/` in `packages/data/test/golden.test.ts`
+- [x] T023 [P] [US1] Round-trip test NDJSON ↔ `.f32pack`, version-mismatch rejection, and truncated/corrupted file tests (both formats fail naming file and record) in `packages/data/test/roundtrip.test.ts`
+- [x] T080 [P] [US1] Golden test for `packages/sim`: seed 1, 20 scenarios → byte-compare canonical JSON of `generateScenario` output with `packages/sim/test/golden/` in `packages/sim/test/golden.test.ts`
+- [x] T024 [P] [US1] Throughput test: ≥ 1,000 scenarios/s single thread (skipped below a CPU-speed floor in CI, always run in `pnpm bench`) in `packages/data/test/throughput.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T025 [P] [US1] Default and held-out `ParameterRanges` in `packages/sim/src/ranges.ts`
-- [ ] T026 [US1] Parameter draw from ranges (log-uniform range, ±zig sign, σ set, dropout fraction; redraw if min range < 100 m; count reported as `DatasetHeader.redraw_count`) in `packages/sim/src/scenario.ts`
-- [ ] T027 [US1] Ownship two-leg motion and constant-velocity target motion as pure functions over `Float64Array` in `packages/sim/src/motion.ts`
-- [ ] T028 [US1] Bearing observer (true bearing, Gaussian noise, dropouts, float32 rounding of every stored value) in `packages/sim/src/observer.ts`
-- [ ] T029 [US1] `generateScenario(datasetSeed, index, ranges): Scenario` composing T026–T028, computing metadata (zig time/index, mean/min range) in `packages/sim/src/scenario.ts`
-- [ ] T030 [P] [US1] NDJSON writer/reader per contracts/file-formats.md (header line, schema key order, shortest float strings, seed as string) in `packages/data/src/ndjson.ts`
-- [ ] T031 [P] [US1] `.f32pack` writer/reader per contracts/file-formats.md (magic, offsets table, padded JSON blocks, Float32 arrays) in `packages/data/src/f32pack.ts`
-- [ ] T032 [US1] Splits (80/10/10 by index, held-out = count/10 from held-out ranges) in `packages/data/src/splits.ts`
-- [ ] T033 [US1] `tma-generate` CLI (`parseArgs`, atomic writes, JSON summary, exit codes per contracts/cli.md, `--noise-free`) in `packages/data/src/cli-generate.ts`
-- [ ] T034 [US1] `tma-convert` CLI with `--check` in `packages/data/src/cli-convert.ts`
-- [ ] T035 [US1] Generate and commit golden files for T022 and T080 via `packages/data/scripts/update-golden.ts`; add `test:golden` step to `.github/workflows/ci.yml`
+- [x] T025 [P] [US1] Default and held-out `ParameterRanges` in `packages/sim/src/ranges.ts`
+- [x] T026 [US1] Parameter draw from ranges (log-uniform range, ±zig sign, σ set, dropout fraction; redraw if min range < 100 m; count reported as `DatasetHeader.redraw_count`) in `packages/sim/src/scenario.ts`
+- [x] T027 [US1] Ownship two-leg motion and constant-velocity target motion as pure functions over `Float64Array` in `packages/sim/src/motion.ts`
+- [x] T028 [US1] Bearing observer (true bearing, Gaussian noise, dropouts, float32 rounding of every stored value) in `packages/sim/src/observer.ts`
+- [x] T029 [US1] `generateScenario(datasetSeed, index, ranges): Scenario` composing T026–T028, computing metadata (zig time/index, mean/min range) in `packages/sim/src/scenario.ts`
+- [x] T030 [P] [US1] NDJSON writer/reader per contracts/file-formats.md (header line, schema key order, shortest float strings, seed as string) in `packages/data/src/ndjson.ts`
+- [x] T031 [P] [US1] `.f32pack` writer/reader per contracts/file-formats.md (magic, offsets table, padded JSON blocks, Float32 arrays) in `packages/data/src/f32pack.ts`
+- [x] T032 [US1] Splits (80/10/10 by index, held-out = count/10 from held-out ranges) in `packages/data/src/splits.ts`
+- [x] T033 [US1] `tma-generate` CLI (`parseArgs`, atomic writes, JSON summary, exit codes per contracts/cli.md, `--noise-free`) in `packages/data/src/cli-generate.ts`
+- [x] T034 [US1] `tma-convert` CLI with `--check` in `packages/data/src/cli-convert.ts`
+- [x] T035 [US1] Generate and commit golden files for T022 and T080 via `packages/data/scripts/update-golden.ts`; add `test:golden` step to `.github/workflows/ci.yml`
 
 **Checkpoint**: quickstart §2 passes. Generator usable on its own.
 

@@ -9,5 +9,8 @@
       "default": "./dist/index.js"
     }
   },
-  "scripts": {}
+  "scripts": {},
+  "dependencies": {
+    "@tma/types": "workspace:*"
+  }
 }

@@ -13,12 +13,17 @@ Each stage is a separate command reading and writing files (constitution III). A
 ```
 tma-generate --seed <uint64> --count <n> --out <dir>
              [--ranges <ranges.json>] [--noise-free] [--heldout-ranges <ranges.json>]
-             [--format ndjson|f32pack|both]   (default both)
+             [--format ndjson|f32pack|both]   (default f32pack)
 ```
 
 Writes `<dir>/{train,validation,test,heldout}.{ndjson,f32pack}`. Splits are 80/10/10 of `count` by
 scenario index; `heldout` has `count/10` scenarios from `--heldout-ranges` (default: SRD example,
 range 20–30 km). `--noise-free` forces σ = 0 and no dropouts.
+
+Default format is `f32pack` because NDJSON is ~7× larger (10^5 scenarios ≈ 3.8 GB NDJSON vs
+≈ 0.6 GB pack); use `--format both` or `tma-convert` when a split needs inspecting. The header's
+`created_by` records only generation-relevant arguments, so output bytes do not depend on `--out` or
+`--format`.
 
 ## `tma-convert` (packages/data)
 

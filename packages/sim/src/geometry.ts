@@ -4,8 +4,17 @@ export const TWO_PI = 2 * Math.PI;
 export const KNOT_MPS = 1852 / 3600;
 export const DEG = Math.PI / 180;
 
-/** Round to the nearest float32 (constitution II: stored values are float32). */
-export const f32 = Math.fround;
+/**
+ * Round to the nearest float32 (constitution II: stored values are float32). Negative zero is
+ * normalised to +0 because JSON cannot represent it, which would break NDJSON ↔ pack round-trips.
+ */
+export const f32 = (x: number): number => Math.fround(x) + 0;
+
+/** Wrap to [0, 2π) and round to float32, keeping the result strictly below 2π. */
+export function f32Angle(a: number): number {
+  const v = f32(wrap2pi(a));
+  return v >= TWO_PI ? 0 : v;
+}
 
 /** Wrap an angle to [0, 2π). */
 export function wrap2pi(a: number): number {

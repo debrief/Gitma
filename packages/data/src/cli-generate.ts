@@ -1,0 +1,63 @@
+import { readFileSync } from "node:fs";
+import { parseArgs } from "node:util";
+import { DEFAULT_RANGES, HELDOUT_RANGES, noiseFree, parseSeed } from "@tma/sim";
+import { ParameterRanges, parseRecord } from "@tma/types";
+import { isMain, runCli, UsageError } from "./cli.js";
+import { type Format, generateDataset } from "./generate.js";
+
+function loadRanges(path: string): ParameterRanges {
+  return parseRecord(ParameterRanges, JSON.parse(readFileSync(path, "utf8")), path, "ranges");
+}
+
+export function main(argv: string[]): unknown {
+  const { values } = parseArgs({
+    args: argv,
+    strict: true,
+    options: {
+      seed: { type: "string" },
+      count: { type: "string" },
+      out: { type: "string" },
+      ranges: { type: "string" },
+      "heldout-ranges": { type: "string" },
+      "noise-free": { type: "boolean", default: false },
+      format: { type: "string", default: "f32pack" },
+    },
+  });
+  if (values.seed === undefined || values.count === undefined || values.out === undefined) {
+    throw new UsageError(
+      "usage: tma-generate --seed <uint64> --count <n> --out <dir> [--ranges f] [--heldout-ranges f] [--noise-free] [--format f32pack|ndjson|both]",
+    );
+  }
+  const count = Number(values.count);
+  if (!Number.isInteger(count) || count < 1) throw new UsageError("--count must be a positive integer");
+  const format = values.format as Format;
+  if (!["ndjson", "f32pack", "both"].includes(format)) throw new UsageError("bad --format");
+  let ranges = values.ranges === undefined ? DEFAULT_RANGES : loadRanges(values.ranges);
+  let heldout =
+    values["heldout-ranges"] === undefined ? HELDOUT_RANGES : loadRanges(values["heldout-ranges"]);
+  if (values["noise-free"]) {
+    ranges = noiseFree(ranges);
+    heldout = noiseFree(heldout);
+  }
+  const t0 = performance.now();
+  const splits = generateDataset({
+    seed: parseSeed(values.seed),
+    count,
+    outDir: values.out,
+    ranges,
+    heldoutRanges: heldout,
+    format,
+    // Only generation-relevant arguments, so output bytes do not depend on paths or format.
+    createdBy: [
+      `tma-generate --seed ${values.seed} --count ${String(count)}`,
+      values["noise-free"] ? " --noise-free" : "",
+      values.ranges === undefined ? "" : " --ranges <custom>",
+      values["heldout-ranges"] === undefined ? "" : " --heldout-ranges <custom>",
+    ].join(""),
+  });
+  const seconds = (performance.now() - t0) / 1000;
+  const total = splits.reduce((n, s) => n + s.scenarios, 0);
+  return { out: values.out, splits, seconds, scenarios_per_s: Math.round(total / seconds) };
+}
+
+if (isMain(import.meta.url)) process.exitCode = runCli(main, process.argv.slice(2));

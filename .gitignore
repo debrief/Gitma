@@ -149,7 +149,7 @@ vite.config.ts.timestamp-*
 .turbo
 
 # TMA project
-data/
+/data/
 .venv/
 *.tsbuildinfo
 site/.docusaurus/
