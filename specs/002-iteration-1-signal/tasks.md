@@ -16,20 +16,20 @@ description: "Task list for 002 — Iteration 1, is the signal learnable (G1)"
 
 ## Phase 1: Setup
 
-- [ ] T001 Scaffold `packages/models` (`package.json` with `@tensorflow/tfjs-node@4.22.0`, `tsconfig.json`, references, root scripts `tma-train`, `tma-model-predict`); add to root `tsconfig.json`, `tsconfig.check.json` paths and `vitest.config.ts` aliases
-- [ ] T002 Add `ModelKind`, `TrainingConfig`, `EpochRecord`, `ModelManifest` to `schema/tma.yaml`, bump to 0.3.0, `pnpm schema:gen`; update data goldens (version-only change) with stated reason
-- [ ] T003 [P] `configs/iter1-ranges.json` (σ = 0.5° only, no dropouts) and `configs/iter1/{instantaneous,time-late,causal-cnn,mlp,instantaneous-shuffled}.json` per research R4/R5
-- [ ] T004 [P] Allow the tfjs-node native build in `pnpm-workspace.yaml` (`onlyBuiltDependencies`) and verify CI install time
+- [x] T001 Scaffold `packages/models` (`package.json` with `@tensorflow/tfjs-node@4.22.0`, `tsconfig.json`, references, root scripts `tma-train`, `tma-model-predict`); add to root `tsconfig.json`, `tsconfig.check.json` paths and `vitest.config.ts` aliases
+- [x] T002 Add `ModelKind`, `TrainingConfig`, `EpochRecord`, `ModelManifest` to `schema/tma.yaml`, bump to 0.3.0, `pnpm schema:gen`; update data goldens (version-only change) with stated reason
+- [x] T003 [P] `configs/iter1-ranges.json` (σ = 0.5° only, no dropouts) and `configs/iter1/{instantaneous,time-late,causal-cnn,mlp,instantaneous-shuffled}.json` per research R4/R5
+- [x] T004 [P] Allow the tfjs-node native build in `pnpm-workspace.yaml` (`onlyBuiltDependencies`) and verify CI install time
 
 ## Phase 2: Foundational
 
-- [ ] T005 [P] Test: random-access feature reader returns the same tensors as `buildWindow` for scenario k, rejects bad magic/version, in `packages/features/test/reader.test.ts`
-- [ ] T006 Random-access `.features.bin` reader (header, indices, per-scenario offsets) in `packages/features/src/reader.ts`
-- [ ] T007 [P] Test: seeded epoch permutation is deterministic and a permutation, in `packages/models/test/batches.test.ts`
-- [ ] T008 Batch assembler (seeded order via `@tma/sim` PRNG, `y_true` packed as 4 targets + loss weight, optional label shuffling) in `packages/models/src/batches.ts`
-- [ ] T009 [P] Test: masked loss ignores zero-weight rows and matches a hand computation, in `packages/models/test/loss.test.ts`
-- [ ] T010 Masked weighted loss (R5) in `packages/models/src/loss.ts`
-- [ ] T011 [P] Test + implementation: G0 guard (refuses without a G0 pass verdict) in `packages/models/src/g0-guard.ts`, `packages/models/test/g0-guard.test.ts`
+- [x] T005 [P] Test: random-access feature reader returns the same tensors as `buildWindow` for scenario k, rejects bad magic/version, in `packages/features/test/reader.test.ts`
+- [x] T006 Random-access `.features.bin` reader (header, indices, per-scenario offsets) in `packages/features/src/reader.ts`
+- [x] T007 [P] Test: seeded epoch permutation is deterministic and a permutation, in `packages/models/test/batches.test.ts`
+- [x] T008 Batch assembler (seeded order via `@tma/sim` PRNG, `y_true` packed as 4 targets + loss weight, optional label shuffling) in `packages/models/src/batches.ts`
+- [x] T009 [P] Test: masked loss ignores zero-weight rows and matches a hand computation, in `packages/models/test/loss.test.ts`
+- [x] T010 Masked weighted loss (R5) in `packages/models/src/loss.ts`
+- [x] T011 [P] Test + implementation: G0 guard (refuses without a G0 pass verdict) in `packages/models/src/g0-guard.ts`, `packages/models/test/g0-guard.test.ts`
 
 **Checkpoint**: data can be streamed in deterministic batches with the correct loss.
 
@@ -39,17 +39,17 @@ description: "Task list for 002 — Iteration 1, is the signal learnable (G1)"
 
 ### Tests ⚠️
 
-- [ ] T012 [P] [US1] Shapes: each architecture maps [B, 240, 10] → [B, 240, 4]; only allowed layer classes used, in `packages/models/test/architectures.test.ts`
-- [ ] T013 [P] [US1] Causality: perturbing inputs after row t leaves outputs ≤ t unchanged for `instantaneous` and `causal_cnn`, and changes them for `time_late` and `mlp`, in `packages/models/test/causality.test.ts`
-- [ ] T014 [P] [US1] Determinism golden: 64 scenarios × 2 epochs trained twice → identical weights digest, compared with `packages/models/test/golden/weights-digests.json`, in `packages/models/test/golden.test.ts`
-- [ ] T015 [P] [US1] Training loop: early stopping, wall-clock cap and NaN divergence each set the right `stop_reason`, in `packages/models/test/train.test.ts`
+- [x] T012 [P] [US1] Shapes: each architecture maps [B, 240, 10] → [B, 240, 4]; only allowed layer classes used, in `packages/models/test/architectures.test.ts`
+- [x] T013 [P] [US1] Causality: perturbing inputs after row t leaves outputs ≤ t unchanged for `instantaneous` and `causal_cnn`, and changes them for `time_late` and `mlp`, in `packages/models/test/causality.test.ts`
+- [x] T014 [P] [US1] Determinism golden: 64 scenarios × 2 epochs trained twice → identical weights digest, compared with `packages/models/test/golden/weights-digests.json`, in `packages/models/test/golden.test.ts`
+- [x] T015 [P] [US1] Training loop: early stopping, wall-clock cap and NaN divergence each set the right `stop_reason`, in `packages/models/test/train.test.ts`
 
 ### Implementation
 
-- [ ] T016 [US1] Four builders with seeded initializers and explicit causal padding (R3/R4) in `packages/models/src/architectures.ts`
-- [ ] T017 [US1] Training loop (`trainOnBatch`, validation per epoch, best-epoch weights, early stop, wall-clock cap, per-epoch checkpoint + resume) in `packages/models/src/train.ts`
-- [ ] T018 [US1] Manifest (config, digests, normalisation, versions, epochs, environment, weights digest) in `packages/models/src/manifest.ts`
-- [ ] T019 [US1] `tma-train` CLI per contracts/cli.md in `packages/models/src/cli-train.ts`
+- [x] T016 [US1] Four builders with seeded initializers and explicit causal padding (R3/R4) in `packages/models/src/architectures.ts`
+- [x] T017 [US1] Training loop (`trainOnBatch`, validation per epoch, best-epoch weights, early stop, wall-clock cap, per-epoch checkpoint + resume) in `packages/models/src/train.ts`
+- [x] T018 [US1] Manifest (config, digests, normalisation, versions, epochs, environment, weights digest) in `packages/models/src/manifest.ts`
+- [x] T019 [US1] `tma-train` CLI per contracts/cli.md in `packages/models/src/cli-train.ts`
 
 **Checkpoint**: a tiny config trains reproducibly; full training can start (after G0 sign-off).
 
@@ -102,7 +102,7 @@ description: "Task list for 002 — Iteration 1, is the signal learnable (G1)"
 ## Phase 9: Polish
 
 - [ ] T038 [P] Update `AGENTS.md` and README (models package, training commands, budget, G1 status)
-- [ ] T039 [P] Propose SRD amendment for the 4 h budget (separate PR against `docs/SRD.md`)
+- [ ] T039 [P] Propose SRD amendment for the 6 h budget (PR #18) (separate PR against `docs/SRD.md`)
 - [ ] T040 Adversarial review of G1: confirm a model given truth as input would be caught by the leakage check only if inputs leak, and record what G1 cannot detect
 
 ---

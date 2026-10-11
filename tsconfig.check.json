@@ -12,7 +12,8 @@
       "@tma/data": ["./packages/data/src/index.ts"],
       "@tma/features": ["./packages/features/src/index.ts"],
       "@tma/classical": ["./packages/classical/src/index.ts"],
-      "@tma/eval": ["./packages/eval/src/index.ts"]
+      "@tma/eval": ["./packages/eval/src/index.ts"],
+      "@tma/models": ["./packages/models/src/index.ts"]
     }
   },
   "include": [

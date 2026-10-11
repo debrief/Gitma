@@ -7,9 +7,9 @@ Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternati
 - **Spike (2026-10-11)**: `@tensorflow/tfjs-node` 4.22.0 installs and runs on the 4-core container
   (oneDNN, AVX-512). At batch 256 and 240 rows: LSTM-64 ≈ 200 windows/s, BiLSTM-64 ≈ 100 windows/s;
   batch 64 is ~3× slower. One 80k-window epoch ≈ 7 min (LSTM), ≈ 13 min (BiLSTM).
-- **Decision**: stay on tfjs-node; batch 256; **4-hour wall-clock cap per model** (user decision,
+- **Decision**: stay on tfjs-node; batch 256; **6-hour wall-clock cap per model** (user decision, first 4 h then 6 h;
   relaxing SRD §4's one hour). Training stops at the earlier of: max epochs, early stopping on
-  validation loss (patience 3), or the wall-clock cap. Expected: ~25 LSTM epochs, ~15 BiLSTM epochs.
+  validation loss (patience 3), or the wall-clock cap. Measured in the run: ≈ 12.6 min per LSTM epoch, so ≈ 28 LSTM epochs fit in 6 h.
 - **Alternatives**: one-hour cap with early stopping (≈ 4 BiLSTM epochs, likely undertrained);
   30k-scenario subset (fewer examples); PyTorch port (SRD §8 fallback, more work, breaks the
   single-stack setup). Revisit the PyTorch port if iteration 3's 10^6 scenarios are needed.
@@ -43,15 +43,16 @@ Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternati
 | --- | --- | --- |
 | `instantaneous` | Masking → LSTM(96, seq) → TimeDistributed(Dense(4)) | 41k |
 | `time_late` | Masking → Bidirectional(LSTM(96, seq)) → TimeDistributed(Dense(4)) | 82k |
-| `causal_cnn` (control) | left-pad → Conv1D(64, k=9, relu) ×3 (dilation 1, 2, 4) → TimeDistributed(Dense(4)) | 80k |
+| `causal_cnn` (control) | (left-pad → Conv1D(64, k=15, relu)) ×3 → TimeDistributed(Dense(4)) | 130k |
 | `mlp` (control) | Flatten(240×10) → Dense(256, relu) → Dense(256, relu) → Dense(240×4) → Reshape | 0.93M |
 
 - Output channels: `log_range_km`, `course_sin`, `course_cos`, `speed_scaled` (feature-layout targets
   0–3). Position is derived, not trained (SRD §4).
 - 96 units sits in the SRD's 64–128 range; it's one of ≤ 4 configurations per model (FR-009); the
   others are 64 and 128 units, and one learning-rate variant.
-- The causal CNN's receptive field (≈ 57 rows, ≈ 9.5 min) is deliberately shorter than the window, so
-  it is a fair "local pattern" control, not a sequence model in disguise.
+- The causal CNN's receptive field (43 rows, ≈ 7 min) is deliberately shorter than the window, so
+  it is a fair "local pattern" control, not a sequence model in disguise. No dilation: tfjs-node 4.22
+  has no gradient for dilated `conv2D` (found in implementation), so width comes from k = 15.
 - Masking: zeros in padding rows are masked; dropout rows keep `window_mask = 1` (iteration 1 has no
   dropouts anyway).
 

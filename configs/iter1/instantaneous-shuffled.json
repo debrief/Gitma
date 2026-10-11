@@ -1,0 +1,15 @@
+{
+  "learning_rate": 0.001,
+  "batch_size": 256,
+  "max_epochs": 60,
+  "patience": 3,
+  "max_wall_s": 7200,
+  "loss_weight_range": 1,
+  "loss_weight_course": 1,
+  "loss_weight_speed": 1,
+  "shuffle_labels": true,
+  "id": "lstm-instantaneous-shuffled",
+  "model_kind": "instantaneous",
+  "units": 96,
+  "train_seed": "1005"
+}

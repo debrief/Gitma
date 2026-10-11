@@ -119,6 +119,33 @@
       "title": "DatasetRef",
       "type": "object"
     },
+    "EpochRecord": {
+      "additionalProperties": false,
+      "description": "",
+      "properties": {
+        "epoch": {
+          "type": "integer"
+        },
+        "seconds": {
+          "description": "Cumulative wall time.",
+          "type": "number"
+        },
+        "train_loss": {
+          "type": "number"
+        },
+        "val_loss": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "epoch",
+        "train_loss",
+        "val_loss",
+        "seconds"
+      ],
+      "title": "EpochRecord",
+      "type": "object"
+    },
     "EstimatorRef": {
       "additionalProperties": false,
       "description": "",
@@ -395,6 +422,106 @@
         "excluded"
       ],
       "title": "MetricsRecord",
+      "type": "object"
+    },
+    "ModelKind": {
+      "description": "Model families of SRD §4.",
+      "enum": [
+        "instantaneous",
+        "time_late",
+        "causal_cnn",
+        "mlp"
+      ],
+      "title": "ModelKind",
+      "type": "string"
+    },
+    "ModelManifest": {
+      "additionalProperties": false,
+      "description": "Everything needed to reproduce and identify a trained model.",
+      "properties": {
+        "best_epoch": {
+          "type": "integer"
+        },
+        "complete": {
+          "description": "False while training is in progress (checkpoint).",
+          "type": "boolean"
+        },
+        "config": {
+          "$ref": "#/$defs/TrainingConfig"
+        },
+        "cpu_model": {
+          "type": "string"
+        },
+        "epochs": {
+          "items": {
+            "$ref": "#/$defs/EpochRecord"
+          },
+          "type": "array"
+        },
+        "generator_version": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "node_version": {
+          "type": "string"
+        },
+        "normalisation": {
+          "$ref": "#/$defs/NormalisationConstants"
+        },
+        "parameter_count": {
+          "type": "integer"
+        },
+        "schema_version": {
+          "type": "string"
+        },
+        "stop_reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StopReason"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tfjs_node_version": {
+          "type": "string"
+        },
+        "train_features_digest": {
+          "type": "string"
+        },
+        "val_features_digest": {
+          "type": "string"
+        },
+        "wall_s": {
+          "type": "number"
+        },
+        "weights_digest": {
+          "description": "SHA-256 of best-epoch weights.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "config",
+        "schema_version",
+        "generator_version",
+        "train_features_digest",
+        "val_features_digest",
+        "normalisation",
+        "epochs",
+        "best_epoch",
+        "complete",
+        "wall_s",
+        "parameter_count",
+        "tfjs_node_version",
+        "node_version",
+        "cpu_model",
+        "weights_digest"
+      ],
+      "title": "ModelManifest",
       "type": "object"
     },
     "NaiveMeans": {
@@ -892,6 +1019,17 @@
       "title": "Split",
       "type": "string"
     },
+    "StopReason": {
+      "description": "",
+      "enum": [
+        "max_epochs",
+        "early_stopping",
+        "wall_clock",
+        "diverged"
+      ],
+      "title": "StopReason",
+      "type": "string"
+    },
     "Track": {
       "additionalProperties": false,
       "description": "Time-ordered states of one platform. Stone Soup analogue GroundTruthPath.",
@@ -921,6 +1059,95 @@
       ],
       "title": "TrackId",
       "type": "string"
+    },
+    "TrainingConfig": {
+      "additionalProperties": false,
+      "description": "Hyperparameters and seeds for one training run (SRD §4; constitution III).",
+      "properties": {
+        "batch_size": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Estimator name used in predictions.",
+          "type": "string"
+        },
+        "kernel_size": {
+          "description": "Causal CNN kernel size.",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "layers": {
+          "description": "Causal CNN conv layers (no dilation).",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "learning_rate": {
+          "type": "number"
+        },
+        "loss_weight_course": {
+          "type": "number"
+        },
+        "loss_weight_range": {
+          "type": "number"
+        },
+        "loss_weight_speed": {
+          "type": "number"
+        },
+        "max_epochs": {
+          "type": "integer"
+        },
+        "max_wall_s": {
+          "description": "Wall-clock cap in seconds.",
+          "type": "number"
+        },
+        "model_kind": {
+          "$ref": "#/$defs/ModelKind"
+        },
+        "patience": {
+          "description": "Epochs without validation improvement before stopping.",
+          "type": "integer"
+        },
+        "shuffle_labels": {
+          "description": "Permute targets across scenarios (leakage check).",
+          "type": "boolean"
+        },
+        "train_limit": {
+          "description": "Use only the first N training scenarios (tests and smoke runs).",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "train_seed": {
+          "description": "Decimal uint64; derives initializer seeds and batch order.",
+          "type": "string"
+        },
+        "units": {
+          "description": "LSTM units (per direction), conv filters or dense width.",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "model_kind",
+        "units",
+        "learning_rate",
+        "batch_size",
+        "max_epochs",
+        "patience",
+        "max_wall_s",
+        "loss_weight_range",
+        "loss_weight_course",
+        "loss_weight_speed",
+        "train_seed",
+        "shuffle_labels"
+      ],
+      "title": "TrainingConfig",
+      "type": "object"
     }
   },
   "$id": "https://github.com/debrief/gitma/schema/tma",
@@ -957,5 +1184,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.2.0"
+  "version": "0.3.0"
 }

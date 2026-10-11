@@ -1,0 +1,15 @@
+{
+  "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "weights_digest": {
+    "instantaneous": "9a90046f37a4baeddfef721303ffdfed1d15f6ef2cb2fe981de6315933b20cbe",
+    "time_late": "ba3790a61e489b01404255304435fe30ecb2ee9d1c937df3f26fde8fabb801ef",
+    "causal_cnn": "9d09c3e7d81ecd28bc64d358d94c5563e05c142b78bfc8f81ec15185d3a58d24",
+    "mlp": "35de2e9541e8d5d39d6f96ae59df0443460f9f314f2fd262d07bc354c9213f95"
+  },
+  "final_val_loss": {
+    "instantaneous": 6.819440409062213,
+    "time_late": 5.883831213084961,
+    "causal_cnn": 10.089361297635445,
+    "mlp": 6.012427767208087
+  }
+}
