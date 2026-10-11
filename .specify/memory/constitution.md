@@ -108,8 +108,14 @@ Rationale: the project exists to answer one question cheaply, not to build a pro
   principle or materially expanding guidance, PATCH for clarifications.
 - Every PR review MUST check compliance with the principles above; any justified exception is
   recorded in the PR description.
-- Gate verdicts are taken at a team review against SRD §5 metrics; Doc holds the casting vote
-  where the numbers are borderline.
+- Gate verdicts are taken by an **agent review panel** against SRD §5 metrics, not by humans:
+  at least five independent AI reviewers, each with a distinct speciality (TMA geometry,
+  estimation and numerics, evaluation statistics, reproducibility, red team), review the gate
+  evidence and return approve / approve-with-findings / reject with severity-tagged findings.
+  Every blocker and major finding MUST be fixed or answered with evidence, and the panel is
+  re-invited to review the response until no reviewer rejects and no blocker or major finding
+  stays open. The record (reviews, responses, rounds) is committed as
+  `experiments/<id>/review.md`, and the verdict's `decided_by` names the panel round.
 - Runtime guidance for agents lives in `AGENTS.md`.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-11
+**Version**: 1.2.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-11

@@ -109,3 +109,17 @@ Full walkthrough: `specs/001-iteration-0-pipeline/quickstart.md`.
 
 G0 pipeline → G1 signal exists → G2 useful → G3 classical parity (stretch). Iteration 0 builds the
 pipeline and must pass G0 before any training.
+
+Gate decisions come from an **agent review panel**, never from waiting on humans (constitution
+1.2.0). For each gate experiment:
+
+1. Launch ≥ 5 independent reviewers in parallel, one per speciality: TMA geometry, estimation and
+   numerics, evaluation statistics, reproducibility (re-runs the experiment from the manifest),
+   red team (looks for ways the gate passes while the pipeline is wrong, incl. leakage).
+   Reviewers are read-only; they return `VERDICT: approve | approve-with-findings | reject` and
+   severity-tagged findings (blocker / major / minor) with evidence.
+2. Fix or answer (with evidence) every blocker and major finding; fix minors that are cheap.
+3. Re-invite the reviewers with the response and ask for further review; repeat until none
+   rejects and no blocker or major finding is open.
+4. Commit `experiments/<id>/review.md` (each round's reviews and responses) and set the verdict's
+   `decided_by` to the panel round that approved it.
