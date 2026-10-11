@@ -33,5 +33,20 @@ jobs:
         run: |
           pnpm tma-generate --seed 42 --count 1000 --noise-free --out "$RUNNER_TEMP/g0"
           pnpm tma-g0 --data "$RUNNER_TEMP/g0" --experiment "$RUNNER_TEMP/exp/g0"
+      - name: End-to-end G1 pipeline (300 scenarios, tiny models, 1 epoch; result not asserted)
+        run: |
+          D="$RUNNER_TEMP/g1"
+          pnpm tma-generate --seed 7 --count 300 --ranges configs/iter1-ranges.json \
+            --heldout-ranges configs/iter1-heldout-ranges.json --out "$D"
+          pnpm tma-features norm --train "$D/train.f32pack" --out "$D/norm.json"
+          for s in train validation test heldout; do
+            pnpm tma-features build --in "$D/$s.f32pack" --norm "$D/norm.json" --out "$D/$s.features.bin"
+          done
+          for m in instantaneous time-late causal-cnn mlp instantaneous-shuffled; do
+            pnpm tma-train --config configs/ci/$m.json --train "$D/train.features.bin" \
+              --val "$D/validation.features.bin" --out "$RUNNER_TEMP/models/$m"
+          done
+          pnpm tma-g1 --data "$D" --models "$RUNNER_TEMP/models" --experiment "$RUNNER_TEMP/exp/g1" || [ $? -eq 3 ]
+          test -f "$RUNNER_TEMP/exp/g1/verdict.json"
       - name: Site build (data dictionary, gate status, links)
         run: pnpm site:build

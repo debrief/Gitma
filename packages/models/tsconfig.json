@@ -6,9 +6,23 @@
   },
   "include": ["src"],
   "references": [
-    { "path": "../types" },
-    { "path": "../sim" },
-    { "path": "../data" },
-    { "path": "../features" }
+    {
+      "path": "../types"
+    },
+    {
+      "path": "../sim"
+    },
+    {
+      "path": "../data"
+    },
+    {
+      "path": "../features"
+    },
+    {
+      "path": "../classical"
+    },
+    {
+      "path": "../eval"
+    }
   ]
 }
