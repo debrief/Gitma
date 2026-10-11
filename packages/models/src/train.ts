@@ -207,7 +207,11 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
         stop = "early_stopping";
         break;
       }
-      if (elapsed() >= config.max_wall_s) {
+      // Stop when another epoch of the length just run would cross the cap, so a run never
+      // exceeds max_wall_s (CI jobs have a hard limit; research R1).
+      const prev = epochs.at(-2)?.seconds ?? priorSeconds;
+      const lastEpochS = elapsed() - prev;
+      if (elapsed() + lastEpochS > config.max_wall_s) {
         stop = "wall_clock";
         break;
       }

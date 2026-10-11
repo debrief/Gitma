@@ -1,0 +1,122 @@
+name: Train iteration 1 (G1)
+
+# Spec 002 T031/T033 on GitHub-hosted runners: one job per model (≤ 5.5 h each, GitHub's job
+# limit is 6 h), then the G1 evaluation. Data and features are regenerated in every job from the
+# fixed seed (byte-identical, constitution II). Outputs are pushed to `results/g1-<run id>` for
+# the agent review panel; nothing is merged automatically.
+
+on:
+  push:
+    branches: ["train/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: train-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  DATA: ${{ github.workspace }}/../i1-data
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 358
+    strategy:
+      fail-fast: false
+      matrix:
+        model: [instantaneous, time-late, causal-cnn, mlp, instantaneous-shuffled]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the G0 guard diffs the generator source against the verified commit
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Data and features (seed 101, quickstart §1)
+        run: |
+          pnpm tma-generate --seed 101 --count 100000 --ranges configs/iter1-ranges.json \
+            --heldout-ranges configs/iter1-heldout-ranges.json --out "$DATA"
+          pnpm tma-features norm --train "$DATA/train.f32pack" --out "$DATA/norm.json"
+          for s in train validation; do
+            pnpm tma-features build --in "$DATA/$s.f32pack" --norm "$DATA/norm.json" --out "$DATA/$s.features.bin"
+          done
+          sha256sum "$DATA"/*.f32pack "$DATA"/*.features.bin
+      - name: Train ${{ matrix.model }}
+        shell: bash # -o pipefail, so a failed run is not hidden by tee
+        run: |
+          pnpm tma-train --config configs/iter1/${{ matrix.model }}.json \
+            --train "$DATA/train.features.bin" --val "$DATA/validation.features.bin" \
+            --out "$RUNNER_TEMP/models/${{ matrix.model }}" 2>&1 | tee "$RUNNER_TEMP/train.log"
+          lscpu | grep "Model name"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: model-${{ matrix.model }}
+          path: |
+            ${{ runner.temp }}/models/${{ matrix.model }}/manifest.json
+            ${{ runner.temp }}/models/${{ matrix.model }}/model.json
+            ${{ runner.temp }}/models/${{ matrix.model }}/weights.bin
+            ${{ runner.temp }}/train.log
+          retention-days: 30
+
+  g1:
+    needs: train
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/artifacts
+      - name: Collect trained models
+        run: |
+          for m in instantaneous time-late causal-cnn mlp instantaneous-shuffled; do
+            mkdir -p "$RUNNER_TEMP/models/$m"
+            # upload-artifact strips the common prefix ($RUNNER_TEMP): models/<m>/… and train.log
+            cp "$RUNNER_TEMP/artifacts/model-$m/models/$m/"* "$RUNNER_TEMP/models/$m/"
+          done
+          find "$RUNNER_TEMP/models" -type f | sort
+      - name: Data and features (all splits)
+        run: |
+          pnpm tma-generate --seed 101 --count 100000 --ranges configs/iter1-ranges.json \
+            --heldout-ranges configs/iter1-heldout-ranges.json --out "$DATA"
+          pnpm tma-features norm --train "$DATA/train.f32pack" --out "$DATA/norm.json"
+          for s in train validation test heldout; do
+            pnpm tma-features build --in "$DATA/$s.f32pack" --norm "$DATA/norm.json" --out "$DATA/$s.features.bin"
+          done
+      - name: G1 (naive + classical per-timestep + models; gate exit 3 is a result, not an error)
+        shell: bash
+        run: |
+          EXP="experiments/$(date -u +%Y%m%d)-g1"
+          echo "EXP=$EXP" >> "$GITHUB_ENV"
+          pnpm tma-g1 --data "$DATA" --models "$RUNNER_TEMP/models" --experiment "$EXP" || [ $? -eq 3 ]
+          mkdir -p "$EXP/logs"
+          for m in instantaneous time-late causal-cnn mlp instantaneous-shuffled; do
+            cp "$RUNNER_TEMP/artifacts/model-$m/train.log" "$EXP/logs/$m.log"
+          done
+          cat "$EXP/verdict.json"
+      - name: Push results branch for the agent panel
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "results/g1-${{ github.run_id }}"
+          git add "$EXP"
+          git commit -qm "experiments: G1 run ${{ github.run_id }} (CI, ${{ github.sha }})"
+          git push origin "results/g1-${{ github.run_id }}"
