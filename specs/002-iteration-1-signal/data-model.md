@@ -17,7 +17,7 @@ Additions to `schema/tma.yaml` (version 0.2.0 → 0.3.0, additive). Existing cla
 | `batch_size` | integer | default 256 |
 | `max_epochs` | integer | |
 | `patience` | integer | early-stopping epochs without validation improvement |
-| `max_wall_s` | float | wall-clock cap (default 14 400) |
+| `max_wall_s` | float | wall-clock cap (default 21 600) |
 | `loss_weight_range`, `loss_weight_course`, `loss_weight_speed` | float | |
 | `train_seed` | string | uint64 decimal; derives initializer seeds and batch order |
 | `shuffle_labels` | boolean | leakage run only |
