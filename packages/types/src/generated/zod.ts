@@ -77,6 +77,15 @@ export const DatasetRef = z.strictObject({
 });
 export type DatasetRef = z.infer<typeof DatasetRef>;
 
+export const EpochRecord = z.strictObject({
+  epoch: z.number().int(),
+  /** Cumulative wall time. */
+  seconds: z.number(),
+  train_loss: z.number(),
+  val_loss: z.number(),
+});
+export type EpochRecord = z.infer<typeof EpochRecord>;
+
 export const EstimatorRef = z.strictObject({
   name: z.string(),
   /** Estimator settings as JSON. */
@@ -160,6 +169,67 @@ export const MetricsRecord = z.strictObject({
   speed_kt_p90: z.number().nullish(),
 });
 export type MetricsRecord = z.infer<typeof MetricsRecord>;
+
+/** Model families of SRD §4. */
+export const ModelKind = z.enum(["instantaneous", "time_late", "causal_cnn", "mlp"]);
+export type ModelKind = z.infer<typeof ModelKind>;
+
+export const StopReason = z.enum(["max_epochs", "early_stopping", "wall_clock", "diverged"]);
+export type StopReason = z.infer<typeof StopReason>;
+
+/** Hyperparameters and seeds for one training run (SRD §4; constitution III). */
+export const TrainingConfig = z.strictObject({
+  batch_size: z.number().int(),
+  /** Estimator name used in predictions. */
+  id: z.string(),
+  /** Causal CNN kernel size. */
+  kernel_size: z.number().int().nullish(),
+  /** Causal CNN conv layers (no dilation). */
+  layers: z.number().int().nullish(),
+  learning_rate: z.number(),
+  loss_weight_course: z.number(),
+  loss_weight_range: z.number(),
+  loss_weight_speed: z.number(),
+  max_epochs: z.number().int(),
+  /** Wall-clock cap in seconds. */
+  max_wall_s: z.number(),
+  model_kind: ModelKind,
+  /** Epochs without validation improvement before stopping. */
+  patience: z.number().int(),
+  /** Permute targets across scenarios (leakage check). */
+  shuffle_labels: z.boolean(),
+  /** Use only the first N training scenarios (tests and smoke runs). */
+  train_limit: z.number().int().nullish(),
+  /** Decimal uint64; derives initializer seeds and batch order. */
+  train_seed: z.string(),
+  /** LSTM units (per direction), conv filters or dense width. */
+  units: z.number().int(),
+});
+export type TrainingConfig = z.infer<typeof TrainingConfig>;
+
+/** Everything needed to reproduce and identify a trained model. */
+export const ModelManifest = z.strictObject({
+  best_epoch: z.number().int(),
+  /** False while training is in progress (checkpoint). */
+  complete: z.boolean(),
+  config: TrainingConfig,
+  cpu_model: z.string(),
+  epochs: z.array(EpochRecord),
+  generator_version: z.string(),
+  id: z.string(),
+  node_version: z.string(),
+  normalisation: NormalisationConstants,
+  parameter_count: z.number().int(),
+  schema_version: z.string(),
+  stop_reason: StopReason.nullish(),
+  tfjs_node_version: z.string(),
+  train_features_digest: z.string(),
+  val_features_digest: z.string(),
+  wall_s: z.number(),
+  /** SHA-256 of best-epoch weights. */
+  weights_digest: z.string(),
+});
+export type ModelManifest = z.infer<typeof ModelManifest>;
 
 /** Training-set means used by the naive baseline for one prediction mode. */
 export const NaiveMeans = z.strictObject({

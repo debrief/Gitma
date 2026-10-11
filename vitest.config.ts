@@ -13,6 +13,7 @@ export default defineConfig({
       "@tma/features": pkg("features"),
       "@tma/classical": pkg("classical"),
       "@tma/eval": pkg("eval"),
+      "@tma/models": pkg("models"),
     },
   },
   test: {

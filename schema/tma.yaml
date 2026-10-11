@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.2.0
+version: 0.3.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -49,6 +49,19 @@ enums:
       G1: {}
       G2: {}
       G3: {}
+  ModelKind:
+    description: Model families of SRD §4.
+    permissible_values:
+      instantaneous: { description: "Causal single-layer LSTM (operator's running solution)." }
+      time_late: { description: "Bidirectional LSTM over the whole window." }
+      causal_cnn: { description: "Causal 1-D CNN control for the instantaneous variant." }
+      mlp: { description: "MLP over the flattened window, control for the time-late variant." }
+  StopReason:
+    permissible_values:
+      max_epochs: {}
+      early_stopping: {}
+      wall_clock: {}
+      diverged: {}
   GateResult:
     permissible_values:
       pass: {}
@@ -346,3 +359,137 @@ classes:
       course_deg_median: { range: float, required: true }
       speed_kt_median: { range: float, required: true }
       gross_error_rate: { range: float, required: true }
+
+  TrainingConfig:
+    description: "Hyperparameters and seeds for one training run (SRD §4; constitution III)."
+    attributes:
+      id:
+        range: string
+        required: true
+        description: "Estimator name used in predictions."
+      model_kind:
+        range: ModelKind
+        required: true
+      units:
+        range: integer
+        required: true
+        description: "LSTM units (per direction), conv filters or dense width."
+      kernel_size:
+        range: integer
+        description: "Causal CNN kernel size."
+      layers:
+        range: integer
+        description: "Causal CNN conv layers (no dilation)."
+      learning_rate:
+        range: float
+        required: true
+      batch_size:
+        range: integer
+        required: true
+      max_epochs:
+        range: integer
+        required: true
+      patience:
+        range: integer
+        required: true
+        description: "Epochs without validation improvement before stopping."
+      max_wall_s:
+        range: float
+        required: true
+        description: "Wall-clock cap in seconds."
+      loss_weight_range:
+        range: float
+        required: true
+      loss_weight_course:
+        range: float
+        required: true
+      loss_weight_speed:
+        range: float
+        required: true
+      train_seed:
+        range: string
+        required: true
+        description: "Decimal uint64; derives initializer seeds and batch order."
+      train_limit:
+        range: integer
+        description: "Use only the first N training scenarios (tests and smoke runs)."
+      shuffle_labels:
+        range: boolean
+        required: true
+        description: "Permute targets across scenarios (leakage check)."
+
+  EpochRecord:
+    attributes:
+      epoch:
+        range: integer
+        required: true
+      train_loss:
+        range: float
+        required: true
+      val_loss:
+        range: float
+        required: true
+      seconds:
+        range: float
+        required: true
+        description: "Cumulative wall time."
+
+  ModelManifest:
+    description: "Everything needed to reproduce and identify a trained model."
+    attributes:
+      id:
+        range: string
+        required: true
+      config:
+        range: TrainingConfig
+        required: true
+        inlined: true
+      schema_version:
+        range: string
+        required: true
+      generator_version:
+        range: string
+        required: true
+      train_features_digest:
+        range: string
+        required: true
+      val_features_digest:
+        range: string
+        required: true
+      normalisation:
+        range: NormalisationConstants
+        required: true
+        inlined: true
+      epochs:
+        range: EpochRecord
+        required: true
+        multivalued: true
+        inlined_as_list: true
+      best_epoch:
+        range: integer
+        required: true
+      stop_reason:
+        range: StopReason
+      complete:
+        range: boolean
+        required: true
+        description: "False while training is in progress (checkpoint)."
+      wall_s:
+        range: float
+        required: true
+      parameter_count:
+        range: integer
+        required: true
+      tfjs_node_version:
+        range: string
+        required: true
+      node_version:
+        range: string
+        required: true
+      cpu_model:
+        range: string
+        required: true
+      weights_digest:
+        range: string
+        required: true
+        description: "SHA-256 of best-epoch weights."

@@ -1,11 +1,26 @@
 {
   "files": [],
   "references": [
-    { "path": "packages/types" },
-    { "path": "packages/sim" },
-    { "path": "packages/data" },
-    { "path": "packages/features" },
-    { "path": "packages/classical" },
-    { "path": "packages/eval" }
+    {
+      "path": "packages/types"
+    },
+    {
+      "path": "packages/sim"
+    },
+    {
+      "path": "packages/data"
+    },
+    {
+      "path": "packages/features"
+    },
+    {
+      "path": "packages/classical"
+    },
+    {
+      "path": "packages/eval"
+    },
+    {
+      "path": "packages/models"
+    }
   ]
 }
