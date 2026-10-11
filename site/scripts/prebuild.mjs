@@ -23,6 +23,45 @@ function gates() {
   return out.length;
 }
 
+/** Rows of a CSV written by @tma/eval's toCsv (no quoted cells in these files). */
+function readCsv(path) {
+  const [head, ...lines] = readFileSync(path, "utf8")
+    .split("\n")
+    .filter((l) => l !== "");
+  const cols = head.split(",");
+  return lines.map((l) => {
+    const cells = l.split(",");
+    return Object.fromEntries(
+      cols.map((c, i) => [
+        c,
+        c === "estimator" ? cells[i] : cells[i] === "" ? null : Number(cells[i]),
+      ]),
+    );
+  });
+}
+
+/** Experiments with error curves (per-timestep runs, G1 onward) for the results review pages. */
+function results() {
+  const dir = join(root, "experiments");
+  const runs = existsSync(dir) ? readdirSync(dir).sort().reverse() : [];
+  const out = [];
+  for (const id of runs) {
+    const base = join(dir, id);
+    if (!existsSync(join(base, "curves.csv")) || !existsSync(join(base, "verdict.json"))) continue;
+    const read = (f) => JSON.parse(readFileSync(join(base, f), "utf8"));
+    const heldout = join(base, "heldout", "metrics.json");
+    out.push({
+      id,
+      verdict: read("verdict.json"),
+      metrics: read("metrics.json"),
+      curves: readCsv(join(base, "curves.csv")),
+      heldout: existsSync(heldout) ? JSON.parse(readFileSync(heldout, "utf8")) : [],
+    });
+  }
+  writeFileSync(join(site, "src", "generated", "results.json"), `${JSON.stringify(out)}\n`);
+  return out.length;
+}
+
 function run(args) {
   return execFileSync("uv", ["run", "--frozen", ...args], {
     cwd: root,
@@ -70,5 +109,6 @@ function dataDictionary() {
 }
 
 const n = gates();
+const r = results();
 dataDictionary();
-console.log(`prebuild: ${n} gate verdict(s); data dictionary generated`);
+console.log(`prebuild: ${n} gate verdict(s), ${r} result set(s); data dictionary generated`);

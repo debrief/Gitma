@@ -12,8 +12,10 @@ const sidebars = {
         "algorithms/feature-layout",
         "algorithms/naive-baseline",
         "algorithms/least-squares-solver",
+        "algorithms/models",
       ],
     },
+    { type: "category", label: "Results", items: ["results/iteration-1"] },
   ],
 };
 

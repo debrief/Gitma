@@ -94,9 +94,9 @@ description: "Task list for 002 — Iteration 1, is the signal learnable (G1)"
 
 ## Phase 8: User Story 5 — Public report and previews (P3)
 
-- [ ] T034 [P] [US5] Results review component (SVG error-vs-time curves, sliced table) in `site/src/components/ResultsReview.jsx`; page `site/docs/results/iteration-1.mdx`
-- [ ] T035 [P] [US5] Algorithm note `site/docs/algorithms/models.md` (four architectures, loss, masking, causal padding workaround); glossary terms (control, shuffled-label test, time-late/instantaneous already present)
-- [ ] T036 [P] [US5] `.github/workflows/pr-preview.yml` and `pr-preview-cleanup.yml` (same-repo PRs; comment with link)
+- [x] T034 [P] [US5] Results review component (SVG error-vs-time curves, sliced table) in `site/src/components/ResultsReview.jsx`; page `site/docs/results/iteration-1.mdx`
+- [x] T035 [P] [US5] Algorithm note `site/docs/algorithms/models.md` (four architectures, loss, masking, causal padding workaround); glossary terms (control, shuffled-label test, time-late/instantaneous already present)
+- [x] T036 [P] [US5] `.github/workflows/pr-preview.yml` and `pr-preview-cleanup.yml` (same-repo PRs; comment with link)
 - [ ] T037 [US5] Blog post with G1 numbers, all checks and the team's decision, `site/blog/<date>-iteration-1.md`; welcome page shows G1 from the verdict
 
 ## Phase 9: Polish

@@ -42,6 +42,7 @@ const config = {
           { to: "/docs/glossary", label: "Glossary", position: "left" },
           { to: "/docs/data-dictionary", label: "Data dictionary", position: "left" },
           { to: "/docs/algorithms/generator", label: "Algorithms", position: "left" },
+          { to: "/docs/results/iteration-1", label: "Results", position: "left" },
           { to: "/blog", label: "Blog", position: "left" },
           { href: "https://github.com/debrief/Gitma", label: "GitHub", position: "right" },
         ],
