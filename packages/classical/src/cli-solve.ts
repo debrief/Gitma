@@ -14,6 +14,7 @@ export function main(argv: string[]): unknown {
       out: { type: "string" },
       "per-timestep": { type: "boolean", default: false },
       "max-iter": { type: "string", default: "50" },
+      "grid-every": { type: "string", default: "6" },
     },
   });
   if (values.in === undefined || values.out === undefined) {
@@ -23,13 +24,15 @@ export function main(argv: string[]): unknown {
   }
   const maxIterations = Number(values["max-iter"]);
   if (!Number.isInteger(maxIterations) || maxIterations < 1) throw new UsageError("bad --max-iter");
+  const gridEvery = Number(values["grid-every"]);
+  if (!Number.isInteger(gridEvery) || gridEvery < 0) throw new UsageError("bad --grid-every");
   const mode = values["per-timestep"] ? "per_timestep" : "final";
   const t0 = performance.now();
   const ds = readDataset(values.in);
   const predictions: Prediction[] = [];
   let nonConverged = 0;
   for (const s of ds.scenarios()) {
-    const p = classicalPredict(s, mode, { maxIterations });
+    const p = classicalPredict(s, mode, { maxIterations, gridEvery });
     if (p.rows.some((r) => !r.converged)) nonConverged++;
     predictions.push(p);
   }

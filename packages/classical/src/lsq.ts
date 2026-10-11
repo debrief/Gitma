@@ -22,9 +22,11 @@ export interface Solution {
 
 export interface SolveOptions {
   maxIterations: number;
+  /** Per-timestep mode: also try a fresh grid start every this many rows (0 = only when needed). */
+  gridEvery: number;
 }
 
-export const DEFAULT_SOLVE_OPTIONS: SolveOptions = { maxIterations: 50 };
+export const DEFAULT_SOLVE_OPTIONS: SolveOptions = { maxIterations: 50, gridEvery: 6 };
 
 const LAMBDA0 = 1e-3;
 const LAMBDA_MAX = 1e12;

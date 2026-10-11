@@ -50,6 +50,29 @@ export function rowAt(d: BearingData, sol: Solution, i: number): PredictionRow {
   };
 }
 
+/**
+ * Plausibility bounds for a surface target: 25 m/s (≈ 49 kt, over twice the generator's 20 kt
+ * maximum) and 100 km range (over three times its 30 km). They catch the unobservable "range → ∞"
+ * valley, where bearings fit equally well with ever larger range and speed, without encoding the
+ * generator's own parameter ranges.
+ */
+export const PLAUSIBLE = { maxSpeedMps: 25, maxRangeM: 100_000 };
+
+export function plausible(d: BearingData, sol: Solution, i: number): boolean {
+  const [x0 = 0, y0 = 0, vx = 0, vy = 0] = sol.theta;
+  const t = d.t[i] ?? 0;
+  const range = Math.hypot(x0 + vx * t - (d.ownX[i] ?? 0), y0 + vy * t - (d.ownY[i] ?? 0));
+  return Math.hypot(vx, vy) <= PLAUSIBLE.maxSpeedMps && range <= PLAUSIBLE.maxRangeM;
+}
+
+/** Prefer a plausible solution, then the lower cost. */
+function better(d: BearingData, a: Solution, b: Solution, i: number): boolean {
+  const pa = plausible(d, a, i);
+  const pb = plausible(d, b, i);
+  if (pa !== pb) return pa;
+  return a.cost < b.cost;
+}
+
 /** Row used when no estimate exists (no valid bearings): flagged non-converged, never silent. */
 function emptyRow(d: BearingData, i: number): PredictionRow {
   return {
@@ -68,8 +91,13 @@ function emptyRow(d: BearingData, i: number): PredictionRow {
  * Classical estimate for one scenario.
  * - final: one row at the last sample using every bearing.
  * - per_timestep: one row per sample from zig_index + 1 (the first sample off the leg-1 line) to the
- *   end, each using only bearings up to and including that sample; warm-started from the previous
- *   row, with a grid start only at the first row.
+ *   end, each using only bearings up to and including that sample. Warm-started from the previous
+ *   row; a fresh grid start is also tried at the first row, every `GRID_EVERY` rows, and whenever
+ *   the warm solution is non-converged or implausible, and the lower-cost solution is kept.
+ *
+ * In both modes a solution outside `PLAUSIBLE` (speed or range far beyond any surface target) is
+ * reported with `converged = false`, so it counts as a gross error rather than a silent answer, and
+ * the next row restarts from the grid instead of inheriting it.
  */
 export function classicalPredict(
   s: Scenario,
@@ -79,16 +107,34 @@ export function classicalPredict(
   const d = bearingData(s);
   const n = s.metadata.samples;
   const rows: PredictionRow[] = [];
+  const emit = (sol: Solution | null, i: number): void => {
+    if (sol === null) {
+      rows.push(emptyRow(d, i));
+      return;
+    }
+    const row = rowAt(d, sol, i);
+    rows.push(plausible(d, sol, i) ? row : { ...row, converged: false });
+  };
   if (mode === "final") {
-    const sol = solveBatch(d, n, opts);
-    rows.push(sol === null ? emptyRow(d, n - 1) : rowAt(d, sol, n - 1));
+    emit(solveBatch(d, n, opts), n - 1);
   } else {
     let prev: Solution | null = null;
-    for (let i = s.metadata.zig_index + 1; i < n; i++) {
-      const sol: Solution | null =
-        prev === null ? solveBatch(d, i + 1, opts) : levenbergMarquardt(d, prev.theta, i + 1, opts);
-      rows.push(sol === null ? emptyRow(d, i) : rowAt(d, sol, i));
-      if (sol !== null) prev = sol;
+    const first = s.metadata.zig_index + 1;
+    for (let i = first; i < n; i++) {
+      const warm: Solution | null =
+        prev === null ? null : levenbergMarquardt(d, prev.theta, i + 1, opts);
+      let sol: Solution | null = warm;
+      const needGrid =
+        warm === null ||
+        !warm.converged ||
+        !plausible(d, warm, i) ||
+        (opts.gridEvery > 0 && (i - first) % opts.gridEvery === 0);
+      if (needGrid) {
+        const fresh = solveBatch(d, i + 1, opts);
+        if (fresh !== null && (sol === null || better(d, fresh, sol, i))) sol = fresh;
+      }
+      emit(sol, i);
+      prev = sol !== null && plausible(d, sol, i) ? sol : null;
     }
   }
   return {

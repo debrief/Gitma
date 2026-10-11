@@ -36,8 +36,21 @@ Grid of 12 log-spaced ranges (1–40 km) along the first valid bearing × 8 cour
 
 - **final**: all bearings, estimate at the last sample.
 - **per-timestep**: for each sample from `zig_index + 1` (the first ownship position off the leg-1
-  line, so range is observable), bearings up to and including that sample only; warm-started from
-  the previous sample's solution.
+  line, so range is observable), bearings up to and including that sample only. Warm-started from
+  the previous sample's solution; a fresh grid start is also tried on the first row, every 6th row,
+  and whenever the warm solution is non-converged or implausible, and the better solution is kept.
+
+## Plausibility
+
+Bearings alone cannot rule out a target far away and moving fast along the line of sight: the cost
+surface has a flat valley towards infinite range. A solution with speed above 25 m/s (≈ 49 kt) or
+range above 100 km is reported with `converged = false`, so it counts as a gross error rather than
+a silent answer, and the next per-timestep row does not inherit it.
+
+Without this, warm starts carried runaway solutions forward: in a 1,000-scenario noisy test,
+per-timestep P90 range error five minutes after the zig was 5×10⁷ (ranges of 10¹² m). With grid
+restarts and the plausibility check it is 0.59, and the per-timestep final row (P90 0.43) matches
+the final-mode solver.
 
 ## Verification
 

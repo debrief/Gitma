@@ -29,3 +29,21 @@ describe("per-timestep mode is causal", () => {
     expect(rows).toHaveLength(s.metadata.samples - s.metadata.zig_index - 1);
   });
 });
+
+describe("per-timestep robustness", () => {
+  it("never reports an implausible solution as converged (noisy data, 30 scenarios)", async () => {
+    const { PLAUSIBLE } = await import("../src/estimate.js");
+    const bad: string[] = [];
+    for (const s of scenarios(7n, 30, DEFAULT_RANGES)) {
+      for (const r of classicalPredict(s, "per_timestep").rows) {
+        if (
+          r.converged &&
+          (r.speed_mps > PLAUSIBLE.maxSpeedMps || r.range_m > PLAUSIBLE.maxRangeM)
+        ) {
+          bad.push(`#${String(s.metadata.index)} t=${String(r.timestamp_s)}`);
+        }
+      }
+    }
+    expect(bad).toEqual([]);
+  }, 30_000);
+});

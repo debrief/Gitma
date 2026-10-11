@@ -78,6 +78,12 @@ Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternati
   Noise-free final-mode recovery is ≈ 10⁻⁶ relative range; per-timestep rows in the first few samples
   after the zig can reach 0.4% (float32 bearing rounding on a barely observable geometry), so G0 uses
   final mode.
+- **Fix (2026-10-11, quickstart §4)**: pure warm starts let per-timestep solutions run away along the
+  unobservable "range → ∞" valley and stay there (11% of noisy scenarios by window end). Per-timestep
+  now also tries a grid start every 6 rows and whenever the warm solution is non-converged or
+  implausible (speed > 25 m/s or range > 100 km), and implausible solutions are reported as
+  non-converged. P90 range error at zig+300 s fell from 5×10⁷ to 0.59; runtime ≈ 2× (≈ 1 min per
+  1,000 test scenarios).
 - **Instantaneous mode**: for each post-zig timestep, re-solve using bearings up to t, warm-started from
   the previous timestep's solution (grid only at the first post-zig step).
 - **Rationale**: plain Gauss–Newton diverges on poor geometry; LM damping is a one-line change and is
