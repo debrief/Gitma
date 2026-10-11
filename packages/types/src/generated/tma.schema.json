@@ -1,0 +1,860 @@
+{
+  "$defs": {
+    "DatasetHeader": {
+      "additionalProperties": false,
+      "description": "First record of every dataset file.",
+      "properties": {
+        "created_by": {
+          "description": "Command line that produced the file.",
+          "type": "string"
+        },
+        "dataset_seed": {
+          "description": "Decimal uint64 string.",
+          "type": "string"
+        },
+        "generator_version": {
+          "type": "string"
+        },
+        "index_end": {
+          "description": "Last scenario index (exclusive).",
+          "type": "integer"
+        },
+        "index_start": {
+          "description": "First scenario index (inclusive).",
+          "type": "integer"
+        },
+        "parameter_ranges": {
+          "$ref": "#/$defs/ParameterRanges"
+        },
+        "record": {
+          "$ref": "#/$defs/RecordKind"
+        },
+        "redraw_count": {
+          "description": "Geometries rejected for violating min_range_m.",
+          "type": "integer"
+        },
+        "scenario_count": {
+          "type": "integer"
+        },
+        "schema_version": {
+          "type": "string"
+        },
+        "split": {
+          "$ref": "#/$defs/Split"
+        }
+      },
+      "required": [
+        "record",
+        "schema_version",
+        "generator_version",
+        "dataset_seed",
+        "split",
+        "scenario_count",
+        "index_start",
+        "index_end",
+        "parameter_ranges",
+        "redraw_count",
+        "created_by"
+      ],
+      "title": "DatasetHeader",
+      "type": "object"
+    },
+    "DatasetRef": {
+      "additionalProperties": false,
+      "description": "",
+      "properties": {
+        "header": {
+          "$ref": "#/$defs/DatasetHeader"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "header"
+      ],
+      "title": "DatasetRef",
+      "type": "object"
+    },
+    "EstimatorRef": {
+      "additionalProperties": false,
+      "description": "",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "settings_json": {
+          "description": "Estimator settings as JSON.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "settings_json"
+      ],
+      "title": "EstimatorRef",
+      "type": "object"
+    },
+    "ExperimentManifest": {
+      "additionalProperties": false,
+      "description": "Everything needed to reproduce an experiment run.",
+      "properties": {
+        "command_lines": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "created": {
+          "description": "ISO 8601 timestamp.",
+          "type": "string"
+        },
+        "datasets": {
+          "items": {
+            "$ref": "#/$defs/DatasetRef"
+          },
+          "type": "array"
+        },
+        "estimators": {
+          "items": {
+            "$ref": "#/$defs/EstimatorRef"
+          },
+          "type": "array"
+        },
+        "generator_version": {
+          "type": "string"
+        },
+        "git_commit": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "normalisation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NormalisationConstants"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "schema_version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "created",
+        "git_commit",
+        "schema_version",
+        "generator_version",
+        "datasets",
+        "estimators",
+        "command_lines"
+      ],
+      "title": "ExperimentManifest",
+      "type": "object"
+    },
+    "FeatureLayout": {
+      "additionalProperties": false,
+      "description": "Documents the model tensors (not stored as records). inputs [N, 240, 10]: bearing_sin, bearing_cos, own_x_km, own_y_km, own_course_sin, own_course_cos, own_speed_scaled, time_scaled, valid, window_mask. targets [N, 240, 6]: log_range_km, course_sin, course_cos, speed_scaled, x_km, y_km. loss_mask [N, 240]: window_mask and t ≥ zig_time.",
+      "properties": {
+        "input_channels": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "rows": {
+          "type": "integer"
+        },
+        "target_channels": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "rows",
+        "input_channels",
+        "target_channels"
+      ],
+      "title": "FeatureLayout",
+      "type": "object"
+    },
+    "FloatRange": {
+      "additionalProperties": false,
+      "description": "Closed interval [min, max].",
+      "properties": {
+        "max": {
+          "type": "number"
+        },
+        "min": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "min",
+        "max"
+      ],
+      "title": "FloatRange",
+      "type": "object"
+    },
+    "GateCheck": {
+      "additionalProperties": false,
+      "description": "",
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "result": {
+          "$ref": "#/$defs/GateResult"
+        }
+      },
+      "required": [
+        "name",
+        "result",
+        "detail"
+      ],
+      "title": "GateCheck",
+      "type": "object"
+    },
+    "GateId": {
+      "description": "",
+      "enum": [
+        "G0",
+        "G1",
+        "G2",
+        "G3"
+      ],
+      "title": "GateId",
+      "type": "string"
+    },
+    "GateResult": {
+      "description": "",
+      "enum": [
+        "pass",
+        "fail"
+      ],
+      "title": "GateResult",
+      "type": "string"
+    },
+    "GateVerdict": {
+      "additionalProperties": false,
+      "description": "Machine verdict for a gate; the team review records the final decision.",
+      "properties": {
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/GateCheck"
+          },
+          "type": "array"
+        },
+        "decided_by": {
+          "type": "string"
+        },
+        "gate": {
+          "$ref": "#/$defs/GateId"
+        },
+        "result": {
+          "$ref": "#/$defs/GateResult"
+        }
+      },
+      "required": [
+        "gate",
+        "result",
+        "checks",
+        "decided_by"
+      ],
+      "title": "GateVerdict",
+      "type": "object"
+    },
+    "MetricsRecord": {
+      "additionalProperties": false,
+      "description": "Metric values for one estimator on one slice at one evaluation point.",
+      "properties": {
+        "course_deg_median": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "course_deg_p90": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "estimator": {
+          "type": "string"
+        },
+        "excluded": {
+          "type": "integer"
+        },
+        "gross_error_rate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "n": {
+          "type": "integer"
+        },
+        "point": {
+          "description": "\"final\" or \"zig+<n>s\".",
+          "type": "string"
+        },
+        "position_m_mean": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "range_rel_median": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "range_rel_p90": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "slice": {
+          "description": "\"overall\" or e.g. \"range_band=5-10km\".",
+          "type": "string"
+        },
+        "speed_kt_median": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "speed_kt_p90": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "estimator",
+        "slice",
+        "point",
+        "n",
+        "excluded"
+      ],
+      "title": "MetricsRecord",
+      "type": "object"
+    },
+    "NormalisationConstants": {
+      "additionalProperties": false,
+      "description": "Fixed scaling constants computed from the train split's input channels only.",
+      "properties": {
+        "computed_from": {
+          "description": "Always \"inputs_only\".",
+          "type": "string"
+        },
+        "position_scale_km": {
+          "type": "number"
+        },
+        "speed_scale_mps": {
+          "type": "number"
+        },
+        "time_scale_s": {
+          "type": "number"
+        },
+        "train_header_digest": {
+          "description": "SHA-256 of the train header.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "position_scale_km",
+        "speed_scale_mps",
+        "time_scale_s",
+        "computed_from",
+        "train_header_digest"
+      ],
+      "title": "NormalisationConstants",
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "description": "One bearing from ownship to target. Stone Soup analogue Detection. When valid is false (dropout) bearing_rad is 0 and must be ignored.",
+      "properties": {
+        "bearing_rad": {
+          "type": "number"
+        },
+        "timestamp_s": {
+          "type": "number"
+        },
+        "valid": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "timestamp_s",
+        "bearing_rad",
+        "valid"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "ParameterRanges": {
+      "additionalProperties": false,
+      "description": "Ranges from which ScenarioParameters are drawn. Initial ownship course, target bearing and target course are always uniform on [0, 2π); zig sign is uniform ±.",
+      "properties": {
+        "dropout_fraction": {
+          "$ref": "#/$defs/FloatRange"
+        },
+        "dt_s": {
+          "type": "number"
+        },
+        "min_range_m": {
+          "description": "Geometries closer than this at any sample are redrawn.",
+          "type": "number"
+        },
+        "noise_sigma_rad_values": {
+          "description": "σ drawn uniformly from this set.",
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        "ownship_speed_mps": {
+          "$ref": "#/$defs/FloatRange"
+        },
+        "range_distribution": {
+          "$ref": "#/$defs/RangeDistribution"
+        },
+        "target_range0_m": {
+          "$ref": "#/$defs/FloatRange"
+        },
+        "target_speed_mps": {
+          "$ref": "#/$defs/FloatRange"
+        },
+        "window_s": {
+          "$ref": "#/$defs/FloatRange"
+        },
+        "zig_angle_abs_rad": {
+          "$ref": "#/$defs/FloatRange"
+        },
+        "zig_fraction": {
+          "$ref": "#/$defs/FloatRange"
+        }
+      },
+      "required": [
+        "window_s",
+        "dt_s",
+        "ownship_speed_mps",
+        "zig_angle_abs_rad",
+        "zig_fraction",
+        "target_range0_m",
+        "range_distribution",
+        "target_speed_mps",
+        "noise_sigma_rad_values",
+        "dropout_fraction",
+        "min_range_m"
+      ],
+      "title": "ParameterRanges",
+      "type": "object"
+    },
+    "PlatformState": {
+      "additionalProperties": false,
+      "description": "One platform state. Stone Soup analogue GroundTruthState.",
+      "properties": {
+        "course_rad": {
+          "type": "number"
+        },
+        "speed_mps": {
+          "type": "number"
+        },
+        "timestamp_s": {
+          "type": "number"
+        },
+        "x_m": {
+          "type": "number"
+        },
+        "y_m": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "timestamp_s",
+        "x_m",
+        "y_m",
+        "course_rad",
+        "speed_mps"
+      ],
+      "title": "PlatformState",
+      "type": "object"
+    },
+    "Prediction": {
+      "additionalProperties": false,
+      "description": "One estimator's output for one scenario.",
+      "properties": {
+        "estimator": {
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "#/$defs/PredictionMode"
+        },
+        "record": {
+          "$ref": "#/$defs/RecordKind"
+        },
+        "rows": {
+          "items": {
+            "$ref": "#/$defs/PredictionRow"
+          },
+          "type": "array"
+        },
+        "scenario_index": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "record",
+        "scenario_index",
+        "estimator",
+        "mode",
+        "rows"
+      ],
+      "title": "Prediction",
+      "type": "object"
+    },
+    "PredictionHeader": {
+      "additionalProperties": false,
+      "description": "First record of every prediction file.",
+      "properties": {
+        "dataset_digest": {
+          "description": "SHA-256 of the truth file.",
+          "type": "string"
+        },
+        "estimator": {
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "#/$defs/PredictionMode"
+        },
+        "record": {
+          "$ref": "#/$defs/RecordKind"
+        },
+        "schema_version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "record",
+        "schema_version",
+        "estimator",
+        "mode",
+        "dataset_digest"
+      ],
+      "title": "PredictionHeader",
+      "type": "object"
+    },
+    "PredictionMode": {
+      "description": "",
+      "enum": [
+        "final",
+        "per_timestep"
+      ],
+      "title": "PredictionMode",
+      "type": "string"
+    },
+    "PredictionRow": {
+      "additionalProperties": false,
+      "description": "An estimator's target estimate at one timestep.",
+      "properties": {
+        "converged": {
+          "type": "boolean"
+        },
+        "course_rad": {
+          "type": "number"
+        },
+        "iterations": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "range_m": {
+          "type": "number"
+        },
+        "speed_mps": {
+          "type": "number"
+        },
+        "timestamp_s": {
+          "type": "number"
+        },
+        "x_m": {
+          "type": "number"
+        },
+        "y_m": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "timestamp_s",
+        "range_m",
+        "course_rad",
+        "speed_mps",
+        "x_m",
+        "y_m",
+        "converged"
+      ],
+      "title": "PredictionRow",
+      "type": "object"
+    },
+    "RangeDistribution": {
+      "description": "",
+      "enum": [
+        "uniform",
+        "log_uniform"
+      ],
+      "title": "RangeDistribution",
+      "type": "string"
+    },
+    "RecordKind": {
+      "description": "Discriminator for records in NDJSON files.",
+      "enum": [
+        "header",
+        "scenario",
+        "prediction"
+      ],
+      "title": "RecordKind",
+      "type": "string"
+    },
+    "Scenario": {
+      "additionalProperties": false,
+      "description": "One ownship-vs-target run over a window.",
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/ScenarioMetadata"
+        },
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/Observation"
+          },
+          "type": "array"
+        },
+        "ownship": {
+          "$ref": "#/$defs/Track"
+        },
+        "record": {
+          "$ref": "#/$defs/RecordKind"
+        },
+        "target": {
+          "$ref": "#/$defs/Track"
+        }
+      },
+      "required": [
+        "record",
+        "metadata",
+        "ownship",
+        "target",
+        "observations"
+      ],
+      "title": "Scenario",
+      "type": "object"
+    },
+    "ScenarioMetadata": {
+      "additionalProperties": false,
+      "description": "Seed, parameter draws and derived slicing keys for one scenario.",
+      "properties": {
+        "index": {
+          "description": "Scenario index within the dataset.",
+          "type": "integer"
+        },
+        "mean_range_m": {
+          "type": "number"
+        },
+        "min_range_m": {
+          "type": "number"
+        },
+        "parameters": {
+          "$ref": "#/$defs/ScenarioParameters"
+        },
+        "samples": {
+          "description": "Number of timesteps (60–240).",
+          "type": "integer"
+        },
+        "seed": {
+          "description": "Scenario seed as a decimal uint64 string.",
+          "type": "string"
+        },
+        "zig_index": {
+          "description": "First timestep on leg 2.",
+          "type": "integer"
+        },
+        "zig_time_s": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "seed",
+        "index",
+        "parameters",
+        "samples",
+        "zig_index",
+        "zig_time_s",
+        "mean_range_m",
+        "min_range_m"
+      ],
+      "title": "ScenarioMetadata",
+      "type": "object"
+    },
+    "ScenarioParameters": {
+      "additionalProperties": false,
+      "description": "The random draws that define one scenario.",
+      "properties": {
+        "dropout_fraction": {
+          "description": "Probability each bearing is missing.",
+          "type": "number"
+        },
+        "dt_s": {
+          "description": "Bearing interval.",
+          "type": "number"
+        },
+        "noise_sigma_rad": {
+          "description": "Bearing noise σ; 0 = noise-free.",
+          "type": "number"
+        },
+        "ownship_course0_rad": {
+          "description": "Ownship course on leg 1.",
+          "type": "number"
+        },
+        "ownship_speed_mps": {
+          "type": "number"
+        },
+        "target_bearing0_rad": {
+          "description": "True bearing at window start.",
+          "type": "number"
+        },
+        "target_course_rad": {
+          "type": "number"
+        },
+        "target_range0_m": {
+          "description": "Range at window start.",
+          "type": "number"
+        },
+        "target_speed_mps": {
+          "type": "number"
+        },
+        "window_s": {
+          "description": "Window length; multiple of dt_s.",
+          "type": "number"
+        },
+        "zig_angle_rad": {
+          "description": "Signed course change at the zig; positive is clockwise.",
+          "type": "number"
+        },
+        "zig_fraction": {
+          "description": "Zig time as a fraction of the window.",
+          "type": "number"
+        }
+      },
+      "required": [
+        "window_s",
+        "dt_s",
+        "ownship_speed_mps",
+        "ownship_course0_rad",
+        "zig_angle_rad",
+        "zig_fraction",
+        "target_range0_m",
+        "target_bearing0_rad",
+        "target_speed_mps",
+        "target_course_rad",
+        "noise_sigma_rad",
+        "dropout_fraction"
+      ],
+      "title": "ScenarioParameters",
+      "type": "object"
+    },
+    "Split": {
+      "description": "Dataset split. Train/validation/test are 80/10/10 by scenario index.",
+      "enum": [
+        "train",
+        "validation",
+        "test",
+        "heldout"
+      ],
+      "title": "Split",
+      "type": "string"
+    },
+    "Track": {
+      "additionalProperties": false,
+      "description": "Time-ordered states of one platform. Stone Soup analogue GroundTruthPath.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/TrackId"
+        },
+        "states": {
+          "items": {
+            "$ref": "#/$defs/PlatformState"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "states"
+      ],
+      "title": "Track",
+      "type": "object"
+    },
+    "TrackId": {
+      "description": "",
+      "enum": [
+        "ownship",
+        "target"
+      ],
+      "title": "TrackId",
+      "type": "string"
+    }
+  },
+  "$id": "https://github.com/debrief/gitma/schema/tma",
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "additionalProperties": false,
+  "description": "One ownship-vs-target run over a window.",
+  "metamodel_version": "1.12.0",
+  "properties": {
+    "metadata": {
+      "$ref": "#/$defs/ScenarioMetadata"
+    },
+    "observations": {
+      "items": {
+        "$ref": "#/$defs/Observation"
+      },
+      "type": "array"
+    },
+    "ownship": {
+      "$ref": "#/$defs/Track"
+    },
+    "record": {
+      "$ref": "#/$defs/RecordKind"
+    },
+    "target": {
+      "$ref": "#/$defs/Track"
+    }
+  },
+  "required": [
+    "record",
+    "metadata",
+    "ownship",
+    "target",
+    "observations"
+  ],
+  "title": "tma",
+  "type": "object",
+  "version": "0.1.0"
+}

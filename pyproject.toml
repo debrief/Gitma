@@ -1,0 +1,12 @@
+[project]
+name = "tma-schema-tools"
+version = "0.1.0"
+description = "Dev-only LinkML toolchain for schema code generation (not a runtime dependency)"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = ["linkml==1.12.0"]
+
+[tool.uv]
+package = false

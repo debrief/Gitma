@@ -26,15 +26,15 @@ generator. US3 and US4 (P2) are independent of each other.
 
 **Purpose**: monorepo, toolchain and CI skeleton
 
-- [ ] T001 Create root `package.json` (private, `"type": "module"`, `engines.node` 22), `pnpm-workspace.yaml` (`packages/*`, `site`), `.nvmrc` (pinned 22.x), extend `.gitignore` with `data/`, `dist/`, `node_modules/`
-- [ ] T002 Create `tsconfig.base.json` (strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, ES2023, NodeNext) and root `tsconfig.json` with project references for all packages
-- [ ] T003 [P] Configure ESLint flat config in `eslint.config.js` (typescript-eslint strict-type-checked; `no-explicit-any` error except `packages/types/generated/**`; ban `Math.random` via `no-restricted-properties`)
-- [ ] T004 [P] Configure Prettier in `.prettierrc.json` and `.prettierignore` (ignore generated code, golden files)
-- [ ] T005 [P] Configure vitest workspace in `vitest.workspace.ts`
-- [ ] T006 [P] Create `pyproject.toml` + `uv.lock` pinning `linkml==1.12.*` as a dev dependency
-- [ ] T007 Scaffold packages `types`, `sim`, `data`, `features`, `classical`, `eval` under `packages/<name>/` each with `package.json` (`@tma/<name>`), `tsconfig.json`, `src/index.ts`, `test/`
-- [ ] T008 Add root scripts in `package.json`: `build`, `lint`, `typecheck`, `test`, `test:golden`, `schema:gen`, `schema:check`, `site:build`, `site:start`, and one script per CLI (`tma-generate`, `tma-convert`, `tma-features`, `tma-naive`, `tma-solve`, `tma-eval`, `tma-gate`, `tma-g0`)
-- [ ] T009 Create `.github/workflows/ci.yml`: setup Node from `.nvmrc`, pnpm, uv; run lint, typecheck, test, `schema:check`; later steps (golden, e2e, site) added by their stories
+- [x] T001 Create root `package.json` (private, `"type": "module"`, `engines.node` 22), `pnpm-workspace.yaml` (`packages/*`, `site`), `.nvmrc` (pinned 22.x), extend `.gitignore` with `data/`, `dist/`, `node_modules/`
+- [x] T002 Create `tsconfig.base.json` (strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, ES2023, NodeNext) and root `tsconfig.json` with project references for all packages
+- [x] T003 [P] Configure ESLint flat config in `eslint.config.js` (typescript-eslint strict-type-checked; `no-explicit-any` error except `packages/types/generated/**`; ban `Math.random` via `no-restricted-properties`)
+- [x] T004 [P] Configure Prettier in `.prettierrc.json` and `.prettierignore` (ignore generated code, golden files)
+- [x] T005 [P] Configure vitest workspace in `vitest.workspace.ts`
+- [x] T006 [P] Create `pyproject.toml` + `uv.lock` pinning `linkml==1.12.*` as a dev dependency
+- [x] T007 Scaffold packages `types`, `sim`, `data`, `features`, `classical`, `eval` under `packages/<name>/` each with `package.json` (`@tma/<name>`), `tsconfig.json`, `src/index.ts`, `test/`
+- [ ] T008 (partial: build/lint/typecheck/test/schema scripts done; CLI scripts land with their stories) Add root scripts in `package.json`: `build`, `lint`, `typecheck`, `test`, `test:golden`, `schema:gen`, `schema:check`, `site:build`, `site:start`, and one script per CLI (`tma-generate`, `tma-convert`, `tma-features`, `tma-naive`, `tma-solve`, `tma-eval`, `tma-gate`, `tma-g0`)
+- [x] T009 Create `.github/workflows/ci.yml`: setup Node from `.nvmrc`, pnpm, uv; run lint, typecheck, test, `schema:check`; later steps (golden, e2e, site) added by their stories
 
 **Checkpoint**: `pnpm install && pnpm build && pnpm lint && pnpm test` pass on an empty workspace in CI.
 
@@ -46,16 +46,16 @@ generator. US3 and US4 (P2) are independent of each other.
 
 **⚠️ CRITICAL**: no user story work can begin until this phase is complete
 
-- [ ] T010 Spike (research R1): confirm `json-schema-to-zod` handles `$defs`, enums, nullable arrays and nested classes from LinkML `gen-json-schema` output; record result in `specs/001-iteration-0-pipeline/research.md` R1 follow-up
-- [ ] T011 Write `schema/tma.yaml` with every class in data-model.md (ScenarioParameters, ParameterRanges, PlatformState, Track, Observation, ScenarioMetadata, Scenario, DatasetHeader, NormalisationConstants, FeatureLayout description, Prediction, PredictionRow, MetricsRecord, ExperimentManifest, GateVerdict, GateCheck), with descriptions, units and ranges; slot names follow Stone Soup `GroundTruthState`/`GroundTruthPath`/`Detection` where sensible and each class description names its Stone Soup analogue (FR-009)
-- [ ] T012 Implement `packages/types/scripts/generate.ts`: `uv run gen-json-schema` → `packages/types/generated/tma.schema.json` → zod → `packages/types/generated/zod.ts`; export `z.infer` types from `packages/types/src/index.ts` (fallback to in-repo JSON-Schema→zod emitter if T010 fails)
-- [ ] T013 Implement `schema:check` in `packages/types/scripts/check.ts`: regenerate to temp dir, diff against committed `generated/`, exit non-zero if stale
-- [ ] T014 [P] Add `SCHEMA_VERSION` constant generated from `schema/tma.yaml` `version` into `packages/types/generated/version.ts`
-- [ ] T015 [P] Known-answer tests for SplitMix64 and xoshiro128** (published reference vectors) in `packages/sim/test/unit/prng.test.ts`
-- [ ] T016 Implement SplitMix64 seeding, xoshiro128**, `uniform`, `logUniform`, `gaussian` (Box–Muller, single value) and `deriveSeed(datasetSeed, index)` in `packages/sim/src/prng.ts`
-- [ ] T017 [P] Tests for angle helpers (wrap to [0, 2π), wrapped difference, bearing from (dx, dy) clockwise from north, 359°/1° cases) in `packages/sim/test/unit/geometry.test.ts`
-- [ ] T018 [P] Implement angle helpers and unit conversions (kt↔m/s, deg↔rad, `f32 = Math.fround`) in `packages/sim/src/geometry.ts`
-- [ ] T019 [P] Shared file-reading helper that validates with generated zod schemas and reports `file:record: message` in `packages/types/src/read.ts`
+- [x] T010 Spike (research R1): confirm `json-schema-to-zod` handles `$defs`, enums, nullable arrays and nested classes from LinkML `gen-json-schema` output; record result in `specs/001-iteration-0-pipeline/research.md` R1 follow-up
+- [x] T011 Write `schema/tma.yaml` with every class in data-model.md (ScenarioParameters, ParameterRanges, PlatformState, Track, Observation, ScenarioMetadata, Scenario, DatasetHeader, NormalisationConstants, FeatureLayout description, Prediction, PredictionRow, MetricsRecord, ExperimentManifest, GateVerdict, GateCheck), with descriptions, units and ranges; slot names follow Stone Soup `GroundTruthState`/`GroundTruthPath`/`Detection` where sensible and each class description names its Stone Soup analogue (FR-009)
+- [x] T012 Implement `packages/types/scripts/generate.ts`: `uv run gen-json-schema` → `packages/types/generated/tma.schema.json` → zod → `packages/types/generated/zod.ts`; export `z.infer` types from `packages/types/src/index.ts` (fallback to in-repo JSON-Schema→zod emitter if T010 fails)
+- [x] T013 Implement `schema:check` in `packages/types/scripts/check.ts`: regenerate to temp dir, diff against committed `generated/`, exit non-zero if stale
+- [x] T014 [P] Add `SCHEMA_VERSION` constant generated from `schema/tma.yaml` `version` into `packages/types/generated/version.ts`
+- [x] T015 [P] Known-answer tests for SplitMix64 and xoshiro128** (published reference vectors) in `packages/sim/test/unit/prng.test.ts`
+- [x] T016 Implement SplitMix64 seeding, xoshiro128**, `uniform`, `logUniform`, `gaussian` (Box–Muller, single value) and `deriveSeed(datasetSeed, index)` in `packages/sim/src/prng.ts`
+- [x] T017 [P] Tests for angle helpers (wrap to [0, 2π), wrapped difference, bearing from (dx, dy) clockwise from north, 359°/1° cases) in `packages/sim/test/unit/geometry.test.ts`
+- [x] T018 [P] Implement angle helpers and unit conversions (kt↔m/s, deg↔rad, `f32 = Math.fround`) in `packages/sim/src/geometry.ts`
+- [x] T019 [P] Shared file-reading helper that validates with generated zod schemas and reports `file:record: message` in `packages/types/src/read.ts`
 
 **Checkpoint**: types generated and checked in CI; PRNG and geometry pass known-answer tests.
 
