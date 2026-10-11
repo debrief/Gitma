@@ -42,7 +42,7 @@ Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternati
   3. For ports, the golden-file acceptance rule becomes: integers, flags and seeds byte-identical;
      floats equal after float32 rounding, with any residual mismatch ≤ 1 float32 ulp reported.
 - **Action**: this narrows constitution principle III's "a port passes when it reproduces the golden
-  files". Raise as a constitution PATCH clarification in a separate PR (not done here).
+  files". Resolved by constitution v1.1.0 (PR #4).
 - **Alternatives**: software-implemented, correctly rounded transcendental functions (e.g. a CORE-MATH
   port) — exact but slow and a lot of code for a proof of concept.
 

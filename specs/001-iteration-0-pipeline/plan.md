@@ -42,16 +42,16 @@ an end-to-end G0 test on 1,000 scenarios in CI.
 | Principle | Check | Status |
 | --- | --- | --- |
 | I. Single source of types | All records in `schema/tma.yaml`; `packages/types` generated; CI `schema:check` | ✅ |
-| II. Determinism | xoshiro128**/SplitMix64, per-scenario derived seeds, versions in every file, golden tests per package | ✅ with note: cross-language determinism is weaker than "byte-identical" (R3) |
-| III. Portability | `sim`/`features` pure functions over typed arrays; one CLI per stage; no models yet | ✅ with note: port acceptance rule needs the R3 clarification |
+| II. Determinism | xoshiro128**/SplitMix64, per-scenario derived seeds, float32-rounded storage, versions in every file, golden tests per package under pinned Node | ✅ |
+| III. Portability | `sim`/`features` pure functions over typed arrays; one CLI per stage; no models yet; port acceptance at float32 | ✅ |
 | IV. Honest measurement | Medians/P90, slices, gross-error rate; `tma-eval` refuses reports without naive + classical; inputs-only normalisation with leakage test | ✅ |
 | V. Fail fast | G0 implemented as an executable gate; no training code in this feature | ✅ |
 | Technical constraints | Node 22, TS strict, no `any`, SI units, frame per SRD §2 | ✅ |
 | Workflow | CI on PRs, site pages for each new concept/algorithm, spec cites SRD | ✅ |
 
-**Post-design re-check (after Phase 1)**: no violations. One amendment proposed: constitution PATCH to
-define port acceptance as "byte-identical for integers/flags; floats equal after float32 rounding" (R3).
-Not blocking this feature, because the TS implementation still meets byte-identical golden files.
+**Post-design re-check (after Phase 1)**: no violations against constitution v1.1.0 (PR #4), which
+scopes byte-identity to the pinned Node version, requires float32 rounding of stored values, and defines
+port acceptance at float32 precision (R3).
 
 ## Project Structure
 
@@ -122,9 +122,8 @@ No constitution violations to justify.
 
 ## Critical notes for review
 
-- **R3 is the main design risk**: the constitution's port promise is stronger than JS/Python maths
-  libraries allow. Proposed fix is cheap (float32 rounding + a clarified acceptance rule) but needs a
-  constitution PATCH.
+- **R3 was the main design risk**: the v1.0.0 port promise was stronger than JS/Python maths
+  libraries allow. Resolved by constitution v1.1.0 (PR #4); this plan assumes that PR merges first.
 - **G0 is necessary, not sufficient**: a solver that recovers noise-free truth proves the geometry is
   self-consistent, not that it is *right* (a consistent sign error in both generator and solver would
   pass). Mitigation in tasks: hand-computed known-answer tests for the generator (e.g. target dead ahead
