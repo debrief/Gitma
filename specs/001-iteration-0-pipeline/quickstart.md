@@ -31,14 +31,11 @@ Expected: generation < 2 min; `diff` silent; `--check` exit 0.
 
 ```
 pnpm tma-generate -- --seed 42 --count 100000 --noise-free --out data/g0
-pnpm tma-solve    -- --in data/g0/test.f32pack --out data/g0/classical.ndjson
-pnpm tma-naive    -- fit --train data/g0/train.f32pack --out data/g0/naive.json
-pnpm tma-naive    -- predict --model data/g0/naive.json --in data/g0/test.f32pack --out data/g0/naive.ndjson
 pnpm tma-g0       -- --data data/g0 --experiment experiments/20261011-g0
 ```
 
-`tma-g0` is a workspace script that runs `tma-eval` twice for the naive baseline and then `tma-gate g0`.
-Expected: `experiments/20261011-g0/verdict.json` → `"result": "pass"`; whole sequence < 15 min.
+Expected: `experiments/20261011-g0/verdict.json` → `"result": "pass"`; whole sequence < 15 min
+(measured: ~70 s).
 
 ## 4. Noisy sanity run
 

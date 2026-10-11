@@ -1,6 +1,19 @@
 // GENERATED from schema/tma.yaml by packages/types/scripts/generate.ts. Do not edit.
 import { z } from "zod";
 
+/** One point of an error-vs-time-since-zig curve (curves.csv row). */
+export const CurvePoint = z.strictObject({
+  course_deg_median: z.number(),
+  estimator: z.string(),
+  gross_error_rate: z.number(),
+  n: z.number().int(),
+  range_rel_median: z.number(),
+  range_rel_p90: z.number(),
+  speed_kt_median: z.number(),
+  t_since_zig_s: z.number(),
+});
+export type CurvePoint = z.infer<typeof CurvePoint>;
+
 /** Closed interval [min, max]. */
 export const FloatRange = z.strictObject({
   max: z.number(),
@@ -147,6 +160,28 @@ export const MetricsRecord = z.strictObject({
   speed_kt_p90: z.number().nullish(),
 });
 export type MetricsRecord = z.infer<typeof MetricsRecord>;
+
+/** Training-set means used by the naive baseline for one prediction mode. */
+export const NaiveMeans = z.strictObject({
+  course_cos: z.number(),
+  course_sin: z.number(),
+  /** Mean of ln(range in km). */
+  log_range_km: z.number(),
+  /** Number of labels averaged. */
+  n: z.number().int(),
+  speed_mps: z.number(),
+});
+export type NaiveMeans = z.infer<typeof NaiveMeans>;
+
+/** Naive baseline (SRD §5): predicts training-set means. final uses each scenario's last-sample label; per_timestep uses every post-zig label. */
+export const NaiveModel = z.strictObject({
+  final: NaiveMeans,
+  per_timestep: NaiveMeans,
+  schema_version: z.string(),
+  /** SHA-256 of the train file. */
+  train_digest: z.string(),
+});
+export type NaiveModel = z.infer<typeof NaiveModel>;
 
 /** One bearing from ownship to target. Stone Soup analogue Detection. When valid is false (dropout) bearing_rad is 0 and must be ignored. */
 export const Observation = z.strictObject({

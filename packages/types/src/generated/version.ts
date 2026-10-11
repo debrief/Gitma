@@ -1,2 +1,2 @@
 // GENERATED from schema/tma.yaml by packages/types/scripts/generate.ts. Do not edit.
-export const SCHEMA_VERSION = "0.1.0";
+export const SCHEMA_VERSION = "0.2.0";

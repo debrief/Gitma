@@ -1,0 +1,17 @@
+{
+  "checks": [
+    {
+      "detail": "4/4 scenarios within tolerance (range 0.001, course 0.1°, speed 0.01 kt); worst range 5.22e-7, course 0.00e+0°, speed 9.27e-6 kt",
+      "name": "classical-recovers-noise-free-truth",
+      "result": "pass"
+    },
+    {
+      "detail": "two independent naive runs gave identical metrics",
+      "name": "naive-baseline-reproduces",
+      "result": "pass"
+    }
+  ],
+  "decided_by": "harness (pending team review)",
+  "gate": "G0",
+  "result": "pass"
+}

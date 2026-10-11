@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.1.0
+version: 0.2.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -315,3 +315,34 @@ classes:
       result: { range: GateResult, required: true }
       checks: { range: GateCheck, multivalued: true, inlined_as_list: true, required: true }
       decided_by: { range: string, required: true }
+
+  NaiveMeans:
+    description: Training-set means used by the naive baseline for one prediction mode.
+    attributes:
+      log_range_km: { range: float, required: true, description: Mean of ln(range in km). }
+      course_sin: { range: float, required: true }
+      course_cos: { range: float, required: true }
+      speed_mps: { range: float, required: true, unit: { ucum_code: m/s } }
+      n: { range: integer, required: true, description: Number of labels averaged. }
+
+  NaiveModel:
+    description: >-
+      Naive baseline (SRD §5): predicts training-set means. final uses each scenario's last-sample
+      label; per_timestep uses every post-zig label.
+    attributes:
+      schema_version: { range: string, required: true }
+      train_digest: { range: string, required: true, description: SHA-256 of the train file. }
+      final: { range: NaiveMeans, required: true, inlined: true }
+      per_timestep: { range: NaiveMeans, required: true, inlined: true }
+
+  CurvePoint:
+    description: One point of an error-vs-time-since-zig curve (curves.csv row).
+    attributes:
+      estimator: { range: string, required: true }
+      t_since_zig_s: { range: float, required: true, unit: { ucum_code: s } }
+      n: { range: integer, required: true }
+      range_rel_median: { range: float, required: true }
+      range_rel_p90: { range: float, required: true }
+      course_deg_median: { range: float, required: true }
+      speed_kt_median: { range: float, required: true }
+      gross_error_rate: { range: float, required: true }

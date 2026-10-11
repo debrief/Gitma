@@ -29,3 +29,7 @@ jobs:
         run: pnpm lint
       - name: Unit and golden tests
         run: pnpm test
+      - name: End-to-end G0 (1,000 noise-free scenarios)
+        run: |
+          pnpm tma-generate --seed 42 --count 1000 --noise-free --out "$RUNNER_TEMP/g0"
+          pnpm tma-g0 --data "$RUNNER_TEMP/g0" --experiment "$RUNNER_TEMP/exp/g0"

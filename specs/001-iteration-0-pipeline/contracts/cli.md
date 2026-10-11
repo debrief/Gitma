@@ -79,12 +79,16 @@ tma-gate g0 --experiment <experiments/<id>> --noise-free-pred <pred.ndjson> --tr
 Writes `verdict.json`; exit 0 on pass, 3 on fail. Checks: (1) classical recovers noise-free truth within
 SC-001 tolerance on 100% of scenarios; (2) two independent naive runs produce identical metrics.
 
-## `tma-g0` (workspace script, `scripts/g0.ts`)
+## `tma-g0` (packages/eval)
 
 ```
 tma-g0 --data <dir> --experiment <experiments/<id>>
 ```
 
-Convenience wrapper for quickstart §3: expects `<dir>/{test.f32pack,classical.ndjson,naive.ndjson}`;
-runs `tma-eval` twice for the naive baseline (to check reproducibility), once for classical, then
-`tma-gate g0`. Exit code is `tma-gate`'s.
+One-command G0 for quickstart §3: expects `<dir>/{train,test}.f32pack` from a `--noise-free`
+generation. Fits the naive baseline twice independently, runs the classical solver (final mode),
+evaluates both naive fits, writes `classical.ndjson`, `naive.ndjson` and `naive.json` into `<dir>` and
+the experiment files into `--experiment`, then judges G0. Exit 0 on pass, 3 on fail.
+
+`manifest.json` records `git_commit` as the checkout's HEAD at run time. For a committed experiment
+that is the parent of the commit adding it.
