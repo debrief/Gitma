@@ -17,7 +17,7 @@ done
 
 `configs/iter1-ranges.json` = default ranges with σ = 0.5° only and no dropouts.
 
-## 2. Train (≤ 4 h each; run in the background)
+## 2. Train (≤ 6 h each; run in the background)
 
 ```
 for m in instantaneous time-late causal-cnn mlp instantaneous-shuffled; do
@@ -26,7 +26,7 @@ for m in instantaneous time-late causal-cnn mlp instantaneous-shuffled; do
 done
 ```
 
-Expected: each `manifest.json` has `stop_reason` ≠ `diverged` and `wall_s` ≤ 14 400.
+Expected: each `manifest.json` has `stop_reason` ≠ `diverged` and `wall_s` ≤ 21 600.
 
 ## 3. Evaluate and judge G1 (≈ 15 min, mostly classical per-timestep)
 

@@ -8,7 +8,7 @@
 
 Add a `packages/models` package that trains four small Keras-equivalent tfjs-node models (causal
 LSTM, BiLSTM, causal 1-D CNN control, MLP control) on the iteration-0 feature files, streamed in
-seeded batches with a 4-hour wall-clock cap per model. Models are deterministic from a manifest and
+seeded batches with a 6-hour wall-clock cap per model. Models are deterministic from a manifest and
 emit predictions in the existing format, so the iteration-0 evaluation scores them beside naive and
 classical unchanged. A new `tma-gate g1` judges G1 plus consistency, control and shuffled-label
 leakage checks. The site gets a results-review page and per-PR previews on `gh-pages/pr/<N>/`.
@@ -34,7 +34,7 @@ tests only, never full training.
 
 **Performance Goals**: ≥ 150 windows/s LSTM and ≥ 80 windows/s BiLSTM at batch 256 (spike: 200/100).
 
-**Constraints**: ≤ 4 h wall-clock per model (relaxed SRD §4, recorded); deterministic weights on the
+**Constraints**: ≤ 6 h wall-clock per model (relaxed SRD §4, recorded); deterministic weights on the
 pinned runtime and CPU family; Keras-equivalent layers only.
 
 **Scale/Scope**: 10^5 scenarios (8×10^4 train), 4 models + 1 shuffled-label run, ≤ 4 configurations
@@ -52,7 +52,7 @@ per model.
 | IV. Honest measurement | Models scored by the unchanged iteration-0 harness beside naive + classical; shuffled-label test; controls | ✅ |
 | V. Fail fast | `tma-train` refuses without a G0 pass; G1 verdict with all checks; ≤ 4 configs per model | ✅ |
 | Technical constraints | tfjs-node for training (SRD §6) | ✅ |
-| SRD §4 "under an hour" | Relaxed to 4 h by user decision | ⚠️ documented deviation; SRD amendment proposed |
+| SRD §4 "under an hour" | Relaxed to 6 h by user decision | ⚠️ documented deviation; SRD amendment proposed |
 
 **Post-design re-check**: no constitution violations. The only deviation is from the SRD's time
 budget, recorded in spec, research R1 and the PR.
@@ -121,11 +121,11 @@ rather than a separate `demos` package until a demo needs in-browser inference.
 
 | Violation | Why needed | Simpler alternative rejected because |
 | --- | --- | --- |
-| 4 h per-model budget vs SRD's 1 h | 1 h allows only ≈ 4 BiLSTM epochs on the reference CPU | Subset training weakens the G1 test; PyTorch port adds a second stack now |
+| 6 h per-model budget vs SRD's 1 h | 1 h allows only ≈ 4 BiLSTM epochs on the reference CPU | Subset training weakens the G1 test; PyTorch port adds a second stack now |
 
 ## Critical notes for review
 
-- **Total compute ≈ 10–15 h** for five models on one container. Sessions are ephemeral, so training
+- **Total compute up to ≈ 26 h (5 models × ≤ 6 h, shuffled ≤ 2 h; early stopping usually sooner)** for five models on one container. Sessions are ephemeral, so training
   must be resumable or run as background jobs whose outputs are committed promptly. The plan adds
   checkpointing per epoch (weights + manifest so far) so a restart resumes rather than starts over.
 - **Weight reproducibility is per CPU family.** Results (metrics) should be robust to that; the

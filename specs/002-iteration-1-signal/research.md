@@ -7,9 +7,9 @@ Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternati
 - **Spike (2026-10-11)**: `@tensorflow/tfjs-node` 4.22.0 installs and runs on the 4-core container
   (oneDNN, AVX-512). At batch 256 and 240 rows: LSTM-64 ≈ 200 windows/s, BiLSTM-64 ≈ 100 windows/s;
   batch 64 is ~3× slower. One 80k-window epoch ≈ 7 min (LSTM), ≈ 13 min (BiLSTM).
-- **Decision**: stay on tfjs-node; batch 256; **4-hour wall-clock cap per model** (user decision,
+- **Decision**: stay on tfjs-node; batch 256; **6-hour wall-clock cap per model** (user decision, first 4 h then 6 h;
   relaxing SRD §4's one hour). Training stops at the earlier of: max epochs, early stopping on
-  validation loss (patience 3), or the wall-clock cap. Expected: ~25 LSTM epochs, ~15 BiLSTM epochs.
+  validation loss (patience 3), or the wall-clock cap. Measured in the run: ≈ 12.6 min per LSTM epoch, so ≈ 28 LSTM epochs fit in 6 h.
 - **Alternatives**: one-hour cap with early stopping (≈ 4 BiLSTM epochs, likely undertrained);
   30k-scenario subset (fewer examples); PyTorch port (SRD §8 fallback, more work, breaks the
   single-stack setup). Revisit the PyTorch port if iteration 3's 10^6 scenarios are needed.
