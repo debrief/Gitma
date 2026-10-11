@@ -199,6 +199,23 @@ Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternati
   solver cannot meet 20% median range error at zig + 300 s, G2 at that point may be beyond what the
   geometry supports; the user should know that before ≈ 12 h of training. The SRD threshold is not
   changed by this check.
+- **Result (2026-10-11, preliminary, current generator without the rate-limited turn)**: iteration-1
+  ranges with σ = 1° and dropouts 0–10%, classical per-timestep, seed 302, 3,000 scenarios
+  (zig + 300 s: n = 2,919; 81 windows too short):
+
+  | Point | Range median | Course median | Speed median (95% CI) |
+  | --- | --- | --- | --- |
+  | zig + 300 s | 9.3% | 3.7° | **1.28 kt (1.19–1.36)** |
+  | zig + 600 s | 4.6% | 1.7° | 0.61 kt (0.56–0.67) |
+  | zig + 900 s | 3.0% | 1.1° | 0.39 kt (0.35–0.44) |
+  | final | 5.0% | 1.9° | 0.64 kt (0.59–0.70) |
+
+  A 1,000-scenario run (seed 301) gave the same picture and, for reference, naive at zig + 300 s:
+  36% range, 89° course, 4.2 kt speed; at σ = 2° classical reached 17.8% / 6.8° / 2.27 kt.
+  **The classical solver meets the range and course thresholds at zig + 300 s but not speed**: its
+  95% interval lies wholly above 1 kt. As written, G2 asks the model to beat the classical
+  reference on speed at the 5-minute point, while G3 asks only for near-parity. Raised with the user
+  (SRD §5 interpretation); to be re-run on the final iteration-2 generator (with the turn).
 
 ## R13. Schema versioning
 
