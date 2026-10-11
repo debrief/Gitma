@@ -48,7 +48,20 @@ On a noise-free test split (`tma-g0`):
    the drawn parameters. This catches frame errors that generator and solver would share.
 5. **Naive determinism**: two in-process fits give identical metrics.
 
-### G1 checks and how they combine
+## Running and deciding gates
+
+Run gates through `pnpm tma-g0` / `pnpm tma-g1`: they rebuild first and refuse a dirty working tree,
+and the manifest records the commit, Node version and SHA-256 of every dataset.
+
+### Agent review panel
+
+Gate verdicts are decided by five independent specialist AI reviewers (TMA geometry, estimation and
+numerics, evaluation statistics, reproducibility, red team), not by humans. Findings are fixed or
+answered, and the panel is re-invited until none rejects and no blocker or major finding is open.
+G0 took three rounds; the record is
+[`experiments/20261011-g0-r3/review.md`](https://github.com/debrief/Gitma/blob/main/experiments/20261011-g0-r3/review.md).
+
+## G1 — checks and how they combine
 
 G1 scores each model against naive 5 minutes after the zig, using a paired bootstrap 95% interval
 of the ratio of median range errors. A ratio check passes when the whole interval is below 0.5,
@@ -64,14 +77,3 @@ by a tiered rule:
 
 If G1 is inconclusive, the panel may order one re-score on a larger test set drawn from a new
 seed. If that is still inconclusive, G1 fails.
-
-Run gates through `pnpm tma-g0` / `pnpm tma-g1`: they rebuild first and refuse a dirty working tree,
-and the manifest records the commit, Node version and SHA-256 of every dataset.
-
-### Decision: agent review panel
-
-Gate verdicts are decided by five independent specialist AI reviewers (TMA geometry, estimation and
-numerics, evaluation statistics, reproducibility, red team), not by humans. Findings are fixed or
-answered, and the panel is re-invited until none rejects and no blocker or major finding is open.
-G0 took three rounds; the record is
-[`experiments/20261011-g0-r3/review.md`](https://github.com/debrief/Gitma/blob/main/experiments/20261011-g0-r3/review.md).
