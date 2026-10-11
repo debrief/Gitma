@@ -33,7 +33,7 @@ which see the whole window anyway. Every model is still **scored** only after th
   windows, read from disk scenario by scenario (never loaded whole).
 - After each epoch: validation loss on all 10,000 validation windows; best-epoch weights kept.
 - Stops at the first of: `max_epochs`, `patience` epochs without improvement (early stopping),
-  the 4-hour wall-clock cap, or a non-finite loss (`diverged`).
+  the 6-hour wall-clock cap, or a non-finite loss (`diverged`).
 - Checkpoint every epoch; a restarted run resumes (the Adam state restarts, recorded in the log).
 - Training refuses to start without a passing G0 verdict in `experiments/`.
 
