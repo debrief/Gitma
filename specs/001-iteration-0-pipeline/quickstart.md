@@ -44,6 +44,8 @@ Expected: `experiments/20261011-g0/verdict.json` → `"result": "pass"`; whole s
 ```
 pnpm tma-generate -- --seed 7 --count 10000 --out data/n1
 pnpm tma-solve -- --in data/n1/test.f32pack --out data/n1/classical.ndjson --per-timestep
+pnpm tma-naive -- fit --train data/n1/train.f32pack --out data/n1/naive.json
+pnpm tma-naive -- predict --model data/n1/naive.json --in data/n1/test.f32pack --out data/n1/naive.ndjson --per-timestep
 pnpm tma-eval  -- --truth data/n1/test.f32pack --pred data/n1/classical.ndjson data/n1/naive.ndjson \
                   --experiment experiments/20261011-noisy-sanity
 ```

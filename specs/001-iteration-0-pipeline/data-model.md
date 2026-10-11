@@ -62,7 +62,8 @@ constant-velocity; ownship has exactly one course change at `zig_index`.
 ### DatasetHeader
 
 `schema_version`, `generator_version`, `dataset_seed`, `split: train | validation | test | heldout`,
-`scenario_count`, `index_range`, `parameter_ranges`, `created_by` (CLI command line).
+`scenario_count`, `index_range`, `parameter_ranges`, `redraw_count` (geometries rejected for min range
+< 100 m), `created_by` (CLI command line).
 
 ### NormalisationConstants
 
