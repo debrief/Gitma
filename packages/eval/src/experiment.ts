@@ -1,8 +1,10 @@
 // experiments/<id>/ writer (contracts/file-formats.md).
 import { execFileSync } from "node:child_process";
 import { mkdirSync, renameSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
-import { canonicalJson } from "@tma/data";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { fileDigest } from "@tma/classical";
+import { canonicalJson, UsageError } from "@tma/data";
 import { GENERATOR_VERSION } from "@tma/sim";
 import {
   type DatasetHeader,
@@ -24,11 +26,46 @@ function write(dir: string, name: string, text: string): void {
 export const prettyJson = (v: unknown): string =>
   `${JSON.stringify(JSON.parse(canonicalJson(v)), null, 2)}\n`;
 
+/** Git runs in this package's checkout, not wherever the command was started. */
+const GIT_CWD = dirname(fileURLToPath(import.meta.url));
+
 export function gitCommit(): string {
   try {
-    return execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+    return execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8", cwd: GIT_CWD }).trim();
   } catch {
     return "unknown";
+  }
+}
+
+/** True when the working tree has uncommitted changes (untracked files included; ignored ones not). */
+function gitStatusDirty(): boolean {
+  try {
+    return (
+      execFileSync("git", ["status", "--porcelain"], { encoding: "utf8", cwd: GIT_CWD }).trim() !==
+      ""
+    );
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Experiments must trace to a commit (constitution II): refuse a dirty tree unless the caller
+ * explicitly allows it, in which case the manifest records `git_dirty: true`.
+ */
+/**
+ * Tree state when this process started, before it wrote any experiment files (which are untracked
+ * until committed and would otherwise mark every run dirty).
+ */
+const DIRTY_AT_START = gitStatusDirty();
+
+export const gitDirty = (): boolean => DIRTY_AT_START;
+
+export function requireCleanTree(allowDirty: boolean): void {
+  if (!allowDirty && gitDirty()) {
+    throw new UsageError(
+      "working tree has uncommitted changes: commit first, or pass --allow-dirty (recorded as git_dirty)",
+    );
   }
 }
 
@@ -42,9 +79,11 @@ export function makeManifest(
     id,
     created: new Date().toISOString(),
     git_commit: gitCommit(),
+    git_dirty: gitDirty(),
+    node_version: process.version,
     schema_version: SCHEMA_VERSION,
     generator_version: GENERATOR_VERSION,
-    datasets,
+    datasets: datasets.map((d) => ({ ...d, digest: fileDigest(d.path) })),
     estimators: estimators.map((e) => ({ name: e.name, settings_json: canonicalJson(e.settings) })),
     command_lines: commandLines,
   };

@@ -7,3 +7,4 @@ export * from "./load.js";
 export * from "./slices.js";
 export * from "./stats.js";
 export * from "./gate-g1.js";
+export * from "./g0-checks.js";

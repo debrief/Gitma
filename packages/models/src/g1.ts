@@ -72,14 +72,12 @@ export function findModels(dir: string): { ids: G1Ids; models: TrainedModel[] } 
     }
     return id;
   };
-  const shuffled = role("instantaneous", true);
-  if (shuffled.length > 1) throw new Error(`${dir}: more than one shuffled-label model`);
   const ids: G1Ids = {
     instantaneous: one("instantaneous"),
     timeLate: one("time_late"),
     causalControl: one("causal_cnn"),
     mlpControl: one("mlp"),
-    ...(shuffled[0] === undefined ? {} : { shuffled: shuffled[0] }),
+    shuffled: one("instantaneous", true),
   };
   if (new Set(models.map((m) => m.manifest.id)).size !== models.length) {
     throw new Error(`${dir}: duplicate model ids`);

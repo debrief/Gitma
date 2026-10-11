@@ -5,7 +5,10 @@
       "description": "One point of an error-vs-time-since-zig curve (curves.csv row).",
       "properties": {
         "course_deg_median": {
-          "type": "number"
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "estimator": {
           "type": "string"
@@ -16,14 +19,30 @@
         "n": {
           "type": "integer"
         },
+        "non_converged_rate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "range_rel_median": {
-          "type": "number"
+          "description": "Absent when not finite (more than half the rows non-converged), as in MetricsRecord.",
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "range_rel_p90": {
-          "type": "number"
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "speed_kt_median": {
-          "type": "number"
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "t_since_zig_s": {
           "type": "number"
@@ -33,10 +52,6 @@
         "estimator",
         "t_since_zig_s",
         "n",
-        "range_rel_median",
-        "range_rel_p90",
-        "course_deg_median",
-        "speed_kt_median",
         "gross_error_rate"
       ],
       "title": "CurvePoint",
@@ -105,6 +120,13 @@
       "additionalProperties": false,
       "description": "",
       "properties": {
+        "digest": {
+          "description": "SHA-256 of the dataset file (absent in manifests written before schema 0.4.0).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "header": {
           "$ref": "#/$defs/DatasetHeader"
         },
@@ -197,8 +219,22 @@
         "git_commit": {
           "type": "string"
         },
+        "git_dirty": {
+          "description": "True when the working tree had uncommitted changes (absent before schema 0.4.0).",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
         "id": {
           "type": "string"
+        },
+        "node_version": {
+          "description": "Node.js version that ran the experiment (byte identity is promised per pinned Node).",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "normalisation": {
           "anyOf": [
@@ -375,11 +411,19 @@
         "n": {
           "type": "integer"
         },
+        "non_converged_rate": {
+          "description": "Fraction of rows with no estimate (scored +∞; explains absent medians/P90).",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "point": {
           "description": "\"final\" or \"zig+<n>s\".",
           "type": "string"
         },
         "position_m_mean": {
+          "description": "Mean position error over converged rows (non-converged rows count in gross_error_rate).",
           "type": [
             "number",
             "null"
@@ -1184,5 +1228,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.3.0"
+  "version": "0.4.0"
 }

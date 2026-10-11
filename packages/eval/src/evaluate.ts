@@ -37,7 +37,7 @@ function record(label: string, slice: string, point: string, b: Bucket): Metrics
   const n = b.errors.length;
   const base: MetricsRecord = { estimator: label, slice, point, n, excluded: b.excluded };
   if (n === 0) return base;
-  return {
+  return finiteOnly({
     ...base,
     range_rel_median: median(rr),
     range_rel_p90: percentile(rr, 0.9),
@@ -46,8 +46,16 @@ function record(label: string, slice: string, point: string, b: Bucket): Metrics
     speed_kt_median: median(sk),
     speed_kt_p90: percentile(sk, 0.9),
     gross_error_rate: b.errors.filter((e) => e.gross).length / n,
-    position_m_mean: mean(b.errors.map((e) => e.position_m)),
-  };
+    non_converged_rate: b.errors.filter((e) => !e.converged).length / n,
+    position_m_mean: mean(b.errors.map((e) => e.position_m).filter(Number.isFinite)),
+  });
+}
+
+/** Drops non-finite statistics (e.g. a median over mostly non-converged rows): JSON cannot hold them. */
+function finiteOnly<T extends object>(r: T): T {
+  return Object.fromEntries(
+    Object.entries(r).filter(([, v]) => typeof v !== "number" || Number.isFinite(v)),
+  ) as T;
 }
 
 export function evaluate(
@@ -116,16 +124,19 @@ export function evaluate(
     for (const sec of [...bySec.keys()].sort((a, b) => a - b)) {
       const errs = bySec.get(sec) ?? [];
       const rr = ascending(errs.map((e) => e.range_rel));
-      curves.push({
-        estimator: label,
-        t_since_zig_s: sec,
-        n: errs.length,
-        range_rel_median: median(rr),
-        range_rel_p90: percentile(rr, 0.9),
-        course_deg_median: median(ascending(errs.map((e) => e.course_deg))),
-        speed_kt_median: median(ascending(errs.map((e) => e.speed_kt))),
-        gross_error_rate: errs.filter((e) => e.gross).length / errs.length,
-      });
+      curves.push(
+        finiteOnly({
+          estimator: label,
+          t_since_zig_s: sec,
+          n: errs.length,
+          range_rel_median: median(rr),
+          range_rel_p90: percentile(rr, 0.9),
+          course_deg_median: median(ascending(errs.map((e) => e.course_deg))),
+          speed_kt_median: median(ascending(errs.map((e) => e.speed_kt))),
+          gross_error_rate: errs.filter((e) => e.gross).length / errs.length,
+          non_converged_rate: errs.filter((e) => !e.converged).length / errs.length,
+        }),
+      );
     }
   }
   return { metrics, curves };

@@ -1,0 +1,133 @@
+{
+  "command_lines": [
+    "tma-generate --seed 42 --count 100000 --noise-free",
+    "tma-g0 --data data/g0 --experiment experiments/20261011-g0-r3"
+  ],
+  "created": "2026-10-11T09:09:47.033Z",
+  "datasets": [
+    {
+      "digest": "f06cbeac6ee7ebbaf65e5aeb71eba192ea5e2638a36f672939b1655a3b601211",
+      "header": {
+        "created_by": "tma-generate --seed 42 --count 100000 --noise-free",
+        "dataset_seed": "42",
+        "generator_version": "0.1.0",
+        "index_end": 80000,
+        "index_start": 0,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0,
+            "min": 0
+          },
+          "dt_s": 10,
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          }
+        },
+        "record": "header",
+        "redraw_count": 431,
+        "scenario_count": 80000,
+        "schema_version": "0.4.0",
+        "split": "train"
+      },
+      "path": "data/g0/train.f32pack"
+    },
+    {
+      "digest": "1f20faa405a9556f9c728b759e044c066e31549e63a313ddb7bfc8875e082248",
+      "header": {
+        "created_by": "tma-generate --seed 42 --count 100000 --noise-free",
+        "dataset_seed": "42",
+        "generator_version": "0.1.0",
+        "index_end": 100000,
+        "index_start": 90000,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0,
+            "min": 0
+          },
+          "dt_s": 10,
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          }
+        },
+        "record": "header",
+        "redraw_count": 50,
+        "scenario_count": 10000,
+        "schema_version": "0.4.0",
+        "split": "test"
+      },
+      "path": "data/g0/test.f32pack"
+    }
+  ],
+  "estimators": [
+    {
+      "name": "naive",
+      "settings_json": "{\"fitted_on\":\"train\",\"means\":{\"course_cos\":-0.00001190206315551717,\"course_sin\":-0.0021020655278699237,\"log_range_km\":2.4167363442625898,\"n\":80000,\"speed_mps\":5.904820702369511}}"
+    },
+    {
+      "name": "classical",
+      "settings_json": "{\"max_iterations\":50,\"method\":\"levenberg-marquardt\",\"mode\":\"final\"}"
+    },
+    {
+      "name": "classical:per_timestep",
+      "settings_json": "{\"grid_every\":6,\"max_iterations\":50,\"method\":\"levenberg-marquardt\",\"mode\":\"per_timestep\",\"note\":\"first scenarios of the test split, for check classical-per-timestep-recovers\",\"scenarios\":1000}"
+    }
+  ],
+  "generator_version": "0.1.0",
+  "git_commit": "3c9aeb3abf5c01ab961e8458eb0a10d70162e31a",
+  "git_dirty": false,
+  "id": "20261011-g0-r3",
+  "node_version": "v22.22.0",
+  "schema_version": "0.4.0"
+}

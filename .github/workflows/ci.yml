@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the G0 guard diffs the generator source against the verified commit
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:

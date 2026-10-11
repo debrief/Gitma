@@ -11,4 +11,6 @@ export function mean(xs: readonly number[]): number {
   return xs.length === 0 ? NaN : xs.reduce((a, b) => a + b, 0) / xs.length;
 }
 
-export const ascending = (xs: readonly number[]): number[] => [...xs].sort((a, b) => a - b);
+/** Ascending order; NaN sorts as +Infinity (a comparator returning NaN gives an undefined order). */
+export const ascending = (xs: readonly number[]): number[] =>
+  xs.map((x) => (Number.isNaN(x) ? Infinity : x)).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));

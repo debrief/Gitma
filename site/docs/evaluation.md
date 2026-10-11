@@ -35,9 +35,26 @@ are among its inputs, and rejects predictions made from a different truth file (
 
 ## G0 — pipeline verified
 
-1. On a noise-free test split, the classical solver's final-mode estimate is within 0.1% range, 0.1°
-   course and 0.01 kt speed of truth on **every** scenario, and converged.
-2. Two independently fitted naive baselines give identical metrics.
+On a noise-free test split (`tma-g0`):
 
-G0 is necessary, not sufficient: a sign or frame error shared by generator and solver would still
-pass check 1, which is why the generator also has hand-computed known-answer tests.
+1. **Final-mode recovery**: the classical estimate is within 0.1% range, 0.1° course and 0.01 kt
+   speed of truth on **every** scenario, and converged.
+2. **Per-timestep recovery** (the G1 baseline path): on 1,000 scenarios every row converges, and
+   every row at least 60 s after the zig is within the same tolerances.
+3. **Bearing residuals**: every final solution's RMS bearing residual is ≤ 10⁻⁶ rad (float32
+   precision), so any mismatch between observations and the constant-velocity fit shows up.
+4. **Independent geometry**: hand-computed bearings (before and after the zig, with literal
+   `Math.atan2`, not the shared code) and, on every scenario, the t = 0 bearing and range against
+   the drawn parameters. This catches frame errors that generator and solver would share.
+5. **Naive determinism**: two in-process fits give identical metrics.
+
+Run gates through `pnpm tma-g0` / `pnpm tma-g1`: they rebuild first and refuse a dirty working tree,
+and the manifest records the commit, Node version and SHA-256 of every dataset.
+
+### Decision: agent review panel
+
+Gate verdicts are decided by five independent specialist AI reviewers (TMA geometry, estimation and
+numerics, evaluation statistics, reproducibility, red team), not by humans. Findings are fixed or
+answered, and the panel is re-invited until none rejects and no blocker or major finding is open.
+G0 took three rounds; the record is
+[`experiments/20261011-g0-r3/review.md`](https://github.com/debrief/Gitma/blob/main/experiments/20261011-g0-r3/review.md).

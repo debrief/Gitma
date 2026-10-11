@@ -71,7 +71,7 @@ export function checkNaiveReproducible(a: MetricsRecord[], b: MetricsRecord[]): 
     "naive-baseline-reproduces",
     same,
     same
-      ? "two independent naive runs gave identical metrics"
+      ? "two in-process naive fits gave identical metrics (determinism only; cross-process and cross-commit reproduction is shown by re-running G0 from the manifest)"
       : "naive metrics differ between runs",
   );
 }
@@ -81,6 +81,6 @@ export function g0Verdict(checks: GateCheck[]): GateVerdict {
     gate: "G0",
     result: checks.every((c) => c.result === "pass") ? "pass" : "fail",
     checks,
-    decided_by: "harness (pending team review)",
+    decided_by: "harness (pending agent panel review)",
   };
 }

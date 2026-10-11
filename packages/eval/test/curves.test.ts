@@ -44,6 +44,6 @@ describe("zig+300s point and curves", () => {
       ),
     ]);
     expect(ev.curves.map((c) => c.t_since_zig_s).slice(0, 3)).toEqual([60, 120, 180]);
-    expect(ev.curves.every((c) => c.range_rel_median < 1e-6)).toBe(true);
+    expect(ev.curves.every((c) => (c.range_rel_median ?? Infinity) < 1e-6)).toBe(true);
   });
 });

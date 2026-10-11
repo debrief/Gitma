@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.3.0
+version: 0.4.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -290,12 +290,20 @@ classes:
       speed_kt_median: { range: float }
       speed_kt_p90: { range: float }
       gross_error_rate: { range: float }
-      position_m_mean: { range: float }
+      non_converged_rate:
+        range: float
+        description: Fraction of rows with no estimate (scored +∞; explains absent medians/P90).
+      position_m_mean:
+        range: float
+        description: Mean position error over converged rows (non-converged rows count in gross_error_rate).
 
   DatasetRef:
     attributes:
       path: { range: string, required: true }
       header: { range: DatasetHeader, required: true, inlined: true }
+      digest:
+        range: string
+        description: SHA-256 of the dataset file (absent in manifests written before schema 0.4.0).
 
   EstimatorRef:
     attributes:
@@ -308,6 +316,12 @@ classes:
       id: { range: string, required: true }
       created: { range: string, required: true, description: ISO 8601 timestamp. }
       git_commit: { range: string, required: true }
+      git_dirty:
+        range: boolean
+        description: True when the working tree had uncommitted changes (absent before schema 0.4.0).
+      node_version:
+        range: string
+        description: Node.js version that ran the experiment (byte identity is promised per pinned Node).
       schema_version: { range: string, required: true }
       generator_version: { range: string, required: true }
       datasets: { range: DatasetRef, multivalued: true, inlined_as_list: true, required: true }
@@ -354,11 +368,14 @@ classes:
       estimator: { range: string, required: true }
       t_since_zig_s: { range: float, required: true, unit: { ucum_code: s } }
       n: { range: integer, required: true }
-      range_rel_median: { range: float, required: true }
-      range_rel_p90: { range: float, required: true }
-      course_deg_median: { range: float, required: true }
-      speed_kt_median: { range: float, required: true }
+      range_rel_median:
+        range: float
+        description: Absent when not finite (more than half the rows non-converged), as in MetricsRecord.
+      range_rel_p90: { range: float }
+      course_deg_median: { range: float }
+      speed_kt_median: { range: float }
       gross_error_rate: { range: float, required: true }
+      non_converged_rate: { range: float }
 
   TrainingConfig:
     description: "Hyperparameters and seeds for one training run (SRD §4; constitution III)."

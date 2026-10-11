@@ -29,6 +29,7 @@ export const METRIC_COLUMNS = [
   "speed_kt_median",
   "speed_kt_p90",
   "gross_error_rate",
+  "non_converged_rate",
   "position_m_mean",
 ] as const;
 
@@ -41,6 +42,7 @@ export const CURVE_COLUMNS = [
   "course_deg_median",
   "speed_kt_median",
   "gross_error_rate",
+  "non_converged_rate",
 ] as const;
 
 /** Reads a curves.csv written by `toCsv(CURVE_COLUMNS, …)`; empty cells become absent. */
