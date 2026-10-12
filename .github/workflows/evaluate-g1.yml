@@ -2,13 +2,20 @@ name: Evaluate G1 (re-score committed models)
 
 # Re-runs `tma-g1` with the current code on models already committed under
 # experiments/<id>/models/ (e.g. to add bootstrap intervals, T033, or to reproduce a verdict).
-# Push a branch named `eval/**` that contains the experiment folder. Output goes to a new
-# experiment folder pushed as `results/g1-eval-<run id>`; nothing is merged automatically.
+# Push a branch named `eval/**` that contains the experiment folder, naming it in
+# `.github/eval-source` (one line, e.g. `experiments/20261011-g1`) unless it is the only
+# experiments/*-g1*/models folder; or run it by hand with the `source` input. Output goes to
+# `<source>-r2`, pushed as `results/g1-eval-<run id>`; nothing is merged automatically.
 
 on:
   push:
     branches: ["eval/**"]
   workflow_dispatch:
+    inputs:
+      source:
+        description: "Experiment folder holding models/ (e.g. experiments/20261011-g1)"
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -31,13 +38,15 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - name: Find the latest committed G1 models
-        run: |
-          SRC=$(ls -d experiments/*-g1*/models 2>/dev/null | sort | tail -1)
-          test -n "$SRC" || { echo "no experiments/*-g1*/models folder"; exit 1; }
-          echo "SRC=$SRC" >> "$GITHUB_ENV"
-          echo "EXP=${SRC%/models}-r2" >> "$GITHUB_ENV"
-          ls -R "$SRC"
+      - name: Resolve the source experiment folder
+        shell: bash
+        env:
+          INPUT_SOURCE: ${{ inputs.source }}
+        # Input, then .github/eval-source, then the sole experiments/*-g1*/models folder;
+        # fails when ambiguous. Sets SRC (models folder) and EXP (output folder).
+        run: bash .github/scripts/resolve-eval-source.sh
+      - name: Source models
+        run: ls -R "$SRC"
       - name: Data and features (seed 101, all splits)
         run: |
           pnpm tma-generate --seed 101 --count 100000 --ranges configs/iter1-ranges.json \

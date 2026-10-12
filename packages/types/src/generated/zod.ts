@@ -227,6 +227,10 @@ export const ModelManifest = z.strictObject({
   cpu_model: z.string(),
   epochs: z.array(EpochRecord),
   generator_version: z.string(),
+  /** Commit of the training code, read when training started (absent before schema 0.6.0). */
+  git_commit: z.string().nullish(),
+  /** True when the working tree had uncommitted changes when training started (absent before schema 0.6.0). */
+  git_dirty: z.boolean().nullish(),
   id: z.string(),
   node_version: z.string(),
   normalisation: NormalisationConstants,
