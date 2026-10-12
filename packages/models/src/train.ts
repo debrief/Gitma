@@ -35,6 +35,76 @@ export interface TrainOptions {
 
 const url = (dir: string): string => `file://${resolve(dir)}`;
 
+/**
+ * Save to `<dir>.tmp`, then swap it in, so a copy taken at any moment (CI checkpoint sync) sees a
+ * complete model in `dir` or, during the swap only, in `<dir>.old`. `extra` writes further files
+ * (the optimizer state) into the same folder before the swap.
+ */
+async function saveAtomic(
+  model: tf.LayersModel,
+  dir: string,
+  extra?: (tmp: string) => Promise<void>,
+): Promise<void> {
+  const tmp = `${dir}.tmp`;
+  const old = `${dir}.old`;
+  rmSync(tmp, { recursive: true, force: true });
+  await model.save(url(tmp));
+  if (extra !== undefined) await extra(tmp);
+  rmSync(old, { recursive: true, force: true });
+  if (existsSync(dir)) renameSync(dir, old);
+  renameSync(tmp, dir);
+  rmSync(old, { recursive: true, force: true });
+}
+
+/** Checkpoint sidecar: Adam's state, and the last epoch of any patience grace (SRD §5, 2026-10-12). */
+interface OptimizerState {
+  grace_until: number;
+  weights: { name: string; shape: number[]; dtype: "float32" | "int32" }[];
+}
+
+const OPT_JSON = "optimizer.json";
+const OPT_BIN = "optimizer.bin";
+
+async function saveOptimizer(opt: tf.Optimizer, dir: string, graceUntil: number): Promise<void> {
+  const named = await opt.getWeights();
+  const parts: Uint8Array[] = [];
+  const state: OptimizerState = { grace_until: graceUntil, weights: [] };
+  for (const { name, tensor } of named) {
+    const dtype = tensor.dtype === "int32" ? "int32" : "float32";
+    const data =
+      dtype === "int32" ? Int32Array.from(tensor.dataSync()) : Float32Array.from(tensor.dataSync());
+    parts.push(new Uint8Array(data.buffer));
+    state.weights.push({ name, shape: tensor.shape, dtype });
+  }
+  writeFileSync(join(dir, OPT_BIN), Buffer.concat(parts));
+  writeFileSync(join(dir, OPT_JSON), `${JSON.stringify(state)}\n`);
+}
+
+/** Restores Adam's state saved with a checkpoint; null if the checkpoint has none. */
+async function loadOptimizer(opt: tf.Optimizer, dir: string): Promise<number | null> {
+  if (!existsSync(join(dir, OPT_JSON))) return null;
+  const state = JSON.parse(readFileSync(join(dir, OPT_JSON), "utf8")) as OptimizerState;
+  const bin = readFileSync(join(dir, OPT_BIN));
+  let at = 0;
+  const named = state.weights.map(({ name, shape, dtype }) => {
+    const size = shape.reduce((a, b) => a * b, 1);
+    const bytes = bin.subarray(at, at + 4 * size);
+    at += 4 * size;
+    const copy = new Uint8Array(bytes).buffer;
+    const values = dtype === "int32" ? new Int32Array(copy) : new Float32Array(copy);
+    return { name, tensor: tf.tensor(values, shape, dtype) };
+  });
+  if (at !== bin.length) throw new Error(`${dir}/${OPT_BIN}: size does not match ${OPT_JSON}`);
+  await opt.setWeights(named);
+  return state.grace_until;
+}
+
+/** `dir` if it holds a saved model, else `<dir>.old` (a swap was interrupted), else null. */
+function savedModelDir(dir: string): string | null {
+  for (const d of [dir, `${dir}.old`]) if (existsSync(join(d, "model.json"))) return d;
+  return null;
+}
+
 function writeJson(path: string, value: unknown): void {
   const tmp = `${path}.tmp-${String(process.pid)}`;
   writeFileSync(tmp, `${JSON.stringify(JSON.parse(canonicalJson(value)), null, 2)}\n`);
@@ -118,8 +188,11 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
     let best = Infinity;
     let priorSeconds = 0;
     let dirty = source.dirty;
+    const optimizer = tf.train.adam(config.learning_rate);
+    // Last epoch whose non-improvement is not counted towards patience (after an optimizer restart).
+    let graceUntil = -1;
 
-    // Resume when an unfinished run of the same config exists (Adam state restarts; recorded in log).
+    // Resume when an unfinished run of the same config exists (Adam state restored from the checkpoint).
     const prior = existsSync(manifestPath)
       ? parseRecord(
           ModelManifest,
@@ -128,20 +201,34 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
           "manifest",
         )
       : null;
+    const ckptSaved = savedModelDir(ckptDir);
     if (
       prior !== null &&
       !prior.complete &&
       canonicalJson(prior.config) === canonicalJson(config) &&
-      existsSync(join(ckptDir, "model.json"))
+      ckptSaved !== null
     ) {
-      model = await tf.loadLayersModel(`${url(ckptDir)}/model.json`);
+      model = await tf.loadLayersModel(`${url(ckptSaved)}/model.json`);
+      // An interrupted swap of best/ leaves only best.old: restore it as best/.
+      const bestSaved = savedModelDir(bestDir);
+      if (bestSaved !== null && bestSaved !== bestDir) renameSync(bestSaved, bestDir);
       epochs = prior.epochs;
       bestEpoch = prior.best_epoch;
       best = epochs.find((e) => e.epoch === bestEpoch)?.val_loss ?? Infinity;
       priorSeconds = epochs.at(-1)?.seconds ?? 0;
-      log(
-        `resuming ${config.id} after epoch ${String(epochs.length - 1)} (optimizer state restarts)`,
-      );
+      const restored = await loadOptimizer(optimizer, ckptSaved);
+      if (restored !== null) {
+        graceUntil = restored;
+        log(
+          `resuming ${config.id} after epoch ${String(epochs.length - 1)} (optimizer state restored)`,
+        );
+      } else {
+        // Adam restarts: its first epochs may lose ground, so they do not count towards patience.
+        graceUntil = epochs.length + 2;
+        log(
+          `resuming ${config.id} after epoch ${String(epochs.length - 1)} (optimizer state restarts; patience not counted for epochs ${String(epochs.length)}–${String(graceUntil)})`,
+        );
+      }
       // A dirty earlier job taints the whole run; the commit recorded is this (final) job's.
       dirty ||= prior.git_dirty === true;
       if (typeof prior.git_commit === "string" && prior.git_commit !== source.commit) {
@@ -153,7 +240,6 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       if (prior?.complete === true) throw new Error(`${outDir} already holds a completed model`);
       model = buildModel(config);
     }
-    const optimizer = tf.train.adam(config.learning_rate);
     const lossFn = makeLoss(config);
 
     const env = environment();
@@ -217,15 +303,19 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       if (valLoss < best) {
         best = valLoss;
         bestEpoch = e;
-        await model.save(url(bestDir));
+        await saveAtomic(model, bestDir);
       }
-      await model.save(url(ckptDir));
+      await saveAtomic(model, ckptDir, (tmp) => saveOptimizer(optimizer, tmp, graceUntil));
       writeJson(manifestPath, manifest(undefined, false, join(bestDir, "weights.bin")));
-      if (e - bestEpoch >= config.patience) {
+      if (e - Math.max(bestEpoch, graceUntil) >= config.patience) {
         stop = "early_stopping";
         break;
       }
-      if (elapsed() >= config.max_wall_s) {
+      // Stop when another epoch of the length just run would cross the cap, so a run never
+      // exceeds max_wall_s (CI jobs have a hard limit; research R1).
+      const prev = epochs.at(-2)?.seconds ?? priorSeconds;
+      const lastEpochS = elapsed() - prev;
+      if (elapsed() + lastEpochS > config.max_wall_s) {
         stop = "wall_clock";
         break;
       }
@@ -238,10 +328,13 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
     }
     const bestModel = await tf.loadLayersModel(`${url(bestDir)}/model.json`);
     await bestModel.save(url(outDir));
-    rmSync(ckptDir, { recursive: true, force: true });
-    rmSync(bestDir, { recursive: true, force: true });
+    // Mark complete before removing the checkpoints, so a copy taken in between never shows an
+    // unfinished run with nothing to resume from.
     const m = manifest(stop, true, join(outDir, "weights.bin"));
     writeJson(manifestPath, m);
+    for (const d of [ckptDir, bestDir]) {
+      for (const x of [d, `${d}.tmp`, `${d}.old`]) rmSync(x, { recursive: true, force: true });
+    }
     return m;
   } finally {
     trainFile.close();

@@ -58,6 +58,7 @@ jobs:
       - name: G1 with bootstrap intervals (exit 3 = gate not passed, a result)
         shell: bash
         run: |
+          lscpu | grep "Model name" # float32 inference differs in the last bits across instruction sets
           cp -r "$SRC" "$RUNNER_TEMP/models"
           pnpm tma-g1 --data "$DATA" --models "$RUNNER_TEMP/models" --experiment "$EXP" || [ $? -eq 3 ]
           cat "$EXP/verdict.json" "$EXP/bootstrap.json"
@@ -67,5 +68,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "results/g1-eval-${{ github.run_id }}"
           git add "$EXP"
-          git commit -qm "experiments: G1 re-scored with bootstrap intervals (run ${{ github.run_id }}, ${{ github.sha }})"
+          cpu=$(lscpu | sed -n 's/^Model name: *//p')
+          git commit -qm "experiments: G1 re-scored with bootstrap intervals (run ${{ github.run_id }}, ${{ github.sha }})" -m "CPU: $cpu"
           git push origin "results/g1-eval-${{ github.run_id }}"
