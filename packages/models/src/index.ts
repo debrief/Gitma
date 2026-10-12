@@ -7,4 +7,5 @@ export * from "./manifest-io.js";
 export * from "./manifest.js";
 export * from "./predict.js";
 export * from "./seeds.js";
+export * from "./threads.js";
 export * from "./train.js";

@@ -4,6 +4,7 @@ import { parseSeed, splitmix64At } from "@tma/sim";
 const INIT_STREAM = 1_000;
 const EPOCH_STREAM = 2_000_000;
 const SHUFFLE_STREAM = 3_000_000;
+const BUCKET_STREAM = 4_000_000;
 
 /** A non-negative 31-bit seed for tfjs initializers, derived from the run's train seed. */
 export function initSeed(trainSeed: string, i: number): number {
@@ -16,4 +17,9 @@ export function epochSeed(trainSeed: string, epoch: number): bigint {
 
 export function shuffleSeed(trainSeed: string): bigint {
   return splitmix64At(parseSeed(trainSeed), SHUFFLE_STREAM);
+}
+
+/** Seed for the batch-order shuffle of a length-bucketed epoch (research R15). */
+export function bucketSeed(trainSeed: string, epoch: number): bigint {
+  return splitmix64At(parseSeed(trainSeed), BUCKET_STREAM + epoch);
 }

@@ -531,6 +531,20 @@
             }
           ]
         },
+        "tf_interop_threads": {
+          "description": "TF_NUM_INTEROP_THREADS in force when training ran (absent: unset).",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "tf_intraop_threads": {
+          "description": "TF_NUM_INTRAOP_THREADS in force when training ran (absent: unset, so the TensorFlow default of one per core).",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "tfjs_node_version": {
           "type": "string"
         },
@@ -1112,6 +1126,14 @@
         "batch_size": {
           "type": "integer"
         },
+        "bucket_batches": {
+          "description": "Batches per length-bucketing group (default 16).",
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "id": {
           "description": "Estimator name used in predictions.",
           "type": "string"
@@ -1132,6 +1154,13 @@
         },
         "learning_rate": {
           "type": "number"
+        },
+        "length_bucketing": {
+          "description": "Length bucketing (research R15; default false). Each group of bucket_batches batches of the epoch's seeded permutation is sorted by valid length, cut into batches whose rows are trimmed to the longest window, and the batch order is shuffled with a seed derived from train_seed and the epoch. The model takes a variable time dimension. Not for mlp.",
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "loss_weight_course": {
           "type": "number"
@@ -1159,6 +1188,14 @@
         "shuffle_labels": {
           "description": "Permute targets across scenarios (leakage check).",
           "type": "boolean"
+        },
+        "tfjs_threads": {
+          "description": "TensorFlow intra-op and inter-op thread count, set by tma-train through TF_NUM_INTRAOP_THREADS and TF_NUM_INTEROP_THREADS before tfjs-node loads. Absent: the TensorFlow default (one per core) or whatever the environment sets.",
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "train_limit": {
           "description": "Use only the first N training scenarios (tests and smoke runs).",
@@ -1229,5 +1266,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.5.0"
+  "version": "0.6.0"
 }

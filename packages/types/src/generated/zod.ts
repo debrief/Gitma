@@ -191,6 +191,8 @@ export type StopReason = z.infer<typeof StopReason>;
 /** Hyperparameters and seeds for one training run (SRD §4; constitution III). */
 export const TrainingConfig = z.strictObject({
   batch_size: z.number().int(),
+  /** Batches per length-bucketing group (default 16). */
+  bucket_batches: z.number().int().nullish(),
   /** Estimator name used in predictions. */
   id: z.string(),
   /** Causal CNN kernel size. */
@@ -198,6 +200,8 @@ export const TrainingConfig = z.strictObject({
   /** Causal CNN conv layers (no dilation). */
   layers: z.number().int().nullish(),
   learning_rate: z.number(),
+  /** Length bucketing (research R15; default false). Each group of bucket_batches batches of the epoch's seeded permutation is sorted by valid length, cut into batches whose rows are trimmed to the longest window, and the batch order is shuffled with a seed derived from train_seed and the epoch. The model takes a variable time dimension. Not for mlp. */
+  length_bucketing: z.boolean().nullish(),
   loss_weight_course: z.number(),
   loss_weight_range: z.number(),
   loss_weight_speed: z.number(),
@@ -209,6 +213,8 @@ export const TrainingConfig = z.strictObject({
   patience: z.number().int(),
   /** Permute targets across scenarios (leakage check). */
   shuffle_labels: z.boolean(),
+  /** TensorFlow intra-op and inter-op thread count, set by tma-train through TF_NUM_INTRAOP_THREADS and TF_NUM_INTEROP_THREADS before tfjs-node loads. Absent: the TensorFlow default (one per core) or whatever the environment sets. */
+  tfjs_threads: z.number().int().nullish(),
   /** Use only the first N training scenarios (tests and smoke runs). */
   train_limit: z.number().int().nullish(),
   /** Decimal uint64; derives initializer seeds and batch order. */
@@ -233,6 +239,10 @@ export const ModelManifest = z.strictObject({
   parameter_count: z.number().int(),
   schema_version: z.string(),
   stop_reason: StopReason.nullish(),
+  /** TF_NUM_INTEROP_THREADS in force when training ran (absent: unset). */
+  tf_interop_threads: z.number().int().nullish(),
+  /** TF_NUM_INTRAOP_THREADS in force when training ran (absent: unset, so the TensorFlow default of one per core). */
+  tf_intraop_threads: z.number().int().nullish(),
   tfjs_node_version: z.string(),
   train_features_digest: z.string(),
   val_features_digest: z.string(),

@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.5.0
+version: 0.6.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -436,6 +436,24 @@ classes:
         range: boolean
         required: true
         description: "Permute targets across scenarios (leakage check)."
+      length_bucketing:
+        range: boolean
+        description: >-
+          Length bucketing (research R15; default false). Each group of bucket_batches batches of
+          the epoch's seeded permutation is sorted by valid length, cut into batches whose rows are
+          trimmed to the longest window, and the batch order is shuffled with a seed derived from
+          train_seed and the epoch. The model takes a variable time dimension. Not for mlp.
+      bucket_batches:
+        range: integer
+        minimum_value: 1
+        description: "Batches per length-bucketing group (default 16)."
+      tfjs_threads:
+        range: integer
+        minimum_value: 1
+        description: >-
+          TensorFlow intra-op and inter-op thread count, set by tma-train through
+          TF_NUM_INTRAOP_THREADS and TF_NUM_INTEROP_THREADS before tfjs-node loads. Absent: the
+          TensorFlow default (one per core) or whatever the environment sets.
 
   EpochRecord:
     attributes:
@@ -508,6 +526,14 @@ classes:
       cpu_model:
         range: string
         required: true
+      tf_intraop_threads:
+        range: integer
+        description: >-
+          TF_NUM_INTRAOP_THREADS in force when training ran (absent: unset, so the TensorFlow
+          default of one per core).
+      tf_interop_threads:
+        range: integer
+        description: "TF_NUM_INTEROP_THREADS in force when training ran (absent: unset)."
       weights_digest:
         range: string
         required: true
