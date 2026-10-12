@@ -1,0 +1,88 @@
+{
+  "best_epoch": 4,
+  "complete": true,
+  "config": {
+    "batch_size": 256,
+    "id": "lstm-instantaneous-shuffled",
+    "learning_rate": 0.001,
+    "loss_weight_course": 1,
+    "loss_weight_range": 1,
+    "loss_weight_speed": 1,
+    "max_epochs": 60,
+    "max_wall_s": 7200,
+    "model_kind": "instantaneous",
+    "patience": 3,
+    "shuffle_labels": true,
+    "train_seed": "1005",
+    "units": 96
+  },
+  "cpu_model": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
+  "epochs": [
+    {
+      "epoch": 0,
+      "seconds": 623.1827165530001,
+      "train_loss": 1.7442732649489332,
+      "val_loss": 1.5170718112227435
+    },
+    {
+      "epoch": 1,
+      "seconds": 1235.810180867,
+      "train_loss": 1.5408898420608081,
+      "val_loss": 1.5164697088878238
+    },
+    {
+      "epoch": 2,
+      "seconds": 1851.920584392,
+      "train_loss": 1.53937798071974,
+      "val_loss": 1.5096937601431646
+    },
+    {
+      "epoch": 3,
+      "seconds": 2458.96138428,
+      "train_loss": 1.5378056018116375,
+      "val_loss": 1.5370394953255506
+    },
+    {
+      "epoch": 4,
+      "seconds": 3075.7159044709997,
+      "train_loss": 1.537185994961772,
+      "val_loss": 1.5084637094781541
+    },
+    {
+      "epoch": 5,
+      "seconds": 3690.776651416,
+      "train_loss": 1.5381198020788809,
+      "val_loss": 1.5185959735825376
+    },
+    {
+      "epoch": 6,
+      "seconds": 4311.984762319001,
+      "train_loss": 1.537441660420963,
+      "val_loss": 1.5181622393739926
+    },
+    {
+      "epoch": 7,
+      "seconds": 4936.556352853,
+      "train_loss": 1.5361803766256703,
+      "val_loss": 1.5162785157031726
+    }
+  ],
+  "generator_version": "0.1.0",
+  "id": "lstm-instantaneous-shuffled",
+  "node_version": "v22.22.0",
+  "normalisation": {
+    "computed_from": "inputs_only",
+    "position_scale_km": 17.33416748046875,
+    "speed_scale_mps": 7.71650505065918,
+    "time_scale_s": 2390,
+    "train_header_digest": "b97966ec7df18b00f49cf88296ca6ae4cc1c979dff712d46a6fb12597ade453a"
+  },
+  "parameter_count": 41476,
+  "schema_version": "0.4.0",
+  "stop_reason": "early_stopping",
+  "tfjs_node_version": "4.22.0",
+  "train_features_digest": "95687d542b01124427c3fa514495b39d6a876344cfb6a7004beb0f36c0b3447c",
+  "val_features_digest": "d3e054604d9cb9e8b93aa7d1320fb6b1b2320ef1cf1a540971a0e7934828c40b",
+  "wall_s": 4936.574574541,
+  "weights_digest": "825e51cb529d1a6ee83ccde8f5d928d7a22cfee4bd40f2c5653d01120bb005f9"
+}

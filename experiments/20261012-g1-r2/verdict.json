@@ -1,0 +1,37 @@
+{
+  "checks": [
+    {
+      "detail": "lstm-instantaneous median range error 0.1609 vs limit 0.1920 (0.5 × naive 0.3840) at zig+300s; n 9784 (naive 9784), excluded 216 (naive 216); model/naive 0.419, 95% CI [0.407, 0.431] (paired bootstrap, 2000 resamples, n 9784)",
+      "name": "g1-instantaneous",
+      "result": "pass"
+    },
+    {
+      "detail": "bilstm-time-late median range error 0.1730 vs limit 0.1920 (0.5 × naive 0.3840) at zig+300s; n 9784 (naive 9784), excluded 216 (naive 216); model/naive 0.450, 95% CI [0.438, 0.464] (paired bootstrap, 2000 resamples, n 9784)",
+      "name": "g1-time-late",
+      "result": "pass"
+    },
+    {
+      "detail": "14/20 points worse: t=120s 0.2111 > 0.1991; t=180s 0.1889 > 0.1787; t=240s 0.1788 > 0.1670; t=300s 0.1730 > 0.1609; t=360s 0.1677 > 0.1570 (3 later points with n < 500 reported, not gated)",
+      "name": "time-late-not-worse",
+      "result": "fail"
+    },
+    {
+      "detail": "lstm-instantaneous vs cnn-causal-control median range error — zig+300s: 0.1609 vs 0.2927, final: 0.1642 vs 0.2934",
+      "name": "instantaneous-beats-control",
+      "result": "pass"
+    },
+    {
+      "detail": "bilstm-time-late vs mlp-control median range error — zig+300s: 0.1730 vs 0.2631, final: 0.1847 vs 0.2823",
+      "name": "time-late-beats-control",
+      "result": "pass"
+    },
+    {
+      "detail": "lstm-instantaneous-shuffled median range error 0.3860 = 1.005 × naive 0.3840 (allowed 1 ± 0.1) at zig+300s",
+      "name": "shuffled-labels-at-naive",
+      "result": "pass"
+    }
+  ],
+  "decided_by": "harness (pending agent panel review)",
+  "gate": "G1",
+  "result": "inconclusive"
+}
