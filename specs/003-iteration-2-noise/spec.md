@@ -27,6 +27,17 @@ answer, window-mean position error.
 clutter, sensor artefacts beyond Gaussian bearing noise and dropouts, EKF, 10^6-scenario datasets
 (iteration 3), PyTorch port.
 
+**Backlog for a later iteration** (user decision 2026-10-12):
+
+- **Ownship autopilot wiggle:** small heading oscillations that marine autopilots introduce to save
+  rudder. Generator work: an ownship motion model, like the rate-limited turn here.
+- **Wiggle-robust ownship leg feature:** straight or turning. Once ownship course carries wiggle,
+  telling a real leg change from it is a genuine detection problem. Options: a smoothed
+  course-rate filter (a derived feature) or a small learned detector. A learned detector is a
+  separate CLI stage, and its training-split outputs must come from data it was not fitted on
+  (no stacking leakage).
+- **Target leg / manoeuvre detector:** only with target manoeuvres, which are out of scope above.
+
 ## User Scenarios & Testing *(mandatory)*
 
 Actors: the **researcher** (generates data, trains, runs the gate), the **agent review panel** (five
