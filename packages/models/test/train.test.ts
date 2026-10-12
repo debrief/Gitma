@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, renameSync } from "node:fs";
+import { existsSync, readFileSync, renameSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { train } from "../src/train.js";
@@ -100,11 +100,51 @@ describe("training loop", () => {
       outDir: out,
       log: (l) => resumed.push(l),
     });
-    expect(resumed[0]).toMatch(/resuming .* after epoch 0/);
+    expect(resumed[0]).toMatch(/resuming .* after epoch 0 \(optimizer state restored\)/);
     expect(m.complete).toBe(true);
     expect(m.epochs.map((e) => e.epoch)).toEqual([0, 1, 2]);
+    // With Adam's state restored and the epoch-indexed batch order, the interruption is invisible.
+    const whole = await train({
+      config,
+      trainPath: data.train,
+      valPath: data.val,
+      outDir: tempDir(),
+      log: quiet,
+    });
+    expect(m.epochs.map((e) => e.val_loss)).toEqual(whole.epochs.map((e) => e.val_loss));
+    expect(m.weights_digest).toBe(whole.weights_digest);
     for (const d of ["checkpoint", "checkpoint.old", "best", "best.tmp"]) {
       expect(existsSync(join(out, d))).toBe(false);
     }
+  }, 120_000);
+
+  it("restarts Adam when a checkpoint has no optimizer state, with a 3-epoch patience grace", async () => {
+    const out = tempDir();
+    const config = tinyConfig("instantaneous", { max_epochs: 2 });
+    let lines = 0;
+    await expect(
+      train({
+        config,
+        trainPath: data.train,
+        valPath: data.val,
+        outDir: out,
+        log: () => {
+          if (++lines === 2) throw new Error("job cancelled");
+        },
+      }),
+    ).rejects.toThrow("job cancelled");
+    // A checkpoint seeded from committed weights (scripts/train-continue.mjs) has no optimizer state.
+    rmSync(join(out, "checkpoint", "optimizer.json"));
+    rmSync(join(out, "checkpoint", "optimizer.bin"));
+    const resumed: string[] = [];
+    const m = await train({
+      config,
+      trainPath: data.train,
+      valPath: data.val,
+      outDir: out,
+      log: (l) => resumed.push(l),
+    });
+    expect(resumed[0]).toMatch(/optimizer state restarts; patience not counted for epochs 1–3/);
+    expect(m.complete).toBe(true);
   }, 120_000);
 });

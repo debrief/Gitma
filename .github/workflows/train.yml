@@ -33,12 +33,14 @@ jobs:
     outputs:
       models: ${{ steps.plan.outputs.models }}
       reuse_run: ${{ steps.plan.outputs.reuse_run }}
+      continue_from: ${{ steps.plan.outputs.continue_from }}
     steps:
       - uses: actions/checkout@v4
       - id: plan
         run: |
           echo "models=$(jq -c .models .github/train-plan.json)" >> "$GITHUB_OUTPUT"
           echo "reuse_run=$(jq -r '.reuse_run // ""' .github/train-plan.json)" >> "$GITHUB_OUTPUT"
+          echo "continue_from=$(jq -c '.continue_from // {}' .github/train-plan.json)" >> "$GITHUB_OUTPUT"
           cat .github/train-plan.json
 
   train:
@@ -75,7 +77,15 @@ jobs:
           echo "CKPT=checkpoints/${GITHUB_REF_NAME}/${{ matrix.model }}" >> "$GITHUB_ENV"
           scripts/train-checkpoint.sh restore "$RUNNER_TEMP/models/${{ matrix.model }}" \
             "checkpoints/${GITHUB_REF_NAME}/${{ matrix.model }}"
+      - name: Seed a continuation from committed weights (plan continue_from; SRD §5 amendment)
+        env:
+          FROM: ${{ fromJSON(needs.plan.outputs.continue_from)[matrix.model] }}
+        run: |
+          if [ -n "$FROM" ] && [ ! -f "$OUT/manifest.json" ]; then
+            node scripts/train-continue.mjs "$FROM" configs/iter1/${{ matrix.model }}.json "$OUT"
+          fi
       - name: Train ${{ matrix.model }}
+        timeout-minutes: 345 # under the job limit, so checkpoint sync and artifact upload still run
         shell: bash # -o pipefail, so a failed run is not hidden by tee
         run: |
           if [ -f "$OUT/manifest.json" ] && jq -e .complete "$OUT/manifest.json" >/dev/null; then
@@ -83,6 +93,7 @@ jobs:
             echo "restored complete model from $CKPT" > "$RUNNER_TEMP/train.log"
             exit 0
           fi
+          lscpu | grep "Model name" # per-job CPU (continuation protocol point 5)
           # Push the output folder to $CKPT after every epoch (manifest change).
           scripts/train-checkpoint.sh watch "$OUT" "$CKPT" &
           WATCH=$!
@@ -167,7 +178,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b "results/g1-${{ github.run_id }}"
+          # Branch from main: a results branch carrying this branch's workflow edits cannot be pushed
+          # with the default token (no workflows permission).
+          git checkout -b "results/g1-${{ github.run_id }}" origin/main
           git add "$EXP"
           git commit -qm "experiments: G1 run ${{ github.run_id }} (CI, ${{ github.sha }})"
           git push origin "results/g1-${{ github.run_id }}"

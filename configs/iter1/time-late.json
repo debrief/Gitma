@@ -3,7 +3,7 @@
   "batch_size": 256,
   "max_epochs": 60,
   "patience": 3,
-  "max_wall_s": 19800,
+  "max_wall_s": 86400,
   "loss_weight_range": 1,
   "loss_weight_course": 1,
   "loss_weight_speed": 1,

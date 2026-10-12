@@ -1,5 +1,8 @@
 {
   "models": ["time-late"],
   "reuse_run": "38131616871",
-  "note": "Run 38131616871 trained the other four models; its time-late job was cancelled by accident at 5 h 15 min."
+  "continue_from": {
+    "time-late": "experiments/20261011-g1-r2/models/bilstm-time-late"
+  },
+  "note": "Equal-epoch continuation of bilstm-time-late from its committed epoch-23 weights (SRD §5 amendment 2026-10-12; protocol in experiments/20261011-g1-r2/review.md). Other four models reused from run 38131616871."
 }
