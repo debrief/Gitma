@@ -320,3 +320,149 @@ tests (`packages/models/test/causality.test.ts`), `packages/data/src/` (splits),
    first result stays recorded; a second fail is final. Protocol:
    `experiments/20261011-g1-r2/review.md`, "User decision". These rules supersede g1-limits S1.
 
+
+---
+
+## Round 3 — the time-late continuation
+
+Rounds 1–2 reviewed attempt 1 (`experiments/20261011-g1-r2/`, machine verdict fail: time-late
+0.551, 95% CI [0.538, 0.565]) and approved the continuation protocol before the run. Round 3
+reviews the continuation as a **new experiment**: all five reviewers, fresh reports, same severity
+scale, the same output format as above and the same word limits (**900 words**; re-invitations
+**400 words**). Record: `experiments/<id>-r2/review.md` (the continuation's re-scored folder),
+linking back to the attempt-1 record.
+
+### What changed (and nothing else may have)
+
+| Item | Attempt 1 | Continuation |
+| --- | --- | --- |
+| Model trained | `bilstm-time-late` from scratch | `bilstm-time-late` from its committed epoch-23 weights (`weights_digest` 2c5f8784…); epoch 24 dropped |
+| `max_wall_s` | 19,800 | 86,400 (the only config change) |
+| Stop | wall-clock cap after 25 epochs | `max_epochs` 60 or early stopping, patience 3 |
+| Adam state | never saved | restarts once at epoch 24; saved with every checkpoint and restored at job boundaries |
+| Patience | counted from epoch 0 | epochs 24–26 not counted (grace after the one restart) |
+| Other four models | run 38131616871 | reused from run 38131616871, untouched |
+| Training run | 38152208243 | 38208186337 (`train/i1-continue`, commit 7c1c579), one or more jobs |
+| Verdict of record | `evaluate-g1.yml` on main | `evaluate-g1.yml` on main (code as at edd0aa2 plus PR #27), all five models re-scored |
+
+Unchanged: data seed 101 and splits, `train_seed` 1002, architecture, loss weights, learning rate,
+batch size, test split, bootstrap seed 20261011.
+
+### Pre-registered outcome rules (apply them; do not reinterpret)
+
+From `experiments/20261011-g1-r2/review.md`, "User decision", and SRD §5 (amended 2026-10-12):
+
+1. Both ratio intervals wholly below 0.5 and `shuffled-labels-at-naive` passing → **G1 pass**, even
+   if `time-late-not-worse` still fails; the record then says "time-late not shown better than
+   instantaneous" and iteration 2 investigates. Note that main's `g1Verdict` reports
+   **inconclusive** in that case (tiered rule 2); the panel records the pass under this rule and
+   says so.
+2. The continued model's ratio interval wholly at or above 0.5 → **G1 fail, final** (SRD §5): no
+   further continuation, seed or architecture change.
+3. An interval straddling 0.5 → decided rule 1 (one re-score on a larger fresh-seed test set; still
+   inconclusive → fail).
+4. A cancelled or failed job resumes from its latest checkpoint, never again from epoch 23. The
+   first completed continuation is the one scored. Every job is listed with run id, epochs covered
+   and `cpu_model`.
+5. Attempt 1 stays recorded as a valid attempt.
+
+A reviewer who thinks a rule is wrong raises it as a finding; the rules are not re-opened by
+judgement.
+
+### Evidence
+
+| Evidence | Where |
+| --- | --- |
+| Protocol, attempt-1 record | `experiments/20261011-g1-r2/review.md`; SRD §5 G1 row |
+| Verdict of record | `experiments/<id>-r2/` from `evaluate-g1.yml` (`results/g1-eval-<run id>`): `verdict.json`, `bootstrap.json`, `metrics.*`, `curves.csv`, `heldout/`, `models/` |
+| Training run's own folder | `experiments/<id>/` from `results/g1-38208186337` (train/i1 code, no bootstrap): informational |
+| Continued model | `models/bilstm-time-late/manifest.json` (`epochs`, `best_epoch`, `stop_reason`, `wall_s`, `cpu_model`, `config`, `weights_digest`) |
+| Job logs | `gh run view 38208186337 --repo debrief/Gitma` (every job and re-run attempt), `gh run view --log --job <id>`; the committed `logs/time-late.log` may hold only the last job's log |
+| Code that changed | `git show 7c1c579`; `git diff origin/main origin/train/i1-continue -- packages/models/src/train.ts packages/models/test/train.test.ts scripts/ configs/ .github/` |
+| Seed step | `scripts/train-continue.mjs` on `train/i1-continue` (weights digest and config-diff checks) |
+| Attempt 1, for comparison | `experiments/20261011-g1-r2/` (same naive, classical and four reused models) |
+
+Log lines to find, per job:
+
+- Seed (first job only): `seeded bilstm-time-late: resume after epoch 23 (dropped 1 later epoch(s)); weights 2c5f8784…`.
+- First job: `resuming bilstm-time-late after epoch 23 (optimizer state restarts; patience not counted for epochs 24–26)`.
+- Every later job: `resuming bilstm-time-late after epoch <n> (optimizer state restored)`; `restarts` must appear exactly once in the whole run.
+- Every job: the `lscpu` `Model name` line.
+
+### Brief 1 — TMA geometry (round 3)
+
+1. Did the continued time-late curve move the way more training should (lower at every point,
+   flatter than instantaneous, since it sees the whole window)? Compare with attempt 1's curve.
+2. If `time-late-not-worse` still fails, where along the curve, and is the cause geometric (e.g.
+   pre-zig rows dominating the loss) or still training? Say whether rule 1's caveat is the right
+   description.
+3. Range bands (n beside each; n < 200 anecdotal): does the time-late U-shape (best at 5–10 km)
+   persist, i.e. still the prior's shape rather than geometry's?
+4. Held-out 20–30 km: does the continued model extrapolate better than attempt 1 (ratio 0.768) or
+   stay held to the prior?
+5. Are course and speed consistent with the range result?
+
+### Brief 2 — Estimation and numerics (round 3)
+
+1. **Resume and optimizer restore.** From the job logs: the seed line and digest; exactly one
+   `optimizer state restarts` (at epoch 24) and `optimizer state restored` at every later job
+   boundary. Any job that restarted Adam a second time breaks the protocol (blocker).
+2. **Patience grace.** Confirm `e - max(bestEpoch, graceUntil) >= patience` in `train.ts` with
+   `graceUntil` 26 after the restart and carried in `optimizer.json` across jobs. If the run stopped
+   early, at which epoch, and was the grace applied correctly (not extended, not lost at a job
+   boundary)?
+3. **Continuity.** Epochs 0–23 in the manifest equal attempt 1's records exactly; attempt 1's epoch 24
+   is absent; no jump in train or validation loss at a job boundary beyond the epoch-24 restart.
+4. **Training outcome.** Epochs run, best epoch, stop reason, best validation loss vs attempt 1
+   (0.565) and vs the instantaneous model at the same epoch. Any divergence or non-finite output?
+5. **Baselines unchanged.** Naive and classical metrics byte-identical to attempt 1's
+   (`metrics.csv` rows for `naive:` and `classical:`).
+
+### Brief 3 — Evaluation statistics (round 3)
+
+1. Apply the pre-registered rules to `bootstrap.json` and `verdict.json`; state which outcome
+   applies. If the machine verdict is `inconclusive` only because `time-late-not-worse` failed, say
+   so and apply rule 1.
+2. The instantaneous interval should be identical to attempt 1 (0.419, [0.407, 0.431]: same weights,
+   data and bootstrap seed). Confirm; any difference is a reproducibility finding.
+3. Matched samples: equal `n` and `excluded` for every pair; `bootstrap.json` `n` equals the metrics'.
+4. Second attempt: the time-late variant was scored twice. Is the one-continuation rule, fixed
+   before the run with a final fail, an adequate guard against a second chance passing by luck?
+   Quantify if you can (e.g. the margin of the interval from 0.5). Do not re-open the rule.
+5. Medians, P90s, gross-error rates and n reported (constitution IV); no means; the blog draft
+   (`site/blog/2026-10-12-iteration-1.md`) complies.
+
+### Brief 4 — Reproducibility (round 3)
+
+1. **Per-job record (rule 4).** List every job and re-run attempt of 38208186337: job id, epochs
+   covered, `cpu_model` (from `lscpu`). Did the CPU family change between jobs? If so, record that
+   the weights are not byte-reproducible by a single-CPU re-run, and whether it matters.
+2. **Seed step.** The continuation started from `weights_digest` 2c5f8784… and the config differs
+   from attempt 1's only in `max_wall_s` (the seed step checks both; confirm from its log line and
+   the manifest's `config`).
+3. **Resume equals uninterrupted.** Run the branch's test (`pnpm vitest run
+   packages/models/test/train.test.ts` on `train/i1-continue`): an interrupted-and-resumed run
+   gives weights identical to an uninterrupted one.
+4. **Reused models.** The four reused models' `weights_digest` equal attempt 1's; data digests in
+   every manifest agree.
+5. **Re-score locally** from the committed weights (as in round 1): `verdict.json` byte-identical,
+   metrics within float32 noise. Confirm `evaluate-g1.yml` picked the continuation's folder, not
+   attempt 1's (`ls | sort | tail -1`).
+6. **Code lineage.** `train/i1-continue` descends from `train/i1` (schema 0.4.0), not main. List the
+   differences that touch training and confirm none other than the protocol's.
+
+### Brief 5 — Red team (round 3)
+
+1. **One change only.** Diff the config, `train.ts`, `batches.ts`, the loss and the workflow against
+   attempt 1's code: anything beyond `max_wall_s`, optimizer persistence, the grace and the seed
+   step is a finding.
+2. **Selection.** Was any job resumed from epoch 23 a second time, any completed continuation
+   discarded, or the test split scored before training finished (look at every job and every
+   re-run attempt, and at `results/**` and `eval/**` branches)?
+3. **Batch order.** Epoch `e` uses the epoch-indexed batch order an uninterrupted run would; a
+   resumed job does not replay or skip batches.
+4. **Instantaneous untouched.** The instantaneous model is the attempt-1 file (digest), not
+   retrained or reselected; the CNN, MLP and shuffled models likewise.
+5. **Rules applied as written.** If the outcome is a pass with `time-late-not-worse` failing, check
+   the record says "time-late not shown better than instantaneous" and claims nothing more; if a
+   fail, check it is recorded as final.

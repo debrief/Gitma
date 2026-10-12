@@ -97,7 +97,7 @@ description: "Task list for 002 — Iteration 1, is the signal learnable (G1)"
 - [x] T034 [P] [US5] Results review component (SVG error-vs-time curves, sliced table) in `site/src/components/ResultsReview.jsx`; page `site/docs/results/iteration-1.mdx`
 - [x] T035 [P] [US5] Algorithm note `site/docs/algorithms/models.md` (four architectures, loss, masking, causal padding workaround); glossary terms (control, shuffled-label test, time-late/instantaneous already present)
 - [x] T036 [P] [US5] `.github/workflows/pr-preview.yml` and `pr-preview-cleanup.yml` (same-repo PRs; comment with link)
-- [ ] T037 [US5] Blog post with G1 numbers, all checks and the team's decision, `site/blog/<date>-iteration-1.md`; welcome page shows G1 from the verdict
+- [ ] T037 [US5] Blog post with G1 numbers, all checks and the team's decision, `site/blog/<date>-iteration-1.md`; welcome page shows G1 from the verdict — **in progress (2026-10-12)**: draft `site/blog/2026-10-12-iteration-1.md` (unlisted) has attempt 1 (`20261011-g1-r2`) filled: every check, intervals, slices with n, held-out split, the time-late budget account, panel rounds 1–2, the continuation protocol and every run (FR-009). Open: the continuation's numbers (run 38208186337 and its re-score), the round-3 panel and the verdict, marked `TODO(continuation)` with both outcomes pre-written. Results page shows the latest G1 attempt with its pending-panel status and lists earlier attempts; welcome page shows G1 from the verdict (done). Round-3 brief in `g1-panel-briefs.md`.
 
 ## Phase 9: Polish
 
