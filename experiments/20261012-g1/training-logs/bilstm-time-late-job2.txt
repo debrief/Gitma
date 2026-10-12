@@ -1,0 +1,12 @@
+Model name:                              INTEL(R) XEON(R) PLATINUM 8573C
+resuming bilstm-time-late after epoch 41 (optimizer state restored)
+bilstm-time-late epoch 42 train 0.44790 val 0.45221 t=39218s
+bilstm-time-late epoch 43 train 0.44292 val 0.45192 t=40076s
+bilstm-time-late epoch 44 train 0.44351 val 0.44655 t=40949s
+bilstm-time-late epoch 45 train 0.44998 val 0.45494 t=41832s
+bilstm-time-late epoch 46 train 0.43454 val 0.44079 t=42719s
+bilstm-time-late epoch 47 train 0.42843 val 0.44680 t=43595s
+bilstm-time-late epoch 48 train 0.45467 val 0.53512 t=44468s
+bilstm-time-late epoch 49 train 0.46421 val 0.44836 t=45327s
+{"id":"bilstm-time-late","g0_experiment":"20261011-g0-r3","stop_reason":"early_stopping","best_epoch":46,"epochs":50,"wall_s":45327}
+Model name:                              INTEL(R) XEON(R) PLATINUM 8573C
