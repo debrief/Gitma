@@ -29,12 +29,17 @@ All numbers below are from the committed experiment folder, generated at site bu
 latest attempt is shown in full; earlier attempts stay on record and are listed at the end. A
 metric shown as ∞ is a percentile that falls on a non-converged estimate (counted as +∞).
 
-:::note Attempt 1 and the continuation
-Attempt 1 (`20261011-g1-r2`) did not pass as run: the instantaneous model met the criterion, the
-time-late model stopped on the wall-clock cap after 25 of 60 epochs and failed. Under the
-[pre-registered protocol](https://github.com/debrief/Gitma/blob/main/experiments/20261011-g1-r2/review.md#user-decision-2026-10-12-after-round-1)
-the time-late model is being continued once to the same epoch budget; its re-scored experiment
-will appear here as the latest attempt, and the panel then decides G1.
+:::note G1 passed (panel round 3) with a caveat
+The latest experiment, `20261012-g1-r2`, re-scores the time-late model after its one
+[pre-registered continuation](https://github.com/debrief/Gitma/blob/main/experiments/20261011-g1-r2/review.md#user-decision-2026-10-12-after-round-1)
+to early stopping (50 epochs, best 46). Its machine verdict is **inconclusive** because
+`time-late-not-worse` fails; both ratio intervals lie wholly below 0.5 and the shuffled-label check
+passes, so the agent review panel passed G1 under pre-registered rule 1 (SRD §5, amended
+2026-10-12). Caveat: time-late is not shown better than instantaneous; it is measurably worse
+(1.075 [1.046, 1.108] × instantaneous at zig + 300 s). Full record:
+[`review.md`](https://github.com/debrief/Gitma/blob/main/experiments/20261012-g1-r2/review.md) and
+the [write-up](/blog/2026/10/12/iteration-1). Attempt 1 (`20261011-g1-r2`, time-late stopped on
+the wall-clock cap after 25 of 60 epochs) stays on record below.
 :::
 
 <ResultsReview gate="G1" />
