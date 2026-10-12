@@ -147,7 +147,7 @@ The instantaneous variant is scored at every timestep after the zig and reported
 | Gate | Criterion | Decision if failed |
 | --- | --- | --- |
 | G0 — pipeline | Classical solver recovers noise-free truth; naive baseline numbers reproduced | Fix the generator before any training |
-| G1 — signal exists | Model median range error < 50% of naive baseline's, on both variants (95% interval wholly below; a shuffled-label failure voids the evidence, a time-late consistency failure makes it inconclusive; amended 2026-10-11) | Stop: ML not extracting the signal; report and close |
+| G1 — signal exists | Model median range error < 50% of naive baseline's, on both variants (95% interval wholly below; a shuffled-label failure voids the evidence, a time-late consistency failure makes it inconclusive; amended 2026-10-11. Amended 2026-10-12, before the run: a variant that failed after stopping on the wall-clock cap with fewer epochs than the other may be continued once from its committed weights to the same epoch budget, all else unchanged; the first result stays recorded and a second fail is final) | Stop: ML not extracting the signal; report and close |
 | G2 — useful | Median range error < 20%, course < 10°, speed < 1 kt at σ = 1° | Iterate features/architecture once; if still failed, stop |
 | G3 — classical parity (stretch) | Model within 1.2× classical solver on every metric, and lower gross-error rate | Not a stop condition; defines the bar for the next phase |
 

@@ -314,4 +314,9 @@ tests (`packages/models/test/causality.test.ts`), `packages/data/src/` (splits),
    pipeline is investigated. A control failure is reported only: G1 may pass, but the claim is
    "signal exists" without "sequential learning".
 3. **No casting vote** (SRD §7 amended). Borderline numbers are handled by rule 1, not by judgement.
+4. **Equal-epoch continuation** (user, 2026-10-12, after round 1; SRD §5 amended before the run). A
+   variant that failed after stopping on the wall-clock cap with fewer epochs than the other may be
+   continued once from its committed weights to the same epoch budget, all else unchanged. The
+   first result stays recorded; a second fail is final. Protocol:
+   `experiments/20261011-g1-r2/review.md`, "User decision". These rules supersede g1-limits S1.
 
