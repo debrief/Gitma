@@ -1,5 +1,6 @@
 // Results review (spec 002 US5, research R9): verdict, error-vs-time curves and sliced tables for
 // the latest experiment of a gate, read at build time from experiments/<id>/ (scripts/prebuild.mjs).
+// Earlier experiments of the same gate (earlier attempts) are listed with their verdicts and intervals.
 import { useState } from "react";
 import results from "../generated/results.json";
 
@@ -16,7 +17,9 @@ const name = (label) => label.replace(/:per_timestep$/, "");
 /** CSS class for a gate or check result (pass / fail / inconclusive). */
 const resultClass = (r) => `gate-${r}`;
 
-const fmtCell = (key, v) => (v === null || v === undefined ? "–" : METRICS[key].fmt(v));
+// A metric absent from a record is non-finite: non-converged rows count as +∞, so a percentile that
+// lands on one is +∞ and is dropped from the JSON.
+const fmtCell = (key, v) => (v === null || v === undefined ? "∞" : METRICS[key].fmt(v));
 
 function Curves({ curves }) {
   const [metric, setMetric] = useState("range_rel_median");
@@ -179,7 +182,7 @@ function SliceTable({ metrics }) {
                 const m = rows.find((r) => r.estimator === e && r.slice === s);
                 return (
                   <td key={s}>
-                    {fmtCell("range_rel_median", m?.range_rel_median)}{" "}
+                    {m ? fmtCell("range_rel_median", m.range_rel_median) : "–"}{" "}
                     <small style={{ opacity: m && m.n < 200 ? 1 : 0.6 }}>
                       n {m?.n ?? 0}
                       {m && m.n < 200 ? " (too few to judge)" : ""}
@@ -233,8 +236,87 @@ function Intervals({ bootstrap }) {
   );
 }
 
+const expUrl = (id, file = "") =>
+  `https://github.com/debrief/Gitma/${file ? "blob" : "tree"}/main/experiments/${id}${file ? `/${file}` : ""}`;
+
+/** Panel status from the verdict's `decided_by`: a harness verdict is pending the agent panel. */
+function Status({ run }) {
+  const v = run.verdict;
+  const review = run.review && (
+    <>
+      {" "}
+      Panel record so far: <a href={expUrl(run.id, "review.md")}>review.md</a>.
+    </>
+  );
+  if (/^harness/.test(v.decided_by)) {
+    return (
+      <div className="alert alert--warning margin-bottom--md">
+        <strong>Pending panel decision.</strong> This is the machine verdict; the agent review panel
+        has not yet decided {v.gate} on this evidence.{review}
+      </div>
+    );
+  }
+  return (
+    <div className="alert alert--info margin-bottom--md">
+      Decided by {v.decided_by}.{review}
+    </div>
+  );
+}
+
+function EarlierAttempts({ runs }) {
+  return (
+    <>
+      <h2>Earlier attempts</h2>
+      <p>Kept on record; the latest attempt is shown above.</p>
+      <table className="gate-table">
+        <thead>
+          <tr>
+            <th>Experiment</th>
+            <th>Machine verdict</th>
+            <th>Decided by</th>
+            <th>Model / naive, 95% interval</th>
+          </tr>
+        </thead>
+        <tbody>
+          {runs.map((r) => (
+            <tr key={r.id}>
+              <td>
+                <a href={expUrl(r.id)}>
+                  <code>{r.id}</code>
+                </a>
+                {r.review && (
+                  <>
+                    {" "}
+                    (<a href={expUrl(r.id, "review.md")}>review</a>)
+                  </>
+                )}
+              </td>
+              <td className={resultClass(r.verdict.result)}>{r.verdict.result}</td>
+              <td>{r.verdict.decided_by}</td>
+              <td>
+                {r.bootstrap
+                  ? Object.entries(r.bootstrap)
+                      .filter(([, ci]) => typeof ci === "object" && ci !== null)
+                      .map(([id, ci]) => (
+                        <div key={id}>
+                          <code>{id}</code> {ci.ratio.toFixed(3)} [{ci.lo.toFixed(3)},{" "}
+                          {ci.hi.toFixed(3)}]
+                        </div>
+                      ))
+                  : "–"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  );
+}
+
 export default function ResultsReview({ gate }) {
-  const run = results.find((r) => r.verdict.gate === gate);
+  // Newest first (prebuild sorts experiment ids in reverse).
+  const runs = results.filter((r) => r.verdict.gate === gate);
+  const run = runs[0];
   if (run === undefined) {
     return (
       <div className="alert alert--info">
@@ -248,15 +330,16 @@ export default function ResultsReview({ gate }) {
     <div>
       <p>
         Experiment{" "}
-        <a href={`https://github.com/debrief/Gitma/tree/main/experiments/${run.id}`}>
+        <a href={expUrl(run.id)}>
           <code>{run.id}</code>
         </a>
-        : machine verdict{" "}
+        {runs.length > 1 && ` (attempt ${runs.length}; earlier attempts below)`}: machine verdict{" "}
         <strong className={resultClass(v.result)}>
           {v.gate} {v.result}
         </strong>{" "}
         ({v.decided_by}).
       </p>
+      <Status run={run} />
       <table className="gate-table">
         <thead>
           <tr>
@@ -293,6 +376,7 @@ export default function ResultsReview({ gate }) {
           <MetricsTable metrics={run.heldout} point="zig+300s" />
         </>
       )}
+      {runs.length > 1 && <EarlierAttempts runs={runs.slice(1)} />}
     </div>
   );
 }
