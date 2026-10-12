@@ -31,7 +31,7 @@
       "result": "pass"
     }
   ],
-  "decided_by": "harness (pending agent panel review)",
+  "decided_by": "agent review panel, rounds 1-2: fail as run (time-late undertrained, 25 of 60 epochs); one continuation pre-registered under SRD §5 (amended 2026-10-12), decided in ../20261012-g1-r2/review.md",
   "gate": "G1",
   "result": "fail"
 }

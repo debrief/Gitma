@@ -75,12 +75,15 @@ function g1Check(
   const limit = G1_RATIO * naive;
   // R8 "same scenarios": the model and naive must be scored on the same rows at the gate point.
   const same = mv.n === nv.n && mv.excluded === nv.excluded;
-  let result: GateResult = same && model < limit ? "pass" : "fail";
+  // Without a finite naive median there is no limit to beat: the check cannot pass.
+  const naiveOk = Number.isFinite(naive);
+  const valid = same && naiveOk;
+  let result: GateResult = valid && model < limit ? "pass" : "fail";
   let ciText = "; no bootstrap interval";
   if (ci !== undefined) {
     // With an interval, the point estimate alone does not decide: the whole 95% interval of
     // model/naive must sit below the ratio to pass, above it to fail; otherwise inconclusive.
-    result = !same
+    result = !valid
       ? "fail"
       : ci.hi < G1_RATIO
         ? "pass"
@@ -96,6 +99,7 @@ function g1Check(
       `${id} median range error ${fmt(model)} vs limit ${fmt(limit)} (${String(G1_RATIO)} × naive ${fmt(naive)}) at ${G1_POINT}; ` +
       `n ${String(mv.n)} (naive ${String(nv.n)}), excluded ${String(mv.excluded)} (naive ${String(nv.excluded)})` +
       (same ? "" : " — sample mismatch") +
+      (naiveOk ? "" : " — naive median not finite") +
       ciText,
   };
 }
@@ -156,15 +160,26 @@ export function checkBeatsControl(
   );
 }
 
+/** Overall course error median in degrees at `point`, or "n/a" when absent or non-finite. */
+function courseText(metrics: MetricsRecord[], estimator: string, point: string): string {
+  const c = record(metrics, estimator, point).course_deg_median;
+  return c === undefined || c === null || !Number.isFinite(c) ? "n/a" : `${c.toFixed(1)}°`;
+}
+
+/**
+ * Shuffled-label check. Pass/fail is on range error only, as pre-registered; the course error
+ * median beside naive's is reported in the detail (a weak bearing-as-course prior shows there).
+ */
 export function checkLeakage(metrics: MetricsRecord[], shuffled: string): GateCheck {
   const naive = median(metrics, "naive", G1_POINT);
   const s = median(metrics, shuffled, G1_POINT);
   const ratio = s / naive;
   const same = sameSample(metrics, shuffled, "naive", G1_POINT);
+  const course = `course error median ${courseText(metrics, shuffled, G1_POINT)} vs naive ${courseText(metrics, "naive", G1_POINT)} (reported, not gated)`;
   return check(
     "shuffled-labels-at-naive",
     same && Math.abs(ratio - 1) <= LEAKAGE_BAND,
-    `${shuffled} median range error ${fmt(s)} = ${ratio.toFixed(3)} × naive ${fmt(naive)} (allowed 1 ± ${String(LEAKAGE_BAND)}) at ${G1_POINT}${same ? "" : " — sample mismatch"}`,
+    `${shuffled} median range error ${fmt(s)} = ${ratio.toFixed(3)} × naive ${fmt(naive)} (allowed 1 ± ${String(LEAKAGE_BAND)}) at ${G1_POINT}${same ? "" : " — sample mismatch"}; ${course}`,
   );
 }
 

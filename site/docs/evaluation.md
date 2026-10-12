@@ -51,7 +51,14 @@ On a noise-free test split (`tma-g0`):
 ## Running and deciding gates
 
 Run gates through `pnpm tma-g0` / `pnpm tma-g1`: they rebuild first and refuse a dirty working tree,
-and the manifest records the commit, Node version and SHA-256 of every dataset.
+and the manifest records the commit, Node version and SHA-256 of every dataset. The commit and the
+dirty flag are both read when the process starts, so they describe the code that ran, not the tree
+at write time.
+
+Committed models are re-scored on GitHub Actions by `evaluate-g1.yml`. The source experiment
+folder is named explicitly: the `source` input of a manual run, or `.github/eval-source` (one line,
+e.g. `experiments/20261011-g1`) on the pushed `eval/**` branch. With neither, the run uses the only
+`experiments/*-g1*/models` folder and fails if there is more than one.
 
 ### Agent review panel
 
@@ -65,7 +72,8 @@ G0 took three rounds; the record is
 
 G1 scores each model against naive 5 minutes after the zig, using a paired bootstrap 95% interval
 of the ratio of median range errors. A ratio check passes when the whole interval is below 0.5,
-fails when it is wholly at or above 0.5, and is otherwise inconclusive. The other checks combine
+fails when it is wholly at or above 0.5, and is otherwise inconclusive. If naive's median at that
+point is missing or not finite there is no limit to beat, and the check fails. The other checks combine
 by a tiered rule:
 
 | Check | If it fails |

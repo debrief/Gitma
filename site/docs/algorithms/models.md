@@ -87,7 +87,9 @@ GitHub runner.
 Every initializer has a seed derived from the config's `train_seed` (SplitMix64), and the batch
 order comes from the project PRNG. Two runs on the same machine give byte-identical weights (golden
 test on a tiny config). Across CPU families oneDNN may pick different kernels, so weights are not
-promised identical there; the manifest records `cpu_model`.
+promised identical there; the manifest records `cpu_model`. From schema 0.6.0 it also records
+`git_commit` and `git_dirty`, read when training starts; a resumed run keeps an earlier job's dirty
+flag and logs a change of commit. Models trained before 0.6.0 have neither field.
 
 ## tfjs workarounds
 
@@ -115,4 +117,7 @@ training, same data and constants); `tma-g1` logs it and records it in the exper
 `lstm-instantaneous-shuffled` is the instantaneous model trained with each scenario's targets
 swapped for another scenario's (seeded permutation; inputs untouched). With no relation between
 bearings and labels left, it should learn the mean and score like the naive baseline (±10%). Doing
-much better would mean the inputs leak the answer.
+much better would mean the inputs leak the answer. The check decides on range error only, as
+pre-registered; its detail also reports the shuffled model's median course error beside naive's,
+where a weak bearing-as-course prior shows up (iteration 1: 82.9° against a permutation null of
+89.7°).

@@ -141,7 +141,9 @@ sessions (containers are reclaimed when idle).
 
 G0 pipeline → G1 signal exists → G2 useful → G3 classical parity (stretch). Iteration 0 builds the
 pipeline and must pass G0 before any training. G0 passed (panel round 3,
-`experiments/20261011-g0-r3/`); iteration 1 is training toward G1 (spec 002).
+`experiments/20261011-g0-r3/`). G1 passed (panel round 3, `experiments/20261012-g1-r2/`) under
+pre-registered rule 1, with a caveat: time-late is not shown better than instantaneous. Iteration 2
+(spec 003) is next.
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution
 1.2.0). For each gate experiment:

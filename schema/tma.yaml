@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.6.0
+version: 0.7.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -538,3 +538,9 @@ classes:
         range: string
         required: true
         description: "SHA-256 of best-epoch weights."
+      git_commit:
+        range: string
+        description: "Commit of the training code, read when training started (absent before schema 0.6.0)."
+      git_dirty:
+        range: boolean
+        description: "True when the working tree had uncommitted changes when training started (absent before schema 0.6.0)."

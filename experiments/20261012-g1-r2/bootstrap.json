@@ -1,0 +1,20 @@
+{
+  "bilstm-time-late": {
+    "hi": 0.46446113090814195,
+    "lo": 0.4376383130149979,
+    "n": 9784,
+    "ratio": 0.4504872672581195,
+    "resamples": 2000,
+    "seed": "20261011"
+  },
+  "lstm-instantaneous": {
+    "hi": 0.4314026657949631,
+    "lo": 0.4070468976382197,
+    "n": 9784,
+    "ratio": 0.4190130905147559,
+    "resamples": 2000,
+    "seed": "20261011"
+  },
+  "point": "zig+300s",
+  "ratio": "median range error, model / naive"
+}
