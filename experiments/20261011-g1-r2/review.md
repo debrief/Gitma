@@ -76,20 +76,54 @@ epochs (≈ 276 s each), best epoch 58. Both configs had `max_epochs` 60 and the
 
 ## User decision (2026-10-12, after round 1)
 
-Equal-epoch continuation of the time-late variant, pre-registered here and in SRD §5 before the
-run starts:
+Equal-epoch continuation of the time-late variant, decided after the first G1 result and
+pre-registered here and in SRD §5 before the continuation run starts:
 
 1. **One change only:** `bilstm-time-late` continues from its committed epoch-23 weights
    (`weights_digest` 2c5f8784…, as in its manifest) with no wall-clock cap (`max_wall_s` 86,400), stopping
    at `max_epochs` 60 or early stopping (patience 3), exactly as the instantaneous model was
    allowed. Epoch 24 of the first run (worse than 23) is dropped; training resumes after epoch 23
-   with the epoch-indexed batch order. Adam state restarts (logged).
+   with the epoch-indexed batch order. Adam state restarts once, at epoch 24 (the first run's
+   optimizer state was never saved); epochs 24–26 do not count towards patience. From then on the
+   Adam state is saved with every epoch checkpoint and restored at job boundaries, so a resumed
+   job continues exactly as an uninterrupted one would (tested: identical weights). Dropping epoch
+   24 also resets the first run's one patience strike.
 2. **Unchanged:** data seed 101 and splits, `train_seed` 1002, architecture, loss weights,
    learning rate, batch size. The other four models are reused from run 38131616871 untouched; the
    instantaneous model is not retrained or reselected.
-3. **Scoring:** the same `tma-g1` (tiered rule, paired bootstrap interval, decided rule 1 for an
-   inconclusive result). The test split is not scored until training completes.
-4. **Final:** a fail of the continued model is final for G1 (SRD §5 decision applies). No further
-   continuation, seed or architecture change.
-5. **Record:** this experiment (0.551) stays recorded as a valid attempt; the continuation is a new
+3. **Scoring:** the verdict of record comes from `evaluate-g1.yml` on main (code as at edd0aa2 plus
+   PR #27), re-scoring all five committed models; the training run's own g1 job (train/i1 code, no
+   bootstrap) is informational only. Tiered rule and paired bootstrap interval as now, decided
+   rule 1 for an interval straddling 0.5. The test split is not scored until training completes.
+4. **Outcomes:** both ratio intervals wholly below 0.5 and shuffled labels at naive → **G1 pass**,
+   even if `time-late-not-worse` still fails; the record then states "time-late not shown better
+   than instantaneous" and iteration 2 investigates (user, 2026-10-12). A ratio fail of the
+   continued model is **final** (SRD §5 decision applies): no further continuation, seed or
+   architecture change.
+5. **Attempts:** a cancelled or failed job resumes from its latest checkpoint, never again from
+   epoch 23. The first completed continuation is the one scored. Every job is listed with its run
+   id, epochs covered and `cpu_model`.
+6. **Record:** this experiment (0.551) stays recorded as a valid attempt; the continuation is a new
    experiment folder reviewed by the panel.
+
+## Round 2 (2026-10-12): response and protocol
+
+| Reviewer | Verdict |
+| --- | --- |
+| TMA geometry | approve-with-findings |
+| Estimation and numerics | approve-with-findings (round-1 reject withdrawn) |
+| Evaluation statistics | approve-with-findings |
+| Reproducibility | approve-with-findings |
+| Red team | approve-with-findings |
+
+All round-1 majors answered. Majors raised against the protocol, all settled before the run:
+
+| # | Finding (reviewers) | Response |
+| --- | --- | --- |
+| P1 | train/i1's g1 job has no bootstrap or `inconclusive`; its results push would be refused again (red team, reproducibility) | Protocol point 3: verdict of record from `evaluate-g1.yml` on main. train.yml now branches results from `origin/main`, so the push no longer carries workflow edits |
+| P2 | Adam restarts at every 6 h job boundary; a restart transient plus patience 3 could stop the run at epoch 26 and make a procedural stop final (all five) | User decision: Adam state persisted with each checkpoint (one restart only, at epoch 24) and patience grace for epochs 24–26. `train.ts` change with tests: an interrupted-and-resumed run gives weights identical to an uninterrupted one |
+| P3 | No pre-registered outcome for "ratio pass, consistency fail" (numerics, statistics) | User decision: G1 pass with the caveat stated (point 4) |
+
+Minors: resume-attempt rule and per-job `cpu_model` (point 5); patience-strike reset stated
+(point 1); SRD wording now says "decided after the first G1 result"; the seed step checks the weights
+digest (2c5f8784…) and that the config differs from the run's only in `max_wall_s`, and logs both.
