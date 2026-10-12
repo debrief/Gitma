@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-evaluation" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.10.2">
+<title data-rh="true">Evaluation and gates | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/pr/31/docs/evaluation"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Evaluation and gates | TMA via ML"><meta data-rh="true" name="description" content="Source SRD §5, spec 001 FR-015–FR-019."><meta data-rh="true" property="og:description" content="Source SRD §5, spec 001 FR-015–FR-019."><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/pr/31/docs/evaluation"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/31/docs/evaluation" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/31/docs/evaluation" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Evaluation and gates","item":"https://debrief.github.io/Gitma/pr/31/docs/evaluation"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/pr/31/blog/rss.xml" title="TMA via ML RSS Feed">
+<link rel="alternate" type="application/atom+xml" href="/Gitma/pr/31/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/pr/31/assets/css/styles.d219d845.css">
+<script src="/Gitma/pr/31/assets/js/runtime~main.ca0a7967.js" defer="defer"></script>
+<script src="/Gitma/pr/31/assets/js/main.6d97e728.js" defer="defer"></script>
+</head>
+<body>
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||"light"),document.documentElement.setAttribute("data-theme-choice",t||"light")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_JWeg" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/Gitma/pr/31/"><b class="navbar__title text--truncate">TMA via ML</b></a><a class="navbar__item navbar__link" href="/Gitma/pr/31/docs/glossary">Glossary</a><a class="navbar__item navbar__link" href="/Gitma/pr/31/docs/data-dictionary">Data dictionary</a><a class="navbar__item navbar__link" href="/Gitma/pr/31/docs/algorithms/generator">Algorithms</a><a class="navbar__item navbar__link" href="/Gitma/pr/31/docs/results/iteration-1">Results</a><a class="navbar__item navbar__link" href="/Gitma/pr/31/blog">Blog</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://github.com/debrief/Gitma" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_ny9m"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_Lxsn colorModeToggle_wCyq"><button class="clean-btn toggleButton_BEJb toggleButtonDisabled_wzmd" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_Lr3m lightToggleIcon_ViIh"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_Lr3m darkToggleIcon_Xnlu"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_Lr3m systemToggleIcon_LOzk"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_agmU"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_ra6T"><div class="docsWrapper_ylEi"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_t5dj" type="button"></button><div class="docRoot_V1J5"><aside class="theme-doc-sidebar-container docSidebarContainer_DBGv"><div class="sidebarViewport_YVHm"><div class="sidebar_tgig"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_JjJ7"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/Gitma/pr/31/docs/glossary"><span class="linkLabel_pzku">Glossary</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/Gitma/pr/31/docs/data-dictionary"><span class="linkLabel_pzku">Data dictionary</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" href="/Gitma/pr/31/docs/evaluation"><span class="linkLabel_pzku">Evaluation and gates</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_QuNW menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/Gitma/pr/31/docs/algorithms/generator"><span class="categoryLinkLabel_Aqc2">Algorithms</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_QuNW menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/Gitma/pr/31/docs/results/iteration-1"><span class="categoryLinkLabel_Aqc2">Results</span></a></div></li></ul></nav></div></div></aside><main class="docMainContainer_t64q"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_PNm0"><div class="docItemContainer_fty0"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_TsV8" aria-label="Breadcrumbs"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="Home page" class="breadcrumbs__link" href="/Gitma/pr/31/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_ZRLn"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">Evaluation and gates</span></li></ul></nav><div class="tocCollapsible_OUT1 theme-doc-toc-mobile tocMobile_MVBj"><button type="button" class="clean-btn tocCollapsibleButton_jdOG">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>Evaluation and gates</h1></header>
+<p>Source: <code>packages/eval</code>. Requirements: SRD §5, spec 001 FR-015–FR-019.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="errors-per-estimate">Errors per estimate<a href="#errors-per-estimate" class="hash-link" aria-label="Direct link to Errors per estimate" title="Direct link to Errors per estimate" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Metric</th><th>Definition</th></tr></thead><tbody><tr><td>Range error</td><td>`</td></tr><tr><td>Course error</td><td>`</td></tr><tr><td>Speed error</td><td>`</td></tr><tr><td>Position error</td><td>`</td></tr><tr><td>Gross error</td><td>range error &gt; 50%, <strong>or</strong> the estimator did not converge</td></tr></tbody></table>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="aggregation">Aggregation<a href="#aggregation" class="hash-link" aria-label="Direct link to Aggregation" title="Direct link to Aggregation" translate="no">​</a></h2>
+<p>Median and 90th percentile (nearest-rank: the value at rank <code>⌈p·n⌉</code> of the sorted list), plus
+gross-error rate and mean position error. Means are not used for the headline numbers because TMA
+failures are heavy-tailed.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="slices">Slices<a href="#slices" class="hash-link" aria-label="Direct link to Slices" title="Direct link to Slices" translate="no">​</a></h2>
+<p><code>overall</code>; range band by mean range over the window (0–2, 2–5, 5–10, 10–20, 20–30, 30+ km); zig band
+by |zig angle| (30–50, 50–70, 70–90°); noise σ.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="points-and-curves">Points and curves<a href="#points-and-curves" class="hash-link" aria-label="Direct link to Points and curves" title="Direct link to Points and curves" translate="no">​</a></h2>
+<ul>
+<li class=""><code>final</code>: the estimate at the last sample.</li>
+<li class=""><code>zig+300s</code>: per-timestep estimates five minutes after the zig, the gate point for the
+instantaneous variant. Scenarios whose window ends earlier are excluded and counted.</li>
+<li class="">Curves: per-timestep medians every 60 s after the zig (<code>curves.csv</code>).</li>
+</ul>
+<p><code>tma-eval</code> refuses to write a report unless naive and classical predictions for the same test file
+are among its inputs, and rejects predictions made from a different truth file (SHA-256 check).</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="g0--pipeline-verified">G0 — pipeline verified<a href="#g0--pipeline-verified" class="hash-link" aria-label="Direct link to G0 — pipeline verified" title="Direct link to G0 — pipeline verified" translate="no">​</a></h2>
+<p>On a noise-free test split (<code>tma-g0</code>):</p>
+<ol>
+<li class=""><strong>Final-mode recovery</strong>: the classical estimate is within 0.1% range, 0.1° course and 0.01 kt
+speed of truth on <strong>every</strong> scenario, and converged.</li>
+<li class=""><strong>Per-timestep recovery</strong> (the G1 baseline path): on 1,000 scenarios every row converges, and
+every row at least 60 s after the zig is within the same tolerances.</li>
+<li class=""><strong>Bearing residuals</strong>: every final solution&#x27;s RMS bearing residual is ≤ 10⁻⁶ rad (float32
+precision), so any mismatch between observations and the constant-velocity fit shows up.</li>
+<li class=""><strong>Independent geometry</strong>: hand-computed bearings (before and after the zig, with literal
+<code>Math.atan2</code>, not the shared code) and, on every scenario, the t = 0 bearing and range against
+the drawn parameters. This catches frame errors that generator and solver would share.</li>
+<li class=""><strong>Naive determinism</strong>: two in-process fits give identical metrics.</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="running-and-deciding-gates">Running and deciding gates<a href="#running-and-deciding-gates" class="hash-link" aria-label="Direct link to Running and deciding gates" title="Direct link to Running and deciding gates" translate="no">​</a></h2>
+<p>Run gates through <code>pnpm tma-g0</code> / <code>pnpm tma-g1</code>: they rebuild first and refuse a dirty working tree,
+and the manifest records the commit, Node version and SHA-256 of every dataset.</p>
+<h3 class="anchor anchorTargetStickyNavbar_FE5u" id="agent-review-panel">Agent review panel<a href="#agent-review-panel" class="hash-link" aria-label="Direct link to Agent review panel" title="Direct link to Agent review panel" translate="no">​</a></h3>
+<p>Gate verdicts are decided by five independent specialist AI reviewers (TMA geometry, estimation and
+numerics, evaluation statistics, reproducibility, red team), not by humans. Findings are fixed or
+answered, and the panel is re-invited until none rejects and no blocker or major finding is open.
+G0 took three rounds; the record is
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261011-g0-r3/review.md" target="_blank" rel="noopener noreferrer" class=""><code>experiments/20261011-g0-r3/review.md</code></a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="g1--checks-and-how-they-combine">G1 — checks and how they combine<a href="#g1--checks-and-how-they-combine" class="hash-link" aria-label="Direct link to G1 — checks and how they combine" title="Direct link to G1 — checks and how they combine" translate="no">​</a></h2>
+<p>G1 scores each model against naive 5 minutes after the zig, using a paired bootstrap 95% interval
+of the ratio of median range errors. A ratio check passes when the whole interval is below 0.5,
+fails when it is wholly at or above 0.5, and is otherwise inconclusive. The other checks combine
+by a tiered rule:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Check</th><th>If it fails</th></tr></thead><tbody><tr><td>Ratio, both variants</td><td>G1 fails (an inconclusive interval makes G1 inconclusive)</td></tr><tr><td>Shuffled labels at naive</td><td>The evidence is invalid (possible leakage): G1 fails</td></tr><tr><td>Time-late not worse than instantaneous</td><td>The pipeline is suspect: G1 is at best inconclusive until investigated</td></tr><tr><td>Each recurrent model beats its control</td><td>Reported only: G1 can pass, but without a &quot;sequential learning&quot; claim</td></tr></tbody></table>
+<p>If G1 is inconclusive, the panel may order one re-score on a larger test set drawn from a new
+seed. If that is still inconclusive, G1 fails.</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/evaluation.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/pr/31/docs/data-dictionary"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Data dictionary</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/pr/31/docs/algorithms/generator"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Scenario generator</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_kFBU thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#errors-per-estimate" class="table-of-contents__link toc-highlight">Errors per estimate</a></li><li><a href="#aggregation" class="table-of-contents__link toc-highlight">Aggregation</a></li><li><a href="#slices" class="table-of-contents__link toc-highlight">Slices</a></li><li><a href="#points-and-curves" class="table-of-contents__link toc-highlight">Points and curves</a></li><li><a href="#g0--pipeline-verified" class="table-of-contents__link toc-highlight">G0 — pipeline verified</a></li><li><a href="#running-and-deciding-gates" class="table-of-contents__link toc-highlight">Running and deciding gates</a><ul><li><a href="#agent-review-panel" class="table-of-contents__link toc-highlight">Agent review panel</a></li></ul></li><li><a href="#g1--checks-and-how-they-combine" class="table-of-contents__link toc-highlight">G1 — checks and how they combine</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
+</body>
+</html>
