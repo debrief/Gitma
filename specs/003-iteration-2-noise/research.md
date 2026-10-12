@@ -269,3 +269,29 @@ is in the session scratchpad and is not committed.
 (BiLSTM) and 2.4× (LSTM) on this CPU. Before adopting, confirm the thread result on a GitHub runner
 (AMD EPYC), whose thread behaviour may differ. Keep batch 256 and the learning rate. Optional: a
 validation-only learning-rate-schedule probe.
+
+## R16. Noise smoke test (side experiment, 2026-10-12)
+
+**Question**: does the pipeline work end to end with σ = 1° and 0–10% dropouts, and does the model
+still learn?
+
+**Method**: scratch seed 9001, 20,000 scenarios. Two arms: noisy (σ = 1°, dropouts 0–10%) and clean
+control (σ = 0.5°, no dropouts), on the same geometries. Each arm used the iteration-1 LSTM
+config with max_epochs 20 and a single thread, and was scored on the validation split only
+(n = 1,950 at zig + 300 s) with naive and classical per-timestep alongside. Outputs are in the session
+scratchpad and are not committed.
+
+**Findings** (median, zig + 300 s):
+
+| Arm | Naive range | Classical range | LSTM range | LSTM course | LSTM speed |
+| --- | --- | --- | --- | --- | --- |
+| Clean | 0.397 | 0.048 | 0.339 | 29.7° | 4.12 kt |
+| Noisy | 0.397 | 0.098 | 0.385 | 35.0° | 4.34 kt |
+
+- **Pipeline**: dropouts flow through features, training, prediction and scoring with no NaNs,
+  crashes or masking errors. Dropout rows keep ownship and time channels with `valid = 0`.
+- **Classical at σ = 1°**: 9.8% at zig + 300 s, matching R12 (9.3%).
+- **Noise cost**: +13% median range error for the LSTM, about 2× for classical.
+- **Scale**: at 16k training scenarios and 20 epochs the LSTM barely beats naive on range, against
+  0.16 for the full 80k / 60-epoch iteration-1 model. Learning range needs the full data and epoch
+  budget, so small pilots cannot forecast G2 and phase A must run at full scale.
