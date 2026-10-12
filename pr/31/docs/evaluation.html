@@ -5,8 +5,8 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Evaluation and gates | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/pr/31/docs/evaluation"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Evaluation and gates | TMA via ML"><meta data-rh="true" name="description" content="Source SRD §5, spec 001 FR-015–FR-019."><meta data-rh="true" property="og:description" content="Source SRD §5, spec 001 FR-015–FR-019."><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/pr/31/docs/evaluation"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/31/docs/evaluation" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/31/docs/evaluation" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Evaluation and gates","item":"https://debrief.github.io/Gitma/pr/31/docs/evaluation"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/pr/31/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/pr/31/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/pr/31/assets/css/styles.d219d845.css">
-<script src="/Gitma/pr/31/assets/js/runtime~main.ca0a7967.js" defer="defer"></script>
-<script src="/Gitma/pr/31/assets/js/main.6d97e728.js" defer="defer"></script>
+<script src="/Gitma/pr/31/assets/js/runtime~main.5c0ec815.js" defer="defer"></script>
+<script src="/Gitma/pr/31/assets/js/main.e774155c.js" defer="defer"></script>
 </head>
 <body>
 <svg style="display: none;"><defs>
@@ -77,7 +77,13 @@ the drawn parameters. This catches frame errors that generator and solver would 
 </ol>
 <h2 class="anchor anchorTargetStickyNavbar_FE5u" id="running-and-deciding-gates">Running and deciding gates<a href="#running-and-deciding-gates" class="hash-link" aria-label="Direct link to Running and deciding gates" title="Direct link to Running and deciding gates" translate="no">​</a></h2>
 <p>Run gates through <code>pnpm tma-g0</code> / <code>pnpm tma-g1</code>: they rebuild first and refuse a dirty working tree,
-and the manifest records the commit, Node version and SHA-256 of every dataset.</p>
+and the manifest records the commit, Node version and SHA-256 of every dataset. The commit and the
+dirty flag are both read when the process starts, so they describe the code that ran, not the tree
+at write time.</p>
+<p>Committed models are re-scored on GitHub Actions by <code>evaluate-g1.yml</code>. The source experiment
+folder is named explicitly: the <code>source</code> input of a manual run, or <code>.github/eval-source</code> (one line,
+e.g. <code>experiments/20261011-g1</code>) on the pushed <code>eval/**</code> branch. With neither, the run uses the only
+<code>experiments/*-g1*/models</code> folder and fails if there is more than one.</p>
 <h3 class="anchor anchorTargetStickyNavbar_FE5u" id="agent-review-panel">Agent review panel<a href="#agent-review-panel" class="hash-link" aria-label="Direct link to Agent review panel" title="Direct link to Agent review panel" translate="no">​</a></h3>
 <p>Gate verdicts are decided by five independent specialist AI reviewers (TMA geometry, estimation and
 numerics, evaluation statistics, reproducibility, red team), not by humans. Findings are fixed or
@@ -87,7 +93,8 @@ G0 took three rounds; the record is
 <h2 class="anchor anchorTargetStickyNavbar_FE5u" id="g1--checks-and-how-they-combine">G1 — checks and how they combine<a href="#g1--checks-and-how-they-combine" class="hash-link" aria-label="Direct link to G1 — checks and how they combine" title="Direct link to G1 — checks and how they combine" translate="no">​</a></h2>
 <p>G1 scores each model against naive 5 minutes after the zig, using a paired bootstrap 95% interval
 of the ratio of median range errors. A ratio check passes when the whole interval is below 0.5,
-fails when it is wholly at or above 0.5, and is otherwise inconclusive. The other checks combine
+fails when it is wholly at or above 0.5, and is otherwise inconclusive. If naive&#x27;s median at that
+point is missing or not finite there is no limit to beat, and the check fails. The other checks combine
 by a tiered rule:</p>
 
 
