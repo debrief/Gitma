@@ -5,8 +5,8 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Evaluation and gates | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/pr/22/docs/evaluation"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Evaluation and gates | TMA via ML"><meta data-rh="true" name="description" content="Source SRD §5, spec 001 FR-015–FR-019."><meta data-rh="true" property="og:description" content="Source SRD §5, spec 001 FR-015–FR-019."><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/pr/22/docs/evaluation"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/22/docs/evaluation" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/22/docs/evaluation" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Evaluation and gates","item":"https://debrief.github.io/Gitma/pr/22/docs/evaluation"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/pr/22/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/pr/22/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/pr/22/assets/css/styles.d219d845.css">
-<script src="/Gitma/pr/22/assets/js/runtime~main.1264cf99.js" defer="defer"></script>
-<script src="/Gitma/pr/22/assets/js/main.b95c5f61.js" defer="defer"></script>
+<script src="/Gitma/pr/22/assets/js/runtime~main.c7d0fe67.js" defer="defer"></script>
+<script src="/Gitma/pr/22/assets/js/main.de308b42.js" defer="defer"></script>
 </head>
 <body>
 <svg style="display: none;"><defs>
@@ -75,13 +75,47 @@ precision), so any mismatch between observations and the constant-velocity fit s
 the drawn parameters. This catches frame errors that generator and solver would share.</li>
 <li class=""><strong>Naive determinism</strong>: two in-process fits give identical metrics.</li>
 </ol>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="running-and-deciding-gates">Running and deciding gates<a href="#running-and-deciding-gates" class="hash-link" aria-label="Direct link to Running and deciding gates" title="Direct link to Running and deciding gates" translate="no">​</a></h2>
 <p>Run gates through <code>pnpm tma-g0</code> / <code>pnpm tma-g1</code>: they rebuild first and refuse a dirty working tree,
 and the manifest records the commit, Node version and SHA-256 of every dataset.</p>
-<h3 class="anchor anchorTargetStickyNavbar_FE5u" id="decision-agent-review-panel">Decision: agent review panel<a href="#decision-agent-review-panel" class="hash-link" aria-label="Direct link to Decision: agent review panel" title="Direct link to Decision: agent review panel" translate="no">​</a></h3>
+<h3 class="anchor anchorTargetStickyNavbar_FE5u" id="agent-review-panel">Agent review panel<a href="#agent-review-panel" class="hash-link" aria-label="Direct link to Agent review panel" title="Direct link to Agent review panel" translate="no">​</a></h3>
 <p>Gate verdicts are decided by five independent specialist AI reviewers (TMA geometry, estimation and
 numerics, evaluation statistics, reproducibility, red team), not by humans. Findings are fixed or
 answered, and the panel is re-invited until none rejects and no blocker or major finding is open.
 G0 took three rounds; the record is
-<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261011-g0-r3/review.md" target="_blank" rel="noopener noreferrer" class=""><code>experiments/20261011-g0-r3/review.md</code></a>.</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/evaluation.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/pr/22/docs/data-dictionary"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Data dictionary</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/pr/22/docs/algorithms/generator"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Scenario generator</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_kFBU thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#errors-per-estimate" class="table-of-contents__link toc-highlight">Errors per estimate</a></li><li><a href="#aggregation" class="table-of-contents__link toc-highlight">Aggregation</a></li><li><a href="#slices" class="table-of-contents__link toc-highlight">Slices</a></li><li><a href="#points-and-curves" class="table-of-contents__link toc-highlight">Points and curves</a></li><li><a href="#g0--pipeline-verified" class="table-of-contents__link toc-highlight">G0 — pipeline verified</a><ul><li><a href="#decision-agent-review-panel" class="table-of-contents__link toc-highlight">Decision: agent review panel</a></li></ul></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261011-g0-r3/review.md" target="_blank" rel="noopener noreferrer" class=""><code>experiments/20261011-g0-r3/review.md</code></a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="g1--checks-and-how-they-combine">G1 — checks and how they combine<a href="#g1--checks-and-how-they-combine" class="hash-link" aria-label="Direct link to G1 — checks and how they combine" title="Direct link to G1 — checks and how they combine" translate="no">​</a></h2>
+<p>G1 scores each model against naive 5 minutes after the zig, using a paired bootstrap 95% interval
+of the ratio of median range errors. A ratio check passes when the whole interval is below 0.5,
+fails when it is wholly at or above 0.5, and is otherwise inconclusive. The other checks combine
+by a tiered rule:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Check</th><th>If it fails</th></tr></thead><tbody><tr><td>Ratio, both variants</td><td>G1 fails (an inconclusive interval makes G1 inconclusive)</td></tr><tr><td>Shuffled labels at naive</td><td>The evidence is invalid (possible leakage): G1 fails</td></tr><tr><td>Time-late not worse than instantaneous</td><td>The pipeline is suspect: G1 is at best inconclusive until investigated</td></tr><tr><td>Each recurrent model beats its control</td><td>Reported only: G1 can pass, but without a &quot;sequential learning&quot; claim</td></tr></tbody></table>
+<p>If G1 is inconclusive, the panel may order one re-score on a larger test set drawn from a new
+seed. If that is still inconclusive, G1 fails.</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/evaluation.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/pr/22/docs/data-dictionary"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Data dictionary</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/pr/22/docs/algorithms/generator"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Scenario generator</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_kFBU thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#errors-per-estimate" class="table-of-contents__link toc-highlight">Errors per estimate</a></li><li><a href="#aggregation" class="table-of-contents__link toc-highlight">Aggregation</a></li><li><a href="#slices" class="table-of-contents__link toc-highlight">Slices</a></li><li><a href="#points-and-curves" class="table-of-contents__link toc-highlight">Points and curves</a></li><li><a href="#g0--pipeline-verified" class="table-of-contents__link toc-highlight">G0 — pipeline verified</a></li><li><a href="#running-and-deciding-gates" class="table-of-contents__link toc-highlight">Running and deciding gates</a><ul><li><a href="#agent-review-panel" class="table-of-contents__link toc-highlight">Agent review panel</a></li></ul></li><li><a href="#g1--checks-and-how-they-combine" class="table-of-contents__link toc-highlight">G1 — checks and how they combine</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
 </body>
 </html>
