@@ -64,7 +64,7 @@ All five say the evidence supports **G1 pass under pre-registered rule 1**.
 
 | # | Finding (reviewer) | Response |
 | --- | --- | --- |
-| M1 | The SRD §5 G1 row still read "a time-late consistency failure makes it inconclusive", and its 2026-10-12 amendment did not carry rule 1's "pass even if `time-late-not-worse` fails". AGENTS.md makes the SRD win conflicts. Round 1's explanation of the consistency failure (M3: undertrained) no longer covers a model trained to early stopping (red team; geometry finding 2 agrees). | SRD §5 G1 row amended to carry rule 1 as decided by the user on 2026-10-12 before the run, so SRD and protocol agree. Rule 1 was committed in 4e17056 (05:29:44Z), before the run was triggered (05:29:59Z) and before the test split was scored (13:25Z). The round-1 explanation is withdrawn for this model: the consistency failure is **not** explained by undertraining (see the caveat below). |
+| M1 | The SRD §5 G1 row still read "a time-late consistency failure makes it inconclusive", and its 2026-10-12 amendment did not carry rule 1's "pass even if `time-late-not-worse` fails". AGENTS.md makes the SRD win conflicts. Round 1's explanation of the consistency failure (M3: undertrained) no longer covers a model trained to early stopping (red team; geometry finding 2 agrees). | SRD §5 G1 row amended to carry rule 1 as decided by the user on 2026-10-12 before the run, so SRD and protocol agree. Rule 1 was committed in 4e17056 at 05:29:44Z and published in PR #28 at 05:30:16Z (merged 05:40:42Z), 17 s after the run was triggered (05:29:59Z) but before any continuation epoch finished (first at about 05:49Z) and about 8 h before the test split was scored (13:25Z). The round-1 explanation is withdrawn for this model: the consistency failure is **not** explained by undertraining (see the caveat below). |
 
 ### Minor findings and responses
 
@@ -79,6 +79,19 @@ All five say the evidence supports **G1 pass under pre-registered rule 1**.
 | One training draw per variant; seed variance unquantified (statistics) | Stated in the caveat; g1-limits S1 stays superseded |
 | Blog draft still has `TODO(continuation)` (statistics, red team) | Filled with this record, carrying the same caveat |
 | Wording of the gap, the margin and the spike (round-3 re-invitation: geometry, statistics, red team, numerics) | Corrected above |
+
+### Re-invitation (2026-10-12)
+
+| Reviewer | Verdict |
+| --- | --- |
+| TMA geometry | approve-with-findings (wording of the gap; fixed) |
+| Estimation and numerics | approve |
+| Evaluation statistics | approve-with-findings (wording of the gap, margin and significance; fixed) |
+| Reproducibility | approve (timing note; reworded above) |
+| Red team | approve-with-findings (wording of the gap; fixed) |
+
+No reviewer rejects; no blocker or major finding is open. `decided_by` in `verdict.json` is set
+to round 3; `result` stays `inconclusive` as the code wrote it.
 
 ## Decision
 
