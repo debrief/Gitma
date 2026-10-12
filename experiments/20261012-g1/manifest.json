@@ -1,0 +1,200 @@
+{
+  "command_lines": [
+    "tma-g1 --data /home/runner/work/Gitma/Gitma/../i1-data --models /home/runner/work/_temp/models --experiment experiments/20261012-g1"
+  ],
+  "created": "2026-10-12T13:45:22.694Z",
+  "datasets": [
+    {
+      "digest": "8b5bd8ea7d49cfb001407b3d36085c5a5fa094c52b674d8f8a4969869522edc5",
+      "header": {
+        "created_by": "tma-generate --seed 101 --count 100000 --ranges <custom> --heldout-ranges <custom>",
+        "dataset_seed": "101",
+        "generator_version": "0.1.0",
+        "index_end": 80000,
+        "index_start": 0,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0,
+            "min": 0
+          },
+          "dt_s": 10,
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0.008726646259971648
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          }
+        },
+        "record": "header",
+        "redraw_count": 420,
+        "scenario_count": 80000,
+        "schema_version": "0.4.0",
+        "split": "train"
+      },
+      "path": "/home/runner/work/Gitma/i1-data/train.f32pack"
+    },
+    {
+      "digest": "a96f02fc1101105963a27e5ec6b4e78e56578738d3aa44ffacf6f1f74262745f",
+      "header": {
+        "created_by": "tma-generate --seed 101 --count 100000 --ranges <custom> --heldout-ranges <custom>",
+        "dataset_seed": "101",
+        "generator_version": "0.1.0",
+        "index_end": 100000,
+        "index_start": 90000,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0,
+            "min": 0
+          },
+          "dt_s": 10,
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0.008726646259971648
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          }
+        },
+        "record": "header",
+        "redraw_count": 49,
+        "scenario_count": 10000,
+        "schema_version": "0.4.0",
+        "split": "test"
+      },
+      "path": "/home/runner/work/Gitma/i1-data/test.f32pack"
+    },
+    {
+      "digest": "275f7bd387cc01637ab2bcbf4e03dcd18b767ceebf92b6fecbe5dbe045226942",
+      "header": {
+        "created_by": "tma-generate --seed 101 --count 100000 --ranges <custom> --heldout-ranges <custom>",
+        "dataset_seed": "101",
+        "generator_version": "0.1.0",
+        "index_end": 110000,
+        "index_start": 100000,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0,
+            "min": 0
+          },
+          "dt_s": 10,
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0.008726646259971648
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 30000,
+            "min": 20000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          }
+        },
+        "record": "header",
+        "redraw_count": 3,
+        "scenario_count": 10000,
+        "schema_version": "0.4.0",
+        "split": "heldout"
+      },
+      "path": "/home/runner/work/Gitma/i1-data/heldout.f32pack"
+    }
+  ],
+  "estimators": [
+    {
+      "name": "naive",
+      "settings_json": "{\"fitted_on\":\"train\",\"means\":{\"course_cos\":-0.0006235023185289757,\"course_sin\":0.0022161361680358904,\"log_range_km\":2.3193812620866012,\"n\":5923736,\"speed_mps\":5.905290585440665},\"mode\":\"per_timestep\"}"
+    },
+    {
+      "name": "classical",
+      "settings_json": "{\"grid_every\":6,\"method\":\"levenberg-marquardt\",\"mode\":\"per_timestep\"}"
+    },
+    {
+      "name": "bilstm-time-late",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"id\":\"bilstm-time-late\",\"learning_rate\":0.001,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":1,\"max_epochs\":60,\"max_wall_s\":86400,\"model_kind\":\"time_late\",\"patience\":3,\"shuffle_labels\":false,\"train_seed\":\"1002\",\"units\":96},\"manifest\":\"models/bilstm-time-late/manifest.json\",\"weights_digest\":\"c52b628c49771476662d052674d2b034944f4a7e692fc4422e93cb3df871d62c\"}"
+    },
+    {
+      "name": "cnn-causal-control",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"id\":\"cnn-causal-control\",\"kernel_size\":15,\"layers\":3,\"learning_rate\":0.001,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":1,\"max_epochs\":60,\"max_wall_s\":19800,\"model_kind\":\"causal_cnn\",\"patience\":3,\"shuffle_labels\":false,\"train_seed\":\"1003\",\"units\":64},\"manifest\":\"models/cnn-causal-control/manifest.json\",\"weights_digest\":\"65352c8076ed4b3813c5ac40699209a7860ecff6ddb2b413b8d0ac61476113f9\"}"
+    },
+    {
+      "name": "lstm-instantaneous",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"id\":\"lstm-instantaneous\",\"learning_rate\":0.001,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":1,\"max_epochs\":60,\"max_wall_s\":19800,\"model_kind\":\"instantaneous\",\"patience\":3,\"shuffle_labels\":false,\"train_seed\":\"1001\",\"units\":96},\"manifest\":\"models/lstm-instantaneous/manifest.json\",\"weights_digest\":\"88cf17ece729e7c8a56d1a7f723b473c91672217f6393ce9af2d172be5935423\"}"
+    },
+    {
+      "name": "lstm-instantaneous-shuffled",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"id\":\"lstm-instantaneous-shuffled\",\"learning_rate\":0.001,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":1,\"max_epochs\":60,\"max_wall_s\":7200,\"model_kind\":\"instantaneous\",\"patience\":3,\"shuffle_labels\":true,\"train_seed\":\"1005\",\"units\":96},\"manifest\":\"models/lstm-instantaneous-shuffled/manifest.json\",\"weights_digest\":\"825e51cb529d1a6ee83ccde8f5d928d7a22cfee4bd40f2c5653d01120bb005f9\"}"
+    },
+    {
+      "name": "mlp-control",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"id\":\"mlp-control\",\"learning_rate\":0.001,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":1,\"max_epochs\":60,\"max_wall_s\":19800,\"model_kind\":\"mlp\",\"patience\":3,\"shuffle_labels\":false,\"train_seed\":\"1004\",\"units\":256},\"manifest\":\"models/mlp-control/manifest.json\",\"weights_digest\":\"1185a7bfd405401ed69eefbd5f468632e905dcd6e0feebf81295108c6717e3e0\"}"
+    }
+  ],
+  "generator_version": "0.1.0",
+  "git_commit": "7c1c579cad7b6b9cd18094d1f0c417f0cfe3f7ea",
+  "git_dirty": false,
+  "id": "20261012-g1",
+  "node_version": "v22.22.0",
+  "schema_version": "0.4.0"
+}
