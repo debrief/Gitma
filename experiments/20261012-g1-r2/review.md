@@ -71,26 +71,29 @@ All five say the evidence supports **G1 pass under pre-registered rule 1**.
 | Finding (reviewers) | Response |
 | --- | --- |
 | "Not shown better" understates it; time-late is measurably worse (statistics, geometry, red team) | Caveat states the gap (below) |
-| Epoch-48 spike in train and validation loss (numerics, red team) | A training instability, not a resume artefact. The instantaneous model, never resumed, had one at epoch 40. Scored weights are epoch 46, before it. It ended training by patience at 50 epochs (instantaneous ran 60), so "equal epoch budget" was 50 vs 60 in effect. Gradient clipping is an iteration-2 candidate |
+| Epoch-48 spike in train and validation loss (numerics, red team) | A training instability, not a resume artefact. The instantaneous model, never resumed, had one at epoch 40. Scored weights are epoch 46, before it. It contributed to the patience stop at epoch 49: 50 epochs against instantaneous's 60, so "equal epoch budget" was 50 vs 60 in effect (whether epoch 48 would otherwise have improved is unknown). Gradient clipping is an iteration-2 candidate |
 | Resume test covers the single LSTM only; a Bidirectional positional slot swap would go unnoticed (numerics) | The reviewer ran a cross-process Bidirectional resume: byte-identical weights, and a missing-state control differs. A cross-process Bidirectional test is added in iteration 2 |
 | Per-job record not committed; logs lacked job ids (reproducibility) | Table above; job ids added to the extracted log headers |
 | Manifest names only the last job's CPU (reproducibility) | Both CPUs recorded above |
 | Re-scored manifests carry no `cpu_model` (statistics, reproducibility) | Iteration 2: `evaluate-g1.yml` prints `lscpu` and records the CPU |
 | One training draw per variant; seed variance unquantified (statistics) | Stated in the caveat; g1-limits S1 stays superseded |
-| Blog draft still has `TODO(continuation)` (statistics) | Filled before this record merges |
+| Blog draft still has `TODO(continuation)` (statistics, red team) | Filled with this record, carrying the same caveat |
+| Wording of the gap, the margin and the spike (round-3 re-invitation: geometry, statistics, red team, numerics) | Corrected above |
 
 ## Decision
 
 **G1 passes** under pre-registered rule 1 (SRD §5 as amended 2026-10-12). Both ratio intervals
-lie wholly below 0.5 (time-late's upper bound is 0.036 below it, about 7 bootstrap standard
-errors), and the shuffled-label model sits at naive. The machine verdict is `inconclusive`, from
+lie wholly below 0.5 (time-late's upper bound is 0.036 below it, about 5 bootstrap standard
+errors; its point estimate is about 7 below), and the shuffled-label model sits at naive. The machine verdict is `inconclusive`, from
 the consistency check; the pass is the panel's application of rule 1.
 
 **Caveat, recorded with the pass:**
 
 - **Time-late not shown better than instantaneous.** It is measurably worse: at zig+300s,
-  0.173 vs 0.161, a ratio of 1.075 [1.046, 1.108]. It is worse by 5–9% at the 14 gated points
-  from 120 to 900 s, and better only at zig+60s.
+  0.173 vs 0.161, a ratio of 1.075 [1.046, 1.108]. Its median is higher at 18 of the 20 gated
+  points, by more than 5% (up to 9%) at 14 of them (120–480, 600 and 720–1020 s). It is lower
+  only at zig+60s (0.984 [0.964, 1.006]) and zig+1200s (0.973 [0.864, 1.126], n 516); neither
+  difference is significant.
 - **Not explained by undertraining.** The continued model trained to early stopping.
 - **The BiLSTM under-uses the future.** Its error profile is shaped like a causal estimator's.
   Masking and the backward pass are verified correct, and truncating the future does change
@@ -98,6 +101,6 @@ the consistency check; the pass is the panel's application of rule 1.
 - **Iteration-2 leads:**
   - Pre-zig rows carry 64% of time-late's loss but are never scored.
   - Gradient clipping.
-  - Both models still follow the training prior by range band, and are clamped on the held-out
-    20–30 km set.
+  - Both models still follow the training prior by range band, and are held to the training
+    prior on the held-out 20–30 km set.
 - **One training draw per variant.** Training-seed variance is unquantified.
