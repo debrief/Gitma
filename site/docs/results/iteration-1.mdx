@@ -25,6 +25,16 @@ Additional checks, recorded in the verdict:
   the zig and at the end of the window.
 - `shuffled-labels-at-naive`: a model trained on shuffled labels scores within ±10% of naive.
 
-All numbers below are from the committed experiment folder, generated at site build time.
+All numbers below are from the committed experiment folder, generated at site build time. The
+latest attempt is shown in full; earlier attempts stay on record and are listed at the end. A
+metric shown as ∞ is a percentile that falls on a non-converged estimate (counted as +∞).
+
+:::note Attempt 1 and the continuation
+Attempt 1 (`20261011-g1-r2`) did not pass as run: the instantaneous model met the criterion, the
+time-late model stopped on the wall-clock cap after 25 of 60 epochs and failed. Under the
+[pre-registered protocol](https://github.com/debrief/Gitma/blob/main/experiments/20261011-g1-r2/review.md#user-decision-2026-10-12-after-round-1)
+the time-late model is being continued once to the same epoch budget; its re-scored experiment
+will appear here as the latest attempt, and the panel then decides G1.
+:::
 
 <ResultsReview gate="G1" />
