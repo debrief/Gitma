@@ -58,6 +58,7 @@ function results() {
       curves: readCsv(join(base, "curves.csv")),
       heldout: existsSync(heldout) ? JSON.parse(readFileSync(heldout, "utf8")) : [],
       bootstrap: existsSync(bootstrap) ? JSON.parse(readFileSync(bootstrap, "utf8")) : null,
+      review: existsSync(join(base, "review.md")),
     });
   }
   writeFileSync(join(site, "src", "generated", "results.json"), `${JSON.stringify(out)}\n`);
