@@ -64,7 +64,7 @@ pnpm tma-generate --seed 42 --count 100000 --noise-free --out data/g0
 pnpm tma-g0 --data data/g0 --experiment experiments/<id>
 pnpm tma-train --config configs/iter1/<model>.json --train <dir>/train.features.bin \
   --val <dir>/validation.features.bin --out models/i1/<model>   # refuses without a G0 pass
-pnpm tma-model-predict --model <dir> --truth <test.f32pack> --features <test.features.bin> --out <pred.ndjson>
+pnpm tma-model-predict --model <dir> --truth <test.f32pack> --features <test.features.bin> --out <pred.ndjson> [--train <train.f32pack>]
 pnpm tma-g1 --data data/i1 --models models/i1 --experiment experiments/<id>   # exit 3: gate not passed
 pnpm tma-gate g1 --experiment <dir> --instantaneous <id> --time-late <id> \
   --causal-control <id> --mlp-control <id> --shuffled <id>                   # gate only, on existing metrics

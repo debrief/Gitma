@@ -1,10 +1,19 @@
+import { createHash } from "node:crypto";
+import { canonicalJson } from "@tma/data";
 import { rowError } from "@tma/eval";
-import { buildWindow, computeNormalisation, NT, openFeatures, ROWS } from "@tma/features";
+import {
+  buildWindow,
+  computeNormalisation,
+  type FeatureFile,
+  NT,
+  openFeatures,
+  ROWS,
+} from "@tma/features";
 import { DEFAULT_RANGES, generateScenario, noiseFree } from "@tma/sim";
-import type { Scenario } from "@tma/types";
+import type { DatasetHeader, NormalisationConstants, Scenario } from "@tma/types";
 import { describe, expect, it } from "vitest";
 import { buildModel, NO } from "../src/architectures.js";
-import { outputsToPrediction, predictScenarios } from "../src/predict.js";
+import { outputsToPrediction, predictScenarios, requireSameNormalisation } from "../src/predict.js";
 import { tinyConfig, tinyFeatures } from "./helpers.js";
 
 const scenarios: Scenario[] = Array.from(
@@ -70,5 +79,44 @@ describe("model outputs → predictions", () => {
     } finally {
       f.close();
     }
+  });
+});
+
+describe("normalisation check", () => {
+  const header: DatasetHeader = {
+    record: "header",
+    schema_version: "0.5.0",
+    generator_version: "0.1.0",
+    dataset_seed: "1",
+    split: "train",
+    scenario_count: 8,
+    index_start: 0,
+    index_end: 8,
+    parameter_ranges: DEFAULT_RANGES,
+    redraw_count: 0,
+    created_by: "test",
+  };
+  const digest = (h: DatasetHeader): string =>
+    createHash("sha256").update(canonicalJson(h)).digest("hex");
+  const file = (n: NormalisationConstants) =>
+    ({ path: "f.bin", norm: n }) as unknown as FeatureFile;
+  const now = computeNormalisation(scenarios, digest(header));
+  const before = { ...now, train_header_digest: digest({ ...header, schema_version: "0.4.0" }) };
+  const train = { header, modelSchemaVersion: "0.4.0" };
+
+  it("accepts identical normalisation silently", () => {
+    expect(requireSameNormalisation(file(now), now, "m", train)).toBeUndefined();
+  });
+
+  it("accepts a schema-version-only header change with a note", () => {
+    expect(requireSameNormalisation(file(now), before, "m", train)).toMatch(/0\.4\.0 → 0\.5\.0/);
+  });
+
+  it("refuses other header changes, changed constants, or no provenance", () => {
+    expect(() => requireSameNormalisation(file(now), before, "m")).toThrow(/normalisation differs/);
+    const otherSeed = { ...before, train_header_digest: digest({ ...header, dataset_seed: "2" }) };
+    expect(() => requireSameNormalisation(file(now), otherSeed, "m", train)).toThrow();
+    const scaled = { ...before, speed_scale_mps: before.speed_scale_mps * 2 };
+    expect(() => requireSameNormalisation(file(now), scaled, "m", train)).toThrow();
   });
 });

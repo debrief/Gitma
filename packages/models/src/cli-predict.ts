@@ -16,18 +16,28 @@ export async function main(argv: string[]): Promise<unknown> {
       truth: { type: "string" },
       features: { type: "string" },
       out: { type: "string" },
+      train: { type: "string" },
     },
   });
   if (!values.model || !values.truth || !values.features || !values.out) {
     throw new UsageError(
-      "usage: tma-model-predict --model <dir> --truth <test.f32pack> --features <test.features.bin> --out <pred.ndjson>",
+      "usage: tma-model-predict --model <dir> --truth <test.f32pack> --features <test.features.bin> --out <pred.ndjson> [--train <train.f32pack>]",
     );
   }
   const manifest = readModelManifest(values.model);
   const model = await loadModel(values.model);
   const features = openFeatures(values.features);
   try {
-    requireSameNormalisation(features, manifest.normalisation, manifest.id);
+    // --train lets a model trained under an older schema_version run on identical re-labelled data.
+    const note = requireSameNormalisation(
+      features,
+      manifest.normalisation,
+      manifest.id,
+      values.train === undefined
+        ? undefined
+        : { header: readDataset(values.train).header, modelSchemaVersion: manifest.schema_version },
+    );
+    if (note !== undefined) process.stderr.write(`${note}\n`);
     const ds = readDataset(values.truth);
     const preds = predictScenarios(
       model,

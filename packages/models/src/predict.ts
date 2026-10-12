@@ -1,10 +1,17 @@
 // Model outputs → Prediction rows (research R7), scored by the iteration-0 harness unchanged.
+import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import * as tf from "@tensorflow/tfjs-node";
 import { canonicalJson } from "@tma/data";
 import { type FeatureFile, ROWS } from "@tma/features";
 import { bearingOf, f32, f32Angle } from "@tma/sim";
-import type { NormalisationConstants, Prediction, PredictionRow, Scenario } from "@tma/types";
+import type {
+  DatasetHeader,
+  NormalisationConstants,
+  Prediction,
+  PredictionRow,
+  Scenario,
+} from "@tma/types";
 import { NI } from "@tma/features";
 import { NO } from "./architectures.js";
 
@@ -84,15 +91,40 @@ export async function loadModel(dir: string): Promise<tf.LayersModel> {
   return tf.loadLayersModel(`file://${resolve(dir)}/model.json`);
 }
 
-/** Refuse features normalised differently from the model's training data. */
+const headerDigest = (h: DatasetHeader): string =>
+  createHash("sha256").update(canonicalJson(h)).digest("hex");
+
+/** A model's training data, for telling a schema-version relabel from different data. */
+export interface TrainProvenance {
+  /** Header of the train split the features were normalised from. */
+  header: DatasetHeader;
+  /** schema_version recorded in the model's manifest. */
+  modelSchemaVersion: string;
+}
+
+/**
+ * Refuse features normalised differently from the model's training data. The one tolerated
+ * difference: identical constants, and train headers that differ only in `schema_version` (a
+ * schema bump after training, data unchanged). Returns a note saying so; undefined if identical.
+ */
 export function requireSameNormalisation(
   file: FeatureFile,
   norm: NormalisationConstants,
   modelId: string,
-): void {
-  if (canonicalJson(file.norm) !== canonicalJson(norm)) {
-    throw new Error(`${file.path}: normalisation differs from the one ${modelId} was trained with`);
+  train?: TrainProvenance,
+): string | undefined {
+  if (canonicalJson(file.norm) === canonicalJson(norm)) return undefined;
+  const { train_header_digest: fileDigest, ...fileConstants } = file.norm;
+  const { train_header_digest: modelDigest, ...modelConstants } = norm;
+  if (
+    train !== undefined &&
+    canonicalJson(fileConstants) === canonicalJson(modelConstants) &&
+    headerDigest(train.header) === fileDigest &&
+    headerDigest({ ...train.header, schema_version: train.modelSchemaVersion }) === modelDigest
+  ) {
+    return `${modelId}: train header differs only in schema_version (${train.modelSchemaVersion} → ${train.header.schema_version}); normalisation constants identical`;
   }
+  throw new Error(`${file.path}: normalisation differs from the one ${modelId} was trained with`);
 }
 
 /** Runs the model over every scenario of `truth` (looked up in `features` by index). */
