@@ -265,9 +265,20 @@ is in the session scratchpad and is not committed.
 - **Batch 512**: another 1.2–1.4× per window, but half as many optimizer steps per epoch. It needs a
   learning-rate check, so it is not adopted by default.
 
+**Runner check** (bench-train run 38233802782, PR #31; AMD EPYC 7763 ×4, batch 256, 8 timed steps;
+speed-up per window over default threads with padded batches, rescaled to the epoch's mean of 154 rows):
+
+| Model | 1 thread | Bucketed | 1 thread + bucketed |
+| --- | --- | --- | --- |
+| LSTM | 1.12× | 1.52× | 1.73× |
+| BiLSTM | 1.13× | 1.49× | 1.65× |
+
+The single-thread gain is smaller on the runner than on the Xeon (1.12× vs 1.25–1.4×); bucketing
+carries most of the benefit. Together they cut a 60-epoch BiLSTM run from ≈ 17.8 h to ≈ 10.8 h at
+this runner's speed.
+
 **Decision (proposed for iteration 2)**: single-thread tfjs and length bucketing, together about 1.8×
-(BiLSTM) and 2.4× (LSTM) on this CPU. Before adopting, confirm the thread result on a GitHub runner
-(AMD EPYC), whose thread behaviour may differ. Keep batch 256 and the learning rate. Optional: a
+(BiLSTM) and 2.4× (LSTM) on this CPU. Confirmed on a GitHub runner (above). Keep batch 256 and the learning rate. Optional: a
 validation-only learning-rate-schedule probe.
 
 ## R16. Noise smoke test (side experiment, 2026-10-12)
