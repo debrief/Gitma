@@ -60,6 +60,11 @@ promised identical there; the manifest records `cpu_model`.
 position from range along the last valid bearing (as the naive baseline). Non-finite outputs give
 `converged = false`, scored as gross errors.
 
+A model is only run on features normalised exactly as its training data was. The one tolerated
+difference is a train-split header that differs only in `schema_version` (a schema bump after
+training, same data and constants); `tma-g1` logs it and records it in the experiment manifest, and
+`tma-model-predict` accepts it when given `--train <train.f32pack>`.
+
 ## Shuffled-label test
 
 `lstm-instantaneous-shuffled` is the instantaneous model trained with each scenario's targets
