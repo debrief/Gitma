@@ -1,3 +1,4 @@
+run 38208186337 attempt 2, job 114789157629 (train time-late), commit 7c1c579
 Model name:                              INTEL(R) XEON(R) PLATINUM 8573C
 resuming bilstm-time-late after epoch 41 (optimizer state restored)
 bilstm-time-late epoch 42 train 0.44790 val 0.45221 t=39218s

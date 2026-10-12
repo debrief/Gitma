@@ -1,3 +1,4 @@
+run 38208186337 attempt 1, job 114676289268 (train time-late), commit 7c1c579
 seeded bilstm-time-late: resume after epoch 23 (dropped 1 later epoch(s)); weights 2c5f8784cdfd104822cc8440ac1a0a7380630dde443bfa8633634cb1f96e01fc
 Model name:                              AMD EPYC 7763 64-Core Processor
 resuming bilstm-time-late after epoch 23 (optimizer state restarts; patience not counted for epochs 24–26)
