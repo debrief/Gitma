@@ -1,6 +1,8 @@
-import { existsSync, readFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { gitCommit, gitDirty } from "@tma/eval";
 import { describe, expect, it } from "vitest";
+import { readModelManifest } from "../src/manifest-io.js";
 import { train } from "../src/train.js";
 import { KINDS, tempDir, tinyConfig, tinyFeatures } from "./helpers.js";
 
@@ -55,6 +57,58 @@ describe("training loop", () => {
     });
     expect(m.stop_reason).toBe("early_stopping");
     expect(m.epochs.length).toBeLessThan(50);
+  }, 60_000);
+
+  it("records the commit and tree state read at process start", async () => {
+    const out = tempDir();
+    const m = await train({
+      config: tinyConfig("mlp", { max_epochs: 1 }),
+      trainPath: data.train,
+      valPath: data.val,
+      outDir: out,
+      log: quiet,
+    });
+    expect(m.git_commit).toBe(gitCommit());
+    expect(m.git_dirty).toBe(gitDirty());
+    const saved = readModelManifest(out);
+    expect(saved.git_commit).toBe(gitCommit());
+    expect(saved.git_dirty).toBe(gitDirty());
+  }, 60_000);
+
+  it("on resume keeps an earlier job's dirty flag and records this job's commit", async () => {
+    // A finished one-epoch run stands in for the checkpoint of an interrupted two-epoch run.
+    const first = tempDir();
+    const config = tinyConfig("mlp", { max_epochs: 2 });
+    const one = await train({
+      config: { ...config, max_epochs: 1 },
+      trainPath: data.train,
+      valPath: data.val,
+      outDir: first,
+      log: quiet,
+      source: { commit: "a".repeat(40), dirty: true },
+    });
+    const out = tempDir();
+    for (const sub of ["checkpoint", "best"]) {
+      mkdirSync(join(out, sub));
+      for (const f of ["model.json", "weights.bin"]) cpSync(join(first, f), join(out, sub, f));
+    }
+    writeFileSync(
+      join(out, "manifest.json"),
+      JSON.stringify({ ...one, config, complete: false, stop_reason: undefined }),
+    );
+    const lines: string[] = [];
+    const m = await train({
+      config,
+      trainPath: data.train,
+      valPath: data.val,
+      outDir: out,
+      log: (l) => lines.push(l),
+      source: { commit: "b".repeat(40), dirty: false },
+    });
+    expect(m.epochs).toHaveLength(2);
+    expect(m.git_commit).toBe("b".repeat(40));
+    expect(m.git_dirty).toBe(true);
+    expect(lines.join("\n")).toMatch(/earlier epochs were trained at commit a{40}/);
   }, 60_000);
 
   it("reports divergence", async () => {

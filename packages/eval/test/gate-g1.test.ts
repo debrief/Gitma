@@ -134,6 +134,54 @@ describe("G1 gate", () => {
     ).toBe("fail");
   });
 
+  it("fails (never passes) when naive's median at the gate point is absent or non-finite", () => {
+    const noNaive = (replace: (m: MetricsRecord) => MetricsRecord) =>
+      metrics(BASE).map((m) =>
+        m.estimator === "naive:per_timestep" && m.point === "zig+300s" ? replace(m) : m,
+      );
+    const absent = noNaive((m) => {
+      const rest = { ...m };
+      delete rest.range_rel_median;
+      return rest;
+    });
+    const infinite = noNaive((m) => ({ ...m, range_rel_median: Infinity }));
+    const ci = { ratio: 0.3, lo: 0.2, hi: 0.4, n: 100, resamples: 2000, seed: "1" };
+    for (const ms of [absent, infinite]) {
+      const checks = g1Checks(ms, GOOD_CURVES, IDS);
+      for (const name of ["g1-instantaneous", "g1-time-late"]) {
+        const c = checks.find((x) => x.name === name);
+        expect(c?.result).toBe("fail");
+        expect(c?.detail).toMatch(/naive median not finite/);
+      }
+      const withCi = g1Checks(ms, GOOD_CURVES, IDS, { instantaneous: ci, timeLate: ci });
+      expect(withCi.find((x) => x.name === "g1-instantaneous")?.result).toBe("fail");
+      expect(g1Verdict(withCi).result).toBe("fail");
+    }
+  });
+
+  it("shuffled-label check reports course error beside naive without gating on it", () => {
+    const withCourse = (shuffledCourse: number) =>
+      metrics(BASE).map((m) =>
+        m.point !== "zig+300s"
+          ? m
+          : m.estimator === "naive:per_timestep"
+            ? { ...m, course_deg_median: 89.7 }
+            : m.estimator === "lstm-shuffled:per_timestep"
+              ? { ...m, course_deg_median: shuffledCourse }
+              : m,
+      );
+    const leak = (ms: MetricsRecord[]) =>
+      g1Checks(ms, GOOD_CURVES, IDS).find((x) => x.name === "shuffled-labels-at-naive");
+    const near = leak(withCourse(82.9));
+    expect(near?.result).toBe("pass");
+    expect(near?.detail).toMatch(
+      /course error median 82\.9° vs naive 89\.7° \(reported, not gated\)/,
+    );
+    // A far better course than naive does not fail the check: the rule is range only.
+    expect(leak(withCourse(5))?.result).toBe("pass");
+    expect(leak(metrics(BASE))?.detail).toMatch(/course error median n\/a vs naive n\/a/);
+  });
+
   it("does not gate curve points with fewer than 500 scenarios", () => {
     const c = curves([0.3, 0.2, 0.15], [0.25, 0.18, 0.5]).map((p) =>
       p.t_since_zig_s === 180 ? { ...p, n: 35 } : p,

@@ -29,7 +29,7 @@ export const prettyJson = (v: unknown): string =>
 /** Git runs in this package's checkout, not wherever the command was started. */
 const GIT_CWD = dirname(fileURLToPath(import.meta.url));
 
-export function gitCommit(): string {
+function readGitCommit(): string {
   try {
     return execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8", cwd: GIT_CWD }).trim();
   } catch {
@@ -50,17 +50,23 @@ function gitStatusDirty(): boolean {
 }
 
 /**
+ * Commit and tree state when this process started, read together before it wrote any output.
+ * Experiment files are untracked until committed and would otherwise mark every run dirty, and a
+ * commit read at write time could name code other than the code that ran.
+ */
+const COMMIT_AT_START = readGitCommit();
+const DIRTY_AT_START = gitStatusDirty();
+
+/** Commit checked out when this process started. */
+export const gitCommit = (): string => COMMIT_AT_START;
+
+/** Whether the working tree had uncommitted changes when this process started. */
+export const gitDirty = (): boolean => DIRTY_AT_START;
+
+/**
  * Experiments must trace to a commit (constitution II): refuse a dirty tree unless the caller
  * explicitly allows it, in which case the manifest records `git_dirty: true`.
  */
-/**
- * Tree state when this process started, before it wrote any experiment files (which are untracked
- * until committed and would otherwise mark every run dirty).
- */
-const DIRTY_AT_START = gitStatusDirty();
-
-export const gitDirty = (): boolean => DIRTY_AT_START;
-
 export function requireCleanTree(allowDirty: boolean): void {
   if (!allowDirty && gitDirty()) {
     throw new UsageError(

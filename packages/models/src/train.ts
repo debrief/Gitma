@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync 
 import { join, resolve } from "node:path";
 import * as tf from "@tensorflow/tfjs-node";
 import { canonicalJson } from "@tma/data";
+import { gitCommit, gitDirty } from "@tma/eval";
 import { type FeatureFile, openFeatures } from "@tma/features";
 import { GENERATOR_VERSION } from "@tma/sim";
 import {
@@ -25,6 +26,11 @@ export interface TrainOptions {
   valPath: string;
   outDir: string;
   log?: (line: string) => void;
+  /**
+   * Source provenance recorded in the manifest. Defaults to the commit and tree state read when
+   * this process started (before training wrote anything); tests may pass their own.
+   */
+  source?: { commit: string; dirty: boolean };
 }
 
 const url = (dir: string): string => `file://${resolve(dir)}`;
@@ -94,6 +100,8 @@ function labelIdentity(n: number): Uint32Array {
 export async function train(opts: TrainOptions): Promise<ModelManifest> {
   const { config, outDir } = opts;
   const log = opts.log ?? ((l: string) => process.stderr.write(`${l}\n`));
+  // Read before anything is written (the module-level helpers hold the process-start state).
+  const source = opts.source ?? { commit: gitCommit(), dirty: gitDirty() };
   mkdirSync(outDir, { recursive: true });
   const trainFile = openFeatures(opts.trainPath);
   const valFile = openFeatures(opts.valPath);
@@ -109,6 +117,7 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
     let bestEpoch = -1;
     let best = Infinity;
     let priorSeconds = 0;
+    let dirty = source.dirty;
 
     // Resume when an unfinished run of the same config exists (Adam state restarts; recorded in log).
     const prior = existsSync(manifestPath)
@@ -133,6 +142,13 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       log(
         `resuming ${config.id} after epoch ${String(epochs.length - 1)} (optimizer state restarts)`,
       );
+      // A dirty earlier job taints the whole run; the commit recorded is this (final) job's.
+      dirty ||= prior.git_dirty === true;
+      if (typeof prior.git_commit === "string" && prior.git_commit !== source.commit) {
+        log(
+          `earlier epochs were trained at commit ${prior.git_commit}; this job runs ${source.commit}`,
+        );
+      }
     } else {
       if (prior?.complete === true) throw new Error(`${outDir} already holds a completed model`);
       model = buildModel(config);
@@ -167,6 +183,8 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       wall_s: elapsed(),
       parameter_count: paramCount,
       ...env,
+      git_commit: source.commit,
+      git_dirty: dirty,
       weights_digest:
         weightsPath !== null && existsSync(weightsPath) ? sha256File(weightsPath) : "",
     });
