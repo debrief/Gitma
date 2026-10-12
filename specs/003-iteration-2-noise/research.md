@@ -231,3 +231,41 @@ Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternati
   `evaluation.md` (G2, CIs, common-row comparison, window-mean position); glossary: bearing rate,
   bearing-line intercept, pseudo-linear measurement, dropout, confidence interval, inconclusive,
   rate-limited turn, provenance.
+
+## R15. Training speed (side experiment, 2026-10-12)
+
+**Question**: can training run faster without changing the models? Time-late took 775–1,066 s per
+epoch on GitHub runners, so 60 epochs need 13–18 h.
+
+**Method**: timed Adam steps on real seed-101 training windows, using the iteration-1 layers (Masking,
+LSTM or BiLSTM 96, time-distributed Dense 4) with inputs trimmed to L rows. The grid covered
+L ∈ {240, 150, 105}, batch size ∈ {256, 512} and threads (default, 4/1, 2/1, 1/1 intra/inter-op).
+Two warm-up steps, then the mean of 4 steps, on a 4-core Intel Xeon 2.1 GHz container. The script
+is in the session scratchpad and is not committed.
+
+**Findings** (ms per training window):
+
+| Model | 240 rows, batch 256, default threads (today) | 1 thread | 1 thread, 150 rows | 1 thread, 150 rows, batch 512 |
+| --- | --- | --- | --- | --- |
+| LSTM | 9.11 | 6.50 | 3.74 | 3.22 |
+| BiLSTM | 15.67 | 12.50 | 8.96 | 6.28 |
+
+- **Threads**: a single intra-op thread is fastest at every size. tfjs-node's thread pool costs more
+  than it saves on these small recurrent matmuls (high system time). It is free and does not change
+  the model.
+- **Window length**: step time scales roughly linearly with rows. Windows have 60–240 valid rows
+  (mean 150; 38% of every 240-row window is padding). Today almost every batch contains one
+  full-length window, so the batch runs all 240 rows.
+- **Bucketing**: sort windows by length within groups of 16 batches of the epoch's seeded
+  permutation, cut batches, then shuffle the batch order with the same seed. A batch then has a mean
+  of 156 rows (65% of today's compute); sorting the whole epoch gives 151 rows (63%). Masking is
+  already exact, so trimming trailing padding cannot change a model's outputs. It does change batch
+  composition, so it is a training-procedure change, made once and declared at the start of an
+  iteration.
+- **Batch 512**: another 1.2–1.4× per window, but half as many optimizer steps per epoch. It needs a
+  learning-rate check, so it is not adopted by default.
+
+**Decision (proposed for iteration 2)**: single-thread tfjs and length bucketing, together about 1.8×
+(BiLSTM) and 2.4× (LSTM) on this CPU. Before adopting, confirm the thread result on a GitHub runner
+(AMD EPYC), whose thread behaviour may differ. Keep batch 256 and the learning rate. Optional: a
+validation-only learning-rate-schedule probe.
