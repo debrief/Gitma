@@ -1,0 +1,184 @@
+{
+  "best_epoch": 20,
+  "complete": true,
+  "config": {
+    "batch_size": 256,
+    "id": "mlp-control",
+    "learning_rate": 0.001,
+    "loss_weight_course": 1,
+    "loss_weight_range": 1,
+    "loss_weight_speed": 1,
+    "max_epochs": 60,
+    "max_wall_s": 19800,
+    "model_kind": "mlp",
+    "patience": 3,
+    "shuffle_labels": false,
+    "train_seed": "1004",
+    "units": 256
+  },
+  "cpu_model": "AMD EPYC 7763 64-Core Processor",
+  "epochs": [
+    {
+      "epoch": 0,
+      "seconds": 16.422861361,
+      "train_loss": 1.1047753133712865,
+      "val_loss": 0.8626406569840089
+    },
+    {
+      "epoch": 1,
+      "seconds": 33.341636956,
+      "train_loss": 0.8227797333424846,
+      "val_loss": 0.8139551687535297
+    },
+    {
+      "epoch": 2,
+      "seconds": 50.067880714,
+      "train_loss": 0.7814235761523628,
+      "val_loss": 0.7865546372286114
+    },
+    {
+      "epoch": 3,
+      "seconds": 66.83260695099999,
+      "train_loss": 0.7501827764054076,
+      "val_loss": 0.782094171148209
+    },
+    {
+      "epoch": 4,
+      "seconds": 83.59452974,
+      "train_loss": 0.7232220683234949,
+      "val_loss": 0.7328052520319044
+    },
+    {
+      "epoch": 5,
+      "seconds": 100.40114014400001,
+      "train_loss": 0.6998192321378202,
+      "val_loss": 0.7214157871566176
+    },
+    {
+      "epoch": 6,
+      "seconds": 117.1041189,
+      "train_loss": 0.6810896107183096,
+      "val_loss": 0.6994043867538332
+    },
+    {
+      "epoch": 7,
+      "seconds": 133.82941863,
+      "train_loss": 0.6623942747283668,
+      "val_loss": 0.6839350804659827
+    },
+    {
+      "epoch": 8,
+      "seconds": 150.5174712,
+      "train_loss": 0.648081089170596,
+      "val_loss": 0.6777246001798093
+    },
+    {
+      "epoch": 9,
+      "seconds": 167.172660751,
+      "train_loss": 0.6358040207491135,
+      "val_loss": 0.6654340687916096
+    },
+    {
+      "epoch": 10,
+      "seconds": 183.743846589,
+      "train_loss": 0.6256534350565828,
+      "val_loss": 0.6611053159950981
+    },
+    {
+      "epoch": 11,
+      "seconds": 200.324817203,
+      "train_loss": 0.613299730296333,
+      "val_loss": 0.6466026630935948
+    },
+    {
+      "epoch": 12,
+      "seconds": 216.890914289,
+      "train_loss": 0.6004915783009209,
+      "val_loss": 0.6662545674575514
+    },
+    {
+      "epoch": 13,
+      "seconds": 233.489120974,
+      "train_loss": 0.5923671506273861,
+      "val_loss": 0.6226344086025711
+    },
+    {
+      "epoch": 14,
+      "seconds": 250.072781868,
+      "train_loss": 0.5856964255864627,
+      "val_loss": 0.6188799675014776
+    },
+    {
+      "epoch": 15,
+      "seconds": 266.64658782000004,
+      "train_loss": 0.575619963411325,
+      "val_loss": 0.6147887881514948
+    },
+    {
+      "epoch": 16,
+      "seconds": 283.223634971,
+      "train_loss": 0.5679024483639592,
+      "val_loss": 0.6397726405361004
+    },
+    {
+      "epoch": 17,
+      "seconds": 299.767567523,
+      "train_loss": 0.5597636218840322,
+      "val_loss": 0.6219262283272777
+    },
+    {
+      "epoch": 18,
+      "seconds": 316.300426979,
+      "train_loss": 0.555604560592304,
+      "val_loss": 0.6045019959750451
+    },
+    {
+      "epoch": 19,
+      "seconds": 332.88594885099997,
+      "train_loss": 0.5511986385709562,
+      "val_loss": 0.5961115971447927
+    },
+    {
+      "epoch": 20,
+      "seconds": 349.48433682,
+      "train_loss": 0.5434423443227531,
+      "val_loss": 0.5926249375333309
+    },
+    {
+      "epoch": 21,
+      "seconds": 366.075493603,
+      "train_loss": 0.5382176287258014,
+      "val_loss": 0.596533414376439
+    },
+    {
+      "epoch": 22,
+      "seconds": 382.685806456,
+      "train_loss": 0.532395005035705,
+      "val_loss": 0.5982921479600932
+    },
+    {
+      "epoch": 23,
+      "seconds": 399.24836284900005,
+      "train_loss": 0.5283201746285533,
+      "val_loss": 0.5948326896197871
+    }
+  ],
+  "generator_version": "0.1.0",
+  "id": "mlp-control",
+  "node_version": "v22.22.0",
+  "normalisation": {
+    "computed_from": "inputs_only",
+    "position_scale_km": 17.33416748046875,
+    "speed_scale_mps": 7.71650505065918,
+    "time_scale_s": 2390,
+    "train_header_digest": "b97966ec7df18b00f49cf88296ca6ae4cc1c979dff712d46a6fb12597ade453a"
+  },
+  "parameter_count": 927168,
+  "schema_version": "0.4.0",
+  "stop_reason": "early_stopping",
+  "tfjs_node_version": "4.22.0",
+  "train_features_digest": "95687d542b01124427c3fa514495b39d6a876344cfb6a7004beb0f36c0b3447c",
+  "val_features_digest": "d3e054604d9cb9e8b93aa7d1320fb6b1b2320ef1cf1a540971a0e7934828c40b",
+  "wall_s": 399.28625066100005,
+  "weights_digest": "1185a7bfd405401ed69eefbd5f468632e905dcd6e0feebf81295108c6717e3e0"
+}

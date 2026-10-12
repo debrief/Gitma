@@ -242,13 +242,14 @@ const expUrl = (id, file = "") =>
 /** Panel status from the verdict's `decided_by`: a harness verdict is pending the agent panel. */
 function Status({ run }) {
   const v = run.verdict;
+  const pending = /^harness/.test(v.decided_by);
   const review = run.review && (
     <>
       {" "}
-      Panel record so far: <a href={expUrl(run.id, "review.md")}>review.md</a>.
+      Panel record{pending && " so far"}: <a href={expUrl(run.id, "review.md")}>review.md</a>.
     </>
   );
-  if (/^harness/.test(v.decided_by)) {
+  if (pending) {
     return (
       <div className="alert alert--warning margin-bottom--md">
         <strong>Pending panel decision.</strong> This is the machine verdict; the agent review panel
@@ -263,11 +264,28 @@ function Status({ run }) {
   );
 }
 
-function EarlierAttempts({ runs }) {
+function EarlierAttempts({ runs, informational }) {
   return (
     <>
       <h2>Earlier attempts</h2>
-      <p>Kept on record; the latest attempt is shown above.</p>
+      <p>
+        Kept on record; the latest attempt is shown above.
+        {informational.length > 0 && (
+          <>
+            {" "}
+            Not listed, because the panel never judged them (machine verdict only, informational):{" "}
+            {informational.map((r, i) => (
+              <span key={r.id}>
+                {i > 0 && ", "}
+                <a href={expUrl(r.id)}>
+                  <code>{r.id}</code>
+                </a>
+              </span>
+            ))}
+            .
+          </>
+        )}
+      </p>
       <table className="gate-table">
         <thead>
           <tr>
@@ -326,6 +344,12 @@ export default function ResultsReview({ gate }) {
     );
   }
   const v = run.verdict;
+  // Older folders still carrying a harness verdict were never put to the panel (e.g. a training
+  // run's own informational folder, superseded by its re-score): not attempts of record.
+  const older = runs.slice(1);
+  const harness = (r) => /^harness/.test(r.verdict.decided_by);
+  const earlier = older.filter((r) => !harness(r));
+  const informational = older.filter(harness);
   return (
     <div>
       <p>
@@ -333,7 +357,8 @@ export default function ResultsReview({ gate }) {
         <a href={expUrl(run.id)}>
           <code>{run.id}</code>
         </a>
-        {runs.length > 1 && ` (attempt ${runs.length}; earlier attempts below)`}: machine verdict{" "}
+        {earlier.length > 0 && ` (attempt ${earlier.length + 1}; earlier attempts below)`}: machine
+        verdict{" "}
         <strong className={resultClass(v.result)}>
           {v.gate} {v.result}
         </strong>{" "}
@@ -376,7 +401,7 @@ export default function ResultsReview({ gate }) {
           <MetricsTable metrics={run.heldout} point="zig+300s" />
         </>
       )}
-      {runs.length > 1 && <EarlierAttempts runs={runs.slice(1)} />}
+      {older.length > 0 && <EarlierAttempts runs={earlier} informational={informational} />}
     </div>
   );
 }

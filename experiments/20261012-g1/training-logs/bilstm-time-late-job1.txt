@@ -1,0 +1,22 @@
+run 38208186337 attempt 1, job 114676289268 (train time-late), commit 7c1c579
+seeded bilstm-time-late: resume after epoch 23 (dropped 1 later epoch(s)); weights 2c5f8784cdfd104822cc8440ac1a0a7380630dde443bfa8633634cb1f96e01fc
+Model name:                              AMD EPYC 7763 64-Core Processor
+resuming bilstm-time-late after epoch 23 (optimizer state restarts; patience not counted for epochs 24–26)
+bilstm-time-late epoch 24 train 0.56477 val 0.56830 t=19666s
+bilstm-time-late epoch 25 train 0.54430 val 0.54162 t=20710s
+bilstm-time-late epoch 26 train 0.53625 val 0.55521 t=21747s
+bilstm-time-late epoch 27 train 0.52593 val 0.53353 t=22784s
+bilstm-time-late epoch 28 train 0.52304 val 0.53542 t=23808s
+bilstm-time-late epoch 29 train 0.51458 val 0.51711 t=24908s
+bilstm-time-late epoch 30 train 0.50090 val 0.52441 t=26038s
+bilstm-time-late epoch 31 train 0.50056 val 0.49448 t=27165s
+bilstm-time-late epoch 32 train 0.49996 val 0.50930 t=28291s
+bilstm-time-late epoch 33 train 0.48862 val 0.49012 t=29414s
+bilstm-time-late epoch 34 train 0.47860 val 0.50236 t=30533s
+bilstm-time-late epoch 35 train 0.47500 val 0.47799 t=31651s
+bilstm-time-late epoch 36 train 0.46932 val 0.47721 t=32770s
+bilstm-time-late epoch 37 train 0.46462 val 0.47343 t=33886s
+bilstm-time-late epoch 38 train 0.45961 val 0.46957 t=35004s
+bilstm-time-late epoch 39 train 0.45541 val 0.45594 t=36122s
+bilstm-time-late epoch 40 train 0.45234 val 0.47034 t=37237s
+bilstm-time-late epoch 41 train 0.45183 val 0.45206 t=38350s
