@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { GENERATOR_VERSION } from "@tma/sim";
 import { describe, expect, it } from "vitest";
@@ -119,14 +119,13 @@ describe("G0 guard (constitution V)", () => {
     expect(g0Accepted(lib, { generatorUnchanged: (c) => c === "verified" })).not.toBeNull();
   });
 
-  it("accepts the committed iteration-2 G0 re-run (real git check)", () => {
-    // Generator 0.2.0 (spec 003: header provenance, rate-limited turn) superseded 20261011-g0-r3;
-    // the G0 re-run (T019) at b2b2aad is the latest verdict and matches the generator paths.
+  it("the committed iteration-2 G0 re-run is the latest, and needs its panel review", () => {
+    // Round-1 fixes (24bbdab) touched packages/data/src, so G0 was re-run there (T019-T020).
     const dir = new URL("../../../experiments", import.meta.url).pathname;
-    expect(g0Accepted(dir)).toEqual({
-      id: "20261013-g0-i2",
-      commit: "b2b2aadf0ac4be90ccaa3aebddae24b7696a641b",
-    });
+    const want = { id: "20261013-g0-i2-r2", commit: "24bbdab5d79f3c872f88ac6494c2d73068016225" };
+    expect(g0Accepted(dir)).toEqual(want);
+    const reviewed = existsSync(join(dir, want.id, "review.md"));
+    expect(g0Accepted(dir, { requireReview: true })).toEqual(reviewed ? want : null);
   });
 
   it("returns the accepted experiment's id and commit", () => {
