@@ -208,6 +208,11 @@ The open questions were put to the user one at a time; all recommendations accep
 10. **Phase A**: G1 configurations unchanged; time-late leads (pre-zig loss share, gradient
     clipping) are not applied (research R0).
 11. **Seeds**: one training seed per model, as G1; seed variance stated as a limit.
+12. **G2 consistency failure** (pre-registered before any iteration-2 training): if every
+    threshold check, both ratio checks and the shuffled-label check pass but
+    `time-late-not-worse` fails, **G2 passes with the caveat stated**, as G1's rule 1. The machine
+    verdict still reads `inconclusive` (G1's aggregation, kept); the panel applies this rule and
+    records it in `decided_by`.
 
 Exit codes follow PR #21 (already implemented): **3 for any gate result other than pass**
 (fail or inconclusive); the verdict file distinguishes them.
