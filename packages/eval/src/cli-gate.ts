@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import type { GateVerdict } from "@tma/types";
 import { isMain, readDataset, runCli, UsageError } from "@tma/data";
@@ -148,7 +148,22 @@ function mainG2(v: G2Args): GateVerdict {
       opts,
     ),
   );
-  writeVerdict(experiment, verdict);
+  const isDefault =
+    opts.slice === DEFAULT_G2_OPTIONS.slice &&
+    opts.seconds.range === d.range &&
+    opts.seconds.course === d.course &&
+    opts.seconds.speed === d.speed;
+  if (isDefault) {
+    writeVerdict(experiment, verdict);
+  } else {
+    // A diagnostic slice or point never overwrites the gate verdict (G0 panel red team).
+    const tag = `${opts.slice}-${String(opts.seconds.range)}-${String(opts.seconds.speed)}`;
+    const diag = { ...verdict, decided_by: `diagnostic only (${tag}); not the G2 verdict` };
+    writeFileSync(
+      join(experiment, `verdict-diagnostic-${tag}.json`),
+      `${JSON.stringify(diag, null, 2)}\n`,
+    );
+  }
   return verdict;
 }
 

@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { DEFAULT_RANGES, HELDOUT_RANGES, noiseFree, parseSeed } from "@tma/sim";
@@ -5,6 +6,10 @@ import { ParameterRanges, parseRecord } from "@tma/types";
 import { isMain, runCli, UsageError } from "./cli.js";
 import { type Format, generateDataset } from "./generate.js";
 import { type GitProvenance, generatorProvenance, readGitProvenance } from "./provenance.js";
+
+/** sha256 of a ranges file, so the header identifies it without depending on its path. */
+const fileDigest = (path: string): string =>
+  createHash("sha256").update(readFileSync(path)).digest("hex");
 
 function loadRanges(path: string): ParameterRanges {
   return parseRecord(ParameterRanges, JSON.parse(readFileSync(path, "utf8")), path, "ranges");
@@ -61,12 +66,15 @@ export function main(argv: string[], deps: GenerateDeps = {}): unknown {
     heldoutRanges: heldout,
     format,
     provenance,
-    // Only generation-relevant arguments, so output bytes do not depend on paths or format.
+    // Only generation-relevant arguments, so output bytes do not depend on paths or format; ranges
+    // files are named by content digest (G0 panel 2026-10-13: the manifest must identify them).
     createdBy: [
       `tma-generate --seed ${values.seed} --count ${String(count)}`,
       values["noise-free"] ? " --noise-free" : "",
-      values.ranges === undefined ? "" : " --ranges <custom>",
-      values["heldout-ranges"] === undefined ? "" : " --heldout-ranges <custom>",
+      values.ranges === undefined ? "" : ` --ranges sha256:${fileDigest(values.ranges)}`,
+      values["heldout-ranges"] === undefined
+        ? ""
+        : ` --heldout-ranges sha256:${fileDigest(values["heldout-ranges"])}`,
     ].join(""),
   });
   const seconds = (performance.now() - t0) / 1000;

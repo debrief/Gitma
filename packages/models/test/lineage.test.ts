@@ -177,8 +177,26 @@ describe("tma-train refuses on lineage (exit 2 reasons)", () => {
     );
     const noG0 = [...args(data.train, data.val), "--check"];
     noG0[noG0.indexOf("--experiments") + 1] = tempDir();
-    await expect(cliTrain(noG0, FIXTURE_GIT)).rejects.toThrow(/no passing G0 verdict/);
+    await expect(cliTrain(noG0, FIXTURE_GIT)).rejects.toThrow(
+      /no passing, panel-decided G0 verdict/,
+    );
   });
+
+  it("--check refuses a complete model in --out trained on other files (G0 red team round 2)", async () => {
+    const a = args(data.train, data.val);
+    await cliTrain(a, FIXTURE_GIT);
+    const out = a[a.indexOf("--out") + 1] ?? "";
+    expect(existsSync(join(out, "manifest.json"))).toBe(true);
+    await expect(cliTrain([...a, "--check"], FIXTURE_GIT)).resolves.toMatchObject({
+      check: "pass",
+    });
+    const other = tinyFeatures(8, 5n);
+    const b = args(other.train, other.val);
+    b[b.indexOf("--out") + 1] = out;
+    await expect(cliTrain([...b, "--check"], FIXTURE_GIT)).rejects.toThrow(
+      /checkpoint trained on train/,
+    );
+  }, 120_000);
 
   it("refuses validation features from another dataset", async () => {
     const other = tinyFeatures(8, 4n);

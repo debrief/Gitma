@@ -168,6 +168,8 @@ describe("G2 gate (T025)", () => {
       "shuffled-labels-at-naive",
     ]);
     const range = v.checks[0];
+    // Decision 13: the detail states the share of the slice reaching the point.
+    expect(range?.detail).toMatch(/\d+\.\d% of the slice reach zig\+300s/);
     expect(range).toMatchObject({
       value: 0.15,
       threshold: 0.2,

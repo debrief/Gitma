@@ -1,11 +1,13 @@
 // tma-train. This module must not import tfjs-node (directly or through ./train.js) at load time:
 // the config's tfjs_threads is applied to the environment first, and only then is the trainer
 // imported, so libtensorflow creates its thread pools with that size (see threads.ts).
-import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { isMain, UsageError } from "@tma/data";
 import { openFeatures } from "@tma/features";
-import { parseRecord, RecordError, TrainingConfig } from "@tma/types";
+import { ModelManifest, parseRecord, RecordError, TrainingConfig } from "@tma/types";
 import { runAsyncCli } from "./cli-run.js";
 import { g0Accepted, generatorPathsEqual } from "./g0-guard.js";
 import { checkLineage } from "./lineage.js";
@@ -30,22 +32,25 @@ export async function main(argv: string[], deps: TrainDeps = {}): Promise<unknow
       out: { type: "string" },
       experiments: { type: "string", default: "experiments" },
       check: { type: "boolean", default: false },
+      "allow-unreviewed-g0": { type: "boolean", default: false },
     },
   });
   if (!values.config || !values.train || !values.val || !values.out) {
     throw new UsageError(
-      "usage: tma-train --config <config.json> --train <train.features.bin> --val <validation.features.bin> --out <dir> [--experiments dir] [--check]",
+      "usage: tma-train --config <config.json> --train <train.features.bin> --val <validation.features.bin> --out <dir> [--experiments dir] [--check] [--allow-unreviewed-g0]",
     );
   }
-  const g0 = g0Accepted(
-    values.experiments,
-    deps.generatorUnchanged === undefined ? {} : { generatorUnchanged: deps.generatorUnchanged },
-  );
+  const g0 = g0Accepted(values.experiments, {
+    requireReview: !values["allow-unreviewed-g0"],
+    ...(deps.generatorUnchanged === undefined
+      ? {}
+      : { generatorUnchanged: deps.generatorUnchanged }),
+  });
   if (g0 === null) {
     throw new RecordError(
       values.experiments,
       "G0",
-      "no passing G0 verdict: training is not allowed (constitution V)",
+      "no passing, panel-decided G0 verdict: training is not allowed (constitution V)",
     );
   }
   const config = parseRecord(
@@ -71,7 +76,29 @@ export async function main(argv: string[], deps: TrainDeps = {}): Promise<unknow
   }
   // --check: the G0 guard and lineage only (CI runs it before skipping a model whose checkpoint
   // is already complete, so a no-op job still refuses data the guard would refuse).
-  if (values.check) return { id: config.id, g0_experiment: g0.id, check: "pass" };
+  if (values.check) {
+    // A model already complete in --out must have trained on these very files: a checkpoint left
+    // from another plan or dataset is refused, not reused (G0 panel red team, round 2).
+    const manifestPath = join(values.out, "manifest.json");
+    if (existsSync(manifestPath)) {
+      const prior = parseRecord(
+        ModelManifest,
+        JSON.parse(readFileSync(manifestPath, "utf8")),
+        manifestPath,
+        "manifest",
+      );
+      const sha = (f: string): string => createHash("sha256").update(readFileSync(f)).digest("hex");
+      const now = { train: sha(values.train), val: sha(values.val) };
+      if (prior.train_features_digest !== now.train || prior.val_features_digest !== now.val) {
+        throw new RecordError(
+          manifestPath,
+          "lineage",
+          `checkpoint trained on train ${prior.train_features_digest} / validation ${prior.val_features_digest}, these files are ${now.train} / ${now.val}`,
+        );
+      }
+    }
+    return { id: config.id, g0_experiment: g0.id, check: "pass" };
+  }
   if (config.tfjs_threads !== undefined && config.tfjs_threads !== null) {
     applyThreads(config.tfjs_threads);
   }

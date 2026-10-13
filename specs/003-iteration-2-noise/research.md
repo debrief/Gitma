@@ -248,6 +248,22 @@ Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternati
   95% interval lies wholly above 1 kt. As written, G2 asks the model to beat the classical
   reference on speed at the 5-minute point, while G3 asks only for near-parity. Raised with the user
   (SRD §5 interpretation); to be re-run on the final iteration-2 generator (with the turn).
+- **Result (2026-10-13, final generator 0.2.0 with the rate-limited turn)**: configs/iter2-ranges.json,
+  seed 302, 3,000 test scenarios, classical per-timestep, σ = 1° slice (n before exclusion 1,445):
+
+  | Point | Scenarios reaching it | Range median | Course median | Speed median (95% CI) |
+  | --- | --- | --- | --- | --- |
+  | zig + 300 s | 1,350 (93.4%) | 8.1% [7.2, 8.9] | 3.3° [2.9, 3.6] | **1.16 kt (1.04–1.30)** |
+  | zig + 600 s | 860 (59.5%) | 4.2% [3.7, 4.7] | 1.7° [1.5, 2.0] | 0.59 kt (0.52–0.68) |
+  | zig + 900 s | 375 (26.0%) | 3.2% | 1.2° | 0.47 kt (0.39–0.57) |
+  | final | 1,445 (100%) | 4.9% | 1.9° | 0.69 kt |
+
+  Naive at zig + 300 s: 38% range, 89° course, 4.5 kt speed. At σ = 2° classical reaches 17.5% /
+  6.9° / 2.29 kt at zig + 300 s. The picture is unchanged from the preliminary run: classical
+  meets range and course at zig + 300 s and speed only at zig + 600 s. **Coverage**: zig is now the
+  end of the turn, so fewer windows reach each point; the scenarios reaching zig + 600 s are the
+  longer windows (G0 panel statistics reviewer: windows of 600–900 s never do). Decision 13 keeps
+  the speed point and requires the coverage to be stated.
 
 ## R13. Schema versioning
 
@@ -352,3 +368,5 @@ scratchpad and are not committed.
     seed variance; that limit is stated with the G2 result.
 12. **G2 consistency failure**: pass with the caveat stated when only `time-late-not-worse` fails
     (G1 rule 1 carried; plan decision 12). Decided before any iteration-2 data was generated.
+13. **Speed point**: zig + 600 s kept, coverage (≈ 60% of scenarios, the longer windows) stated in
+    the gate detail and the G2 report (plan decision 13, after the G0 re-run panel).

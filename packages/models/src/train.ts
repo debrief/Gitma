@@ -230,6 +230,14 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       canonicalJson(prior.config) === canonicalJson(config) &&
       ckptSaved !== null
     ) {
+      // Earlier epochs must have trained on these very files (lineage is checked on the current
+      // ones only; G0 panel red team, 2026-10-13).
+      const now = { train: sha256File(opts.trainPath), val: sha256File(opts.valPath) };
+      if (prior.train_features_digest !== now.train || prior.val_features_digest !== now.val) {
+        throw new Error(
+          `refusing to resume ${config.id}: earlier epochs trained on train ${prior.train_features_digest} / validation ${prior.val_features_digest}, these files are ${now.train} / ${now.val}`,
+        );
+      }
       model = await tf.loadLayersModel(`${url(ckptSaved)}/model.json`);
       if (modelInputWidth(model) !== trainFile.inputChannels) {
         throw new Error(
