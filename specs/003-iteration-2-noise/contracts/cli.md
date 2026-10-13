@@ -52,15 +52,18 @@ tma-eval --truth <split> --pred <file> [--pred <file>...] --experiment <dir> [--
 
 - Adds `dropout_band` slices, `position_window_m_{median,p90}`, and, with `--compare-to`, writes
   `comparison.{csv,json}` (`PairedComparison`, common rows only).
-- `--bootstrap` adds `<dir>/bootstrap.json`: CIs for overall and σ slices at gate points. Default
-  B = 2,000 when given without a value in `tma-g2`; omitted otherwise (G0/G1 outputs unchanged).
+- `--bootstrap <B>` adds `<dir>/bootstrap.json`: single-median CIs (range, course, speed) for every
+  per-timestep estimator on the overall and σ slices at each `--points` point, and paired
+  model/naive median range-error ratio CIs (overall). `tma-g2` passes B = 2,000; omitted otherwise
+  (G0/G1 outputs unchanged). `--bootstrap-seed` defaults to 20261011 (as G1).
+- G2 needs `--points 300,600` (speed is judged at zig + 600 s, SRD §5 as amended 2026-10-11).
 
 ## `tma-gate g2` (packages/eval) — new subcommand
 
 ```
 tma-gate g2 --experiment <dir> --instantaneous <id> --time-late <id>
             --causal-control <id> --mlp-control <id> --shuffled <id>
-            [--slice sigma=1deg] [--point zig+300s]
+            [--slice sigma=1deg] [--point zig+300s] [--speed-point zig+600s]
 ```
 
 Reads `metrics.json`, `curves.csv`, `bootstrap.json`; refuses (exit 2) without naive and classical
@@ -68,7 +71,8 @@ per-timestep metrics or without bootstrap CIs. Writes `verdict.json` (`gate: G2`
 `g2-instantaneous-range`, `g2-instantaneous-course`, `g2-instantaneous-speed`, the same three for
 `time-late`, then `g1-instantaneous`, `g1-time-late`, `time-late-not-worse`,
 `instantaneous-beats-control`, `time-late-beats-control`, `shuffled-labels-at-naive` (on noisy data).
-Exit 3 on fail, 4 on inconclusive. `--slice`/`--point` exist for the validation diagnostics; the
+Exit 3 on fail or inconclusive (as PR #21; plan "Exit codes"). `--point` sets the range and course
+point, `--speed-point` the speed point; with `--slice` they exist for the validation diagnostics; the
 committed verdict always uses the defaults.
 
 ## `tma-g2` (packages/models) — new

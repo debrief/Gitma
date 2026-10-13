@@ -350,3 +350,5 @@ scratchpad and are not committed.
     applied.
 11. **One training seed per model**, as G1. The bootstrap interval covers test-set sampling, not
     seed variance; that limit is stated with the G2 result.
+12. **G2 consistency failure**: pass with the caveat stated when only `time-late-not-worse` fails
+    (G1 rule 1 carried; plan decision 12). Decided before any iteration-2 data was generated.

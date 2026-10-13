@@ -268,8 +268,11 @@ hand-computed arc end-point and course; t = 0 invariants unchanged; G0 noise-fre
   the σ = 1° slice at zig + 300 s, median range error < 0.20, median course error < 10°, median speed
   error < 1 kt, scored on the same scenarios as naive and classical.
 - **FR-015**: Each gated median MUST carry a seeded, scenario-resampling bootstrap 95% CI; a check
-  whose CI straddles its threshold MUST be `inconclusive`, and the gate is `pass` only if every
-  check passes.
+  whose CI straddles its threshold MUST be `inconclusive`. The machine verdict combines checks as
+  G1 did (research R8): any threshold, ratio or shuffled-label failure ⇒ `fail`; otherwise any
+  inconclusive one, or a `time-late-not-worse` failure ⇒ `inconclusive`; control checks are reported
+  only. A consistency-only `inconclusive` is decided by the panel as a pass with the caveat stated
+  (plan decision 12, user 2026-10-13).
 - **FR-016**: The G2 verdict MUST repeat the iteration-1 checks on noisy data (each variant < 0.5 ×
   naive; time-late not worse than instantaneous; recurrent beats control; shuffled labels at naive)
   as named checks.

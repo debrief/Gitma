@@ -73,20 +73,20 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 
 ### Tests ⚠️
 
-- [ ] T021 [P] [US4] Dropout bands: scenario with `dropout_fraction` 0.03 → `dropout_band=0-5pct`, 0.07 → `5-10pct`; boundary 0.05 → upper band, in `packages/eval/test/slices.test.ts`
-- [ ] T022 [P] [US4] Window-mean position: hand-computed per-scenario means, median/P90 over scenarios; non-converged rows excluded from the mean and counted, in `packages/eval/test/evaluate.test.ts`
-- [ ] T023 [P] [US4] Bootstrap: same seed ⇒ identical CIs; CI contains the true median in ≈ 95% of 200 synthetic draws (tolerance band); paired variant for ratios, in `packages/eval/test/bootstrap.test.ts`
-- [ ] T024 [P] [US4] Common-row comparison: rows where either estimator is non-converged or non-finite excluded; coverage per estimator correct, in `packages/eval/test/compare.test.ts`
-- [ ] T025 [P] [US4] G2 gate: pass (CI clear below), inconclusive (CI straddles), fail (point above) for each of range/course/speed; sample mismatch with naive ⇒ fail; verdict aggregation pass/fail/inconclusive; repeated G1 checks present, in `packages/eval/test/gate-g2.test.ts`
+- [x] T021 [P] [US4] Dropout bands: scenario with `dropout_fraction` 0.03 → `dropout_band=0-5pct`, 0.07 → `5-10pct`; boundary 0.05 → upper band, in `packages/eval/test/slices.test.ts`
+- [x] T022 [P] [US4] Window-mean position: hand-computed per-scenario means, median/P90 over scenarios; non-converged rows excluded from the mean and counted, in `packages/eval/test/evaluate.test.ts`
+- [x] T023 [P] [US4] Bootstrap: same seed ⇒ identical CIs; CI contains the true median in ≈ 95% of 200 synthetic draws (tolerance band); paired variant for ratios, in `packages/eval/test/bootstrap.test.ts`
+- [x] T024 [P] [US4] Common-row comparison: rows where either estimator is non-converged or non-finite excluded; coverage per estimator correct, in `packages/eval/test/compare.test.ts`
+- [x] T025 [P] [US4] G2 gate: pass (CI clear below), inconclusive (CI straddles), fail (point above) for each of range/course/speed; sample mismatch with naive ⇒ fail; verdict aggregation pass/fail/inconclusive; repeated G1 checks present, in `packages/eval/test/gate-g2.test.ts`
 
 ### Implementation
 
-- [ ] T026 [US4] `dropout_band` slice in `packages/eval/src/slices.ts`
-- [ ] T027 [US4] Window-mean position slots in `packages/eval/src/evaluate.ts`
-- [ ] T028 [US4] Extend `packages/eval/src/bootstrap.ts` (paired median ratio built in spec 002) with a seeded percentile interval on a single median; `--bootstrap`, `--bootstrap-seed` in `cli-eval.ts`
-- [ ] T029 [US4] Common-row comparison in `packages/eval/src/compare.ts`; `--compare-to` in `cli-eval.ts`
-- [ ] T030 [US4] G2 checks in `packages/eval/src/gate-g2.ts` (reusing `gate-g1.ts` checks); `tma-gate g2` in `cli-gate.ts`; exit 3 on fail or inconclusive (as PR #21)
-- [ ] T031 [US4] Update eval goldens with reason (new slices and optional slots)
+- [x] T026 [US4] `dropout_band` slice in `packages/eval/src/slices.ts`
+- [x] T027 [US4] Window-mean position slots in `packages/eval/src/evaluate.ts`
+- [x] T028 [US4] Extend `packages/eval/src/bootstrap.ts` (paired median ratio built in spec 002) with a seeded percentile interval on a single median; `--bootstrap`, `--bootstrap-seed` in `cli-eval.ts`
+- [x] T029 [US4] Common-row comparison in `packages/eval/src/compare.ts`; `--compare-to` in `cli-eval.ts`
+- [x] T030 [US4] G2 checks in `packages/eval/src/gate-g2.ts` (reusing `gate-g1.ts` checks); `tma-gate g2` in `cli-gate.ts`; exit 3 on fail or inconclusive (as PR #21)
+- [x] T031 [US4] Update eval goldens with reason (new slices and optional slots)
 
 ---
 
@@ -124,7 +124,7 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 
 - [ ] T047 [P] [US5] `site/docs/algorithms/generator.md` (provenance; rate-limited turn if US6) — lands with PR A
 - [ ] T048 [P] [US5] `site/docs/algorithms/feature-layout.md` (derived set, formulae, causality, format v2) — lands with PR C
-- [ ] T049 [P] [US5] `site/docs/evaluation.md` (G2, bootstrap CIs, inconclusive, dropout slice, common-row comparison, window-mean position) — lands with PR B
+- [x] T049 [P] [US5] `site/docs/evaluation.md` (G2, bootstrap CIs, inconclusive, dropout slice, common-row comparison, window-mean position) — lands with PR B
 - [ ] T050 [P] [US5] Glossary: bearing rate, bearing-line intercept, pseudo-linear measurement, dropout, confidence interval, inconclusive, rate-limited turn, provenance
 - [ ] T051 [US5] `ResultsReview.jsx` slice selector (σ, dropout band) and CI column; `site/docs/results/iteration-2.mdx`
 - [ ] T052 [US5] Blog post `site/blog/<date>-iteration-2.md` with G2 figures and CIs beside naive and classical, the change round and the panel decision; welcome page shows G2 from the verdict
