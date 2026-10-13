@@ -77,3 +77,22 @@ Evidence:
 | – | PR #37 must keep `requireReview` on its `--check` path and pass the flag in its own CI step (reproducibility, red team) | Merged i2/g0 into #37; its new end-to-end step passes the flag; `train.yml` and `train-model.yml` do not | ef02552 |
 | – | The coverage text in the G2 detail has no test (statistics) | Asserted in `gate-g2.test.ts` | c5f245d |
 | – | Diagnostic file name omits the course point (statistics); written with `JSON.stringify`, not `canonicalJson` (red team) | `--point` always sets range and course together, so the tag is unique. Not machine output of record; left as is |
+
+## Round 3 (2026-10-13): red team re-check
+
+| Reviewer | Verdict |
+| --- | --- |
+| Red team (M4 fixed: `--check` refuses any manifest in `--out` whose digests differ, incomplete or complete; missing digests fail the schema; the round-2 forged `decided_by` no longer matches; `--allow-unreviewed-g0` appears only in `ci.yml`) | approve-with-findings (minors only) |
+
+| Finding | Response |
+| --- | --- |
+| `--check` does not compare configs: a complete model from the same features but another config would be reused | `--check` now also refuses a model whose config differs, as the resume path does (test added) on #37 |
+| Committed weights are never checked against `weights_digest` when loaded | Out of this gate's scope; logged for the G2 evidence check (the panel re-scores committed weights) |
+| Duplicated sentence in the `requireReview` doc comment | Fixed |
+
+## Decision
+
+No reviewer rejects; no blocker or major finding is open (M1–M4 answered). **G0 passes for
+generator 0.2.0** at 24bbdab (this folder). `decided_by` is set to rounds 1–3; the round-1 folder
+`../20261013-g0-i2/` is marked superseded. Training on iteration-2 data is allowed from here
+(the guard needs this panel decision and this file).

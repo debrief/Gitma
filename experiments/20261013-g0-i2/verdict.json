@@ -26,7 +26,7 @@
       "result": "pass"
     }
   ],
-  "decided_by": "harness (pending agent panel review)",
+  "decided_by": "superseded: round-1 evidence of the iteration-2 G0 panel; the round-1 fixes changed packages/data/src, so the verdict of record is ../20261013-g0-i2-r2 (see its review.md)",
   "gate": "G0",
   "result": "pass"
 }

@@ -55,8 +55,8 @@ export interface G0GuardOptions {
    * "agent review panel, round N (no rejections", the form every panel decision uses, and the
    * panel's review.md sits beside the verdict), not while it is still the harness's machine
    * verdict. An honour system: it guards against accidents, not against a forged string. On by
-   * default; tma-train turns it off only for `--allow-unreviewed-g0` (CI end-to-end runs). tma-train sets
-   * this unless `--allow-unreviewed-g0` (CI end-to-end runs on a G0 made in the same job).
+   * default; tma-train turns it off only for `--allow-unreviewed-g0` (CI end-to-end runs on a G0
+   * made in the same job).
    */
   requireReview?: boolean;
 }
