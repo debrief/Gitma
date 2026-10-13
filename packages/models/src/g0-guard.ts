@@ -52,15 +52,17 @@ export interface G0GuardOptions {
   generatorUnchanged?: (commit: string) => boolean;
   /**
    * Accept the latest G0 only once the agent review panel has decided it (`decided_by` starts
-   * "agent review panel" and the panel's review.md sits beside the verdict), not while it is
-   * still the harness's machine verdict. tma-train sets
+   * "agent review panel, round N (no rejections", the form every panel decision uses, and the
+   * panel's review.md sits beside the verdict), not while it is still the harness's machine
+   * verdict. An honour system: it guards against accidents, not against a forged string. tma-train sets
    * this unless `--allow-unreviewed-g0` (CI end-to-end runs on a G0 made in the same job).
    */
   requireReview?: boolean;
 }
 
 /** True when a verdict records an agent review panel decision rather than the harness's. */
-export const panelDecided = (v: GateVerdict): boolean => /^agent review panel\b/.test(v.decided_by);
+export const panelDecided = (v: GateVerdict): boolean =>
+  /^agent review panel, rounds? \d+(-\d+)? \(no rejections/.test(v.decided_by);
 
 /** The G0 experiment the guard accepted and the commit its verdict was produced at. */
 export interface AcceptedG0 {

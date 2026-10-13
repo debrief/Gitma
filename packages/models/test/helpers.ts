@@ -54,7 +54,7 @@ export function g0Experiments(): string {
       gate: "G0",
       result: "pass",
       checks: [],
-      decided_by: "agent review panel, round 1 (test fixture)",
+      decided_by: "agent review panel, round 1 (no rejections; test fixture)",
     }),
   );
   writeFileSync(join(dir, "g0", "review.md"), "# G0 agent panel review (test fixture)\n");

@@ -109,7 +109,17 @@ describe("G0 guard (constitution V)", () => {
     const dir = tempDir();
     experiment(dir, "harness", { created: T1, decidedBy: "harness (pending agent panel review)" });
     expect(g0Accepted(dir, opts)).toBeNull();
-    experiment(dir, "no-review", { created: T2, decidedBy: "agent review panel, round 1" });
+    experiment(dir, "pending", {
+      created: T2,
+      decidedBy: "agent review panel (pending)",
+      review: true,
+    });
+    expect(g0Accepted(dir, opts)).toBeNull();
+    const T3 = "2026-10-11T03:00:00Z";
+    experiment(dir, "no-review", {
+      created: T3,
+      decidedBy: "agent review panel, round 2 (no rejections; no open blocker or major findings)",
+    });
     expect(g0Accepted(dir, opts)).toBeNull();
     writeFileSync(join(dir, "no-review", "review.md"), "# review\n");
     expect(g0Accepted(dir, opts)).toEqual({ id: "no-review", commit: "verified" });
@@ -129,7 +139,7 @@ describe("G0 guard (constitution V)", () => {
     };
     const reviewed =
       existsSync(join(dir, want.id, "review.md")) &&
-      verdict.decided_by.startsWith("agent review panel");
+      /^agent review panel, rounds? \d+(-\d+)? \(no rejections/.test(verdict.decided_by);
     expect(g0Accepted(dir, { requireReview: true })).toEqual(reviewed ? want : null);
   });
 
