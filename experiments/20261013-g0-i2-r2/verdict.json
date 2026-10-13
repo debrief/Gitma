@@ -26,7 +26,7 @@
       "result": "pass"
     }
   ],
-  "decided_by": "harness (pending agent panel review)",
+  "decided_by": "agent review panel, rounds 1-3 (no rejections; no open blocker or major findings): G0 pass for generator 0.2.0 at 24bbdab; see review.md",
   "gate": "G0",
   "result": "pass"
 }

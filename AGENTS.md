@@ -148,7 +148,9 @@ G0 pipeline → G1 signal exists → G2 useful → G3 classical parity (stretch)
 pipeline and must pass G0 before any training. G0 passed (panel round 3,
 `experiments/20261011-g0-r3/`). G1 passed (panel round 3, `experiments/20261012-g1-r2/`) under
 pre-registered rule 1, with a caveat: time-late is not shown better than instantaneous. Iteration 2
-(spec 003) is next.
+(spec 003) changed the generator (rate-limited turn, provenance), so G0 was re-run and passed again
+(panel rounds 1–3, `experiments/20261013-g0-i2-r2/`); `tma-train` accepts only a G0 whose
+`decided_by` names a panel round and whose `review.md` is beside it.
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution
 1.2.0). For each gate experiment:

@@ -63,7 +63,7 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 ## Phase 4: G0 re-run (after PR A merges)
 
 - [x] T019 `tma-g0` at PR A's merge commit (quickstart §1) → `experiments/<date>-g0-i2/`
-- [ ] T020 Agent review panel (five reviewers) on the G0 re-run; fix/answer findings; `review.md`; `decided_by` set → PR
+- [x] T020 Agent review panel (five reviewers) on the G0 re-run; fix/answer findings; `review.md`; `decided_by` set → PR
 
 **Checkpoint**: training guard and lineage accept seed-201 data generated at a commit whose generator paths equal the G0 commit's.
 
