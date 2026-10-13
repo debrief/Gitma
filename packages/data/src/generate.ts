@@ -38,6 +38,8 @@ export interface GenerateOptions {
   heldoutRanges: ParameterRanges;
   format: Format;
   createdBy: string;
+  /** Header provenance (research R2), from `generatorProvenance` in the CLI. */
+  provenance: { generator_git_commit: string; generator_git_dirty: boolean };
 }
 
 export interface SplitSummary {
@@ -71,6 +73,8 @@ export function generateDataset(opts: GenerateOptions): SplitSummary[] {
       parameter_ranges: plan.ranges,
       redraw_count: countRedraws(opts.seed, plan),
       created_by: opts.createdBy,
+      generator_git_commit: opts.provenance.generator_git_commit,
+      generator_git_dirty: opts.provenance.generator_git_dirty,
     };
     const files: string[] = [];
     const writers: DatasetWriter[] = [];

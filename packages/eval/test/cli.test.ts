@@ -17,7 +17,7 @@ const GOLDEN = new URL("./golden/", import.meta.url);
 
 function pipeline(noiseFree: boolean): { dir: string; exp: string } {
   const dir = mkdtempSync(join(tmpdir(), "tma-eval-"));
-  const args = ["--seed", "1", "--count", "40", "--out", dir];
+  const args = ["--seed", "1", "--count", "40", "--out", dir, "--allow-dirty"];
   expect(runCli(generate, noiseFree ? [...args, "--noise-free"] : args)).toBe(0);
   const test = join(dir, "test.f32pack");
   expect(

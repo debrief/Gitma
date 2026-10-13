@@ -6,3 +6,4 @@ export * from "./ndjson.js";
 export * from "./versions.js";
 export * from "./cli.js";
 export * from "./io.js";
+export * from "./provenance.js";

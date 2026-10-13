@@ -1,4 +1,5 @@
 // Scenario generation (SRD §2–3): two-leg ownship, constant-velocity target, noisy bearings.
+// The zig is instantaneous, or a constant-rate turn when the ranges give a turn rate (spec 003 US6).
 // Pure functions: every output is determined by (datasetSeed, index, ranges).
 import type {
   FloatRange,
@@ -20,7 +21,7 @@ import {
   uniformInt,
 } from "./prng.js";
 
-export const GENERATOR_VERSION = "0.1.0";
+export const GENERATOR_VERSION = "0.2.0";
 const MAX_REDRAWS = 1000;
 
 const draw = (s: RngState, r: FloatRange): number => uniform(s, r.min, r.max);
@@ -45,6 +46,10 @@ export function drawParameters(s: RngState, ranges: ParameterRanges): ScenarioPa
   const sigmas = ranges.noise_sigma_rad_values;
   const sigma = sigmas[uniformInt(s, sigmas.length)] ?? 0;
   const dropout = draw(s, ranges.dropout_fraction);
+  // Drawn last, and only when the ranges ask for a turn, so ranges without one consume the PRNG
+  // exactly as generator 0.1.0 did and reproduce its scenarios byte for byte.
+  const turnRange = ranges.ownship_turn_rate_rad_s;
+  const turn = turnRange == null ? {} : { ownship_turn_rate_rad_s: f32(draw(s, turnRange)) };
   return {
     window_s: f32(samples * dt),
     dt_s: f32(dt),
@@ -58,13 +63,17 @@ export function drawParameters(s: RngState, ranges: ParameterRanges): ScenarioPa
     target_course_rad: f32Angle(targetCourse),
     noise_sigma_rad: f32(sigma),
     dropout_fraction: f32(dropout),
+    ...turn,
   };
 }
 
 /** Truth positions (float64) for ownship and target at each sample. */
 export interface Truth {
   samples: number;
+  /** First sample on leg 2 (after the turn completes, when there is a turn). */
   zigIndex: number;
+  /** First sample after the turn starts; null for an instantaneous zig. */
+  turnStartIndex: number | null;
   ownX: Float64Array;
   ownY: Float64Array;
   ownCourse: Float64Array;
@@ -72,7 +81,38 @@ export interface Truth {
   tgtY: Float64Array;
 }
 
-/** Ownship two-leg motion and constant-velocity target motion. */
+/**
+ * Ownship on a constant-rate arc, `tau` seconds after a turn that starts at (x0, y0) on course
+ * `c0`. `omega` is signed (rad/s, positive = clockwise, i.e. to starboard). Closed form: the centre
+ * lies |v/ω| abeam on the turn side, and heading c = c0 + ωτ gives
+ * x = x0 + (v/ω)(cos c0 − cos c), y = y0 + (v/ω)(sin c − sin c0).
+ */
+export function arcPosition(
+  x0: number,
+  y0: number,
+  c0: number,
+  v: number,
+  omega: number,
+  tau: number,
+): { x: number; y: number; course: number } {
+  const r = v / omega;
+  const c = c0 + omega * tau;
+  return {
+    x: x0 + r * (Math.cos(c0) - Math.cos(c)),
+    y: y0 + r * (Math.sin(c) - Math.sin(c0)),
+    course: wrap2pi(c),
+  };
+}
+
+/** Turn rate of a parameter set; 0 (absent) means an instantaneous zig. */
+const turnRate = (p: ScenarioParameters): number => p.ownship_turn_rate_rad_s ?? 0;
+
+/**
+ * Ownship two-leg motion and constant-velocity target motion. The zig (or the start of the turn)
+ * is at sample k = round(zig_fraction × samples). With a turn rate ω the course changes at ω
+ * towards the zig side for |zig| / ω seconds; leg 2 starts where the arc ends. A turn that does
+ * not complete inside the window gives zigIndex ≥ samples (the caller redraws).
+ */
 export function simulateTruth(p: ScenarioParameters): Truth {
   const samples = Math.round(p.window_s / p.dt_s);
   const zigIndex = Math.round(p.zig_fraction * samples);
@@ -89,6 +129,7 @@ export function simulateTruth(p: ScenarioParameters): Truth {
   const truth: Truth = {
     samples,
     zigIndex,
+    turnStartIndex: null,
     ownX: new Float64Array(samples),
     ownY: new Float64Array(samples),
     ownCourse: new Float64Array(samples),
@@ -97,17 +138,51 @@ export function simulateTruth(p: ScenarioParameters): Truth {
   };
   for (let i = 0; i < samples; i++) {
     const t = i * p.dt_s;
-    if (i < zigIndex) {
+    truth.tgtX[i] = tx0 + tvx * t;
+    truth.tgtY[i] = ty0 + tvy * t;
+  }
+  const rate = turnRate(p);
+  if (!(rate > 0)) {
+    // Instantaneous zig: generator 0.1.0, unchanged.
+    for (let i = 0; i < samples; i++) {
+      const t = i * p.dt_s;
+      if (i < zigIndex) {
+        truth.ownX[i] = v * Math.sin(c0) * t;
+        truth.ownY[i] = v * Math.cos(c0) * t;
+        truth.ownCourse[i] = c0;
+      } else {
+        truth.ownX[i] = zx + v * Math.sin(c1) * (t - tZig);
+        truth.ownY[i] = zy + v * Math.cos(c1) * (t - tZig);
+        truth.ownCourse[i] = c1;
+      }
+    }
+    return truth;
+  }
+  // Rate-limited turn starting at tZig (sample zigIndex is still on course c0).
+  const omega = (p.zig_angle_rad < 0 ? -1 : 1) * rate;
+  const turnS = Math.abs(p.zig_angle_rad) / rate;
+  const end = arcPosition(zx, zy, c0, v, omega, turnS);
+  let leg2 = zigIndex + 1;
+  while ((leg2 - zigIndex) * p.dt_s < turnS) leg2++;
+  truth.turnStartIndex = zigIndex + 1;
+  truth.zigIndex = leg2;
+  for (let i = 0; i < samples; i++) {
+    const t = i * p.dt_s;
+    const tau = t - tZig;
+    if (i <= zigIndex) {
       truth.ownX[i] = v * Math.sin(c0) * t;
       truth.ownY[i] = v * Math.cos(c0) * t;
       truth.ownCourse[i] = c0;
+    } else if (i < leg2) {
+      const a = arcPosition(zx, zy, c0, v, omega, tau);
+      truth.ownX[i] = a.x;
+      truth.ownY[i] = a.y;
+      truth.ownCourse[i] = a.course;
     } else {
-      truth.ownX[i] = zx + v * Math.sin(c1) * (t - tZig);
-      truth.ownY[i] = zy + v * Math.cos(c1) * (t - tZig);
+      truth.ownX[i] = end.x + v * Math.sin(c1) * (tau - turnS);
+      truth.ownY[i] = end.y + v * Math.cos(c1) * (tau - turnS);
       truth.ownCourse[i] = c1;
     }
-    truth.tgtX[i] = tx0 + tvx * t;
-    truth.tgtY[i] = ty0 + tvy * t;
   }
   return truth;
 }
@@ -150,7 +225,10 @@ export interface GeneratedScenario {
   redraws: number;
 }
 
-/** Generate scenario `index` of a dataset. Geometries closer than `min_range_m` are redrawn. */
+/**
+ * Generate scenario `index` of a dataset. Geometries closer than `min_range_m`, and turns that do
+ * not complete inside the window, are redrawn.
+ */
 export function generateScenario(
   datasetSeed: bigint,
   index: number,
@@ -161,6 +239,7 @@ export function generateScenario(
   for (let redraws = 0; redraws <= MAX_REDRAWS; redraws++) {
     const p = drawParameters(s, r);
     const truth = simulateTruth(p);
+    if (truth.turnStartIndex !== null && truth.zigIndex >= truth.samples) continue;
     const rg = ranges(truth);
     if (rg.min < r.min_range_m) continue;
     const observations = observe(s, p, truth);
@@ -191,6 +270,7 @@ export function generateScenario(
         parameters: p,
         samples: truth.samples,
         zig_index: truth.zigIndex,
+        ...(truth.turnStartIndex === null ? {} : { turn_start_index: truth.turnStartIndex }),
         zig_time_s: f32(truth.zigIndex * p.dt_s),
         mean_range_m: f32(rg.mean),
         min_range_m: f32(rg.min),

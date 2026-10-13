@@ -1,10 +1,9 @@
 // experiments/<id>/ writer (contracts/file-formats.md).
-import { execFileSync } from "node:child_process";
 import { mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { fileDigest } from "@tma/classical";
-import { canonicalJson, UsageError } from "@tma/data";
+import { canonicalJson, readGitProvenance, UsageError } from "@tma/data";
 import { GENERATOR_VERSION } from "@tma/sim";
 import {
   type DatasetHeader,
@@ -29,33 +28,15 @@ export const prettyJson = (v: unknown): string =>
 /** Git runs in this package's checkout, not wherever the command was started. */
 const GIT_CWD = dirname(fileURLToPath(import.meta.url));
 
-function readGitCommit(): string {
-  try {
-    return execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8", cwd: GIT_CWD }).trim();
-  } catch {
-    return "unknown";
-  }
-}
-
-/** True when the working tree has uncommitted changes (untracked files included; ignored ones not). */
-function gitStatusDirty(): boolean {
-  try {
-    return (
-      execFileSync("git", ["status", "--porcelain"], { encoding: "utf8", cwd: GIT_CWD }).trim() !==
-      ""
-    );
-  } catch {
-    return true;
-  }
-}
-
 /**
- * Commit and tree state when this process started, read together before it wrote any output.
- * Experiment files are untracked until committed and would otherwise mark every run dirty, and a
- * commit read at write time could name code other than the code that ran.
+ * Commit and tree state when this process started, read together before it wrote any output
+ * (`readGitProvenance`, shared with dataset headers). Experiment files are untracked until
+ * committed and would otherwise mark every run dirty, and a commit read at write time could name
+ * code other than the code that ran.
  */
-const COMMIT_AT_START = readGitCommit();
-const DIRTY_AT_START = gitStatusDirty();
+const AT_START = readGitProvenance(GIT_CWD);
+const COMMIT_AT_START = AT_START.commit;
+const DIRTY_AT_START = AT_START.dirty;
 
 /** Commit checked out when this process started. */
 export const gitCommit = (): string => COMMIT_AT_START;

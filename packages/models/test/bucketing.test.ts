@@ -23,7 +23,7 @@ import {
 import { lossParts, makeLoss, NY, termWeights } from "../src/loss.js";
 import { INTEROP_ENV, INTRAOP_ENV, threadSettings } from "../src/threads.js";
 import { train } from "../src/train.js";
-import { tempDir, tinyConfig, tinyFeatures } from "./helpers.js";
+import { FIXTURE_GIT, g0Experiments, tempDir, tinyConfig, tinyFeatures } from "./helpers.js";
 
 const quiet = () => undefined;
 const sorted = (a: ArrayLike<number>) => Array.from(a).sort((p, q) => p - q);
@@ -298,18 +298,21 @@ describe("tfjs threads", () => {
         JSON.stringify(tinyConfig("instantaneous", { max_epochs: 1, tfjs_threads: 1 })),
       );
       const out = join(dir, "model");
-      const summary = (await cliTrain([
-        "--config",
-        configPath,
-        "--train",
-        data.train,
-        "--val",
-        data.val,
-        "--out",
-        out,
-        "--experiments",
-        fileURLToPath(new URL("../../../experiments", import.meta.url)),
-      ])) as Record<string, unknown>;
+      const summary = (await cliTrain(
+        [
+          "--config",
+          configPath,
+          "--train",
+          data.train,
+          "--val",
+          data.val,
+          "--out",
+          out,
+          "--experiments",
+          g0Experiments(),
+        ],
+        FIXTURE_GIT,
+      )) as Record<string, unknown>;
       expect(summary.tf_intraop_threads).toBe(1);
       expect(summary.tf_interop_threads).toBe(1);
       expect(process.env[INTRAOP_ENV]).toBe("1");
@@ -317,7 +320,14 @@ describe("tfjs threads", () => {
         tf_intraop_threads?: number;
         tf_interop_threads?: number;
         config: { tfjs_threads?: number };
+        g0_experiment?: string;
+        source_dataset_header?: { split: string; generator_git_commit: string };
       };
+      // Lineage (spec 003 US1): the accepted G0 and the train dataset's header are recorded.
+      expect(summary.g0_experiment).toBe("g0");
+      expect(disk.g0_experiment).toBe("g0");
+      expect(disk.source_dataset_header?.split).toBe("train");
+      expect(disk.source_dataset_header?.generator_git_commit).toBe("f".repeat(40));
       expect(disk.tf_intraop_threads).toBe(1);
       expect(disk.tf_interop_threads).toBe(1);
       expect(disk.config.tfjs_threads).toBe(1);

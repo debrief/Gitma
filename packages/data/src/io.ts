@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { closeSync, openSync, readSync, renameSync, rmSync, writeSync } from "node:fs";
 
 /** A file written to a temporary path and renamed into place on commit (atomic writes). */
@@ -67,4 +68,21 @@ export function* readLines(path: string): Generator<[number, string]> {
   } finally {
     closeSync(fd);
   }
+}
+
+/** SHA-256 (hex) of a file's bytes, streamed. */
+export function fileSha256(path: string): string {
+  const h = createHash("sha256");
+  const fd = openSync(path, "r");
+  try {
+    const buf = Buffer.alloc(1 << 20);
+    for (;;) {
+      const n = readSync(fd, buf, 0, buf.length, null);
+      if (n === 0) break;
+      h.update(buf.subarray(0, n));
+    }
+  } finally {
+    closeSync(fd);
+  }
+  return h.digest("hex");
 }

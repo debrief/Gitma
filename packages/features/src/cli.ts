@@ -1,6 +1,6 @@
 import { readFileSync, renameSync, writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { canonicalJson, isMain, readDataset, runCli, UsageError } from "@tma/data";
+import { canonicalJson, fileSha256, isMain, readDataset, runCli, UsageError } from "@tma/data";
 import { NormalisationConstants, parseRecord } from "@tma/types";
 import { createHash } from "node:crypto";
 import { writeFeatures } from "./features-file.js";
@@ -40,7 +40,10 @@ export function main(argv: string[]): unknown {
       "norm",
     );
     const ds = readDataset(values.in);
-    const n = writeFeatures(values.out, () => ds.scenarios(), norm);
+    const n = writeFeatures(values.out, () => ds.scenarios(), norm, {
+      header: ds.header,
+      digest: fileSha256(values.in),
+    });
     return { out: values.out, scenarios: n };
   }
   throw new UsageError(

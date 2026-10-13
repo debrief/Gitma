@@ -39,7 +39,8 @@ Reported as a rate because TMA failures are heavy-tailed.
 **Instantaneous variant** — The model that gives the operator's running solution: at each time,
 range, course and speed from bearings so far. Scored as a curve of error against time since the zig.
 
-**Leg** — A period of constant ownship course and speed. Every scenario has two legs.
+**Leg** — A period of constant ownship course and speed. Every scenario has two legs (joined by a
+rate-limited turn from iteration 2).
 
 **Naive baseline** — Predicts training-set means and ignores the bearings. Anything that cannot
 beat it has learned nothing. See [naive baseline](algorithms/naive-baseline.md).
@@ -51,6 +52,15 @@ they do not determine range; the zig makes the problem observable. Small zigs an
 it weakly observable.
 
 **Ownship** — The observing platform, whose track is known exactly.
+
+**Provenance** — The record of what produced a file: a dataset header names the commit of the
+generator code and whether the working tree was dirty; features files carry that header forward,
+and training refuses data whose provenance is missing, dirty or from a generator other than the one
+G0 verified. See [generator](algorithms/generator.md#provenance).
+
+**Rate-limited turn** — Ownship's zig flown as a constant-rate turn at constant speed (iteration 2:
+0.5–3°/s, so 90° takes 30–180 s) instead of an instantaneous course change. `zig_index` is the
+first sample after the turn completes. See [generator](algorithms/generator.md#rate-limited-turn-iteration-2).
 
 **Scenario** — One ownship-versus-target run over a window: two tracks, the bearings and the
 metadata that generated them. See the [data dictionary](data-dictionary).
@@ -66,4 +76,5 @@ must score at least as well.
 **Window** — The span of bearings a model sees: 10–40 minutes at one bearing every 10 s, padded to
 240 rows.
 
-**Zig** — Ownship's course change part-way through the window (30–90° at 40–60% of the window).
+**Zig** — Ownship's course change part-way through the window (30–90° at 40–60% of the window;
+instantaneous in iterations 0–1, a rate-limited turn from iteration 2).

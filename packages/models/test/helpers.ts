@@ -1,13 +1,81 @@
-import { mkdtempSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { computeNormalisation, writeFeatures } from "@tma/features";
-import { DEFAULT_RANGES, generateScenario } from "@tma/sim";
-import type { ModelKind, TrainingConfig } from "@tma/types";
+import { computeNormalisation, type FeatureSource, writeFeatures } from "@tma/features";
+import { DEFAULT_RANGES, GENERATOR_VERSION, generateScenario } from "@tma/sim";
+import {
+  type DatasetHeader,
+  type ModelKind,
+  SCHEMA_VERSION,
+  type Split,
+  type TrainingConfig,
+} from "@tma/types";
 
 export const tempDir = (): string => mkdtempSync(join(tmpdir(), "tma-models-"));
 
-/** Small train/validation features files from seed `seed`. */
+/** Commit named by test fixtures for both the G0 verdict and the dataset headers. */
+export const VERIFIED_COMMIT = "f".repeat(40);
+
+/** Source dataset (format v2 lineage) for features written from in-memory scenarios. */
+export function testSource(
+  split: Split,
+  seed: bigint,
+  count: number,
+  over: Partial<DatasetHeader> = {},
+): FeatureSource {
+  return {
+    header: {
+      record: "header",
+      schema_version: SCHEMA_VERSION,
+      generator_version: GENERATOR_VERSION,
+      dataset_seed: seed.toString(),
+      split,
+      scenario_count: count,
+      index_start: 0,
+      index_end: count,
+      parameter_ranges: DEFAULT_RANGES,
+      redraw_count: 0,
+      created_by: "test",
+      generator_git_commit: VERIFIED_COMMIT,
+      generator_git_dirty: false,
+      ...over,
+    },
+    digest: "e".repeat(64),
+  };
+}
+
+/** An experiments folder holding one passing G0 verdict at VERIFIED_COMMIT. */
+export function g0Experiments(): string {
+  const dir = tempDir();
+  mkdirSync(join(dir, "g0"));
+  writeFileSync(
+    join(dir, "g0", "verdict.json"),
+    JSON.stringify({ gate: "G0", result: "pass", checks: [], decided_by: "test" }),
+  );
+  writeFileSync(
+    join(dir, "g0", "manifest.json"),
+    JSON.stringify({
+      id: "g0",
+      created: "2026-10-13T00:00:00Z",
+      git_commit: VERIFIED_COMMIT,
+      git_dirty: false,
+      schema_version: SCHEMA_VERSION,
+      generator_version: GENERATOR_VERSION,
+      datasets: [],
+      estimators: [],
+      command_lines: [],
+    }),
+  );
+  return dir;
+}
+
+/** Git checks for fixtures: only VERIFIED_COMMIT's generator matches. */
+export const FIXTURE_GIT = {
+  generatorUnchanged: (c: string): boolean => c === VERIFIED_COMMIT,
+  generatorPathsEqual: (a: string, b: string): boolean => a === b && a === VERIFIED_COMMIT,
+};
+
+/** Small train/validation features files from seed `seed`, carrying lineage (format v2). */
 export function tinyFeatures(n: number, seed = 3n): { train: string; val: string } {
   const dir = tempDir();
   const tr = Array.from(
@@ -21,8 +89,8 @@ export function tinyFeatures(n: number, seed = 3n): { train: string; val: string
   const norm = computeNormalisation(tr, "test");
   const train = join(dir, "train.features.bin");
   const val = join(dir, "val.features.bin");
-  writeFeatures(train, () => tr, norm);
-  writeFeatures(val, () => va, norm);
+  writeFeatures(train, () => tr, norm, testSource("train", seed, n));
+  writeFeatures(val, () => va, norm, testSource("validation", seed, 16));
   return { train, val };
 }
 

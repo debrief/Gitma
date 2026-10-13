@@ -44,9 +44,12 @@ jobs:
           for s in train validation test heldout; do
             pnpm tma-features build --in "$D/$s.f32pack" --norm "$D/norm.json" --out "$D/$s.features.bin"
           done
+          # The training guard and lineage check accept the G0 run above (same commit, clean
+          # tree), so this smoke test does not depend on the committed G0 matching this commit.
           for m in instantaneous time-late causal-cnn mlp instantaneous-shuffled; do
             pnpm tma-train --config configs/ci/$m.json --train "$D/train.features.bin" \
-              --val "$D/validation.features.bin" --out "$RUNNER_TEMP/models/$m"
+              --val "$D/validation.features.bin" --out "$RUNNER_TEMP/models/$m" \
+              --experiments "$RUNNER_TEMP/exp"
           done
           pnpm tma-g1 --data "$D" --models "$RUNNER_TEMP/models" --experiment "$RUNNER_TEMP/exp/g1" || [ $? -eq 3 ]
           test -f "$RUNNER_TEMP/exp/g1/verdict.json"

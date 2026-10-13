@@ -1,17 +1,30 @@
 // Random-access reader for .features.bin (layout in features-file.ts). Reads one scenario's tensors
 // at a time, so training can stream a file far larger than memory.
 import { closeSync, fstatSync, openSync, readSync } from "node:fs";
-import { FeatureLayout, NormalisationConstants, parseRecord, RecordError } from "@tma/types";
-import { FEATURE_FORMAT_VERSION, FEATURE_MAGIC } from "./features-file.js";
+import {
+  DatasetHeader,
+  FeatureLayout,
+  type FeatureSet,
+  NormalisationConstants,
+  parseRecord,
+  RecordError,
+} from "@tma/types";
+import { FEATURE_MAGIC, type FeatureSource, READABLE_FEATURE_VERSIONS } from "./features-file.js";
 import { NI, NT, ROWS, type Window } from "./layout.js";
 
 export interface FeatureFile {
   path: string;
+  /** Format version (1: iteration 1, no source; 2: source header and digest embedded). */
+  version: number;
   count: number;
   /** Scenario index (as in the dataset) of each stored window. */
   indices: Int32Array;
   layout: FeatureLayout;
+  /** `layout.feature_set`, absent meaning raw. */
+  featureSet: FeatureSet;
   norm: NormalisationConstants;
+  /** Source dataset header and SHA-256 (version 2); undefined for version 1. */
+  source: FeatureSource | undefined;
   /** Window k (0-based position in the file). */
   read(k: number): Window;
   close(): void;
@@ -44,7 +57,7 @@ export function openFeatures(path: string): FeatureFile {
       throw new RecordError(path, "header", "not a features file (bad magic)");
     }
     const version = head.readUInt32LE(8);
-    if (version !== FEATURE_FORMAT_VERSION) {
+    if (!READABLE_FEATURE_VERSIONS.includes(version)) {
       throw new RecordError(path, "header", `unsupported features version ${String(version)}`);
     }
     const l = head.readUInt32LE(12);
@@ -65,6 +78,24 @@ export function openFeatures(path: string): FeatureFile {
       "norm",
     );
     pos += k;
+    let source: FeatureSource | undefined;
+    if (version >= 2) {
+      const h = readExact(fd, pos, 4, path, "source header").readUInt32LE(0);
+      pos += 4;
+      const header = parseRecord(
+        DatasetHeader,
+        json(readExact(fd, pos, h, path, "source header"), path, "source header"),
+        path,
+        "source header",
+      );
+      pos += h;
+      const d = readExact(fd, pos, 4, path, "source digest").readUInt32LE(0);
+      pos += 4;
+      const digest = readExact(fd, pos, d, path, "source digest").toString("utf8").trimEnd();
+      pos += d;
+      if (digest === "") throw new RecordError(path, "source digest", "empty source digest");
+      source = { header, digest };
+    }
     const count = readExact(fd, pos, 4, path, "count").readUInt32LE(0);
     pos += 4;
     const idxBuf = readExact(fd, pos, 4 * count, path, "indices");
@@ -99,10 +130,13 @@ export function openFeatures(path: string): FeatureFile {
     };
     return {
       path,
+      version,
       count,
       indices,
       layout,
+      featureSet: layout.feature_set ?? "raw",
       norm,
+      source,
       read(i: number): Window {
         if (!Number.isInteger(i) || i < 0 || i >= count)
           throw new RangeError(`window ${String(i)}`);

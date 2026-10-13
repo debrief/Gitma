@@ -32,11 +32,38 @@ export function generatorUnchangedSince(commit: string): boolean {
   }
 }
 
+/**
+ * True when GENERATOR_PATHS are identical at commits `a` and `b` (lineage, research R2). False when
+ * they differ or either commit is not in this checkout's history.
+ */
+export function generatorPathsEqual(a: string, b: string): boolean {
+  try {
+    execFileSync("git", ["diff", "--quiet", a, b, "--", ...GENERATOR_PATHS], {
+      stdio: "ignore",
+      cwd: REPO_ROOT,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export interface G0GuardOptions {
   generatorUnchanged?: (commit: string) => boolean;
 }
 
+/** The G0 experiment the guard accepted and the commit its verdict was produced at. */
+export interface AcceptedG0 {
+  id: string;
+  commit: string;
+}
+
+/** Id of the accepted G0 experiment, or null (see `g0Accepted`). */
 export function g0Passed(experimentsDir: string, opts: G0GuardOptions = {}): string | null {
+  return g0Accepted(experimentsDir, opts)?.id ?? null;
+}
+
+export function g0Accepted(experimentsDir: string, opts: G0GuardOptions = {}): AcceptedG0 | null {
   const unchanged = opts.generatorUnchanged ?? generatorUnchangedSince;
   if (!existsSync(experimentsDir)) return null;
   const g0s: { id: string; verdict: GateVerdict; manifest: ExperimentManifest | null }[] = [];
@@ -71,5 +98,5 @@ export function g0Passed(experimentsDir: string, opts: G0GuardOptions = {}): str
     m.git_dirty === false &&
     m.generator_version === GENERATOR_VERSION &&
     unchanged(m.git_commit);
-  return ok ? latest.id : null;
+  return ok ? { id: latest.id, commit: m.git_commit } : null;
 }

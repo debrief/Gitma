@@ -2,6 +2,7 @@ export * from "./architectures.js";
 export * from "./batches.js";
 export * from "./g0-guard.js";
 export * from "./g1.js";
+export * from "./lineage.js";
 export * from "./loss.js";
 export * from "./manifest-io.js";
 export * from "./manifest.js";

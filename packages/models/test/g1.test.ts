@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { generateDataset, readDataset } from "@tma/data";
+import { fileSha256, generateDataset, readDataset } from "@tma/data";
 import { computeNormalisation, writeFeatures } from "@tma/features";
 import { DEFAULT_RANGES } from "@tma/sim";
 import type { GateVerdict, TrainingConfig } from "@tma/types";
@@ -30,14 +30,15 @@ describe("tma-g1 end to end (tiny)", () => {
       heldoutRanges: DEFAULT_RANGES,
       format: "f32pack",
       createdBy: "test",
+      provenance: { generator_git_commit: "0".repeat(40), generator_git_dirty: false },
     });
     const norm = computeNormalisation(readDataset(join(data, "train.f32pack")).scenarios(), "test");
     for (const s of ["train", "validation", "test", "heldout"]) {
-      writeFeatures(
-        join(data, `${s}.features.bin`),
-        () => readDataset(join(data, `${s}.f32pack`)).scenarios(),
-        norm,
-      );
+      const split = readDataset(join(data, `${s}.f32pack`));
+      writeFeatures(join(data, `${s}.features.bin`), () => split.scenarios(), norm, {
+        header: split.header,
+        digest: fileSha256(join(data, `${s}.f32pack`)),
+      });
     }
     const models = tempDir();
     for (const config of CONFIGS) {
