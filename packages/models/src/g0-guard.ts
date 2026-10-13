@@ -54,7 +54,8 @@ export interface G0GuardOptions {
    * Accept the latest G0 only once the agent review panel has decided it (`decided_by` starts
    * "agent review panel, round N (no rejections", the form every panel decision uses, and the
    * panel's review.md sits beside the verdict), not while it is still the harness's machine
-   * verdict. An honour system: it guards against accidents, not against a forged string. tma-train sets
+   * verdict. An honour system: it guards against accidents, not against a forged string. On by
+   * default; tma-train turns it off only for `--allow-unreviewed-g0` (CI end-to-end runs). tma-train sets
    * this unless `--allow-unreviewed-g0` (CI end-to-end runs on a G0 made in the same job).
    */
   requireReview?: boolean;
@@ -107,7 +108,7 @@ export function g0Accepted(experimentsDir: string, opts: G0GuardOptions = {}): A
   const m = latest.manifest;
   const ok =
     latest.verdict.result === "pass" &&
-    (opts.requireReview !== true ||
+    (opts.requireReview === false ||
       (panelDecided(latest.verdict) && existsSync(join(experimentsDir, latest.id, "review.md")))) &&
     m.git_dirty === false &&
     m.generator_version === GENERATOR_VERSION &&

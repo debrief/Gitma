@@ -26,10 +26,10 @@ function experiment(
       gate: e.gate ?? "G0",
       result: e.result ?? "pass",
       checks: [],
-      decided_by: e.decidedBy ?? "t",
+      decided_by: e.decidedBy ?? "agent review panel, round 1 (no rejections; fixture)",
     }),
   );
-  if (e.review === true) writeFileSync(join(dir, id, "review.md"), "# review\n");
+  if (e.review !== false) writeFileSync(join(dir, id, "review.md"), "# review\n");
   writeFileSync(
     join(dir, id, "manifest.json"),
     JSON.stringify({
@@ -104,10 +104,14 @@ describe("G0 guard (constitution V)", () => {
     expect(guard(dir)).toBeNull();
   });
 
-  it("with requireReview, accepts only a panel-decided G0 with its review.md", () => {
-    const opts = { generatorUnchanged: (c: string) => c === "verified", requireReview: true };
+  it("by default accepts only a panel-decided G0 with its review.md", () => {
+    const opts = { generatorUnchanged: (c: string) => c === "verified" };
     const dir = tempDir();
-    experiment(dir, "harness", { created: T1, decidedBy: "harness (pending agent panel review)" });
+    experiment(dir, "harness", {
+      created: T1,
+      decidedBy: "harness (pending agent panel review)",
+      review: false,
+    });
     expect(g0Accepted(dir, opts)).toBeNull();
     experiment(dir, "pending", {
       created: T2,
@@ -119,28 +123,31 @@ describe("G0 guard (constitution V)", () => {
     experiment(dir, "no-review", {
       created: T3,
       decidedBy: "agent review panel, round 2 (no rejections; no open blocker or major findings)",
+      review: false,
     });
     expect(g0Accepted(dir, opts)).toBeNull();
     writeFileSync(join(dir, "no-review", "review.md"), "# review\n");
     expect(g0Accepted(dir, opts)).toEqual({ id: "no-review", commit: "verified" });
-    // Without requireReview the machine verdict alone is enough (library default).
+    // requireReview: false (tma-train --allow-unreviewed-g0) accepts the machine verdict alone.
     const lib = tempDir();
     experiment(lib, "h", { created: T1, decidedBy: "harness (pending agent panel review)" });
-    expect(g0Accepted(lib, { generatorUnchanged: (c) => c === "verified" })).not.toBeNull();
+    expect(
+      g0Accepted(lib, { generatorUnchanged: (c) => c === "verified", requireReview: false }),
+    ).not.toBeNull();
   });
 
   it("the committed iteration-2 G0 re-run is the latest, and needs its panel review", () => {
     // Round-1 fixes (24bbdab) touched packages/data/src, so G0 was re-run there (T019-T020).
     const dir = new URL("../../../experiments", import.meta.url).pathname;
     const want = { id: "20261013-g0-i2-r2", commit: "24bbdab5d79f3c872f88ac6494c2d73068016225" };
-    expect(g0Accepted(dir)).toEqual(want);
+    expect(g0Accepted(dir, { requireReview: false })).toEqual(want);
     const verdict = JSON.parse(readFileSync(join(dir, want.id, "verdict.json"), "utf8")) as {
       decided_by: string;
     };
     const reviewed =
       existsSync(join(dir, want.id, "review.md")) &&
       /^agent review panel, rounds? \d+(-\d+)? \(no rejections/.test(verdict.decided_by);
-    expect(g0Accepted(dir, { requireReview: true })).toEqual(reviewed ? want : null);
+    expect(g0Accepted(dir)).toEqual(reviewed ? want : null);
   });
 
   it("returns the accepted experiment's id and commit", () => {
