@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Glossary | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/docs/glossary"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Glossary | TMA via ML"><meta data-rh="true" name="description" content="TMA and ML terms as used in this project, alphabetical. Algorithm details are linked where they"><meta data-rh="true" property="og:description" content="TMA and ML terms as used in this project, alphabetical. Algorithm details are linked where they"><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/docs/glossary"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/glossary" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/glossary" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Glossary","item":"https://debrief.github.io/Gitma/docs/glossary"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/assets/css/styles.d219d845.css">
-<script src="/Gitma/assets/js/runtime~main.92e96764.js" defer="defer"></script>
+<script src="/Gitma/assets/js/runtime~main.08e7cfb4.js" defer="defer"></script>
 <script src="/Gitma/assets/js/main.d6c8b1cd.js" defer="defer"></script>
 </head>
 <body>
@@ -37,7 +37,8 @@ Reported as a rate because TMA failures are heavy-tailed.</p>
 20–30 km initial range), used to measure extrapolation.</p>
 <p><strong>Instantaneous variant</strong> — The model that gives the operator&#x27;s running solution: at each time,
 range, course and speed from bearings so far. Scored as a curve of error against time since the zig.</p>
-<p><strong>Leg</strong> — A period of constant ownship course and speed. Every scenario has two legs.</p>
+<p><strong>Leg</strong> — A period of constant ownship course and speed. Every scenario has two legs (joined by a
+rate-limited turn from iteration 2).</p>
 <p><strong>Naive baseline</strong> — Predicts training-set means and ignores the bearings. Anything that cannot
 beat it has learned nothing. See <a class="" href="/Gitma/docs/algorithms/naive-baseline">naive baseline</a>.</p>
 <p><strong>Noise σ</strong> — Standard deviation of the Gaussian error added to each bearing (0.5°, 1° or 2°).</p>
@@ -45,6 +46,13 @@ beat it has learned nothing. See <a class="" href="/Gitma/docs/algorithms/naive-
 they do not determine range; the zig makes the problem observable. Small zigs and long ranges make
 it weakly observable.</p>
 <p><strong>Ownship</strong> — The observing platform, whose track is known exactly.</p>
+<p><strong>Provenance</strong> — The record of what produced a file: a dataset header names the commit of the
+generator code and whether the working tree was dirty; features files carry that header forward,
+and training refuses data whose provenance is missing, dirty or from a generator other than the one
+G0 verified. See <a class="" href="/Gitma/docs/algorithms/generator#provenance">generator</a>.</p>
+<p><strong>Rate-limited turn</strong> — Ownship&#x27;s zig flown as a constant-rate turn at constant speed (iteration 2:
+0.5–3°/s, so 90° takes 30–180 s) instead of an instantaneous course change. <code>zig_index</code> is the
+first sample after the turn completes. See <a class="" href="/Gitma/docs/algorithms/generator#rate-limited-turn-iteration-2">generator</a>.</p>
 <p><strong>Scenario</strong> — One ownship-versus-target run over a window: two tracks, the bearings and the
 metadata that generated them. See the <a class="" href="/Gitma/docs/data-dictionary">data dictionary</a>.</p>
 <p><strong>Shuffled-label test</strong> — A leakage check: the instantaneous model trained with each scenario&#x27;s
@@ -55,6 +63,7 @@ whole window (non-causal). It has strictly more information than the instantaneo
 must score at least as well.</p>
 <p><strong>Window</strong> — The span of bearings a model sees: 10–40 minutes at one bearing every 10 s, padded to
 240 rows.</p>
-<p><strong>Zig</strong> — Ownship&#x27;s course change part-way through the window (30–90° at 40–60% of the window).</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/glossary.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/docs/data-dictionary"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Data dictionary</div></a></nav></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
+<p><strong>Zig</strong> — Ownship&#x27;s course change part-way through the window (30–90° at 40–60% of the window;
+instantaneous in iterations 0–1, a rate-limited turn from iteration 2).</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/glossary.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/docs/data-dictionary"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Data dictionary</div></a></nav></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
 </body>
 </html>
