@@ -1,0 +1,31 @@
+{
+  "id": "i2b",
+  "description": "Spec 003 phase B (decision record experiments/20261013-i2a-val/decision.md, user decision 14): the single change is the training budget, max_epochs 60 -> 150 and patience 3 -> 6; every model continues from its committed phase-A weights (best epoch; Adam restarts once, 3-epoch patience grace). Same data, features, architectures, losses and seeds. Scored on validation only (research R5).",
+  "dataset": {
+    "seed": "201",
+    "count": 100000,
+    "ranges": "configs/iter2-ranges.json",
+    "heldout_ranges": "configs/iter2-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "0b2a79027d89f4e628c74ba2c13167ba9f55591fefa2f2bf378b372a3d93821c",
+      "validation.f32pack": "3fb2d2ad550c95bcee22c168e21c559da69507cd1a4c6425b77ae7ed3b259164",
+      "test.f32pack": "cd2f30611a7d8441af6dd1b7414653ac03d94dc37aca52e986579c31263ee2af",
+      "heldout.f32pack": "57d766df0e8b9b7afd9cbe982d11cdbd54a27c203467bade57eea716474f73e5"
+    }
+  },
+  "feature_set": "raw",
+  "configs": "configs/iter2/b",
+  "models": ["instantaneous", "time-late", "causal-cnn", "mlp", "instantaneous-shuffled"],
+  "evaluate": {
+    "command": "tma-g2",
+    "split": "validation"
+  },
+  "continue_from": {
+    "causal-cnn": "experiments/20261013-i2a-val/models/cnn-causal-control",
+    "instantaneous-shuffled": "experiments/20261013-i2a-val/models/lstm-instantaneous-shuffled",
+    "instantaneous": "experiments/20261013-i2a-val/models/lstm-instantaneous",
+    "mlp": "experiments/20261013-i2a-val/models/mlp-control",
+    "time-late": "experiments/20261013-i2a-val/models/bilstm-time-late"
+  },
+  "continue_allow": ["max_epochs", "patience"]
+}

@@ -370,3 +370,6 @@ scratchpad and are not committed.
     (G1 rule 1 carried; plan decision 12). Decided before any iteration-2 data was generated.
 13. **Speed point**: zig + 600 s kept, coverage (≈ 60% of scenarios, the longer windows) stated in
     the gate detail and the G2 report (plan decision 13, after the G0 re-run panel).
+14. **Phase-B change**: training budget (150 epochs, patience 6, continued from phase-A weights)
+    rather than derived features; decision record `experiments/20261013-i2a-val/decision.md`.
+    Derived features stay the lead for iteration 2b if phase B also stalls.

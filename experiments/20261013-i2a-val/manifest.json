@@ -1,0 +1,164 @@
+{
+  "command_lines": [
+    "tma-g2 --data /home/runner/work/Gitma/Gitma/../plan-data --models /home/runner/work/_temp/models --experiment experiments/20261013-i2a-val --split validation",
+    "# equivalent: tma-eval --truth /home/runner/work/Gitma/plan-data/validation.f32pack --pred <naive, classical, models> --experiment experiments/20261013-i2a-val --points 300,600 --bootstrap 2000 --compare-to classical:per_timestep",
+    "# equivalent: tma-gate g2 --experiment experiments/20261013-i2a-val --instantaneous lstm-instantaneous --time-late bilstm-time-late --causal-control cnn-causal-control --mlp-control mlp-control --shuffled lstm-instantaneous-shuffled (written to diagnostic.json)"
+  ],
+  "created": "2026-10-13T16:52:17.313Z",
+  "datasets": [
+    {
+      "digest": "9ff75f130c375676b5525b0aaaab84b8703c2cd68e12a584d9c03222cd11f013",
+      "header": {
+        "created_by": "tma-generate --seed 201 --count 100000 --ranges sha256:aad17a8578d2d6d34c2a2485db397cd44ad3dd4102277aff2af4f884e372e4e6 --heldout-ranges sha256:945ff227067c30247ea2da06ecb23c77f32db2c3a3e70167e14b814302f850c1",
+        "dataset_seed": "201",
+        "generator_git_commit": "a7a3f3398a600b5c651957cdab35f607d77dc7c2",
+        "generator_git_dirty": false,
+        "generator_version": "0.2.0",
+        "index_end": 80000,
+        "index_start": 0,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0.1,
+            "min": 0
+          },
+          "dt_s": 10,
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0.017453292519943295,
+            0.03490658503988659
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "ownship_turn_rate_rad_s": {
+            "max": 0.05235987755982989,
+            "min": 0.008726646259971648
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          }
+        },
+        "record": "header",
+        "redraw_count": 369,
+        "scenario_count": 80000,
+        "schema_version": "0.8.0",
+        "split": "train"
+      },
+      "path": "/home/runner/work/Gitma/plan-data/train.f32pack"
+    },
+    {
+      "digest": "222fd281b44e165dd338e054c23161526df9007f1f3bf43b43daad04d425fcf8",
+      "header": {
+        "created_by": "tma-generate --seed 201 --count 100000 --ranges sha256:aad17a8578d2d6d34c2a2485db397cd44ad3dd4102277aff2af4f884e372e4e6 --heldout-ranges sha256:945ff227067c30247ea2da06ecb23c77f32db2c3a3e70167e14b814302f850c1",
+        "dataset_seed": "201",
+        "generator_git_commit": "a7a3f3398a600b5c651957cdab35f607d77dc7c2",
+        "generator_git_dirty": false,
+        "generator_version": "0.2.0",
+        "index_end": 90000,
+        "index_start": 80000,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0.1,
+            "min": 0
+          },
+          "dt_s": 10,
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0.017453292519943295,
+            0.03490658503988659
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "ownship_turn_rate_rad_s": {
+            "max": 0.05235987755982989,
+            "min": 0.008726646259971648
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          }
+        },
+        "record": "header",
+        "redraw_count": 54,
+        "scenario_count": 10000,
+        "schema_version": "0.8.0",
+        "split": "validation"
+      },
+      "path": "/home/runner/work/Gitma/plan-data/validation.f32pack"
+    }
+  ],
+  "estimators": [
+    {
+      "name": "naive",
+      "settings_json": "{\"fitted_on\":\"train\",\"means\":{\"course_cos\":-0.0031273557522942673,\"course_sin\":0.0020132700089808943,\"log_range_km\":2.338411501386555,\"n\":5532762,\"speed_mps\":5.911447959743289},\"mode\":\"per_timestep\"}"
+    },
+    {
+      "name": "classical",
+      "settings_json": "{\"grid_every\":6,\"method\":\"levenberg-marquardt\",\"mode\":\"per_timestep\"}"
+    },
+    {
+      "name": "bilstm-time-late",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"raw\",\"id\":\"bilstm-time-late\",\"learning_rate\":0.001,\"length_bucketing\":true,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":1,\"max_epochs\":60,\"max_wall_s\":172800,\"model_kind\":\"time_late\",\"patience\":3,\"shuffle_labels\":false,\"tfjs_threads\":1,\"train_seed\":\"1002\",\"units\":96},\"manifest\":\"models/bilstm-time-late/manifest.json\",\"weights_digest\":\"fde6df20bb8820218dc80ac13ebaaf08834cc43a24f6575a221f628f3a1fe1f6\"}"
+    },
+    {
+      "name": "cnn-causal-control",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"raw\",\"id\":\"cnn-causal-control\",\"kernel_size\":15,\"layers\":3,\"learning_rate\":0.001,\"length_bucketing\":true,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":1,\"max_epochs\":60,\"max_wall_s\":172800,\"model_kind\":\"causal_cnn\",\"patience\":3,\"shuffle_labels\":false,\"tfjs_threads\":1,\"train_seed\":\"1003\",\"units\":64},\"manifest\":\"models/cnn-causal-control/manifest.json\",\"weights_digest\":\"0ef98a5a3103e4d5f2a8bd41aadd2630f80a17e002de921c9d6aa7c2e10be6ec\"}"
+    },
+    {
+      "name": "lstm-instantaneous",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"raw\",\"id\":\"lstm-instantaneous\",\"learning_rate\":0.001,\"length_bucketing\":true,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":1,\"max_epochs\":60,\"max_wall_s\":172800,\"model_kind\":\"instantaneous\",\"patience\":3,\"shuffle_labels\":false,\"tfjs_threads\":1,\"train_seed\":\"1001\",\"units\":96},\"manifest\":\"models/lstm-instantaneous/manifest.json\",\"weights_digest\":\"30948c7f5d84b7b1c011ab0dde78011b307c275f83d5d90ebcc800d50a3d5650\"}"
+    },
+    {
+      "name": "lstm-instantaneous-shuffled",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"raw\",\"id\":\"lstm-instantaneous-shuffled\",\"learning_rate\":0.001,\"length_bucketing\":true,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":1,\"max_epochs\":60,\"max_wall_s\":172800,\"model_kind\":\"instantaneous\",\"patience\":3,\"shuffle_labels\":true,\"tfjs_threads\":1,\"train_seed\":\"1005\",\"units\":96},\"manifest\":\"models/lstm-instantaneous-shuffled/manifest.json\",\"weights_digest\":\"f0a8be9a3ac1af285faf64b46a2a872afaafcb7d1e6ecd7317d186c73fc2fb66\"}"
+    },
+    {
+      "name": "mlp-control",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"raw\",\"id\":\"mlp-control\",\"learning_rate\":0.001,\"length_bucketing\":false,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":1,\"max_epochs\":60,\"max_wall_s\":172800,\"model_kind\":\"mlp\",\"patience\":3,\"shuffle_labels\":false,\"tfjs_threads\":1,\"train_seed\":\"1004\",\"units\":256},\"manifest\":\"models/mlp-control/manifest.json\",\"weights_digest\":\"1d88c2cc81aae96f1414ec9817b70e812495ae61de9fbf08cbae0a04494738f6\"}"
+    }
+  ],
+  "generator_version": "0.2.0",
+  "git_commit": "a7a3f3398a600b5c651957cdab35f607d77dc7c2",
+  "git_dirty": false,
+  "id": "20261013-i2a-val",
+  "node_version": "v22.22.0",
+  "schema_version": "0.8.0"
+}

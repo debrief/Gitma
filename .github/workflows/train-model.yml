@@ -25,6 +25,10 @@ on:
         type: string
         required: false
         default: ""
+      continue_allow:
+        type: string
+        required: false
+        default: ""
 
 env:
   DATA: ${{ github.workspace }}/../plan-data
@@ -69,7 +73,9 @@ jobs:
         run: |
           if [ ! -f "$OUT/manifest.json" ]; then
             node scripts/train-continue.mjs "${{ inputs.continue_from }}" \
-              "${{ inputs.configs }}/${{ inputs.model }}.json" "$OUT"
+              "${{ inputs.configs }}/${{ inputs.model }}.json" "$OUT" \
+              --allow "${{ inputs.continue_allow }}" \
+              --train "$DATA/train.features.bin" --val "$DATA/validation.features.bin"
           fi
       - name: Train ${{ inputs.model }} (job ${{ inputs.attempt }} of up to 3)
         if: steps.restore.outputs.done != 'true'

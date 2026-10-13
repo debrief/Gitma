@@ -130,6 +130,14 @@ export function loadPlan(path) {
   }
   if (p.continue_from !== undefined && !isObject(p.continue_from))
     fail("continue_from must be an object");
+  if (
+    p.continue_allow !== undefined &&
+    (!Array.isArray(p.continue_allow) ||
+      p.continue_allow.some((k) => typeof k !== "string" || !/^[a-z_]+$/.test(k)))
+  )
+    fail("continue_allow must be a list of config keys (the declared change)");
+  if (p.continue_allow !== undefined && p.continue_from === undefined)
+    fail("continue_allow needs continue_from");
   const e = p.evaluate;
   if (!isObject(e) || e.command !== "tma-g2") fail('evaluate.command must be "tma-g2"');
   if (!["validation", "test"].includes(e.split)) fail("evaluate.split must be validation or test");
@@ -153,6 +161,7 @@ export function resolve(input, ref) {
     feature_set: p.feature_set,
     split: p.evaluate.split,
     continue_from: JSON.stringify(p.continue_from ?? {}),
+    continue_allow: (p.continue_allow ?? []).join(","),
   };
 }
 
