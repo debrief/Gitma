@@ -58,3 +58,22 @@ Evidence:
 | Schema `FeatureLayout` description says loss mask "t ≥ zig_time"; code uses t > zig_time (geometry) | Corrected at the next schema bump (a description-only change would otherwise churn every golden) |
 | Speed-check headroom shrank (worst 6.73e-3 of 0.01 kt) (numerics) | Noted; consistent with float32 bearings at long range |
 | `train.yml` still on iteration 1 (red team) | Replaced by plan files in #37. An iteration-2 plan refuses seeds 42 and 101 and iteration-1 ranges |
+
+## Round 2 (2026-10-13): responses re-reviewed
+
+| Reviewer | Verdict |
+| --- | --- |
+| TMA geometry (re-derived the four new turn bearings by independent integration: all match to 1e-5°) | **approve** |
+| Estimation and numerics | **approve** |
+| Evaluation statistics (M1 resolved; R12 coverage matches its own count: 61.2% reach zig+600 s) | **approve** |
+| Reproducibility (re-ran G0 at 24bbdab from this manifest: verdict, metrics, seeds and dataset digests byte-identical; guard refuses as committed, accepts once decided_by names the panel, refuses without review.md) | **approve** |
+| Red team (the port-turn mutation now fails `independent-geometry`, exit 3) | approve-with-findings |
+
+| # | Finding (reviewer) | Response | Commit |
+| --- | --- | --- | --- |
+| M4 | PR #37: when a checkpoint is already complete, nothing compares its feature digests with the job's files, so a model from another plan or dataset could be reused (red team) | `tma-train --check` refuses when `--out` holds a model trained on other train or validation features (test added); CI runs it before the "already complete" no-op | ef02552 (#37) |
+| – | The guard's `^agent review panel\b` match accepted "agent review panel (pending…)"; review.md exists before the decision (red team) | The match now needs "agent review panel, round N (no rejections", the form every panel decision uses. Still an honour system; it guards against accidents, not forgery | c5f245d |
+| – | The library default `requireReview: false` is unsafe for future callers (reproducibility) | Panel review is now the default; only `tma-train --allow-unreviewed-g0` turns it off, and only `ci.yml` passes that flag (`git grep allow-unreviewed -- .github scripts`) | 365cc5f, ef02552 |
+| – | PR #37 must keep `requireReview` on its `--check` path and pass the flag in its own CI step (reproducibility, red team) | Merged i2/g0 into #37; its new end-to-end step passes the flag; `train.yml` and `train-model.yml` do not | ef02552 |
+| – | The coverage text in the G2 detail has no test (statistics) | Asserted in `gate-g2.test.ts` | c5f245d |
+| – | Diagnostic file name omits the course point (statistics); written with `JSON.stringify`, not `canonicalJson` (red team) | `--point` always sets range and course together, so the tag is unique. Not machine output of record; left as is |
