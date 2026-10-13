@@ -18,13 +18,13 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 
 ## Phase 0: Preconditions
 
-- [ ] T001 Record G1 outcome and G1-dependent inputs in `research.md` (carried configuration per variant, whether T033 of spec 002 implemented bootstrap CIs, merged form of `train.yml`, G1 panel findings affecting checks or tolerances) **[G1-dependent]**
-- [ ] T002 Record the user's answers to plan.md "Open questions" 1–7 in `spec.md` Assumptions and `research.md`; drop US6 tasks if the turn is deferred **[USER]**
+- [x] T001 Record G1 outcome and G1-dependent inputs in `research.md` (carried configuration per variant, whether T033 of spec 002 implemented bootstrap CIs, merged form of `train.yml`, G1 panel findings affecting checks or tolerances) **[G1-dependent]**
+- [x] T002 Record the user's answers to plan.md "Open questions" 1–7 in `spec.md` Assumptions and `research.md`; drop US6 tasks if the turn is deferred **[USER]**
 
 ## Phase 1: Setup
 
-- [ ] T003 Schema 0.5.0 in `schema/tma.yaml` per data-model.md (provenance, turn slots, `FeatureSet`, `NormalisationConstants.bearing_rate_scale_rad_s`, `TrainingConfig.feature_set`, `ModelManifest` lineage slots, `GateResult.inconclusive`, `GateCheck` CI slots, `MetricsRecord` window-position slots, `PairedComparison`, `ChangeDecision`); `pnpm schema:gen`; data dictionary regenerates
-- [ ] T004 [P] `configs/iter2-ranges.json`, `configs/iter2-heldout-ranges.json` (σ ∈ {1°, 2°}, dropout 0–0.10; turn rate if US6) and, if US6, `configs/iter2-turn-only-test-ranges.json`
+- [x] T003 Schema 0.8.0 (was 0.5.0; iteration 1 used 0.5.0–0.7.0) in `schema/tma.yaml` per data-model.md (provenance, turn slots, `FeatureSet`, `NormalisationConstants.bearing_rate_scale_rad_s`, `TrainingConfig.feature_set`, `ModelManifest` lineage slots, `GateResult.inconclusive`, `GateCheck` CI slots, `MetricsRecord` window-position slots, `PairedComparison`, `ChangeDecision`); `pnpm schema:gen`; data dictionary regenerates
+- [x] T004 [P] `configs/iter2-ranges.json`, `configs/iter2-heldout-ranges.json` (σ ∈ {1°, 2°}, dropout 0–0.10; the turn rate is added with T017 so no config asks for a turn the generator cannot yet draw) and, if US6, `configs/iter2-turn-only-test-ranges.json`
 - [ ] T005 (preliminary done 2026-10-11: speed threshold unmet by classical at zig+300 s, see R12; re-run on final generator) Achievability reference (research R12): naive + classical per-timestep on a seed-201 test split; record classical σ = 1° medians at zig + 300 s against G2 thresholds in `research.md`; tell the user before any training
 
 ---
@@ -83,7 +83,7 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 
 - [ ] T026 [US4] `dropout_band` slice in `packages/eval/src/slices.ts`
 - [ ] T027 [US4] Window-mean position slots in `packages/eval/src/evaluate.ts`
-- [ ] T028 [US4] Seeded percentile bootstrap (+ paired) in `packages/eval/src/bootstrap.ts`; `--bootstrap`, `--bootstrap-seed` in `cli-eval.ts` **[G1-dependent: reuse if spec 002 T033 built it]**
+- [ ] T028 [US4] Extend `packages/eval/src/bootstrap.ts` (paired median ratio built in spec 002) with a seeded percentile interval on a single median; `--bootstrap`, `--bootstrap-seed` in `cli-eval.ts`
 - [ ] T029 [US4] Common-row comparison in `packages/eval/src/compare.ts`; `--compare-to` in `cli-eval.ts`
 - [ ] T030 [US4] G2 checks in `packages/eval/src/gate-g2.ts` (reusing `gate-g1.ts` checks); `tma-gate g2` in `cli-gate.ts`; exit 3 on fail or inconclusive (as PR #21)
 - [ ] T031 [US4] Update eval goldens with reason (new slices and optional slots)
@@ -104,8 +104,8 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 - [ ] T036 [US3] `packages/features/src/derived.ts` (pure functions); feature sets in `layout.ts`; `--feature-set` in `cli.ts`; scale constant in `normalise.ts`
 - [ ] T037 [US2] Input width from layout in `packages/models/src/architectures.ts`, `batches.ts`, `predict.ts`
 - [ ] T038 [US2] `tma-g2` one-command run (`--split validation|test`, `--compare-models`, `--decision` required for test when phase B exists) in `packages/models/src/g2.ts`, `cli-g2.ts`
-- [ ] T039 [P] [US2] Phase A configs `configs/iter2/a/*.json` from the G1-carried configurations (`max_wall_s` 19,800) and `plan.json` with expected data digests **[G1-dependent]**
-- [ ] T040 [P] [US2] Generalise `.github/workflows/train.yml` (from `train/i1`) to plan files; evaluation job runs the plan's `evaluate`; pushes `results/<plan>-<run id>` **[G1-dependent]**
+- [ ] T039 [P] [US2] Phase A configs `configs/iter2/a/*.json` from the G1-carried configurations with decision 9's budget (`max_epochs` 60, `max_wall_s` 172,800, `length_bucketing` true, `tfjs_threads` 1) and `plan.json` with expected data digests
+- [ ] T040 [P] [US2] Generalise `.github/workflows/train.yml` (on main since #33) to plan files; up to three chained 345-min jobs per model resuming from the checkpoint branch (decision 9); evaluation job runs the plan's `evaluate`; pushes `results/<plan>-<run id>`
 - [ ] T041 [US2] CI end-to-end on a tiny plan (300 scenarios, 1 epoch, both feature sets) in `.github/workflows/ci.yml`
 
 ---

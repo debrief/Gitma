@@ -1,7 +1,33 @@
 # Research: Iteration 2 — Is the Solution Useful Under Noise?
 
 Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternatives. Items marked
-**[G1-dependent]** are provisional until the G1 panel decides; **[USER]** needs user confirmation.
+**[G1-dependent]** were provisional until the G1 panel decided; R0 settles them.
+
+## R0. G1 outcome and the inputs it settles (T001, 2026-10-13)
+
+- **G1 passed** (panel round 3, `experiments/20261012-g1-r2/`) under pre-registered rule 1: LSTM
+  instantaneous / naive 0.419 [0.407, 0.431], BiLSTM time-late 0.450 [0.438, 0.464], shuffled
+  labels 1.005 × naive. Machine verdict `inconclusive` from `time-late-not-worse`; caveat: time-late
+  is measurably worse than instantaneous (1.075 [1.046, 1.108] at zig + 300 s), not explained by
+  undertraining.
+- **Carried configurations**: `configs/iter1/{instantaneous,time-late,causal-cnn,mlp,
+  instantaneous-shuffled}.json` unchanged in architecture, loss and learning rate (user decision
+  10). Budget and speed settings change for every model alike (decision 9).
+- **Bootstrap**: built in spec 002 (`packages/eval/src/bootstrap.ts`, paired median ratio,
+  `bootstrap.json`). T028 extends it to an interval on a single median against an absolute
+  threshold; the paired form is reused for G1's repeated ratio checks.
+- **`inconclusive`**: already in `GateResult` and in `tma-gate g1` (exit 3). T030 reuses it.
+- **Provenance already in place**: model manifests record `git_commit`/`git_dirty` (schema 0.6.0);
+  experiment manifests read both at process start. Dataset headers do not yet (T009–T010).
+- **`train.yml`**: merged on main (#33) with per-epoch checkpoints, optimizer-state resume,
+  `scripts/train-continue.mjs`, results branches cut from `origin/main`, a 345-min Train step
+  timeout and `lscpu`. T040 generalises it to plan files and chains jobs (decision 9).
+- **Panel findings carried into checks**: `g1Check` fails on a non-finite naive median (#29); the
+  shuffled check reports course beside range (#29). G2's repeated G1 checks inherit both.
+- **Iteration-1 leads not acted on in phase A** (decision 10): pre-zig rows carry 64% of
+  time-late's loss; an epoch-48 spike suggests gradient clipping; both models follow the training
+  prior by range band. They are phase-B candidates only if the derived-features default is ruled
+  out by validation evidence, recorded in the decision record.
 
 ## R1. Iteration-2 dataset
 
@@ -75,6 +101,12 @@ Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternati
 - **If the user defers it**: drop US6/FR-006/T-tasks marked US6; R2 still requires a G0 re-run.
 
 ## R4. Training on GitHub Actions
+
+> **Superseded in part by decision 9 (2026-10-13):** budgets are in epochs, not wall clock. Every
+> model gets `max_epochs` 60 and patience 3 with no effective wall-clock cap; length bucketing and
+> one tfjs thread are on for every model (R15, ≈ 1.7× faster); each model runs as up to three chained
+> 345-min jobs that resume from the checkpoint branch, so a model that outlasts one job continues
+> in the next within the same push. The wall-clock figures below are the original plan.
 
 - **Decision**: generalise the iteration-1 `train.yml` (branch `train/i1`) **[G1-dependent: its
   merged form]** to a plan file: `configs/iter2/<phase>/plan.json` lists the dataset command, the
@@ -219,8 +251,9 @@ Phase 0 output for [plan.md](plan.md). Each item: decision, rationale, alternati
 
 ## R13. Schema versioning
 
-- **Decision**: schema 0.4.0 → 0.5.0, additive (all new slots optional or new classes; one new enum
-  value `inconclusive` on `GateResult`). Data goldens change (header provenance; turn if R3).
+- **Decision**: schema 0.7.0 → 0.8.0 (iteration 1 already used 0.5.0–0.7.0), additive: all new
+  slots optional or new classes; `inconclusive` already exists. Data goldens change (header
+  provenance; turn if R3).
   Iteration-1 datasets remain readable for inspection; training refuses them (R2).
 
 ## R14. Site
@@ -306,3 +339,14 @@ scratchpad and are not committed.
 - **Scale**: at 16k training scenarios and 20 epochs the LSTM barely beats naive on range, against
   0.16 for the full 80k / 60-epoch iteration-1 model. Learning range needs the full data and epoch
   budget, so small pilots cannot forecast G2 and phase A must run at full scale.
+
+## R17. Decisions after G1 (user, 2026-10-13)
+
+9. **Budget in epochs, with speed-ups**: `max_epochs` 60, patience 3, `max_wall_s` 172,800 (not
+   binding), `length_bucketing` true, `tfjs_threads` 1 for all five models; up to three chained
+   jobs per model. Removes G1's unequal-budget confound (25 vs 60 epochs) at its source.
+10. **Phase A = G1 configurations unchanged** (architecture, loss weights, learning rate, seeds),
+    so a phase-A result is attributable to the noise alone. The time-late leads in R0 are not
+    applied.
+11. **One training seed per model**, as G1. The bootstrap interval covers test-set sampling, not
+    seed variance; that limit is stated with the G2 result.
