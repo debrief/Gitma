@@ -1,6 +1,21 @@
 // GENERATED from schema/tma.yaml by packages/types/scripts/generate.ts. Do not edit.
 import { z } from "zod";
 
+/** The single change of the iteration's change round, fixed from validation evidence and committed before phase B trains (spec 003 R5). */
+export const ChangeDecision = z.strictObject({
+  carried_set_rule: z.string(),
+  /** e.g. feature_set: derived */
+  change: z.string(),
+  decided_at: z.string(),
+  git_commit: z.string(),
+  phase_a_experiment: z.string(),
+  /** Validation evidence cited. */
+  rationale: z.string(),
+  /** Any gated criterion failed or was inconclusive on validation. */
+  stalled: z.boolean(),
+});
+export type ChangeDecision = z.infer<typeof ChangeDecision>;
+
 /** One point of an error-vs-time-since-zig curve (curves.csv row). */
 export const CurvePoint = z.strictObject({
   course_deg_median: z.number().nullish(),
@@ -35,6 +50,8 @@ export const ParameterRanges = z.strictObject({
   /** σ drawn uniformly from this set. */
   noise_sigma_rad_values: z.array(z.number()),
   ownship_speed_mps: FloatRange,
+  /** Turn rate drawn uniformly per scenario; absent means an instantaneous zig. */
+  ownship_turn_rate_rad_s: FloatRange.nullish(),
   range_distribution: RangeDistribution,
   target_range0_m: FloatRange,
   target_speed_mps: FloatRange,
@@ -58,6 +75,10 @@ export const DatasetHeader = z.strictObject({
   created_by: z.string(),
   /** Decimal uint64 string. */
   dataset_seed: z.string(),
+  /** Commit of the checkout that ran tma-generate (absent before schema 0.8.0). */
+  generator_git_commit: z.string().nullish(),
+  /** True when that checkout had uncommitted changes (only allowed with --allow-dirty; absent before schema 0.8.0). */
+  generator_git_dirty: z.boolean().nullish(),
   generator_version: z.string(),
   /** Last scenario index (exclusive). */
   index_end: z.number().int(),
@@ -99,6 +120,8 @@ export type EstimatorRef = z.infer<typeof EstimatorRef>;
 
 /** Fixed scaling constants computed from the train split's input channels only. */
 export const NormalisationConstants = z.strictObject({
+  /** 90th percentile of |trailing least-squares bearing rate| over train inputs; required for the derived feature set. */
+  bearing_rate_scale_rad_s: z.number().nullish(),
   /** Always "inputs_only". */
   computed_from: z.string(),
   position_scale_km: z.number(),
@@ -128,8 +151,14 @@ export const ExperimentManifest = z.strictObject({
 });
 export type ExperimentManifest = z.infer<typeof ExperimentManifest>;
 
-/** Documents the model tensors (not stored as records). inputs [N, 240, 10]: bearing_sin, bearing_cos, own_x_km, own_y_km, own_course_sin, own_course_cos, own_speed_scaled, time_scaled, valid, window_mask. targets [N, 240, 6]: log_range_km, course_sin, course_cos, speed_scaled, x_km, y_km. loss_mask [N, 240]: window_mask and t ≥ zig_time. */
+/** Model input channel sets (spec 003 R6). */
+export const FeatureSet = z.enum(["raw", "derived"]);
+export type FeatureSet = z.infer<typeof FeatureSet>;
+
+/** Documents the model tensors (not stored as records). inputs [N, 240, 10]: bearing_sin, bearing_cos, own_x_km, own_y_km, own_course_sin, own_course_cos, own_speed_scaled, time_scaled, valid, window_mask; the derived feature set appends bearing_rate_scaled, rate_valid, intercept_scaled [N, 240, 13]. targets [N, 240, 6]: log_range_km, course_sin, course_cos, speed_scaled, x_km, y_km. loss_mask [N, 240]: window_mask and t ≥ zig_time. Features file format 2 also embeds the source DatasetHeader and the source dataset SHA-256. */
 export const FeatureLayout = z.strictObject({
+  /** Absent means raw. */
+  feature_set: FeatureSet.nullish(),
   input_channels: z.array(z.string()),
   rows: z.number().int(),
   target_channels: z.array(z.string()),
@@ -140,9 +169,19 @@ export const GateResult = z.enum(["pass", "fail", "inconclusive"]);
 export type GateResult = z.infer<typeof GateResult>;
 
 export const GateCheck = z.strictObject({
+  /** Upper bound of the bootstrap interval. */
+  ci_high: z.number().nullish(),
+  /** Interval coverage, e.g. 0.95. */
+  ci_level: z.number().nullish(),
+  /** Lower bound of the bootstrap interval. */
+  ci_low: z.number().nullish(),
   detail: z.string(),
   name: z.string(),
   result: GateResult,
+  /** Limit the statistic is tested against. */
+  threshold: z.number().nullish(),
+  /** Statistic tested (e.g. median range error). */
+  value: z.number().nullish(),
 });
 export type GateCheck = z.infer<typeof GateCheck>;
 
@@ -172,6 +211,10 @@ export const MetricsRecord = z.strictObject({
   point: z.string(),
   /** Mean position error over converged rows (non-converged rows count in gross_error_rate). */
   position_m_mean: z.number().nullish(),
+  /** Median over scenarios of each scenario's mean position error over its predicted rows (time-late window-mean position, SRD §5; reported, not gated). */
+  position_window_m_median: z.number().nullish(),
+  /** 90th percentile over scenarios of the same per-scenario mean. */
+  position_window_m_p90: z.number().nullish(),
   range_rel_median: z.number().nullish(),
   range_rel_p90: z.number().nullish(),
   /** "overall" or e.g. "range_band=5-10km". */
@@ -193,6 +236,8 @@ export const TrainingConfig = z.strictObject({
   batch_size: z.number().int(),
   /** Batches per length-bucketing group (default 16). */
   bucket_batches: z.number().int().nullish(),
+  /** Input channel set; absent means raw. Must match the features files. */
+  feature_set: FeatureSet.nullish(),
   /** Estimator name used in predictions. */
   id: z.string(),
   /** Causal CNN kernel size. */
@@ -232,6 +277,8 @@ export const ModelManifest = z.strictObject({
   config: TrainingConfig,
   cpu_model: z.string(),
   epochs: z.array(EpochRecord),
+  /** Id of the G0 experiment whose verdict the training guard accepted. */
+  g0_experiment: z.string().nullish(),
   generator_version: z.string(),
   /** Commit of the training code, read when training started (absent before schema 0.6.0). */
   git_commit: z.string().nullish(),
@@ -242,6 +289,8 @@ export const ModelManifest = z.strictObject({
   normalisation: NormalisationConstants,
   parameter_count: z.number().int(),
   schema_version: z.string(),
+  /** Header of the dataset the train features came from (lineage; absent before schema 0.8.0). */
+  source_dataset_header: DatasetHeader.nullish(),
   stop_reason: StopReason.nullish(),
   /** TF_NUM_INTEROP_THREADS in force when training ran (absent: unset). */
   tf_interop_threads: z.number().int().nullish(),
@@ -285,6 +334,30 @@ export const Observation = z.strictObject({
   valid: z.boolean(),
 });
 export type Observation = z.infer<typeof Observation>;
+
+/** A model and a reference estimator compared on rows both answered (converged and finite), with each estimator's coverage reported separately (spec 003 R9). */
+export const PairedComparison = z.strictObject({
+  course_deg_median: z.number().nullish(),
+  course_deg_median_ref: z.number().nullish(),
+  /** Answered / scored. */
+  coverage_estimator: z.number(),
+  /** Answered / scored. */
+  coverage_reference: z.number(),
+  estimator: z.string(),
+  gross_error_rate: z.number().nullish(),
+  gross_error_rate_ref: z.number().nullish(),
+  n_common: z.number().int(),
+  point: z.string(),
+  range_rel_median: z.number().nullish(),
+  range_rel_median_ref: z.number().nullish(),
+  range_rel_p90: z.number().nullish(),
+  range_rel_p90_ref: z.number().nullish(),
+  reference: z.string(),
+  slice: z.string(),
+  speed_kt_median: z.number().nullish(),
+  speed_kt_median_ref: z.number().nullish(),
+});
+export type PairedComparison = z.infer<typeof PairedComparison>;
 
 /** One platform state. Stone Soup analogue GroundTruthState. */
 export const PlatformState = z.strictObject({
@@ -344,6 +417,8 @@ export const ScenarioParameters = z.strictObject({
   /** Ownship course on leg 1. */
   ownship_course0_rad: z.number(),
   ownship_speed_mps: z.number(),
+  /** Ownship turn rate at the zig (rate-limited turn, spec 003 US6). Absent or 0: the course changes instantaneously, as in generator 0.1.0. */
+  ownship_turn_rate_rad_s: z.number().nullish(),
   /** True bearing at window start. */
   target_bearing0_rad: z.number(),
   target_course_rad: z.number(),
@@ -370,7 +445,9 @@ export const ScenarioMetadata = z.strictObject({
   samples: z.number().int(),
   /** Scenario seed as a decimal uint64 string. */
   seed: z.string(),
-  /** First timestep on leg 2. */
+  /** First timestep after the turn starts (absent for an instantaneous zig). */
+  turn_start_index: z.number().int().nullish(),
+  /** First timestep on leg 2 (with a rate-limited turn, the first after it completes). */
   zig_index: z.number().int(),
   zig_time_s: z.number(),
 });

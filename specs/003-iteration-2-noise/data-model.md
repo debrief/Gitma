@@ -1,7 +1,8 @@
 # Data Model: Iteration 2
 
-Additions to `schema/tma.yaml` (version 0.4.0 → 0.5.0, additive). Every new slot on an existing
-class is optional, so 0.4.0 files still parse; the tools that need a slot refuse files without it.
+Additions to `schema/tma.yaml` (version 0.7.0 → 0.8.0, additive; all landed in the setup PR,
+T003). Every new slot on an existing class is optional, so 0.7.0 files still parse; the tools that
+need a slot refuse files without it.
 Generated types, validators and the data dictionary are regenerated (`pnpm schema:gen`).
 
 ## DatasetHeader (extended) — US1, research R2
@@ -11,7 +12,7 @@ Generated types, validators and the data dictionary are regenerated (`pnpm schem
 | `generator_git_commit` | string? | Commit of the checkout that ran `tma-generate` |
 | `generator_git_dirty` | boolean? | Working tree had changes at generation (`--allow-dirty` only) |
 
-Absent in files written before 0.5.0; `tma-train` refuses features whose source header lacks them.
+Absent in files written before 0.8.0; `tma-train` refuses features whose source header lacks them.
 
 ## ScenarioParameters / ParameterRanges / ScenarioMetadata (extended) — US6, research R3 **[USER]**
 
@@ -62,7 +63,7 @@ version 1 (iteration-1 re-runs) and version 2. Documented in the LinkML descript
 
 ## GateResult (enum, extended) — research R8
 
-Adds `inconclusive`. A gate verdict is `pass` only if every check passes, `fail` if any check fails,
+`inconclusive` already exists (spec 002). A gate verdict is `pass` only if every check passes, `fail` if any check fails,
 otherwise `inconclusive`.
 
 ## GateCheck (extended)

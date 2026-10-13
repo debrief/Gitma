@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.7.0
+version: 0.8.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -62,6 +62,14 @@ enums:
       early_stopping: {}
       wall_clock: {}
       diverged: {}
+  FeatureSet:
+    description: Model input channel sets (spec 003 R6).
+    permissible_values:
+      raw: { description: "Iteration-1 layout, 10 input channels." }
+      derived:
+        description: >-
+          raw plus bearing_rate_scaled, rate_valid and intercept_scaled (13 channels), computed
+          causally from bearings and ownship states up to each row.
   GateResult:
     permissible_values:
       pass: {}
@@ -127,6 +135,12 @@ classes:
         }
       dropout_fraction:
         { range: float, required: true, description: Probability each bearing is missing. }
+      ownship_turn_rate_rad_s:
+        range: float
+        unit: { ucum_code: rad/s }
+        description: >-
+          Ownship turn rate at the zig (rate-limited turn, spec 003 US6). Absent or 0: the course
+          changes instantaneously, as in generator 0.1.0.
 
   ParameterRanges:
     description: >-
@@ -149,6 +163,10 @@ classes:
           description: σ drawn uniformly from this set.,
         }
       dropout_fraction: { range: FloatRange, required: true, inlined: true }
+      ownship_turn_rate_rad_s:
+        range: FloatRange
+        inlined: true
+        description: Turn rate drawn uniformly per scenario; absent means an instantaneous zig.
       min_range_m:
         {
           range: float,
@@ -188,7 +206,13 @@ classes:
       index: { range: integer, required: true, description: Scenario index within the dataset. }
       parameters: { range: ScenarioParameters, required: true, inlined: true }
       samples: { range: integer, required: true, description: Number of timesteps (60–240). }
-      zig_index: { range: integer, required: true, description: First timestep on leg 2. }
+      zig_index:
+        range: integer
+        required: true
+        description: First timestep on leg 2 (with a rate-limited turn, the first after it completes).
+      turn_start_index:
+        range: integer
+        description: First timestep after the turn starts (absent for an instantaneous zig).
       zig_time_s: { range: float, required: true, unit: { ucum_code: s } }
       mean_range_m: { range: float, required: true, unit: { ucum_code: m } }
       min_range_m: { range: float, required: true, unit: { ucum_code: m } }
@@ -224,6 +248,14 @@ classes:
         }
       created_by:
         { range: string, required: true, description: Command line that produced the file. }
+      generator_git_commit:
+        range: string
+        description: Commit of the checkout that ran tma-generate (absent before schema 0.8.0).
+      generator_git_dirty:
+        range: boolean
+        description: >-
+          True when that checkout had uncommitted changes (only allowed with --allow-dirty; absent
+          before schema 0.8.0).
 
   NormalisationConstants:
     description: Fixed scaling constants computed from the train split's input channels only.
@@ -234,14 +266,23 @@ classes:
       computed_from: { range: string, required: true, description: Always "inputs_only". }
       train_header_digest:
         { range: string, required: true, description: SHA-256 of the train header. }
+      bearing_rate_scale_rad_s:
+        range: float
+        unit: { ucum_code: rad/s }
+        description: >-
+          90th percentile of |trailing least-squares bearing rate| over train inputs; required for
+          the derived feature set.
 
   FeatureLayout:
     description: >-
       Documents the model tensors (not stored as records). inputs [N, 240, 10]: bearing_sin,
       bearing_cos, own_x_km, own_y_km, own_course_sin, own_course_cos, own_speed_scaled,
-      time_scaled, valid, window_mask. targets [N, 240, 6]: log_range_km, course_sin, course_cos,
-      speed_scaled, x_km, y_km. loss_mask [N, 240]: window_mask and t ≥ zig_time.
+      time_scaled, valid, window_mask; the derived feature set appends bearing_rate_scaled,
+      rate_valid, intercept_scaled [N, 240, 13]. targets [N, 240, 6]: log_range_km, course_sin,
+      course_cos, speed_scaled, x_km, y_km. loss_mask [N, 240]: window_mask and t ≥ zig_time.
+      Features file format 2 also embeds the source DatasetHeader and the source dataset SHA-256.
     attributes:
+      feature_set: { range: FeatureSet, description: "Absent means raw." }
       rows: { range: integer, required: true }
       input_channels: { range: string, multivalued: true, required: true }
       target_channels: { range: string, multivalued: true, required: true }
@@ -298,6 +339,16 @@ classes:
       position_m_mean:
         range: float
         description: Mean position error over converged rows (non-converged rows count in gross_error_rate).
+      position_window_m_median:
+        range: float
+        unit: { ucum_code: m }
+        description: >-
+          Median over scenarios of each scenario's mean position error over its predicted rows
+          (time-late window-mean position, SRD §5; reported, not gated).
+      position_window_m_p90:
+        range: float
+        unit: { ucum_code: m }
+        description: 90th percentile over scenarios of the same per-scenario mean.
 
   DatasetRef:
     attributes:
@@ -336,6 +387,11 @@ classes:
       name: { range: string, required: true }
       result: { range: GateResult, required: true }
       detail: { range: string, required: true }
+      value: { range: float, description: "Statistic tested (e.g. median range error)." }
+      threshold: { range: float, description: Limit the statistic is tested against. }
+      ci_low: { range: float, description: Lower bound of the bootstrap interval. }
+      ci_high: { range: float, description: Upper bound of the bootstrap interval. }
+      ci_level: { range: float, description: "Interval coverage, e.g. 0.95." }
 
   GateVerdict:
     description: Machine verdict for a gate; the team review records the final decision.
@@ -436,6 +492,9 @@ classes:
         range: boolean
         required: true
         description: "Permute targets across scenarios (leakage check)."
+      feature_set:
+        range: FeatureSet
+        description: "Input channel set; absent means raw. Must match the features files."
       length_bucketing:
         range: boolean
         description: >-
@@ -544,3 +603,49 @@ classes:
       git_dirty:
         range: boolean
         description: "True when the working tree had uncommitted changes when training started (absent before schema 0.6.0)."
+      source_dataset_header:
+        range: DatasetHeader
+        inlined: true
+        description: "Header of the dataset the train features came from (lineage; absent before schema 0.8.0)."
+      g0_experiment:
+        range: string
+        description: "Id of the G0 experiment whose verdict the training guard accepted."
+
+  PairedComparison:
+    description: >-
+      A model and a reference estimator compared on rows both answered (converged and finite),
+      with each estimator's coverage reported separately (spec 003 R9).
+    attributes:
+      estimator: { range: string, required: true }
+      reference: { range: string, required: true }
+      slice: { range: string, required: true }
+      point: { range: string, required: true }
+      n_common: { range: integer, required: true }
+      coverage_estimator: { range: float, required: true, description: "Answered / scored." }
+      coverage_reference: { range: float, required: true, description: "Answered / scored." }
+      range_rel_median: { range: float }
+      range_rel_median_ref: { range: float }
+      range_rel_p90: { range: float }
+      range_rel_p90_ref: { range: float }
+      course_deg_median: { range: float }
+      course_deg_median_ref: { range: float }
+      speed_kt_median: { range: float }
+      speed_kt_median_ref: { range: float }
+      gross_error_rate: { range: float }
+      gross_error_rate_ref: { range: float }
+
+  ChangeDecision:
+    description: >-
+      The single change of the iteration's change round, fixed from validation evidence and
+      committed before phase B trains (spec 003 R5).
+    attributes:
+      phase_a_experiment: { range: string, required: true }
+      stalled:
+        range: boolean
+        required: true
+        description: Any gated criterion failed or was inconclusive on validation.
+      change: { range: string, required: true, description: "e.g. feature_set: derived" }
+      rationale: { range: string, required: true, description: "Validation evidence cited." }
+      carried_set_rule: { range: string, required: true }
+      decided_at: { range: string, required: true }
+      git_commit: { range: string, required: true }

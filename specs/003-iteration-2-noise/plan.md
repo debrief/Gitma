@@ -201,5 +201,13 @@ The open questions were put to the user one at a time; all recommendations accep
 8. **G2 speed point** (after the achievability check, research R12): range and course are judged
    at zig + 300 s, speed (< 1 kt) at zig + 600 s; SRD amended in its own PR.
 
+## Decisions (user, 2026-10-13, after G1)
+
+9. **Training budget**: 60 epochs, patience 3, no binding wall-clock cap; length bucketing and one
+   tfjs thread for every model; up to three chained jobs per model (research R4, R17).
+10. **Phase A**: G1 configurations unchanged; time-late leads (pre-zig loss share, gradient
+    clipping) are not applied (research R0).
+11. **Seeds**: one training seed per model, as G1; seed variance stated as a limit.
+
 Exit codes follow PR #21 (already implemented): **3 for any gate result other than pass**
 (fail or inconclusive); the verdict file distinguishes them.

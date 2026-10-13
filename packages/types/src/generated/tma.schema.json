@@ -1,5 +1,46 @@
 {
   "$defs": {
+    "ChangeDecision": {
+      "additionalProperties": false,
+      "description": "The single change of the iteration's change round, fixed from validation evidence and committed before phase B trains (spec 003 R5).",
+      "properties": {
+        "carried_set_rule": {
+          "type": "string"
+        },
+        "change": {
+          "description": "e.g. feature_set: derived",
+          "type": "string"
+        },
+        "decided_at": {
+          "type": "string"
+        },
+        "git_commit": {
+          "type": "string"
+        },
+        "phase_a_experiment": {
+          "type": "string"
+        },
+        "rationale": {
+          "description": "Validation evidence cited.",
+          "type": "string"
+        },
+        "stalled": {
+          "description": "Any gated criterion failed or was inconclusive on validation.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "phase_a_experiment",
+        "stalled",
+        "change",
+        "rationale",
+        "carried_set_rule",
+        "decided_at",
+        "git_commit"
+      ],
+      "title": "ChangeDecision",
+      "type": "object"
+    },
     "CurvePoint": {
       "additionalProperties": false,
       "description": "One point of an error-vs-time-since-zig curve (curves.csv row).",
@@ -68,6 +109,20 @@
         "dataset_seed": {
           "description": "Decimal uint64 string.",
           "type": "string"
+        },
+        "generator_git_commit": {
+          "description": "Commit of the checkout that ran tma-generate (absent before schema 0.8.0).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "generator_git_dirty": {
+          "description": "True when that checkout had uncommitted changes (only allowed with --allow-dirty; absent before schema 0.8.0).",
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "generator_version": {
           "type": "string"
@@ -265,8 +320,19 @@
     },
     "FeatureLayout": {
       "additionalProperties": false,
-      "description": "Documents the model tensors (not stored as records). inputs [N, 240, 10]: bearing_sin, bearing_cos, own_x_km, own_y_km, own_course_sin, own_course_cos, own_speed_scaled, time_scaled, valid, window_mask. targets [N, 240, 6]: log_range_km, course_sin, course_cos, speed_scaled, x_km, y_km. loss_mask [N, 240]: window_mask and t ≥ zig_time.",
+      "description": "Documents the model tensors (not stored as records). inputs [N, 240, 10]: bearing_sin, bearing_cos, own_x_km, own_y_km, own_course_sin, own_course_cos, own_speed_scaled, time_scaled, valid, window_mask; the derived feature set appends bearing_rate_scaled, rate_valid, intercept_scaled [N, 240, 13]. targets [N, 240, 6]: log_range_km, course_sin, course_cos, speed_scaled, x_km, y_km. loss_mask [N, 240]: window_mask and t ≥ zig_time. Features file format 2 also embeds the source DatasetHeader and the source dataset SHA-256.",
       "properties": {
+        "feature_set": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FeatureSet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Absent means raw."
+        },
         "input_channels": {
           "items": {
             "type": "string"
@@ -291,6 +357,15 @@
       "title": "FeatureLayout",
       "type": "object"
     },
+    "FeatureSet": {
+      "description": "Model input channel sets (spec 003 R6).",
+      "enum": [
+        "raw",
+        "derived"
+      ],
+      "title": "FeatureSet",
+      "type": "string"
+    },
     "FloatRange": {
       "additionalProperties": false,
       "description": "Closed interval [min, max].",
@@ -313,6 +388,27 @@
       "additionalProperties": false,
       "description": "",
       "properties": {
+        "ci_high": {
+          "description": "Upper bound of the bootstrap interval.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "ci_level": {
+          "description": "Interval coverage, e.g. 0.95.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "ci_low": {
+          "description": "Lower bound of the bootstrap interval.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "detail": {
           "type": "string"
         },
@@ -321,6 +417,20 @@
         },
         "result": {
           "$ref": "#/$defs/GateResult"
+        },
+        "threshold": {
+          "description": "Limit the statistic is tested against.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "value": {
+          "description": "Statistic tested (e.g. median range error).",
+          "type": [
+            "number",
+            "null"
+          ]
         }
       },
       "required": [
@@ -430,6 +540,20 @@
             "null"
           ]
         },
+        "position_window_m_median": {
+          "description": "Median over scenarios of each scenario's mean position error over its predicted rows (time-late window-mean position, SRD §5; reported, not gated).",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "position_window_m_p90": {
+          "description": "90th percentile over scenarios of the same per-scenario mean.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "range_rel_median": {
           "type": [
             "number",
@@ -503,6 +627,13 @@
           },
           "type": "array"
         },
+        "g0_experiment": {
+          "description": "Id of the G0 experiment whose verdict the training guard accepted.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "generator_version": {
           "type": "string"
         },
@@ -534,6 +665,17 @@
         },
         "schema_version": {
           "type": "string"
+        },
+        "source_dataset_header": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DatasetHeader"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Header of the dataset the train features came from (lineage; absent before schema 0.8.0)."
         },
         "stop_reason": {
           "anyOf": [
@@ -660,6 +802,13 @@
       "additionalProperties": false,
       "description": "Fixed scaling constants computed from the train split's input channels only.",
       "properties": {
+        "bearing_rate_scale_rad_s": {
+          "description": "90th percentile of |trailing least-squares bearing rate| over train inputs; required for the derived feature set.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "computed_from": {
           "description": "Always \"inputs_only\".",
           "type": "string"
@@ -710,6 +859,106 @@
       "title": "Observation",
       "type": "object"
     },
+    "PairedComparison": {
+      "additionalProperties": false,
+      "description": "A model and a reference estimator compared on rows both answered (converged and finite), with each estimator's coverage reported separately (spec 003 R9).",
+      "properties": {
+        "course_deg_median": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "course_deg_median_ref": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "coverage_estimator": {
+          "description": "Answered / scored.",
+          "type": "number"
+        },
+        "coverage_reference": {
+          "description": "Answered / scored.",
+          "type": "number"
+        },
+        "estimator": {
+          "type": "string"
+        },
+        "gross_error_rate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "gross_error_rate_ref": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "n_common": {
+          "type": "integer"
+        },
+        "point": {
+          "type": "string"
+        },
+        "range_rel_median": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "range_rel_median_ref": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "range_rel_p90": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "range_rel_p90_ref": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "reference": {
+          "type": "string"
+        },
+        "slice": {
+          "type": "string"
+        },
+        "speed_kt_median": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "speed_kt_median_ref": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "estimator",
+        "reference",
+        "slice",
+        "point",
+        "n_common",
+        "coverage_estimator",
+        "coverage_reference"
+      ],
+      "title": "PairedComparison",
+      "type": "object"
+    },
     "ParameterRanges": {
       "additionalProperties": false,
       "description": "Ranges from which ScenarioParameters are drawn. Initial ownship course, target bearing and target course are always uniform on [0, 2π); zig sign is uniform ±.",
@@ -733,6 +982,17 @@
         },
         "ownship_speed_mps": {
           "$ref": "#/$defs/FloatRange"
+        },
+        "ownship_turn_rate_rad_s": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FloatRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Turn rate drawn uniformly per scenario; absent means an instantaneous zig."
         },
         "range_distribution": {
           "$ref": "#/$defs/RangeDistribution"
@@ -993,8 +1253,15 @@
           "description": "Scenario seed as a decimal uint64 string.",
           "type": "string"
         },
+        "turn_start_index": {
+          "description": "First timestep after the turn starts (absent for an instantaneous zig).",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "zig_index": {
-          "description": "First timestep on leg 2.",
+          "description": "First timestep on leg 2 (with a rate-limited turn, the first after it completes).",
           "type": "integer"
         },
         "zig_time_s": {
@@ -1036,6 +1303,13 @@
         },
         "ownship_speed_mps": {
           "type": "number"
+        },
+        "ownship_turn_rate_rad_s": {
+          "description": "Ownship turn rate at the zig (rate-limited turn, spec 003 US6). Absent or 0: the course changes instantaneously, as in generator 0.1.0.",
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "target_bearing0_rad": {
           "description": "True bearing at window start.",
@@ -1147,6 +1421,17 @@
             "integer",
             "null"
           ]
+        },
+        "feature_set": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FeatureSet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Input channel set; absent means raw. Must match the features files."
         },
         "id": {
           "description": "Estimator name used in predictions.",
@@ -1280,5 +1565,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.7.0"
+  "version": "0.8.0"
 }
