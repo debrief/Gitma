@@ -130,7 +130,11 @@ describe("tma-eval", () => {
     ];
     const base = ["g2", "--experiment", g2exp, ...ids, "--slice", "overall"];
     expect(runCli(gate, base)).toBe(0);
-    const v = JSON.parse(readFileSync(join(g2exp, "verdict.json"), "utf8")) as {
+    // A non-default slice is a diagnostic: it never writes verdict.json (G0 panel red team).
+    expect(existsSync(join(g2exp, "verdict.json"))).toBe(false);
+    const v = JSON.parse(
+      readFileSync(join(g2exp, "verdict-diagnostic-overall-300-600.json"), "utf8"),
+    ) as {
       gate: string;
       result: string;
       checks: { name: string; threshold?: number }[];

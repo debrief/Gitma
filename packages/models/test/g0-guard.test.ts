@@ -14,7 +14,11 @@ interface Exp {
   commit?: string;
 }
 
-function experiment(dir: string, id: string, e: Exp): void {
+function experiment(
+  dir: string,
+  id: string,
+  e: Exp & { decidedBy?: string; review?: boolean },
+): void {
   mkdirSync(join(dir, id));
   writeFileSync(
     join(dir, id, "verdict.json"),
@@ -22,9 +26,10 @@ function experiment(dir: string, id: string, e: Exp): void {
       gate: e.gate ?? "G0",
       result: e.result ?? "pass",
       checks: [],
-      decided_by: "t",
+      decided_by: e.decidedBy ?? "t",
     }),
   );
+  if (e.review === true) writeFileSync(join(dir, id, "review.md"), "# review\n");
   writeFileSync(
     join(dir, id, "manifest.json"),
     JSON.stringify({
@@ -97,6 +102,21 @@ describe("G0 guard (constitution V)", () => {
       JSON.stringify({ gate: "G0", result: "pass", checks: [], decided_by: "t" }),
     );
     expect(guard(dir)).toBeNull();
+  });
+
+  it("with requireReview, accepts only a panel-decided G0 with its review.md", () => {
+    const opts = { generatorUnchanged: (c: string) => c === "verified", requireReview: true };
+    const dir = tempDir();
+    experiment(dir, "harness", { created: T1, decidedBy: "harness (pending agent panel review)" });
+    expect(g0Accepted(dir, opts)).toBeNull();
+    experiment(dir, "no-review", { created: T2, decidedBy: "agent review panel, round 1" });
+    expect(g0Accepted(dir, opts)).toBeNull();
+    writeFileSync(join(dir, "no-review", "review.md"), "# review\n");
+    expect(g0Accepted(dir, opts)).toEqual({ id: "no-review", commit: "verified" });
+    // Without requireReview the machine verdict alone is enough (library default).
+    const lib = tempDir();
+    experiment(lib, "h", { created: T1, decidedBy: "harness (pending agent panel review)" });
+    expect(g0Accepted(lib, { generatorUnchanged: (c) => c === "verified" })).not.toBeNull();
   });
 
   it("accepts the committed iteration-2 G0 re-run (real git check)", () => {

@@ -50,8 +50,14 @@ export function g0Experiments(): string {
   mkdirSync(join(dir, "g0"));
   writeFileSync(
     join(dir, "g0", "verdict.json"),
-    JSON.stringify({ gate: "G0", result: "pass", checks: [], decided_by: "test" }),
+    JSON.stringify({
+      gate: "G0",
+      result: "pass",
+      checks: [],
+      decided_by: "agent review panel, round 1 (test fixture)",
+    }),
   );
+  writeFileSync(join(dir, "g0", "review.md"), "# G0 agent panel review (test fixture)\n");
   writeFileSync(
     join(dir, "g0", "manifest.json"),
     JSON.stringify({

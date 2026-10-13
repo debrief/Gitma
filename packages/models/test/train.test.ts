@@ -215,4 +215,25 @@ describe("training loop", () => {
     expect(resumed[0]).toMatch(/optimizer state restarts; patience not counted for epochs 1–3/);
     expect(m.complete).toBe(true);
   }, 120_000);
+
+  it("refuses to resume onto different training data (G0 panel red team)", async () => {
+    const out = tempDir();
+    const config = tinyConfig("mlp", { max_epochs: 2 });
+    let lines = 0;
+    await expect(
+      train({
+        config,
+        trainPath: data.train,
+        valPath: data.val,
+        outDir: out,
+        log: () => {
+          if (++lines === 2) throw new Error("job cancelled");
+        },
+      }),
+    ).rejects.toThrow("job cancelled");
+    const other = tinyFeatures(48, 4n);
+    await expect(
+      train({ config, trainPath: other.train, valPath: data.val, outDir: out, log: quiet }),
+    ).rejects.toThrow(/refusing to resume .*earlier epochs trained on train/);
+  }, 120_000);
 });

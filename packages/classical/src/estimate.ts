@@ -90,8 +90,8 @@ function emptyRow(d: BearingData, i: number): PredictionRow {
 /**
  * Classical estimate for one scenario.
  * - final: one row at the last sample using every bearing.
- * - per_timestep: one row per sample from zig_index + 1 (the first sample off the leg-1 line) to the
- *   end, each using only bearings up to and including that sample. Warm-started from the previous
+ * - per_timestep: one row per sample from zig_index + 1 (zig_index is the first leg-2 sample, after
+ *   a rate-limited turn completes; in-turn samples are not estimated) to the end, each using only bearings up to and including that sample. Warm-started from the previous
  *   row; a fresh grid start is also tried at the first row, every `GRID_EVERY` rows, and whenever
  *   the warm solution is non-converged or implausible, and the lower-cost solution is kept.
  *

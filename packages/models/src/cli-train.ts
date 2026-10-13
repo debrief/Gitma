@@ -29,22 +29,25 @@ export async function main(argv: string[], deps: TrainDeps = {}): Promise<unknow
       val: { type: "string" },
       out: { type: "string" },
       experiments: { type: "string", default: "experiments" },
+      "allow-unreviewed-g0": { type: "boolean", default: false },
     },
   });
   if (!values.config || !values.train || !values.val || !values.out) {
     throw new UsageError(
-      "usage: tma-train --config <config.json> --train <train.features.bin> --val <validation.features.bin> --out <dir> [--experiments dir]",
+      "usage: tma-train --config <config.json> --train <train.features.bin> --val <validation.features.bin> --out <dir> [--experiments dir] [--allow-unreviewed-g0]",
     );
   }
-  const g0 = g0Accepted(
-    values.experiments,
-    deps.generatorUnchanged === undefined ? {} : { generatorUnchanged: deps.generatorUnchanged },
-  );
+  const g0 = g0Accepted(values.experiments, {
+    requireReview: !values["allow-unreviewed-g0"],
+    ...(deps.generatorUnchanged === undefined
+      ? {}
+      : { generatorUnchanged: deps.generatorUnchanged }),
+  });
   if (g0 === null) {
     throw new RecordError(
       values.experiments,
       "G0",
-      "no passing G0 verdict: training is not allowed (constitution V)",
+      "no passing, panel-decided G0 verdict: training is not allowed (constitution V)",
     );
   }
   const config = parseRecord(
