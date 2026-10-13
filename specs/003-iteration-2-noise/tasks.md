@@ -33,30 +33,30 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 
 ### Tests ⚠️
 
-- [ ] T006 [P] [US1] Header provenance: clean tree → commit + `dirty: false`; dirty tree → refusal without `--allow-dirty`, `dirty: true` with it; outside git → refusal, in `packages/data/test/provenance.test.ts`
-- [ ] T007 [P] [US1] Features format v2 round-trip: source header and digest embedded; v1 files still read, in `packages/features/test/features-file.test.ts`
-- [ ] T008 [P] [US1] Lineage refusals `lineage-missing`, `lineage-dirty`, `lineage-mismatch` (generator paths differ from G0 commit, injected diff function), `lineage-split-mismatch`, `feature-set-mismatch`, in `packages/models/test/lineage.test.ts`
+- [x] T006 [P] [US1] Header provenance: clean tree → commit + `dirty: false`; dirty tree → refusal without `--allow-dirty`, `dirty: true` with it; outside git → refusal, in `packages/data/test/provenance.test.ts`
+- [x] T007 [P] [US1] Features format v2 round-trip: source header and digest embedded; v1 files still read, in `packages/features/test/features-file.test.ts`
+- [x] T008 [P] [US1] Lineage refusals `lineage-missing`, `lineage-dirty`, `lineage-mismatch` (generator paths differ from G0 commit, injected diff function), `lineage-split-mismatch`, `feature-set-mismatch`, in `packages/models/test/lineage.test.ts`
 
 ### Implementation
 
-- [ ] T009 [US1] Git provenance capture (commit, dirty; runs in the package checkout) in `packages/data/src/provenance.ts`; reuse from the eval manifest code
-- [ ] T010 [US1] Header provenance and `--allow-dirty` in `packages/data/src/generate.ts`, `cli-generate.ts`
-- [ ] T011 [US1] Features format v2 writer/reader in `packages/features/src/features-file.ts`, `reader.ts`
-- [ ] T012 [US1] Lineage checks in `packages/models/src/lineage.ts`; call from `cli-train.ts`; record `source_dataset_header`, `g0_experiment` in the manifest
-- [ ] T013 [US1] Update data and features goldens (`UPDATE_GOLDEN=1`), stating in the PR: header provenance slots (data), format v2 (features)
+- [x] T009 [US1] Git provenance capture (commit, dirty; runs in the package checkout) in `packages/data/src/provenance.ts`; reuse from the eval manifest code
+- [x] T010 [US1] Header provenance and `--allow-dirty` in `packages/data/src/generate.ts`, `cli-generate.ts`
+- [x] T011 [US1] Features format v2 writer/reader in `packages/features/src/features-file.ts`, `reader.ts`
+- [x] T012 [US1] Lineage checks in `packages/models/src/lineage.ts`; call from `cli-train.ts`; record `source_dataset_header`, `g0_experiment` in the manifest
+- [x] T013 [US1] Update data and features goldens (`UPDATE_GOLDEN=1`), stating in the PR: header provenance slots (data), format v2 (features)
 
 ## Phase 3: User Story 6 — Rate-limited ownship turn (P2) **[USER]** → PR A
 
 ### Tests ⚠️
 
-- [ ] T014 [P] [US6] Known answers: 90° at 1°/s, 5 m/s from (0, 0) heading north ends at (r, r) with r = v/ω and course 90°; mid-turn sample on the arc; negative zig mirrors; in `packages/sim/test/turn.test.ts`
-- [ ] T015 [P] [US6] Invariants: t = 0 bearing/range equal drawn parameters; `zig_index` is the first sample after the turn completes; `turn_start_index` ≤ `zig_index`; absent turn rate reproduces 0.1.0 trajectories exactly, in `packages/sim/test/scenario.test.ts`
-- [ ] T016 [P] [US6] G0 `independent-geometry` in-turn case (literal `Math.atan2`, closed-form arc), in `packages/eval/test/g0-checks.test.ts`
+- [x] T014 [P] [US6] Known answers: 90° at 1°/s, 5 m/s from (0, 0) heading north ends at (r, r) with r = v/ω and course 90°; mid-turn sample on the arc; negative zig mirrors; in `packages/sim/test/turn.test.ts`
+- [x] T015 [P] [US6] Invariants: t = 0 bearing/range equal drawn parameters; `zig_index` is the first sample after the turn completes; `turn_start_index` ≤ `zig_index`; absent turn rate reproduces 0.1.0 trajectories exactly, in `packages/sim/test/scenario.test.ts`
+- [x] T016 [P] [US6] G0 `independent-geometry` in-turn case (literal `Math.atan2`, closed-form arc), in `packages/eval/test/g0-checks.test.ts`
 
 ### Implementation
 
-- [ ] T017 [US6] Constant-rate turn in `packages/sim/src/scenario.ts` (closed-form arc, float32, redraw if the turn does not complete); `GENERATOR_VERSION` 0.2.0; sim golden updated with reason
-- [ ] T018 [US6] In-turn case in `packages/eval/src/g0-checks.ts`
+- [x] T017 [US6] Constant-rate turn in `packages/sim/src/scenario.ts` (closed-form arc, float32, redraw if the turn does not complete); `GENERATOR_VERSION` 0.2.0; sim golden updated with reason
+- [x] T018 [US6] In-turn case in `packages/eval/src/g0-checks.ts`
 
 **Checkpoint (PR A)**: lint, typecheck, tests, schema:check, site:build green; generator algorithm page updated (T047). **Merge only after G1 is final** (plan: critical notes).
 
@@ -122,7 +122,7 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 
 ## Phase 8: User Story 5 — Public report (P2) → PR E (start on CI-sized experiments)
 
-- [ ] T047 [P] [US5] `site/docs/algorithms/generator.md` (provenance; rate-limited turn if US6) — lands with PR A
+- [x] T047 [P] [US5] `site/docs/algorithms/generator.md` (provenance; rate-limited turn if US6) — lands with PR A
 - [ ] T048 [P] [US5] `site/docs/algorithms/feature-layout.md` (derived set, formulae, causality, format v2) — lands with PR C
 - [x] T049 [P] [US5] `site/docs/evaluation.md` (G2, bootstrap CIs, inconclusive, dropout slice, common-row comparison, window-mean position) — lands with PR B
 - [ ] T050 [P] [US5] Glossary: bearing rate, bearing-line intercept, pseudo-linear measurement, dropout, confidence interval, inconclusive, rate-limited turn, provenance

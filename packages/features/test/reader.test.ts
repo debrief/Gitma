@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { DEFAULT_RANGES, generateScenario } from "@tma/sim";
 import { describe, expect, it } from "vitest";
 import { writeFeatures } from "../src/features-file.js";
+import { testSource } from "./helpers.js";
 import { buildWindow } from "../src/layout.js";
 import { computeNormalisation } from "../src/normalise.js";
 import { openFeatures } from "../src/reader.js";
@@ -12,7 +13,7 @@ describe("features reader", () => {
   const ss = [0, 1, 2, 3].map((i) => generateScenario(5n, i, DEFAULT_RANGES).scenario);
   const norm = computeNormalisation(ss, "d");
   const path = join(mkdtempSync(join(tmpdir(), "tma-reader-")), "f.bin");
-  writeFeatures(path, () => ss, norm);
+  writeFeatures(path, () => ss, norm, testSource());
 
   it("returns exactly what buildWindow produced, in any order", () => {
     const f = openFeatures(path);

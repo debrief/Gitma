@@ -17,7 +17,17 @@ describe("CLI exit codes (contracts/cli.md)", () => {
   it("generate then check exits 0; differing datasets exit 2", () => {
     const dir = tempDir();
     expect(
-      runCli(generate, ["--seed", "1", "--count", "20", "--out", dir, "--format", "both"]),
+      runCli(generate, [
+        "--seed",
+        "1",
+        "--count",
+        "20",
+        "--out",
+        dir,
+        "--format",
+        "both",
+        "--allow-dirty",
+      ]),
     ).toBe(0);
     expect(runCli(convert, ["--check", join(dir, "test.ndjson"), join(dir, "test.f32pack")])).toBe(
       0,

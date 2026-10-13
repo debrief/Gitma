@@ -13,7 +13,13 @@ function compatible(file: string, build: string): boolean {
   return fMaj === bMaj && fMin <= bMin;
 }
 
-/** Reject files from an incompatible schema version or a different generator version (FR-007). */
+/**
+ * Generator versions whose files this build reads. 0.2.0 (rate-limited turn) reproduces 0.1.0
+ * byte for byte when the ranges have no turn rate, so iteration-1 datasets stay readable.
+ */
+export const READABLE_GENERATOR_VERSIONS: readonly string[] = ["0.1.0", GENERATOR_VERSION];
+
+/** Reject files from an incompatible schema version or an unknown generator version (FR-007). */
 export function checkVersions(
   file: string,
   header: { schema_version: string; generator_version?: string },
@@ -25,7 +31,10 @@ export function checkVersions(
       `schema version ${header.schema_version} is incompatible with this build (${SCHEMA_VERSION})`,
     );
   }
-  if (header.generator_version !== undefined && header.generator_version !== GENERATOR_VERSION) {
+  if (
+    header.generator_version !== undefined &&
+    !READABLE_GENERATOR_VERSIONS.includes(header.generator_version)
+  ) {
     throw new RecordError(
       file,
       "header",

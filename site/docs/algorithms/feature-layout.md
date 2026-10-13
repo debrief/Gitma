@@ -37,4 +37,8 @@ target tracks across scenarios and checks that the constants do not change.
 ## File
 
 `.features.bin`: magic `TMAFEAT\0`, version, `FeatureLayout` JSON, `NormalisationConstants` JSON,
-scenario indices, then the three tensors as little-endian float32, each scenario-major.
+then (format 2) the source dataset's `DatasetHeader` JSON and the SHA-256 of the dataset file,
+then scenario indices, then the three tensors as little-endian float32, each scenario-major.
+Format 2 (iteration 2) carries the dataset's [provenance](generator.md#provenance) into training,
+where `tma-train` checks it; the layout names its `feature_set` (`raw`). Format-1 files
+(iteration 1) are still read, but training refuses them (`lineage-missing`).

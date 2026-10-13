@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { GENERATOR_VERSION } from "@tma/sim";
 import { describe, expect, it } from "vitest";
-import { g0Passed } from "../src/g0-guard.js";
+import { g0Accepted, g0Passed } from "../src/g0-guard.js";
 import { tempDir } from "./helpers.js";
 
 interface Exp {
@@ -99,9 +99,22 @@ describe("G0 guard (constitution V)", () => {
     expect(guard(dir)).toBeNull();
   });
 
-  it("accepts the committed G0 experiments (real git check)", () => {
-    expect(g0Passed(new URL("../../../experiments", import.meta.url).pathname)).toMatch(
-      /^20261011-g0-r\d+$/,
-    );
+  it("refuses the committed iteration-1 G0 once the generator changed (real git check)", () => {
+    // Generator 0.2.0 (spec 003: header provenance, rate-limited turn) changed GENERATOR_PATHS
+    // after 20261011-g0-r3 was verified, so training is refused until the G0 re-run (T019–T020)
+    // commits a new passing verdict; then this test should expect that experiment's id instead.
+    const dir = new URL("../../../experiments", import.meta.url).pathname;
+    expect(g0Passed(dir)).toBeNull();
+    // Its manifest also names generator 0.1.0, so it stays refused even if the source matched.
+    expect(g0Passed(dir, { generatorUnchanged: () => true })).toBeNull();
+  });
+
+  it("returns the accepted experiment's id and commit", () => {
+    const dir = tempDir();
+    experiment(dir, "a", { created: T1 });
+    expect(g0Accepted(dir, { generatorUnchanged: (c) => c === "verified" })).toEqual({
+      id: "a",
+      commit: "verified",
+    });
   });
 });

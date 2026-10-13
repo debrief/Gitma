@@ -4,12 +4,18 @@ import { DEFAULT_RANGES, HELDOUT_RANGES, noiseFree, parseSeed } from "@tma/sim";
 import { ParameterRanges, parseRecord } from "@tma/types";
 import { isMain, runCli, UsageError } from "./cli.js";
 import { type Format, generateDataset } from "./generate.js";
+import { type GitProvenance, generatorProvenance, readGitProvenance } from "./provenance.js";
 
 function loadRanges(path: string): ParameterRanges {
   return parseRecord(ParameterRanges, JSON.parse(readFileSync(path, "utf8")), path, "ranges");
 }
 
-export function main(argv: string[]): unknown {
+export interface GenerateDeps {
+  /** Commit and tree state of the checkout (tests inject their own). */
+  provenance?: () => GitProvenance;
+}
+
+export function main(argv: string[], deps: GenerateDeps = {}): unknown {
   const { values } = parseArgs({
     args: argv,
     strict: true,
@@ -21,11 +27,12 @@ export function main(argv: string[]): unknown {
       "heldout-ranges": { type: "string" },
       "noise-free": { type: "boolean", default: false },
       format: { type: "string", default: "f32pack" },
+      "allow-dirty": { type: "boolean", default: false },
     },
   });
   if (values.seed === undefined || values.count === undefined || values.out === undefined) {
     throw new UsageError(
-      "usage: tma-generate --seed <uint64> --count <n> --out <dir> [--ranges f] [--heldout-ranges f] [--noise-free] [--format f32pack|ndjson|both]",
+      "usage: tma-generate --seed <uint64> --count <n> --out <dir> [--ranges f] [--heldout-ranges f] [--noise-free] [--allow-dirty] [--format f32pack|ndjson|both]",
     );
   }
   const count = Number(values.count);
@@ -40,6 +47,11 @@ export function main(argv: string[]): unknown {
     ranges = noiseFree(ranges);
     heldout = noiseFree(heldout);
   }
+  // Read before any output is written (the output folder may sit inside the checkout).
+  const provenance = generatorProvenance(
+    (deps.provenance ?? readGitProvenance)(),
+    values["allow-dirty"],
+  );
   const t0 = performance.now();
   const splits = generateDataset({
     seed: parseSeed(values.seed),
@@ -48,6 +60,7 @@ export function main(argv: string[]): unknown {
     ranges,
     heldoutRanges: heldout,
     format,
+    provenance,
     // Only generation-relevant arguments, so output bytes do not depend on paths or format.
     createdBy: [
       `tma-generate --seed ${values.seed} --count ${String(count)}`,

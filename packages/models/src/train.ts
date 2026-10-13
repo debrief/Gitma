@@ -39,6 +39,8 @@ export interface TrainOptions {
    * this process started (before training wrote anything); tests may pass their own.
    */
   source?: { commit: string; dirty: boolean };
+  /** Id of the G0 experiment the training guard accepted (tma-train), recorded in the manifest. */
+  g0Experiment?: string;
 }
 
 const url = (dir: string): string => `file://${resolve(dir)}`;
@@ -282,6 +284,8 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       ...env,
       git_commit: source.commit,
       git_dirty: dirty,
+      ...(trainFile.source === undefined ? {} : { source_dataset_header: trainFile.source.header }),
+      ...(opts.g0Experiment === undefined ? {} : { g0_experiment: opts.g0Experiment }),
       weights_digest:
         weightsPath !== null && existsSync(weightsPath) ? sha256File(weightsPath) : "",
     });

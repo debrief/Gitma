@@ -115,6 +115,27 @@ const KNOWN: ScenarioParameters = {
 };
 
 /**
+ * In-turn known answer (spec 003 US6): ownship north at 10 m/s turns +60° at 1°/s from t = 300 s
+ * at (0, 3000); stationary target at (5000, 0). Half-way through the turn (t = 330 s, sample 33)
+ * ownship has turned 30° on an arc of radius r = v/ω about (r, 3000), so it is at
+ * (r(1 − cos 30°), 3000 + r sin 30°). Literal Math.atan2, not the shared bearingOf or arc helper.
+ */
+export function inTurnBearing(): { got: number; want: number } {
+  const omega = Math.PI / 180;
+  const p: ScenarioParameters = {
+    ...KNOWN,
+    target_bearing0_rad: Math.PI / 2,
+    target_range0_m: 5000,
+    ownship_turn_rate_rad_s: omega,
+  };
+  const got = observe(createRng(1n), p, simulateTruth(p))[33]?.bearing_rad ?? NaN;
+  const r = 10 / omega;
+  const x = r * (1 - Math.cos(Math.PI / 6));
+  const y = 3000 + r * Math.sin(Math.PI / 6);
+  return { got, want: Math.atan2(5000 - x, 0 - y) };
+}
+
+/**
  * Solver-independent geometry: hand-computed bearings (Math.atan2 with literal coordinates, not
  * the shared bearingOf) and, for every truth scenario, the t = 0 bearing and range against the
  * drawn parameters. Catches frame errors that the solver would share with the generator.
@@ -146,6 +167,9 @@ export function checkIndependentGeometry(truth: Iterable<Scenario>): GateCheck {
   );
   if (!(Math.abs(angleDiff(leg2 ?? NaN, want2)) < 1e-6))
     fails.push(`leg-2 case gave ${String(leg2)}`);
+  const inTurn = inTurnBearing();
+  if (!(Math.abs(angleDiff(inTurn.got, inTurn.want)) < 1e-6))
+    fails.push(`in-turn case gave ${String(inTurn.got)}`);
   let n = 0;
   for (const s of truth) {
     const p = s.metadata.parameters;
@@ -172,7 +196,7 @@ export function checkIndependentGeometry(truth: Iterable<Scenario>): GateCheck {
     "independent-geometry",
     fails.length === 0,
     fails.length === 0
-      ? `hand-computed 315°, abeam and leg-2 cases match; t = 0 bearing and range match the drawn parameters on ${String(n)} scenarios`
+      ? `hand-computed 315°, abeam, leg-2 and in-turn cases match; t = 0 bearing and range match the drawn parameters on ${String(n)} scenarios`
       : fails.slice(0, 6).join("; "),
   );
 }

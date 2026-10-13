@@ -13,7 +13,9 @@ describe("tma-solve", () => {
 
   it("writes a validated prediction file bound to the truth file's digest", () => {
     const dir = mkdtempSync(join(tmpdir(), "tma-solve-"));
-    expect(runCli(generate, ["--seed", "3", "--count", "30", "--out", dir])).toBe(0);
+    expect(runCli(generate, ["--seed", "3", "--count", "30", "--out", dir, "--allow-dirty"])).toBe(
+      0,
+    );
     const truth = join(dir, "test.f32pack");
     const out = join(dir, "pred.ndjson");
     expect(runCli(solve, ["--in", truth, "--out", out])).toBe(0);

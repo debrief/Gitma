@@ -54,6 +54,16 @@ describe("rejection", () => {
     expect(() => readDataset(p)).toThrow(/generator version 0\.0\.1/);
   });
 
+  it("still reads generator 0.1.0 files (0.2.0 without a turn reproduces them)", () => {
+    const text = readFileSync(join(dir, "test.ndjson"), "utf8").replace(
+      /"generator_version":"[^"]*"/,
+      '"generator_version":"0.1.0"',
+    );
+    const p = join(out, "g010.ndjson");
+    writeFileSync(p, text);
+    expect(readDataset(p).header.generator_version).toBe("0.1.0");
+  });
+
   it("truncated NDJSON fails naming file and line", () => {
     const text = readFileSync(join(dir, "train.ndjson"), "utf8");
     const p = join(out, "t.ndjson");
