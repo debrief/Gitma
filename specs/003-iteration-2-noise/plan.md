@@ -213,6 +213,11 @@ The open questions were put to the user one at a time; all recommendations accep
     `time-late-not-worse` fails, **G2 passes with the caveat stated**, as G1's rule 1. The machine
     verdict still reads `inconclusive` (G1's aggregation, kept); the panel applies this rule and
     records it in `decided_by`.
+13. **Speed point stays zig + 600 s, with its coverage stated** (after the G0 re-run panel,
+    2026-10-13): with the rate-limited turn, about 40% of scenarios end before zig + 600 s (all
+    windows under ≈ 1000 s), so the speed criterion covers only the longer windows. The gate
+    detail states the share reaching each point, and the G2 report states that a speed pass
+    applies to windows of ≈ 1000 s or more (research R12).
 
 Exit codes follow PR #21 (already implemented): **3 for any gate result other than pass**
 (fail or inconclusive); the verdict file distinguishes them.

@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { GENERATOR_VERSION } from "@tma/sim";
 import { describe, expect, it } from "vitest";
@@ -124,7 +124,12 @@ describe("G0 guard (constitution V)", () => {
     const dir = new URL("../../../experiments", import.meta.url).pathname;
     const want = { id: "20261013-g0-i2-r2", commit: "24bbdab5d79f3c872f88ac6494c2d73068016225" };
     expect(g0Accepted(dir)).toEqual(want);
-    const reviewed = existsSync(join(dir, want.id, "review.md"));
+    const verdict = JSON.parse(readFileSync(join(dir, want.id, "verdict.json"), "utf8")) as {
+      decided_by: string;
+    };
+    const reviewed =
+      existsSync(join(dir, want.id, "review.md")) &&
+      verdict.decided_by.startsWith("agent review panel");
     expect(g0Accepted(dir, { requireReview: true })).toEqual(reviewed ? want : null);
   });
 

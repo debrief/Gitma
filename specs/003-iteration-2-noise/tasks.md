@@ -25,7 +25,7 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 
 - [x] T003 Schema 0.8.0 (was 0.5.0; iteration 1 used 0.5.0–0.7.0) in `schema/tma.yaml` per data-model.md (provenance, turn slots, `FeatureSet`, `NormalisationConstants.bearing_rate_scale_rad_s`, `TrainingConfig.feature_set`, `ModelManifest` lineage slots, `GateResult.inconclusive`, `GateCheck` CI slots, `MetricsRecord` window-position slots, `PairedComparison`, `ChangeDecision`); `pnpm schema:gen`; data dictionary regenerates
 - [x] T004 [P] `configs/iter2-ranges.json`, `configs/iter2-heldout-ranges.json` (σ ∈ {1°, 2°}, dropout 0–0.10; the turn rate is added with T017 so no config asks for a turn the generator cannot yet draw) and, if US6, `configs/iter2-turn-only-test-ranges.json`
-- [ ] T005 (preliminary done 2026-10-11: speed threshold unmet by classical at zig+300 s, see R12; re-run on final generator) Achievability reference (research R12): naive + classical per-timestep on a seed-201 test split; record classical σ = 1° medians at zig + 300 s against G2 thresholds in `research.md`; tell the user before any training
+- [x] T005 (done 2026-10-13 on generator 0.2.0, seed 302 so the seed-201 test split stays unseen; preliminary 2026-10-11: speed threshold unmet by classical at zig+300 s, see R12; re-run on final generator) Achievability reference (research R12): naive + classical per-timestep on a seed-201 test split; record classical σ = 1° medians at zig + 300 s against G2 thresholds in `research.md`; tell the user before any training
 
 ---
 
@@ -62,7 +62,7 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 
 ## Phase 4: G0 re-run (after PR A merges)
 
-- [ ] T019 `tma-g0` at PR A's merge commit (quickstart §1) → `experiments/<date>-g0-i2/`
+- [x] T019 `tma-g0` at PR A's merge commit (quickstart §1) → `experiments/<date>-g0-i2/`
 - [ ] T020 Agent review panel (five reviewers) on the G0 re-run; fix/answer findings; `review.md`; `decided_by` set → PR
 
 **Checkpoint**: training guard and lineage accept seed-201 data generated at a commit whose generator paths equal the G0 commit's.
