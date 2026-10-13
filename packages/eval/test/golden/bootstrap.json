@@ -1,0 +1,392 @@
+{
+  "level": 0.95,
+  "medians": [
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 1.133009482266178,
+      "lo": 0.24201124846717334,
+      "median": 0.5081409219550582,
+      "metric": "range_rel",
+      "n": 4,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 146.50349373421736,
+      "lo": 74.5295730353516,
+      "median": 99.54161649291159,
+      "metric": "course_deg",
+      "n": 4,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 6.0339687709931935,
+      "lo": 1.4868433480643812,
+      "median": 4.718469801010889,
+      "metric": "speed_kt",
+      "n": 4,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 0.5081409219550582,
+      "lo": 0.24201124846717334,
+      "median": 0.24201124846717334,
+      "metric": "range_rel",
+      "n": 2,
+      "point": "zig+300s",
+      "slice": "sigma=0.5deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 146.50349373421736,
+      "lo": 74.5295730353516,
+      "median": 74.5295730353516,
+      "metric": "course_deg",
+      "n": 2,
+      "point": "zig+300s",
+      "slice": "sigma=0.5deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 6.0339687709931935,
+      "lo": 1.4868433480643812,
+      "median": 1.4868433480643812,
+      "metric": "speed_kt",
+      "n": 2,
+      "point": "zig+300s",
+      "slice": "sigma=0.5deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 1.133009482266178,
+      "lo": 0.9594965284644721,
+      "median": 0.9594965284644721,
+      "metric": "range_rel",
+      "n": 2,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 117.05318333607045,
+      "lo": 99.54161649291159,
+      "median": 99.54161649291159,
+      "metric": "course_deg",
+      "n": 2,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 5.959069909081346,
+      "lo": 4.718469801010889,
+      "median": 4.718469801010889,
+      "metric": "speed_kt",
+      "n": 2,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 0.39641336607203437,
+      "lo": 0.04460613101744251,
+      "median": 0.3086231995722706,
+      "metric": "range_rel",
+      "n": 3,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 146.50349373421736,
+      "lo": 74.5295730353516,
+      "median": 99.54161649291159,
+      "metric": "course_deg",
+      "n": 3,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 6.0339687709931935,
+      "lo": 1.4868433480643812,
+      "median": 4.718469801010889,
+      "metric": "speed_kt",
+      "n": 3,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 0.39641336607203437,
+      "lo": 0.04460613101744251,
+      "median": 0.04460613101744251,
+      "metric": "range_rel",
+      "n": 2,
+      "point": "zig+600s",
+      "slice": "sigma=0.5deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 146.50349373421736,
+      "lo": 74.5295730353516,
+      "median": 74.5295730353516,
+      "metric": "course_deg",
+      "n": 2,
+      "point": "zig+600s",
+      "slice": "sigma=0.5deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 6.0339687709931935,
+      "lo": 1.4868433480643812,
+      "median": 1.4868433480643812,
+      "metric": "speed_kt",
+      "n": 2,
+      "point": "zig+600s",
+      "slice": "sigma=0.5deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 0.3086231995722706,
+      "lo": 0.3086231995722706,
+      "median": 0.3086231995722706,
+      "metric": "range_rel",
+      "n": 1,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 99.54161649291159,
+      "lo": 99.54161649291159,
+      "median": 99.54161649291159,
+      "metric": "course_deg",
+      "n": 1,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 4.718469801010889,
+      "lo": 4.718469801010889,
+      "median": 4.718469801010889,
+      "metric": "speed_kt",
+      "n": 1,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.019858952782680035,
+      "lo": 0.008901481590321033,
+      "median": 0.014899622928814976,
+      "metric": "range_rel",
+      "n": 4,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.5476992091649824,
+      "lo": 0.2644376039062137,
+      "median": 0.5393117368642069,
+      "metric": "course_deg",
+      "n": 4,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.3006521105508825,
+      "lo": 0.06310872846236754,
+      "median": 0.2706910827504893,
+      "metric": "speed_kt",
+      "n": 4,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.014899622928814976,
+      "lo": 0.008901481590321033,
+      "median": 0.008901481590321033,
+      "metric": "range_rel",
+      "n": 2,
+      "point": "zig+300s",
+      "slice": "sigma=0.5deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.5393117368642069,
+      "lo": 0.2644376039062137,
+      "median": 0.2644376039062137,
+      "metric": "course_deg",
+      "n": 2,
+      "point": "zig+300s",
+      "slice": "sigma=0.5deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.2706910827504893,
+      "lo": 0.06310872846236754,
+      "median": 0.06310872846236754,
+      "metric": "speed_kt",
+      "n": 2,
+      "point": "zig+300s",
+      "slice": "sigma=0.5deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.22937902518351286,
+      "lo": 0.019858952782680035,
+      "median": 0.019858952782680035,
+      "metric": "range_rel",
+      "n": 2,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 4.107539163062268,
+      "lo": 0.5476992091649824,
+      "median": 0.5476992091649824,
+      "metric": "course_deg",
+      "n": 2,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 4.107786306294715,
+      "lo": 0.3006521105508825,
+      "median": 0.3006521105508825,
+      "metric": "speed_kt",
+      "n": 2,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.015368329914195537,
+      "lo": 0.006669512827422594,
+      "median": 0.00678939152556541,
+      "metric": "range_rel",
+      "n": 3,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.5614278893967081,
+      "lo": 0.06384860836127919,
+      "median": 0.163378124946705,
+      "metric": "course_deg",
+      "n": 3,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.2881464123983362,
+      "lo": 0.1325426039891418,
+      "median": 0.15982489863945648,
+      "metric": "speed_kt",
+      "n": 3,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.015368329914195537,
+      "lo": 0.00678939152556541,
+      "median": 0.00678939152556541,
+      "metric": "range_rel",
+      "n": 2,
+      "point": "zig+600s",
+      "slice": "sigma=0.5deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.5614278893967081,
+      "lo": 0.06384860836127919,
+      "median": 0.06384860836127919,
+      "metric": "course_deg",
+      "n": 2,
+      "point": "zig+600s",
+      "slice": "sigma=0.5deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.2881464123983362,
+      "lo": 0.1325426039891418,
+      "median": 0.1325426039891418,
+      "metric": "speed_kt",
+      "n": 2,
+      "point": "zig+600s",
+      "slice": "sigma=0.5deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.006669512827422594,
+      "lo": 0.006669512827422594,
+      "median": 0.006669512827422594,
+      "metric": "range_rel",
+      "n": 1,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.163378124946705,
+      "lo": 0.163378124946705,
+      "median": 0.163378124946705,
+      "metric": "course_deg",
+      "n": 1,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.15982489863945648,
+      "lo": 0.15982489863945648,
+      "median": 0.15982489863945648,
+      "metric": "speed_kt",
+      "n": 1,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    }
+  ],
+  "method": "percentile bootstrap over scenarios; nearest-rank 2.5th and 97.5th percentiles",
+  "ratios": [
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.06156582813065392,
+      "lo": 0.017517742039103695,
+      "metric": "range_rel",
+      "n": 4,
+      "point": "zig+300s",
+      "ratio": 0.029321832359986057,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.15220758605830503,
+      "lo": 0.021610536202936317,
+      "metric": "range_rel",
+      "n": 3,
+      "point": "zig+600s",
+      "ratio": 0.021998966814468307,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    }
+  ],
+  "resamples": 200,
+  "seed": "7"
+}

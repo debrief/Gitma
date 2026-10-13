@@ -9,9 +9,11 @@ import {
   type DatasetHeader,
   type ExperimentManifest,
   type GateVerdict,
+  type PairedComparison,
   SCHEMA_VERSION,
 } from "@tma/types";
-import { CURVE_COLUMNS, METRIC_COLUMNS, toCsv } from "./csv.js";
+import type { BootstrapReport } from "./bootstrap.js";
+import { COMPARISON_COLUMNS, CURVE_COLUMNS, METRIC_COLUMNS, toCsv } from "./csv.js";
 import type { Evaluation } from "./evaluate.js";
 
 function write(dir: string, name: string, text: string): void {
@@ -81,6 +83,19 @@ export function writeEvaluation(dir: string, ev: Evaluation): void {
   write(dir, "metrics.json", prettyJson(ev.metrics));
   write(dir, "metrics.csv", toCsv(METRIC_COLUMNS, ev.metrics));
   if (ev.curves.length > 0) write(dir, "curves.csv", toCsv(CURVE_COLUMNS, ev.curves));
+}
+
+/** bootstrap.json: intervals for `tma-gate g2` (spec 003 T028). */
+export function writeBootstrap(dir: string, report: BootstrapReport): void {
+  mkdirSync(dir, { recursive: true });
+  write(dir, "bootstrap.json", prettyJson(report));
+}
+
+/** comparison.{json,csv}: common-row comparison with a reference (spec 003 T029). */
+export function writeComparison(dir: string, rows: PairedComparison[]): void {
+  mkdirSync(dir, { recursive: true });
+  write(dir, "comparison.json", prettyJson(rows));
+  write(dir, "comparison.csv", toCsv(COMPARISON_COLUMNS, rows));
 }
 
 export function writeManifest(dir: string, m: ExperimentManifest): void {
