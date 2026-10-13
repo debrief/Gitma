@@ -8,6 +8,14 @@ exist.
 **Bearing** — True direction from ownship to the target, clockwise from north, in radians in
 [0, 2π). The only measurement the estimators receive about the target.
 
+**Bearing-line intercept** — c = x_o cos b − y_o sin b for ownship at (x_o, y_o) and bearing b: every
+point (x, y) on the line of bearing satisfies x cos b − y sin b = c. A derived input channel (in km,
+scaled). See [feature layout](algorithms/feature-layout.md#derived-feature-set).
+
+**Bearing rate** — How fast the bearing changes (rad/s). The derived feature set estimates it at
+each row as the least-squares slope of the bearings in the trailing 3 min (≥ 3 valid samples),
+using no later samples. See [feature layout](algorithms/feature-layout.md#derived-feature-set).
+
 **Bearings-only TMA** — Estimating a target's position and velocity from a time series of bearings,
 with ownship's own track known. See [least-squares solver](algorithms/least-squares-solver.md).
 
@@ -57,6 +65,11 @@ it weakly observable.
 generator code and whether the working tree was dirty; features files carry that header forward,
 and training refuses data whose provenance is missing, dirty or from a generator other than the one
 G0 verified. See [generator](algorithms/generator.md#provenance).
+
+**Pseudo-linear measurement** — A bearing rewritten as an equation linear in the target's
+position: x cos b − y sin b = x_o cos b − y_o sin b. With constant target velocity, each bearing
+gives one linear equation in the target's initial position and velocity, the basis of
+pseudo-linear TMA estimators and of the bearing-line intercept channel.
 
 **Rate-limited turn** — Ownship's zig flown as a constant-rate turn at constant speed (iteration 2:
 0.5–3°/s, so 90° takes 30–180 s) instead of an instantaneous course change. `zig_index` is the

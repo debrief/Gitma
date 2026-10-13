@@ -53,5 +53,24 @@ jobs:
           done
           pnpm tma-g1 --data "$D" --models "$RUNNER_TEMP/models" --experiment "$RUNNER_TEMP/exp/g1" || [ $? -eq 3 ]
           test -f "$RUNNER_TEMP/exp/g1/verdict.json"
+      - name: End-to-end iteration-2 plans (300 noisy scenarios, tiny models, 1 epoch, raw and derived; result not asserted)
+        shell: bash
+        run: |
+          # The same script steps train.yml runs: data with digest check, training, tma-g2 on validation.
+          for plan in ci ci/derived; do
+            P="configs/$plan/plan.json"
+            D="$RUNNER_TEMP/plan-${plan//\//-}"
+            node scripts/train-plan.mjs data "$P" "$D" train validation
+            for m in $(jq -r '.models[]' "$P"); do
+              node packages/models/dist/cli-train.js --config "$(jq -r .configs "$P")/$m.json" \
+                --train "$D/train.features.bin" --val "$D/validation.features.bin" \
+                --out "$D/models/$m" --experiments "$RUNNER_TEMP/exp" --allow-unreviewed-g0
+            done
+            rm -f "$D"/test.* "$D"/heldout.* # validation runs never see the test split
+            EXP="$RUNNER_TEMP/exp/$(jq -r .id "$P")-val"
+            mapfile -t ARGS < <(node scripts/train-plan.mjs evaluate-args "$P" "$D" "$D/models" "$EXP")
+            node packages/models/dist/cli-g2.js "${ARGS[@]}" || [ $? -eq 3 ]
+            test -f "$EXP/diagnostic.json" && test -f "$EXP/bootstrap.json" && test -f "$EXP/comparison.csv"
+          done
       - name: Site build (data dictionary, gate status, links)
         run: pnpm site:build

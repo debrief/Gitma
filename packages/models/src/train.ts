@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 import * as tf from "@tensorflow/tfjs-node";
 import { canonicalJson } from "@tma/data";
 import { gitCommit, gitDirty } from "@tma/eval";
-import { type FeatureFile, NI, openFeatures } from "@tma/features";
+import { type FeatureFile, openFeatures } from "@tma/features";
 import { GENERATOR_VERSION } from "@tma/sim";
 import {
   type EpochRecord,
@@ -15,7 +15,7 @@ import {
   type StopReason,
   type TrainingConfig,
 } from "@tma/types";
-import { buildModel } from "./architectures.js";
+import { buildModel, modelInputWidth } from "./architectures.js";
 import {
   batchRows,
   checkBucketing,
@@ -157,7 +157,7 @@ async function validationLoss(
     );
     const b = makeBatch(file, ks, { ...config, shuffle_labels: false }, ids);
     const [n, d] = tf.tidy(() => {
-      const x = tf.tensor3d(b.x, [b.size, b.rows, NI]);
+      const x = tf.tensor3d(b.x, [b.size, b.rows, file.inputChannels]);
       const y = tf.tensor3d(b.y, [b.size, b.rows, NY]);
       const p = lossParts(w, y, model.predict(x) as tf.Tensor);
       return [p.num, p.den];
@@ -189,6 +189,15 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
     const n = Math.min(trainFile.count, config.train_limit ?? trainFile.count);
     const labels = labelMap(config, n);
     checkBucketing(config);
+    // tma-train's lineage check names this refusal first; train() keeps it for direct callers.
+    const featureSet = config.feature_set ?? "raw";
+    for (const f of [trainFile, valFile]) {
+      if (f.featureSet !== featureSet) {
+        throw new Error(
+          `feature-set-mismatch: config ${config.id} expects feature set ${featureSet}; ${f.path} holds ${f.featureSet}`,
+        );
+      }
+    }
     // Length bucketing (R15) needs each window's length; validation always uses full windows.
     const lengths = config.length_bucketing === true ? windowLengths(trainFile, n) : undefined;
     const manifestPath = join(outDir, "manifest.json");
@@ -230,6 +239,11 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
         );
       }
       model = await tf.loadLayersModel(`${url(ckptSaved)}/model.json`);
+      if (modelInputWidth(model) !== trainFile.inputChannels) {
+        throw new Error(
+          `${ckptSaved}: checkpoint takes ${String(modelInputWidth(model))} input channels; ${opts.trainPath} has ${String(trainFile.inputChannels)}`,
+        );
+      }
       // An interrupted swap of best/ leaves only best.old: restore it as best/.
       const bestSaved = savedModelDir(bestDir);
       if (bestSaved !== null && bestSaved !== bestDir) renameSync(bestSaved, bestDir);
@@ -259,7 +273,7 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       }
     } else {
       if (prior?.complete === true) throw new Error(`${outDir} already holds a completed model`);
-      model = buildModel(config);
+      model = buildModel(config, trainFile.inputChannels);
     }
     const lossFn = makeLoss(config);
 
@@ -304,7 +318,7 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       let batches = 0;
       for (const ks of epochBatches(config, e, n, lengths)) {
         const b = makeBatch(trainFile, ks, config, labels, batchRows(config, ks, lengths));
-        const x = tf.tensor3d(b.x, [b.size, b.rows, NI]);
+        const x = tf.tensor3d(b.x, [b.size, b.rows, trainFile.inputChannels]);
         const y = tf.tensor3d(b.y, [b.size, b.rows, NY]);
         lossSum += trainStep(model, optimizer, lossFn, x, y);
         x.dispose();

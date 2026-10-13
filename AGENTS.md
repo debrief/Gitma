@@ -77,12 +77,15 @@ Full walkthroughs: `specs/001-iteration-0-pipeline/quickstart.md`, `specs/002-it
 Full training (≈ 5.5 h per model on 4 CPU cores) runs on GitHub-hosted runners, not in agent
 sessions (containers are reclaimed when idle).
 
-- **Train:** push a `train/**` branch, optionally with `.github/train-plan.json` (`models` to train;
-  optional `reuse_run` whose model artifacts fill in the rest; optional `continue_from` to resume a
-  committed model via `scripts/train-continue.mjs`). Checkpoints, with Adam state, go to
-  `checkpoints/<branch>/<model>` after every epoch, so a cancelled job resumes. One job per
-  model, then a G1 job; results are pushed to `results/g1-<run id>`. Nothing
-  merges automatically.
+- **Train:** push `train/i<iteration><phase>` (e.g. `train/i2a` → `configs/iter2/a/plan.json`), or
+  dispatch `train.yml` with a `plan` input. A plan names the dataset (seed, ranges, pinned content
+  digests, checked in every job by `scripts/train-plan.mjs`), the feature set, the model configs,
+  an optional `continue_from`, and the `evaluate` step (`tma-g2`, validation or test). Each model
+  trains in up to three chained ≤ 345-min jobs; checkpoints, with Adam state, go to
+  `checkpoints/<branch>/<model>` after every epoch, so the next job (or a re-push) resumes; a
+  job whose model is complete still runs `tma-train --check` (G0 guard + lineage) and then does
+  nothing. Results go to `results/<plan id>-<run id>`. Nothing merges automatically. The
+  iteration-1 `train/i1` + `.github/train-plan.json` path is retired (re-score instead).
 - **Re-score:** push an `eval/**` branch containing `experiments/<id>-g1/models/`;
   `.github/workflows/evaluate-g1.yml` re-runs `tma-g1` with current code and pushes
   `results/g1-eval-<run id>` (folder `<id>-r2`, with `bootstrap.json`).

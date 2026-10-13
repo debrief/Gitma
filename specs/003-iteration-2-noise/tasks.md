@@ -94,19 +94,19 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 
 ### Tests ⚠️
 
-- [ ] T032 [P] [US3] Derived features: known values (constant bearing rate ⇒ exact slope; intercept for a hand case); causality by perturbing rows > t; zero on dropout and padding rows; `rate_valid` = 0 with < 3 valid samples; wrap across 0/2π, in `packages/features/test/derived.test.ts`
-- [ ] T033 [P] [US3] Inputs-only and counterfactual: `bearing_rate_scale_rad_s` unchanged when target truth is scrambled; derived inputs byte-identical under scrambled truth, in `packages/features/test/normalise.test.ts`
-- [ ] T034 [P] [US2] Model input width follows the features file layout (10 or 13); a model trained on `raw` refuses `derived` files at predict time, in `packages/models/test/architectures.test.ts`, `predict.test.ts`
-- [ ] T035 [P] [US2] Features golden for the `derived` set (fixed seed, byte-identical), in `packages/features/test/golden.test.ts`
+- [x] T032 [P] [US3] Derived features: known values (constant bearing rate ⇒ exact slope; intercept for a hand case); causality by perturbing rows > t; zero on dropout and padding rows; `rate_valid` = 0 with < 3 valid samples; wrap across 0/2π, in `packages/features/test/derived.test.ts`
+- [x] T033 [P] [US3] Inputs-only and counterfactual: `bearing_rate_scale_rad_s` unchanged when target truth is scrambled; derived inputs byte-identical under scrambled truth, in `packages/features/test/normalise.test.ts`
+- [x] T034 [P] [US2] Model input width follows the features file layout (10 or 13); a model trained on `raw` refuses `derived` files at predict time, in `packages/models/test/architectures.test.ts`, `predict.test.ts`
+- [x] T035 [P] [US2] Features golden for the `derived` set (fixed seed, byte-identical), in `packages/features/test/golden.test.ts`
 
 ### Implementation
 
-- [ ] T036 [US3] `packages/features/src/derived.ts` (pure functions); feature sets in `layout.ts`; `--feature-set` in `cli.ts`; scale constant in `normalise.ts`
-- [ ] T037 [US2] Input width from layout in `packages/models/src/architectures.ts`, `batches.ts`, `predict.ts`
-- [ ] T038 [US2] `tma-g2` one-command run (`--split validation|test`, `--compare-models`, `--decision` required for test when phase B exists) in `packages/models/src/g2.ts`, `cli-g2.ts`
-- [ ] T039 [P] [US2] Phase A configs `configs/iter2/a/*.json` from the G1-carried configurations with decision 9's budget (`max_epochs` 60, `max_wall_s` 172,800, `length_bucketing` true, `tfjs_threads` 1) and `plan.json` with expected data digests
-- [ ] T040 [P] [US2] Generalise `.github/workflows/train.yml` (on main since #33) to plan files; up to three chained 345-min jobs per model resuming from the checkpoint branch (decision 9); evaluation job runs the plan's `evaluate`; pushes `results/<plan>-<run id>`
-- [ ] T041 [US2] CI end-to-end on a tiny plan (300 scenarios, 1 epoch, both feature sets) in `.github/workflows/ci.yml`
+- [x] T036 [US3] `packages/features/src/derived.ts` (pure functions); feature sets in `layout.ts`; `--feature-set` in `cli.ts`; scale constant in `normalise.ts`
+- [x] T037 [US2] Input width from layout in `packages/models/src/architectures.ts`, `batches.ts`, `predict.ts`
+- [x] T038 [US2] `tma-g2` one-command run (`--split validation|test`, `--compare-models`, `--decision` required for test when phase B exists) in `packages/models/src/g2.ts`, `cli-g2.ts`
+- [x] T039 [P] [US2] Phase A configs `configs/iter2/a/*.json` from the G1-carried configurations with decision 9's budget (`max_epochs` 60, `max_wall_s` 172,800, `length_bucketing` true, `tfjs_threads` 1) and `plan.json` with expected data digests
+- [x] T040 [P] [US2] Generalise `.github/workflows/train.yml` (on main since #33) to plan files; up to three chained 345-min jobs per model resuming from the checkpoint branch (decision 9); evaluation job runs the plan's `evaluate`; pushes `results/<plan>-<run id>`
+- [x] T041 [US2] CI end-to-end on a tiny plan (300 scenarios, 1 epoch, both feature sets) in `.github/workflows/ci.yml`
 
 ---
 
@@ -123,7 +123,7 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 ## Phase 8: User Story 5 — Public report (P2) → PR E (start on CI-sized experiments)
 
 - [x] T047 [P] [US5] `site/docs/algorithms/generator.md` (provenance; rate-limited turn if US6) — lands with PR A
-- [ ] T048 [P] [US5] `site/docs/algorithms/feature-layout.md` (derived set, formulae, causality, format v2) — lands with PR C
+- [x] T048 [P] [US5] `site/docs/algorithms/feature-layout.md` (derived set, formulae, causality, format v2) — lands with PR C
 - [x] T049 [P] [US5] `site/docs/evaluation.md` (G2, bootstrap CIs, inconclusive, dropout slice, common-row comparison, window-mean position) — lands with PR B
 - [ ] T050 [P] [US5] Glossary: bearing rate, bearing-line intercept, pseudo-linear measurement, dropout, confidence interval, inconclusive, rate-limited turn, provenance
 - [ ] T051 [US5] `ResultsReview.jsx` slice selector (σ, dropout band) and CI column; `site/docs/results/iteration-2.mdx`

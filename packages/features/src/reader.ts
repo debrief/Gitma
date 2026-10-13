@@ -10,7 +10,7 @@ import {
   RecordError,
 } from "@tma/types";
 import { FEATURE_MAGIC, type FeatureSource, READABLE_FEATURE_VERSIONS } from "./features-file.js";
-import { NI, NT, ROWS, type Window } from "./layout.js";
+import { inputChannels, inputWidth, NT, ROWS, type Window } from "./layout.js";
 
 export interface FeatureFile {
   path: string;
@@ -22,6 +22,8 @@ export interface FeatureFile {
   layout: FeatureLayout;
   /** `layout.feature_set`, absent meaning raw. */
   featureSet: FeatureSet;
+  /** Input channels per row: 10 (raw) or 13 (derived); `read(k).inputs` is [ROWS × this]. */
+  inputChannels: number;
   norm: NormalisationConstants;
   /** Source dataset header and SHA-256 (version 2); undefined for version 1. */
   source: FeatureSource | undefined;
@@ -102,14 +104,18 @@ export function openFeatures(path: string): FeatureFile {
     const indices = new Int32Array(count);
     for (let i = 0; i < count; i++) indices[i] = idxBuf.readInt32LE(4 * i);
     pos += 4 * count;
+    const featureSet = layout.feature_set ?? "raw";
+    const ni = inputWidth(featureSet);
+    const channels = inputChannels(featureSet);
     if (
       layout.rows !== ROWS ||
-      layout.input_channels.length !== NI ||
+      layout.input_channels.length !== ni ||
+      layout.input_channels.some((c, i) => c !== channels[i]) ||
       layout.target_channels.length !== NT
     ) {
       throw new RecordError(path, "layout", "feature layout does not match this build");
     }
-    const inBytes = ROWS * NI * 4;
+    const inBytes = ROWS * ni * 4;
     const tgBytes = ROWS * NT * 4;
     const lmBytes = ROWS * 4;
     const inputsAt = pos;
@@ -134,7 +140,8 @@ export function openFeatures(path: string): FeatureFile {
       count,
       indices,
       layout,
-      featureSet: layout.feature_set ?? "raw",
+      featureSet,
+      inputChannels: ni,
       norm,
       source,
       read(i: number): Window {

@@ -1,5 +1,5 @@
 // Training lineage refusals (spec 003 US1, T008; contracts/cli.md tma-train).
-import { copyFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, readFileSync, existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { readGitProvenance } from "@tma/data";
 import type { FeatureSource } from "@tma/features";
@@ -162,6 +162,50 @@ describe("tma-train refuses on lineage (exit 2 reasons)", () => {
     const differ = { ...FIXTURE_GIT, generatorPathsEqual: () => false };
     await expect(cliTrain(args(data.train, data.val), differ)).rejects.toThrow(/^lineage-mismatch/);
   });
+
+  it("--check runs the guard and lineage only: passes clean data without training, refuses as training would", async () => {
+    const a = args(data.train, data.val);
+    const out = a[a.indexOf("--out") + 1] ?? "";
+    await expect(cliTrain([...a, "--check"], FIXTURE_GIT)).resolves.toMatchObject({
+      check: "pass",
+      g0_experiment: "g0",
+    });
+    expect(existsSync(join(out, "manifest.json"))).toBe(false);
+    const differ = { ...FIXTURE_GIT, generatorPathsEqual: () => false };
+    await expect(cliTrain([...args(data.train, data.val), "--check"], differ)).rejects.toThrow(
+      /^lineage-mismatch/,
+    );
+    const noG0 = [...args(data.train, data.val), "--check"];
+    noG0[noG0.indexOf("--experiments") + 1] = tempDir();
+    await expect(cliTrain(noG0, FIXTURE_GIT)).rejects.toThrow(
+      /no passing, panel-decided G0 verdict/,
+    );
+  });
+
+  it("--check refuses a complete model in --out trained on other files (G0 red team round 2)", async () => {
+    const a = args(data.train, data.val);
+    await cliTrain(a, FIXTURE_GIT);
+    const out = a[a.indexOf("--out") + 1] ?? "";
+    expect(existsSync(join(out, "manifest.json"))).toBe(true);
+    await expect(cliTrain([...a, "--check"], FIXTURE_GIT)).resolves.toMatchObject({
+      check: "pass",
+    });
+    const c = a[a.indexOf("--config") + 1] ?? "";
+    const altered = join(tempDir(), "config.json");
+    writeFileSync(
+      altered,
+      JSON.stringify({ ...JSON.parse(readFileSync(c, "utf8")), max_epochs: 2 }),
+    );
+    const cfg = [...a, "--check"];
+    cfg[cfg.indexOf("--config") + 1] = altered;
+    await expect(cliTrain(cfg, FIXTURE_GIT)).rejects.toThrow(/another config/);
+    const other = tinyFeatures(8, 5n);
+    const b = args(other.train, other.val);
+    b[b.indexOf("--out") + 1] = out;
+    await expect(cliTrain([...b, "--check"], FIXTURE_GIT)).rejects.toThrow(
+      /checkpoint trained on train/,
+    );
+  }, 120_000);
 
   it("refuses validation features from another dataset", async () => {
     const other = tinyFeatures(8, 4n);

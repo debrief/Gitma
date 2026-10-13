@@ -1,0 +1,97 @@
+name: Train one model (called by train.yml)
+
+# One training job for one model of a plan (spec 003 T040). train.yml calls this up to three times
+# per model in a chain (decision 9): each call restores the model's checkpoint branch, trains for
+# at most 345 min, and pushes a checkpoint after every epoch, so the next call resumes where this
+# one stopped. A call whose model is already complete does no training.
+# The plan's dataset is regenerated and its content digests checked in every call.
+
+on:
+  workflow_call:
+    inputs:
+      plan:
+        type: string
+        required: true
+      configs:
+        type: string
+        required: true
+      model:
+        type: string
+        required: true
+      attempt:
+        type: number
+        required: true
+      continue_from:
+        type: string
+        required: false
+        default: ""
+
+env:
+  DATA: ${{ github.workspace }}/../plan-data
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 358
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the G0 guard and lineage check diff the generator source against the G0 commit
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Data and features (digests checked against the plan)
+        run: node scripts/train-plan.mjs data "${{ inputs.plan }}" "$DATA" train validation
+      - name: Restore checkpoint (resume an earlier job of the chain, or a cancelled run)
+        id: restore
+        run: |
+          OUT="$RUNNER_TEMP/models/${{ inputs.model }}"
+          CKPT="checkpoints/${GITHUB_REF_NAME}/${{ inputs.model }}"
+          echo "OUT=$OUT" >> "$GITHUB_ENV"
+          echo "CKPT=$CKPT" >> "$GITHUB_ENV"
+          scripts/train-checkpoint.sh restore "$OUT" "$CKPT"
+          # G0 guard and lineage on this job's data in every job, including one that will not
+          # train because its model is already complete (G0 red-team review).
+          pnpm tma-train --check --config "${{ inputs.configs }}/${{ inputs.model }}.json" \
+            --train "$DATA/train.features.bin" --val "$DATA/validation.features.bin" --out "$OUT"
+          if node scripts/train-plan.mjs complete "$OUT"; then
+            echo "$CKPT holds a completed model: nothing to train in job ${{ inputs.attempt }}"
+            echo "done=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "done=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Seed a continuation from committed weights (plan continue_from)
+        if: steps.restore.outputs.done != 'true' && inputs.continue_from != ''
+        run: |
+          if [ ! -f "$OUT/manifest.json" ]; then
+            node scripts/train-continue.mjs "${{ inputs.continue_from }}" \
+              "${{ inputs.configs }}/${{ inputs.model }}.json" "$OUT"
+          fi
+      - name: Train ${{ inputs.model }} (job ${{ inputs.attempt }} of up to 3)
+        if: steps.restore.outputs.done != 'true'
+        timeout-minutes: 345 # under the job limit, so the checkpoint sync and log upload still run
+        shell: bash # -o pipefail, so a failed run is not hidden by tee
+        run: |
+          lscpu | grep "Model name" # per-job CPU (recorded in the log; cpu_model in the manifest)
+          scripts/train-checkpoint.sh watch "$OUT" "$CKPT" &
+          WATCH=$!
+          trap 'kill $WATCH 2>/dev/null || true' EXIT
+          pnpm tma-train --config "${{ inputs.configs }}/${{ inputs.model }}.json" \
+            --train "$DATA/train.features.bin" --val "$DATA/validation.features.bin" \
+            --out "$OUT" 2>&1 | tee "$RUNNER_TEMP/train.log"
+          kill $WATCH
+          scripts/train-checkpoint.sh sync "$OUT" "$CKPT"
+      - name: Final checkpoint sync (after a timeout or failure)
+        if: always() && steps.restore.outputs.done != 'true'
+        run: scripts/train-checkpoint.sh sync "$OUT" "$CKPT" || true
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.restore.outputs.done != 'true'
+        with:
+          name: log-${{ inputs.model }}-${{ inputs.attempt }}
+          path: ${{ runner.temp }}/train.log
+          retention-days: 30
+          if-no-files-found: ignore

@@ -1,0 +1,23 @@
+{
+  "id": "ci-derived",
+  "description": "CI end-to-end plan (spec 003 T041): as configs/ci/plan.json with the derived feature set.",
+  "dataset": {
+    "seed": "7",
+    "count": 300,
+    "ranges": "configs/iter2-ranges.json",
+    "heldout_ranges": "configs/iter2-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "57a24cbc85395cd917479db126377937bf4fd1c3373a0e8c8117822e43afe7b6",
+      "validation.f32pack": "cb44d2b6ff4e5e05e127614c43c405da2d32756e0f71a2560143229045dc7ef2",
+      "test.f32pack": "8c6254bd14a6a5bd937042850daeba5697e95c80f565347be75dabb52e8e2f51",
+      "heldout.f32pack": "bc9956d76ea1f45114c12c15e5a8137dfffaa3ff185044c3f11fa0caae31d9cb"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/ci/derived",
+  "models": ["instantaneous", "time-late", "causal-cnn", "mlp", "instantaneous-shuffled"],
+  "evaluate": {
+    "command": "tma-g2",
+    "split": "validation"
+  }
+}

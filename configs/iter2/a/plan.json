@@ -1,0 +1,23 @@
+{
+  "id": "i2a",
+  "description": "Spec 003 phase A: the G1 configurations on the iteration-2 noisy dataset (raw features), budget per decision 9; scored on validation only (research R5).",
+  "dataset": {
+    "seed": "201",
+    "count": 100000,
+    "ranges": "configs/iter2-ranges.json",
+    "heldout_ranges": "configs/iter2-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "0b2a79027d89f4e628c74ba2c13167ba9f55591fefa2f2bf378b372a3d93821c",
+      "validation.f32pack": "3fb2d2ad550c95bcee22c168e21c559da69507cd1a4c6425b77ae7ed3b259164",
+      "test.f32pack": "cd2f30611a7d8441af6dd1b7414653ac03d94dc37aca52e986579c31263ee2af",
+      "heldout.f32pack": "57d766df0e8b9b7afd9cbe982d11cdbd54a27c203467bade57eea716474f73e5"
+    }
+  },
+  "feature_set": "raw",
+  "configs": "configs/iter2/a",
+  "models": ["instantaneous", "time-late", "causal-cnn", "mlp", "instantaneous-shuffled"],
+  "evaluate": {
+    "command": "tma-g2",
+    "split": "validation"
+  }
+}

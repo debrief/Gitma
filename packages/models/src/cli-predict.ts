@@ -5,7 +5,12 @@ import { isMain, readDataset, UsageError } from "@tma/data";
 import { openFeatures } from "@tma/features";
 import { runAsyncCli } from "./cli-run.js";
 import { readModelManifest } from "./manifest-io.js";
-import { loadModel, predictScenarios, requireSameNormalisation } from "./predict.js";
+import {
+  loadModel,
+  predictScenarios,
+  requireSameFeatureSet,
+  requireSameNormalisation,
+} from "./predict.js";
 
 export async function main(argv: string[]): Promise<unknown> {
   const { values } = parseArgs({
@@ -28,6 +33,7 @@ export async function main(argv: string[]): Promise<unknown> {
   const model = await loadModel(values.model);
   const features = openFeatures(values.features);
   try {
+    requireSameFeatureSet(features, manifest.config.feature_set, manifest.id);
     // --train lets a model trained under an older schema_version run on identical re-labelled data.
     const note = requireSameNormalisation(
       features,

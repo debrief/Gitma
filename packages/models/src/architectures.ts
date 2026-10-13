@@ -1,7 +1,7 @@
 // The four SRD §4 models, built only from layers with direct Keras equivalents (constitution III).
 // Every initializer is seeded from the run's train seed, so training is reproducible (research R2).
 import * as tf from "@tensorflow/tfjs-node";
-import { NI, ROWS } from "@tma/features";
+import { inputWidth, ROWS } from "@tma/features";
 import type { TrainingConfig } from "@tma/types";
 import { initSeed } from "./seeds.js";
 
@@ -64,9 +64,13 @@ function causalPad(m: tf.Sequential, rows: number | null, channels: number, pad:
 /**
  * Builds a model. With length bucketing the time dimension is variable (null): the layers, their
  * parameters and their seeded initial values are unchanged, and so are the outputs on full-length
- * input. Without it the input shape stays fixed at ROWS (iteration 1).
+ * input. Without it the input shape stays fixed at ROWS (iteration 1). The input width is the
+ * features file's (10 raw, 13 derived; spec 003 US2), by default the config's feature set's.
  */
-export function buildModel(config: TrainingConfig): tf.Sequential {
+export function buildModel(
+  config: TrainingConfig,
+  inputChannels: number = inputWidth(config.feature_set ?? "raw"),
+): tf.Sequential {
   const next = seeder(config);
   const m = tf.sequential();
   const variable = config.length_bucketing === true;
@@ -74,7 +78,7 @@ export function buildModel(config: TrainingConfig): tf.Sequential {
     throw new Error(`${config.id}: length_bucketing is not supported for mlp`);
   }
   const rows = variable ? null : ROWS;
-  const input = { inputShape: [rows, NI] };
+  const input = { inputShape: [rows, inputChannels] };
   switch (config.model_kind) {
     case "instantaneous":
       m.add(tf.layers.masking({ maskValue: 0, ...input }));
@@ -92,7 +96,7 @@ export function buildModel(config: TrainingConfig): tf.Sequential {
       const k = config.kernel_size ?? 9;
       const layers = config.layers ?? 3;
       m.add(tf.layers.inputLayer(input));
-      let channels: number = NI;
+      let channels: number = inputChannels;
       // No dilation: tfjs has no gradient for dilated convolutions, so width comes from the kernel.
       for (let l = 0; l < layers; l++) {
         causalPad(m, rows, channels, k - 1);
@@ -111,7 +115,7 @@ export function buildModel(config: TrainingConfig): tf.Sequential {
       break;
     }
     case "mlp":
-      m.add(tf.layers.flatten({ inputShape: [ROWS, NI] }));
+      m.add(tf.layers.flatten({ inputShape: [ROWS, inputChannels] }));
       for (let l = 0; l < 2; l++) {
         m.add(
           tf.layers.dense({
@@ -131,6 +135,14 @@ export function buildModel(config: TrainingConfig): tf.Sequential {
       break;
   }
   return m;
+}
+
+/** Input channels per row a model takes (the last dimension of its input). */
+export function modelInputWidth(m: tf.LayersModel): number {
+  const shape = m.inputs[0]?.shape;
+  const w = shape?.[shape.length - 1];
+  if (typeof w !== "number") throw new Error("model has no fixed input width");
+  return w;
 }
 
 /** Layer class names used by a model, including wrapped layers. */
