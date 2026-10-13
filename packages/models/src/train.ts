@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 import * as tf from "@tensorflow/tfjs-node";
 import { canonicalJson } from "@tma/data";
 import { gitCommit, gitDirty } from "@tma/eval";
-import { type FeatureFile, openFeatures } from "@tma/features";
+import { type FeatureFile, NI, openFeatures } from "@tma/features";
 import { GENERATOR_VERSION } from "@tma/sim";
 import {
   type EpochRecord,
@@ -16,9 +16,17 @@ import {
   type TrainingConfig,
 } from "@tma/types";
 import { buildModel } from "./architectures.js";
-import { epochOrder, labelMap, makeBatch } from "./batches.js";
-import { lossParts, makeLoss, termWeights } from "./loss.js";
+import {
+  batchRows,
+  checkBucketing,
+  epochBatches,
+  labelMap,
+  makeBatch,
+  windowLengths,
+} from "./batches.js";
+import { lossParts, makeLoss, NY, termWeights } from "./loss.js";
 import { environment, sha256File } from "./manifest.js";
+import { threadSettings } from "./threads.js";
 
 export interface TrainOptions {
   config: TrainingConfig;
@@ -115,7 +123,7 @@ function writeJson(path: string, value: unknown): void {
  * One gradient step. tfjs's compile/trainOnBatch checks y against the output shape, which rejects
  * the packed per-row weight channel, so the step is written directly with the optimizer.
  */
-function trainStep(
+export function trainStep(
   model: tf.LayersModel,
   optimizer: tf.Optimizer,
   loss: (y: tf.Tensor, p: tf.Tensor) => tf.Scalar,
@@ -147,8 +155,8 @@ async function validationLoss(
     );
     const b = makeBatch(file, ks, { ...config, shuffle_labels: false }, ids);
     const [n, d] = tf.tidy(() => {
-      const x = tf.tensor3d(b.x, [b.size, 240, 10]);
-      const y = tf.tensor3d(b.y, [b.size, 240, 5]);
+      const x = tf.tensor3d(b.x, [b.size, b.rows, NI]);
+      const y = tf.tensor3d(b.y, [b.size, b.rows, NY]);
       const p = lossParts(w, y, model.predict(x) as tf.Tensor);
       return [p.num, p.den];
     });
@@ -178,6 +186,9 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
   try {
     const n = Math.min(trainFile.count, config.train_limit ?? trainFile.count);
     const labels = labelMap(config, n);
+    checkBucketing(config);
+    // Length bucketing (R15) needs each window's length; validation always uses full windows.
+    const lengths = config.length_bucketing === true ? windowLengths(trainFile, n) : undefined;
     const manifestPath = join(outDir, "manifest.json");
     const ckptDir = join(outDir, "checkpoint");
     const bestDir = join(outDir, "best");
@@ -242,7 +253,7 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
     }
     const lossFn = makeLoss(config);
 
-    const env = environment();
+    const env = { ...environment(), ...threadSettings() };
     const digests = {
       train_features_digest: sha256File(opts.trainPath),
       val_features_digest: sha256File(opts.valPath),
@@ -277,14 +288,12 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
 
     let stop: StopReason = "max_epochs";
     for (let e = epochs.length; e < config.max_epochs; e++) {
-      const order = epochOrder(config, e, n);
       let lossSum = 0;
       let batches = 0;
-      for (let start = 0; start < n; start += config.batch_size) {
-        const ks = order.subarray(start, Math.min(n, start + config.batch_size));
-        const b = makeBatch(trainFile, ks, config, labels);
-        const x = tf.tensor3d(b.x, [b.size, 240, 10]);
-        const y = tf.tensor3d(b.y, [b.size, 240, 5]);
+      for (const ks of epochBatches(config, e, n, lengths)) {
+        const b = makeBatch(trainFile, ks, config, labels, batchRows(config, ks, lengths));
+        const x = tf.tensor3d(b.x, [b.size, b.rows, NI]);
+        const y = tf.tensor3d(b.y, [b.size, b.rows, NY]);
         lossSum += trainStep(model, optimizer, lossFn, x, y);
         x.dispose();
         y.dispose();

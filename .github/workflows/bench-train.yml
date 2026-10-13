@@ -1,0 +1,56 @@
+name: Benchmark training steps
+
+# Times training steps for the iteration-1 LSTM and BiLSTM on a GitHub runner (research R15):
+# TensorFlow's default thread pools vs a single thread, and padded vs length-bucketed batches.
+# Push a branch named `bench/**` (or run it by hand). The table goes to the job summary and an
+# artifact; nothing is committed or pushed.
+
+on:
+  push:
+    branches: ["bench/**"]
+  workflow_dispatch:
+    inputs:
+      steps:
+        description: "Timed steps per case (after 2 warm-up steps)"
+        default: "8"
+
+permissions:
+  contents: read
+
+env:
+  DATA: ${{ github.workspace }}/../bench-data
+  OUT: ${{ github.workspace }}/bench-out
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Runner
+        run: |
+          nproc
+          lscpu | grep -E "Model name|^CPU\(s\)|Thread|Core"
+      - name: Small dataset (seed 4242, 20,000 scenarios) and training features
+        run: |
+          pnpm tma-generate --seed 4242 --count 20000 --ranges configs/iter1-ranges.json \
+            --heldout-ranges configs/iter1-heldout-ranges.json --out "$DATA"
+          pnpm tma-features norm --train "$DATA/train.f32pack" --out "$DATA/norm.json"
+          pnpm tma-features build --in "$DATA/train.f32pack" --norm "$DATA/norm.json" \
+            --out "$DATA/train.features.bin"
+      - name: Time training steps
+        run: |
+          node packages/models/scripts/bench-train.ts --train "$DATA/train.features.bin" \
+            --out "$OUT" --steps "${{ inputs.steps || '8' }}" --warmup 2
+          cat "$OUT/bench.md" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bench-train-${{ github.run_id }}
+          path: ${{ env.OUT }}

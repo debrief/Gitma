@@ -46,6 +46,51 @@ which see the whole window anyway. Every model is still **scored** only after th
   own checkpoint branches and any whose train branch no longer exists.
 - Training refuses to start without a passing G0 verdict in `experiments/`.
 
+## Training speed options (iteration 2)
+
+Two optional `TrainingConfig` fields can speed training up (research R15). Both are off by default, so
+the iteration-1 configs train exactly as before (the model golden test is unchanged). Each one is a
+training-procedure change: declare it at the start of an iteration, not partway through.
+
+**`length_bucketing`** (default `false`; group size `bucket_batches`, default 16). Windows have
+60–240 valid rows, but a batch usually contains one full-length window, so it runs all 240 rows.
+With bucketing, each epoch:
+
+1. takes the epoch's seeded permutation as before;
+2. splits it into groups of `bucket_batches × batch_size` windows;
+3. sorts each group by window length (ties keep their permutation order) and cuts it into batches;
+4. shuffles the order of all the epoch's batches with a seed derived from `train_seed` and the epoch
+   (a separate SplitMix64 stream);
+5. trims each batch to its longest window's rows.
+
+Every window is still seen exactly once per epoch, and the same seed gives the same batches. A
+window's length is one past its last row with any non-zero input; padding rows are all zero and
+dropout rows keep their ownship and time channels, so a dropout is never cut. The trimmed rows had
+zero loss weight, and the Masking layer already skipped them, so trimming leaves every kept row's
+output unchanged, bit for bit, including the backward direction of the BiLSTM (it starts from the
+last real row either way). Tests check this for outputs, loss and one gradient step. What changes is
+which windows share a batch, so the training trajectory differs from an unbucketed run.
+
+With bucketing on, the LSTM, BiLSTM and causal CNN are built with a variable time dimension
+(`[null, 10]` instead of `[240, 10]`; the CNN's reshapes use −1). The layers, parameter count and
+seeded initial weights are the same, and full-length input gives identical outputs, so prediction
+and scoring are unchanged. The MLP's dense layers read all 240 rows, so training refuses
+`length_bucketing` for it. Validation always uses full windows.
+
+**`tfjs_threads`** (integer, optional). libtensorflow sizes its thread pools from
+`TF_NUM_INTRAOP_THREADS` and `TF_NUM_INTEROP_THREADS` once, when tfjs-node loads. `tma-train` reads
+the config first, sets both variables to `tfjs_threads`, and only then imports the trainer (and with
+it tfjs-node). Setting the variables in the shell has the same effect. A single thread was fastest for
+these small recurrent matrix products on a 4-core Xeon. The manifest records the values in force as
+`tf_intraop_threads` and `tf_interop_threads`; when they are absent, the variables were unset and
+TensorFlow used one thread per core. Thread count does not change the model, but it can change the
+order of floating-point sums, so weights are only promised byte-identical for the same CPU family
+and thread settings.
+
+A benchmark workflow (`.github/workflows/bench-train.yml`, run on a push to `bench/**`) times
+training steps for the LSTM and BiLSTM, padded or bucketed, with default or single threads, on a
+GitHub runner.
+
 ## Determinism
 
 Every initializer has a seed derived from the config's `train_seed` (SplitMix64), and the batch
