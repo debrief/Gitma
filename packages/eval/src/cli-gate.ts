@@ -8,6 +8,8 @@ import { join } from "node:path";
 import { parseCurvesCsv } from "./csv.js";
 import { checkNaiveReproducible, checkNoiseFreeRecovery, g0Verdict } from "./gate.js";
 import { g1Checks, g1Verdict } from "./gate-g1.js";
+import { DEFAULT_G2_OPTIONS, type G2Options, g2Checks, g2Verdict } from "./gate-g2.js";
+import { BootstrapReport } from "./bootstrap.js";
 import { writeVerdict } from "./experiment.js";
 import { loadPredictionSet } from "./load.js";
 
@@ -32,9 +34,13 @@ export function main(argv: string[]): GateVerdict {
       "causal-control": { type: "string" },
       "mlp-control": { type: "string" },
       shuffled: { type: "string" },
+      slice: { type: "string" },
+      point: { type: "string" },
+      "speed-point": { type: "string" },
     },
   });
   if (gate === "g1") return mainG1(values);
+  if (gate === "g2") return mainG2(values);
   const { experiment, truth } = values;
   const pred = values["noise-free-pred"];
   const a = values["naive-a"];
@@ -84,6 +90,63 @@ function mainG1(v: G1Args): GateVerdict {
       mlpControl,
       shuffled,
     }),
+  );
+  writeVerdict(experiment, verdict);
+  return verdict;
+}
+
+interface G2Args extends G1Args {
+  slice?: string | undefined;
+  point?: string | undefined;
+  "speed-point"?: string | undefined;
+}
+
+/** "zig+300s" → 300. */
+function pointSeconds(text: string): number {
+  const m = /^zig\+(\d+(?:\.\d+)?)s$/.exec(text);
+  if (m?.[1] === undefined) throw new UsageError(`bad point "${text}": expected zig+<seconds>s`);
+  return Number(m[1]);
+}
+
+export const loadBootstrap = (path: string): BootstrapReport =>
+  BootstrapReport.parse(JSON.parse(readFileSync(path, "utf8")));
+
+/**
+ * G2 (T030). `--slice`, `--point` (range and course) and `--speed-point` exist for validation
+ * diagnostics; the committed verdict uses the defaults (σ = 1°, zig+300s, speed at zig+600s).
+ */
+function mainG2(v: G2Args): GateVerdict {
+  const { experiment, instantaneous } = v;
+  const timeLate = v["time-late"];
+  const causalControl = v["causal-control"];
+  const mlpControl = v["mlp-control"];
+  const { shuffled } = v;
+  if (!experiment || !instantaneous || !timeLate || !causalControl || !mlpControl || !shuffled) {
+    throw new UsageError(
+      "usage: tma-gate g2 --experiment <dir> --instantaneous <id> --time-late <id> --causal-control <id> --mlp-control <id> --shuffled <id> [--slice sigma=1deg] [--point zig+300s] [--speed-point zig+600s]",
+    );
+  }
+  const d = DEFAULT_G2_OPTIONS.seconds;
+  const point = v.point === undefined ? undefined : pointSeconds(v.point);
+  const opts: G2Options = {
+    slice: v.slice ?? DEFAULT_G2_OPTIONS.slice,
+    seconds: {
+      range: point ?? d.range,
+      course: point ?? d.course,
+      speed: v["speed-point"] === undefined ? d.speed : pointSeconds(v["speed-point"]),
+    },
+  };
+  const metrics = loadMetrics(join(experiment, "metrics.json"));
+  const curves = parseCurvesCsv(readFileSync(join(experiment, "curves.csv"), "utf8"));
+  const bootstrap = loadBootstrap(join(experiment, "bootstrap.json"));
+  const verdict = g2Verdict(
+    g2Checks(
+      metrics,
+      curves,
+      bootstrap,
+      { instantaneous, timeLate, causalControl, mlpControl, shuffled },
+      opts,
+    ),
   );
   writeVerdict(experiment, verdict);
   return verdict;

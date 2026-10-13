@@ -28,6 +28,28 @@ export interface Evaluation {
 interface Bucket {
   errors: RowError[];
   excluded: number;
+  /** Per-scenario window-mean position errors (the "final" point only; research R10). */
+  windowMeans: number[];
+}
+
+export interface WindowMean {
+  /** Mean |p̂ − p| over the converged, finite rows; +Infinity when no row qualifies. */
+  mean: number;
+  /** Rows left out of the mean (non-converged or non-finite position). */
+  excludedRows: number;
+}
+
+/**
+ * SRD §5 time-late position error for one scenario: the mean position error over the rows the
+ * estimator predicted (post-zig rows; spec 003 R10). Rows without an estimate are excluded from
+ * the mean and counted; a scenario with no estimate at all scores +Infinity, as everywhere else.
+ */
+export function windowMeanPosition(errors: readonly RowError[]): WindowMean {
+  const ok = errors.filter((e) => e.converged && Number.isFinite(e.position_m));
+  return {
+    mean: ok.length === 0 ? Infinity : mean(ok.map((e) => e.position_m)),
+    excludedRows: errors.length - ok.length,
+  };
 }
 
 function record(label: string, slice: string, point: string, b: Bucket): MetricsRecord {
@@ -37,6 +59,11 @@ function record(label: string, slice: string, point: string, b: Bucket): Metrics
   const n = b.errors.length;
   const base: MetricsRecord = { estimator: label, slice, point, n, excluded: b.excluded };
   if (n === 0) return base;
+  const wm = ascending(b.windowMeans);
+  const window =
+    wm.length === 0
+      ? {}
+      : { position_window_m_median: median(wm), position_window_m_p90: percentile(wm, 0.9) };
   return finiteOnly({
     ...base,
     range_rel_median: median(rr),
@@ -48,6 +75,7 @@ function record(label: string, slice: string, point: string, b: Bucket): Metrics
     gross_error_rate: b.errors.filter((e) => e.gross).length / n,
     non_converged_rate: b.errors.filter((e) => !e.converged).length / n,
     position_m_mean: mean(b.errors.map((e) => e.position_m).filter(Number.isFinite)),
+    ...window,
   });
 }
 
@@ -73,7 +101,7 @@ export function evaluate(
     let bySlice = byPoint.get(point);
     if (bySlice === undefined) byPoint.set(point, (bySlice = new Map<string, Bucket>()));
     let b = bySlice.get(slice);
-    if (b === undefined) bySlice.set(slice, (b = { errors: [], excluded: 0 }));
+    if (b === undefined) bySlice.set(slice, (b = { errors: [], excluded: 0, windowMeans: [] }));
     return b;
   };
 
@@ -86,10 +114,15 @@ export function evaluate(
         throw new Error(`${set.label}: no prediction for scenario ${String(idx)}`);
       const last = p.rows.at(-1);
       if (last === undefined) throw new Error(`${set.label}: empty prediction for ${String(idx)}`);
-      const finalErr = rowError(s, last);
-      for (const k of keys) bucket(set.label, "final", k).errors.push(finalErr);
-      if (p.mode !== "per_timestep") continue;
       const errs = p.rows.map((r) => rowError(s, r));
+      const finalErr = errs.at(-1) ?? rowError(s, last);
+      const window = windowMeanPosition(errs).mean;
+      for (const k of keys) {
+        const b = bucket(set.label, "final", k);
+        b.errors.push(finalErr);
+        b.windowMeans.push(window);
+      }
+      if (p.mode !== "per_timestep") continue;
       for (const sec of opts.points) {
         const e = errs.find((x) => Math.abs(x.t_since_zig_s - sec) < 1e-6);
         for (const k of keys) {

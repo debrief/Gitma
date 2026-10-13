@@ -1,4 +1,5 @@
-// Slicing keys (research R8): range band by mean range, zig band by |zig angle|, noise σ.
+// Slicing keys (research R8): range band by mean range, zig band by |zig angle|, noise σ, and
+// dropout band by the drawn dropout fraction (spec 003 R11; not the realised count).
 import type { ScenarioMetadata } from "@tma/types";
 import { radToDeg } from "@tma/sim";
 
@@ -13,6 +14,11 @@ const ZIG_BANDS_DEG: [number, number][] = [
   [30, 50],
   [50, 70],
   [70, 90],
+];
+
+const DROPOUT_BANDS_PCT: [number, number][] = [
+  [0, 5],
+  [5, 10],
 ];
 
 function band(value: number, bands: [number, number][], unit: string): string {
@@ -30,6 +36,13 @@ function zigBand(deg: number): string {
   return b === "90+deg" && deg < 90.001 ? "70-90deg" : b;
 }
 
+/** Dropout fractions are drawn in [0, 0.10]; float32 rounding can land just above 10%. */
+export function dropoutBand(fraction: number): string {
+  const pct = fraction * 100;
+  const b = band(pct, DROPOUT_BANDS_PCT, "pct");
+  return b === "10+pct" && pct < 10.001 ? "5-10pct" : b;
+}
+
 /** Every slice a scenario belongs to, "overall" first. */
 export function sliceKeys(m: ScenarioMetadata): string[] {
   const p = m.parameters;
@@ -39,5 +52,6 @@ export function sliceKeys(m: ScenarioMetadata): string[] {
     `range_band=${band(m.mean_range_m / 1000, RANGE_BANDS_KM, "km")}`,
     `zig_band=${zigBand(Math.abs(radToDeg(p.zig_angle_rad)))}`,
     `sigma=${String(sigmaDeg)}deg`,
+    `dropout_band=${dropoutBand(p.dropout_fraction)}`,
   ];
 }

@@ -31,6 +31,28 @@ export const METRIC_COLUMNS = [
   "gross_error_rate",
   "non_converged_rate",
   "position_m_mean",
+  "position_window_m_median",
+  "position_window_m_p90",
+] as const;
+
+export const COMPARISON_COLUMNS = [
+  "estimator",
+  "reference",
+  "slice",
+  "point",
+  "n_common",
+  "coverage_estimator",
+  "coverage_reference",
+  "range_rel_median",
+  "range_rel_median_ref",
+  "range_rel_p90",
+  "range_rel_p90_ref",
+  "course_deg_median",
+  "course_deg_median_ref",
+  "speed_kt_median",
+  "speed_kt_median_ref",
+  "gross_error_rate",
+  "gross_error_rate_ref",
 ] as const;
 
 export const CURVE_COLUMNS = [

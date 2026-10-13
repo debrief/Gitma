@@ -1,6 +1,6 @@
 # Evaluation and gates
 
-Source: `packages/eval`. Requirements: SRD §5, spec 001 FR-015–FR-019.
+Source: `packages/eval`. Requirements: SRD §5, spec 001 FR-015–FR-019, spec 003 FR-013–FR-018.
 
 ## Errors per estimate
 
@@ -18,17 +18,56 @@ Median and 90th percentile (nearest-rank: the value at rank `⌈p·n⌉` of the 
 gross-error rate and mean position error. Means are not used for the headline numbers because TMA
 failures are heavy-tailed.
 
+### Window-mean position error
+
+SRD §5 defines time-late position error as the mean |p̂ − p| over the window. Per scenario,
+`tma-eval` averages the position error over the rows the estimator predicted (models emit post-zig
+rows only, so this is the post-zig window). Rows without an estimate (non-converged) are left out
+of that scenario's mean; a scenario with no estimate at all counts as +∞. Across scenarios the
+report gives the **median and P90** of these per-scenario means (`position_window_m_median`,
+`position_window_m_p90`, on the `final` rows), for every estimator so the time-late models sit
+beside naive and classical. It is reported, not gated.
+
 ## Slices
 
 `overall`; range band by mean range over the window (0–2, 2–5, 5–10, 10–20, 20–30, 30+ km); zig band
-by |zig angle| (30–50, 50–70, 70–90°); noise σ.
+by |zig angle| (30–50, 50–70, 70–90°); noise σ (`sigma=1deg`, `sigma=2deg`, …); dropout band by the
+drawn dropout fraction (`dropout_band=0-5pct`, `dropout_band=5-10pct`; exactly 5% goes in the upper
+band). Every record carries `n`; no conclusion is drawn from a slice with n < 200.
 
 ## Points and curves
 
 - `final`: the estimate at the last sample.
 - `zig+300s`: per-timestep estimates five minutes after the zig, the gate point for the
   instantaneous variant. Scenarios whose window ends earlier are excluded and counted.
+- `zig+600s`: ten minutes after the zig, G2's speed point (`tma-eval --points 300,600`).
 - Curves: per-timestep medians every 60 s after the zig (`curves.csv`).
+
+## Bootstrap intervals on a single median
+
+A median from a few thousand heavy-tailed errors still moves from one test set to the next, so a
+gate threshold is judged on an interval, not on the point estimate alone. `tma-eval --bootstrap
+<B> [--bootstrap-seed <u64>]` writes `bootstrap.json`:
+
+- **Single medians** (G2): for every per-timestep estimator, at each point, on the overall and σ
+  slices, the median range, course and speed error with a 95% percentile bootstrap interval.
+  Scenarios are resampled with replacement B times (2,000 for gate runs); the interval is the
+  2.5th–97.5th nearest-rank percentiles of the resampled medians.
+- **Paired ratios** (G1, repeated in G2): each estimator's median range error over naive's, with
+  the same resample applied to both, so the interval describes the comparison on one test set.
+
+Every interval restarts the seeded PRNG (SplitMix64; never `Math.random`), so the same inputs and
+seed give byte-identical intervals. A non-converged row counts as +∞; a bound that is infinite is
+left out of the JSON and read back as +∞, which can only make a check fail or stay inconclusive.
+
+## Comparison with classical on common rows
+
+Scoring a missing estimate as +∞ is right for one estimator's medians, but once the classical
+solver fails to converge on more than 10% of a slice its P90 becomes infinite and says nothing
+about the solutions it did produce. `tma-eval --compare-to classical:per_timestep` writes
+`comparison.{csv,json}`: for each other estimator, slice and point, the metrics of both on the
+rows **both** answered (converged, every error finite), `n_common`, and each estimator's coverage
+(answered / scored) reported separately. It is reported, not gated (G3 will use it).
 
 `tma-eval` refuses to write a report unless naive and classical predictions for the same test file
 are among its inputs, and rejects predictions made from a different truth file (SHA-256 check).
@@ -85,3 +124,53 @@ by a tiered rule:
 
 If G1 is inconclusive, the panel may order one re-score on a larger test set drawn from a new
 seed. If that is still inconclusive, G1 fails.
+
+## G2 — useful
+
+`tma-gate g2` judges each gated variant (instantaneous and time-late, both must pass) on the
+**σ = 1° slice** against SRD §5:
+
+| Check | Statistic | Threshold | Point |
+| --- | --- | --- | --- |
+| `g2-<variant>-range` | median range error | < 20% | zig + 300 s |
+| `g2-<variant>-course` | median course error | < 10° | zig + 300 s |
+| `g2-<variant>-speed` | median speed error | < 1 kt | zig + 600 s |
+
+Speed is judged at ten minutes because at σ = 1° the classical solver's own median speed error is
+1.28 kt five minutes after the zig and 0.61 kt at ten (SRD §5 amendment of 2026-10-11, spec 003
+research R12); a five-minute speed threshold would ask the model to beat the classical reference.
+
+Each check records the median (`value`), the `threshold`, and its 95% interval (`ci_low`,
+`ci_high`, `ci_level`), and its detail gives naive's and classical's medians on the same rows:
+
+- **pass**: the whole interval is below the threshold;
+- **fail**: the median is at or above the threshold (or the interval lies wholly above it);
+- **inconclusive**: the median is below the threshold but the interval reaches it.
+
+A check also fails if the model was not scored on the same rows as naive and classical (`n` and
+`excluded` must match), or if its interval was not computed from those rows.
+
+### Inconclusive
+
+`inconclusive` is a result in its own right, not a soft pass: the gate cannot pass while any
+deciding check is inconclusive, and `tma-gate` exits 3 for anything other than pass (`verdict.json`
+tells fail and inconclusive apart). If G2 is inconclusive, the panel may order one larger test set
+from a fresh seed; still inconclusive then counts as a fail.
+
+### Iteration-1 checks, repeated on noisy data
+
+G2 repeats every G1 check on the noisy test set: each variant < 0.5 × naive (paired interval),
+time-late not worse than instantaneous, each recurrent model beats its control, shuffled labels at
+naive. They keep their G1 roles:
+
+| Check | If it fails |
+| --- | --- |
+| A G2 threshold check, either variant | G2 fails (inconclusive makes G2 inconclusive) |
+| Ratio to naive, either variant | G2 fails (inconclusive makes G2 inconclusive) |
+| Shuffled labels at naive | The evidence is invalid (possible leakage): G2 fails |
+| Time-late not worse than instantaneous | G2 is at best inconclusive until investigated |
+| Each recurrent model beats its control | Reported only |
+
+`--slice`, `--point` (range and course) and `--speed-point` exist for diagnostics on the validation
+split; a committed G2 verdict always uses the defaults. The verdict is then decided by the agent
+review panel, as for G0 and G1.
