@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Glossary | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/docs/glossary"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Glossary | TMA via ML"><meta data-rh="true" name="description" content="TMA and ML terms as used in this project, alphabetical. Algorithm details are linked where they"><meta data-rh="true" property="og:description" content="TMA and ML terms as used in this project, alphabetical. Algorithm details are linked where they"><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/docs/glossary"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/glossary" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/glossary" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Glossary","item":"https://debrief.github.io/Gitma/docs/glossary"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/assets/css/styles.d219d845.css">
-<script src="/Gitma/assets/js/runtime~main.fb1c9d61.js" defer="defer"></script>
+<script src="/Gitma/assets/js/runtime~main.27d6b368.js" defer="defer"></script>
 <script src="/Gitma/assets/js/main.d6c8b1cd.js" defer="defer"></script>
 </head>
 <body>
@@ -16,6 +16,12 @@
 exist.</p>
 <p><strong>Bearing</strong> — True direction from ownship to the target, clockwise from north, in radians in
 [0, 2π). The only measurement the estimators receive about the target.</p>
+<p><strong>Bearing-line intercept</strong> — c = x_o cos b − y_o sin b for ownship at (x_o, y_o) and bearing b: every
+point (x, y) on the line of bearing satisfies x cos b − y sin b = c. A derived input channel (in km,
+scaled). See <a class="" href="/Gitma/docs/algorithms/feature-layout#derived-feature-set">feature layout</a>.</p>
+<p><strong>Bearing rate</strong> — How fast the bearing changes (rad/s). The derived feature set estimates it at
+each row as the least-squares slope of the bearings in the trailing 3 min (≥ 3 valid samples),
+using no later samples. See <a class="" href="/Gitma/docs/algorithms/feature-layout#derived-feature-set">feature layout</a>.</p>
 <p><strong>Bearings-only TMA</strong> — Estimating a target&#x27;s position and velocity from a time series of bearings,
 with ownship&#x27;s own track known. See <a class="" href="/Gitma/docs/algorithms/least-squares-solver">least-squares solver</a>.</p>
 <p><strong>Causal</strong> — A model whose output at time <em>t</em> uses only inputs up to <em>t</em>. The instantaneous variant
@@ -50,6 +56,10 @@ it weakly observable.</p>
 generator code and whether the working tree was dirty; features files carry that header forward,
 and training refuses data whose provenance is missing, dirty or from a generator other than the one
 G0 verified. See <a class="" href="/Gitma/docs/algorithms/generator#provenance">generator</a>.</p>
+<p><strong>Pseudo-linear measurement</strong> — A bearing rewritten as an equation linear in the target&#x27;s
+position: x cos b − y sin b = x_o cos b − y_o sin b. With constant target velocity, each bearing
+gives one linear equation in the target&#x27;s initial position and velocity, the basis of
+pseudo-linear TMA estimators and of the bearing-line intercept channel.</p>
 <p><strong>Rate-limited turn</strong> — Ownship&#x27;s zig flown as a constant-rate turn at constant speed (iteration 2:
 0.5–3°/s, so 90° takes 30–180 s) instead of an instantaneous course change. <code>zig_index</code> is the
 first sample after the turn completes. See <a class="" href="/Gitma/docs/algorithms/generator#rate-limited-turn-iteration-2">generator</a>.</p>
