@@ -218,6 +218,10 @@ The open questions were put to the user one at a time; all recommendations accep
     windows under ≈ 1000 s), so the speed criterion covers only the longer windows. The gate
     detail states the share reaching each point, and the G2 report states that a speed pass
     applies to windows of ≈ 1000 s or more (research R12).
+14. **Phase-B change: training budget** (2026-10-13, after phase A stalled on validation):
+    `max_epochs` 60 → 150 and patience 3 → 6, every model continued from its committed phase-A
+    weights, instead of the pre-registered derived-features default (R6). Decision record:
+    `experiments/20261013-i2a-val/decision.md`.
 
 Exit codes follow PR #21 (already implemented): **3 for any gate result other than pass**
 (fail or inconclusive); the verdict file distinguishes them.

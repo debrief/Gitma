@@ -1,0 +1,9 @@
+{
+  "carried_set_rule": "B is carried unless B's lstm-instantaneous sigma=1deg validation median range error at zig+300s is worse than A's by more than A's 95% bootstrap interval half-width; the same set (A or B) is carried for both variants and the controls; the other set is reported beside it.",
+  "change": "training budget: max_epochs 60 -> 150 and patience 3 -> 6, every model continued from its committed phase-A weights (configs/iter2/b)",
+  "decided_at": "2026-10-13T19:40:00Z",
+  "git_commit": "a7a3f3398a600b5c651957cdab35f607d77dc7c2",
+  "phase_a_experiment": "20261013-i2a-val",
+  "rationale": "Validation only (experiments/20261013-i2a-val/diagnostic.json, sigma=1deg): lstm-instantaneous range 0.174 [0.168, 0.180] passes at zig+300s; course 10.47 deg [9.93, 11.08] is inconclusive-to-fail at zig+300s; speed 2.24 kt [2.14, 2.32] fails at zig+600s (classical 0.60 kt). bilstm-time-late fails all three (0.200, 11.2 deg, 2.64 kt). lstm-instantaneous reached the 60-epoch cap with validation loss still falling (best epoch 59); bilstm-time-late stopped on patience 3 at epoch 45 (best 41). User decision 14 (2026-10-13) chose the budget change over the pre-registered derived-features default.",
+  "stalled": true
+}

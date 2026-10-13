@@ -50,6 +50,7 @@ jobs:
       configs: ${{ steps.plan.outputs.configs }}
       split: ${{ steps.plan.outputs.split }}
       continue_from: ${{ steps.plan.outputs.continue_from }}
+      continue_allow: ${{ steps.plan.outputs.continue_allow }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -77,6 +78,7 @@ jobs:
       model: ${{ matrix.model }}
       attempt: 1
       continue_from: ${{ fromJSON(needs.plan.outputs.continue_from)[matrix.model] || '' }}
+      continue_allow: ${{ needs.plan.outputs.continue_allow }}
 
   train-2:
     needs: [plan, train-1]

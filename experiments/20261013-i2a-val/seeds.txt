@@ -1,0 +1,2 @@
+train	seed=201	index=[0, 80000)	/home/runner/work/Gitma/plan-data/train.f32pack
+validation	seed=201	index=[80000, 90000)	/home/runner/work/Gitma/plan-data/validation.f32pack
