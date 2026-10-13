@@ -99,14 +99,14 @@ describe("G0 guard (constitution V)", () => {
     expect(guard(dir)).toBeNull();
   });
 
-  it("refuses the committed iteration-1 G0 once the generator changed (real git check)", () => {
-    // Generator 0.2.0 (spec 003: header provenance, rate-limited turn) changed GENERATOR_PATHS
-    // after 20261011-g0-r3 was verified, so training is refused until the G0 re-run (T019–T020)
-    // commits a new passing verdict; then this test should expect that experiment's id instead.
+  it("accepts the committed iteration-2 G0 re-run (real git check)", () => {
+    // Generator 0.2.0 (spec 003: header provenance, rate-limited turn) superseded 20261011-g0-r3;
+    // the G0 re-run (T019) at b2b2aad is the latest verdict and matches the generator paths.
     const dir = new URL("../../../experiments", import.meta.url).pathname;
-    expect(g0Passed(dir)).toBeNull();
-    // Its manifest also names generator 0.1.0, so it stays refused even if the source matched.
-    expect(g0Passed(dir, { generatorUnchanged: () => true })).toBeNull();
+    expect(g0Accepted(dir)).toEqual({
+      id: "20261013-g0-i2",
+      commit: "b2b2aadf0ac4be90ccaa3aebddae24b7696a641b",
+    });
   });
 
   it("returns the accepted experiment's id and commit", () => {
