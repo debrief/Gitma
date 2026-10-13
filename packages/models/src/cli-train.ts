@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
-import { isMain, UsageError } from "@tma/data";
+import { canonicalJson, isMain, UsageError } from "@tma/data";
 import { openFeatures } from "@tma/features";
 import { ModelManifest, parseRecord, RecordError, TrainingConfig } from "@tma/types";
 import { runAsyncCli } from "./cli-run.js";
@@ -89,6 +89,13 @@ export async function main(argv: string[], deps: TrainDeps = {}): Promise<unknow
       );
       const sha = (f: string): string => createHash("sha256").update(readFileSync(f)).digest("hex");
       const now = { train: sha(values.train), val: sha(values.val) };
+      if (canonicalJson(prior.config) !== canonicalJson(config)) {
+        throw new RecordError(
+          manifestPath,
+          "lineage",
+          "the model in --out was trained with another config; it is not this plan's model",
+        );
+      }
       if (prior.train_features_digest !== now.train || prior.val_features_digest !== now.val) {
         throw new RecordError(
           manifestPath,

@@ -1,5 +1,5 @@
 // Training lineage refusals (spec 003 US1, T008; contracts/cli.md tma-train).
-import { copyFileSync, existsSync, writeFileSync } from "node:fs";
+import { copyFileSync, readFileSync, existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { readGitProvenance } from "@tma/data";
 import type { FeatureSource } from "@tma/features";
@@ -190,6 +190,15 @@ describe("tma-train refuses on lineage (exit 2 reasons)", () => {
     await expect(cliTrain([...a, "--check"], FIXTURE_GIT)).resolves.toMatchObject({
       check: "pass",
     });
+    const c = a[a.indexOf("--config") + 1] ?? "";
+    const altered = join(tempDir(), "config.json");
+    writeFileSync(
+      altered,
+      JSON.stringify({ ...JSON.parse(readFileSync(c, "utf8")), max_epochs: 2 }),
+    );
+    const cfg = [...a, "--check"];
+    cfg[cfg.indexOf("--config") + 1] = altered;
+    await expect(cliTrain(cfg, FIXTURE_GIT)).rejects.toThrow(/another config/);
     const other = tinyFeatures(8, 5n);
     const b = args(other.train, other.val);
     b[b.indexOf("--out") + 1] = out;
