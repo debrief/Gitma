@@ -1,132 +1,116 @@
-name: Train iteration 1 (G1)
+name: Train a plan
 
-# Which models to train, and an earlier run whose model artifacts fill in the rest, come from
-# .github/train-plan.json (so a push can train a subset; e.g. after a cancelled job). Without
-# the file, every model in configs/iter1/ is trained.
-# Each training job also pushes its output folder to `checkpoints/<branch>/<model>` after every
-# epoch (scripts/train-checkpoint.sh) and restores it at start, so a cancelled or crashed job
-# resumes where it stopped, and a completed model is reused instead of retrained.
+# Spec 003 T040: trains the models of a plan file on GitHub-hosted runners, then evaluates them.
+# The plan is configs/<plan>/plan.json, chosen by the branch (train/i2a → configs/iter2/a/plan.json,
+# train/i2b → configs/iter2/b/plan.json) or by the `plan` input of a manual run (e.g. iter2/a).
+# All logic beyond wiring is in scripts/train-plan.mjs (unit-tested).
 #
-# Spec 002 T031/T033 on GitHub-hosted runners: one job per model (≤ 5.5 h each, GitHub's job
-# limit is 6 h), then the G1 evaluation. Data and features are regenerated in every job from the
-# fixed seed (byte-identical, constitution II). Outputs are pushed to `results/g1-<run id>` for
-# the agent review panel; nothing is merged automatically.
+# - Every job regenerates the plan's dataset from its seed and checks the content digests the plan
+#   pins (constitution II); a generator change since the plan was pinned fails the job.
+# - Each model trains in up to three chained jobs of ≤ 345 min (decision 9): job 2 and job 3 start
+#   after the previous one (whatever its outcome), restore the checkpoint branch
+#   `checkpoints/<branch>/<model>` (pushed after every epoch, with Adam state) and resume; a job
+#   whose model is already complete does nothing.
+# - The evaluation job restores every completed model and runs the plan's `evaluate` (tma-g2). A
+#   validation evaluation never sees the test or held-out split (they are deleted after the digest
+#   check). Results are pushed to `results/<plan id>-<run id>`, cut from origin/main; nothing is
+#   merged automatically.
+#
+# Iteration 1 (train/i1, .github/train-plan.json) is retired: its verdict is reproduced by
+# re-scoring the committed weights (evaluate-g1.yml), not by re-training (AGENTS.md).
 
 on:
   push:
     branches: ["train/**"]
   workflow_dispatch:
+    inputs:
+      plan:
+        description: "Plan folder under configs/ (e.g. iter2/a)"
+        required: true
+        type: string
 
 permissions:
   contents: write
-  actions: read # download model artifacts from the plan's reuse_run
+  actions: read
 
 concurrency:
   group: train-${{ github.ref }}
   cancel-in-progress: false
 
 env:
-  DATA: ${{ github.workspace }}/../i1-data
+  DATA: ${{ github.workspace }}/../plan-data
 
 jobs:
   plan:
     runs-on: ubuntu-latest
     outputs:
+      plan: ${{ steps.plan.outputs.plan }}
+      id: ${{ steps.plan.outputs.id }}
       models: ${{ steps.plan.outputs.models }}
-      reuse_run: ${{ steps.plan.outputs.reuse_run }}
+      configs: ${{ steps.plan.outputs.configs }}
+      split: ${{ steps.plan.outputs.split }}
       continue_from: ${{ steps.plan.outputs.continue_from }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
       - id: plan
+        env:
+          PLAN: ${{ inputs.plan }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          plan=.github/train-plan.json
-          if [ ! -f "$plan" ]; then # no plan: train every model
-            plan="$RUNNER_TEMP/train-plan.json"
-            echo '{"models": ["instantaneous", "time-late", "causal-cnn", "mlp", "instantaneous-shuffled"]}' > "$plan"
-          fi
-          echo "models=$(jq -c .models "$plan")" >> "$GITHUB_OUTPUT"
-          echo "reuse_run=$(jq -r '.reuse_run // ""' "$plan")" >> "$GITHUB_OUTPUT"
-          echo "continue_from=$(jq -c '.continue_from // {}' "$plan")" >> "$GITHUB_OUTPUT"
-          cat "$plan"
+          node scripts/train-plan.mjs resolve > "$RUNNER_TEMP/plan.txt"
+          cat "$RUNNER_TEMP/plan.txt"
+          cat "$(sed -n 's/^plan=//p' "$RUNNER_TEMP/plan.txt")"
 
-  train:
+  train-1:
     needs: plan
-    runs-on: ubuntu-latest
-    timeout-minutes: 358
     strategy:
       fail-fast: false
       matrix:
         model: ${{ fromJSON(needs.plan.outputs.models) }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # the G0 guard diffs the generator source against the verified commit
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - name: Data and features (seed 101, quickstart §1)
-        run: |
-          pnpm tma-generate --seed 101 --count 100000 --ranges configs/iter1-ranges.json \
-            --heldout-ranges configs/iter1-heldout-ranges.json --out "$DATA"
-          pnpm tma-features norm --train "$DATA/train.f32pack" --out "$DATA/norm.json"
-          for s in train validation; do
-            pnpm tma-features build --in "$DATA/$s.f32pack" --norm "$DATA/norm.json" --out "$DATA/$s.features.bin"
-          done
-          sha256sum "$DATA"/*.f32pack "$DATA"/*.features.bin
-      - name: Restore checkpoint (resume a cancelled or crashed run)
-        run: |
-          echo "OUT=$RUNNER_TEMP/models/${{ matrix.model }}" >> "$GITHUB_ENV"
-          echo "CKPT=checkpoints/${GITHUB_REF_NAME}/${{ matrix.model }}" >> "$GITHUB_ENV"
-          scripts/train-checkpoint.sh restore "$RUNNER_TEMP/models/${{ matrix.model }}" \
-            "checkpoints/${GITHUB_REF_NAME}/${{ matrix.model }}"
-      - name: Seed a continuation from committed weights (plan continue_from; SRD §5 amendment)
-        env:
-          FROM: ${{ fromJSON(needs.plan.outputs.continue_from)[matrix.model] }}
-        run: |
-          if [ -n "$FROM" ] && [ ! -f "$OUT/manifest.json" ]; then
-            node scripts/train-continue.mjs "$FROM" configs/iter1/${{ matrix.model }}.json "$OUT"
-          fi
-      - name: Train ${{ matrix.model }}
-        timeout-minutes: 345 # under the job limit, so checkpoint sync and artifact upload still run
-        shell: bash # -o pipefail, so a failed run is not hidden by tee
-        run: |
-          if [ -f "$OUT/manifest.json" ] && jq -e .complete "$OUT/manifest.json" >/dev/null; then
-            echo "$CKPT holds a completed model: not retraining"
-            echo "restored complete model from $CKPT" > "$RUNNER_TEMP/train.log"
-            exit 0
-          fi
-          lscpu | grep "Model name" # per-job CPU (continuation protocol point 5)
-          # Push the output folder to $CKPT after every epoch (manifest change).
-          scripts/train-checkpoint.sh watch "$OUT" "$CKPT" &
-          WATCH=$!
-          trap 'kill $WATCH 2>/dev/null || true' EXIT
-          pnpm tma-train --config configs/iter1/${{ matrix.model }}.json \
-            --train "$DATA/train.features.bin" --val "$DATA/validation.features.bin" \
-            --out "$OUT" 2>&1 | tee "$RUNNER_TEMP/train.log"
-          kill $WATCH
-          scripts/train-checkpoint.sh sync "$OUT" "$CKPT"
-          lscpu | grep "Model name"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: model-${{ matrix.model }}
-          path: |
-            ${{ runner.temp }}/models/${{ matrix.model }}/manifest.json
-            ${{ runner.temp }}/models/${{ matrix.model }}/model.json
-            ${{ runner.temp }}/models/${{ matrix.model }}/weights.bin
-            ${{ runner.temp }}/train.log
-          retention-days: 30
-          overwrite: true
+    uses: ./.github/workflows/train-model.yml
+    with:
+      plan: ${{ needs.plan.outputs.plan }}
+      configs: ${{ needs.plan.outputs.configs }}
+      model: ${{ matrix.model }}
+      attempt: 1
+      continue_from: ${{ fromJSON(needs.plan.outputs.continue_from)[matrix.model] || '' }}
 
-  g1:
-    needs: [plan, train]
-    if: always()
+  train-2:
+    needs: [plan, train-1]
+    if: ${{ !cancelled() && needs.plan.result == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        model: ${{ fromJSON(needs.plan.outputs.models) }}
+    uses: ./.github/workflows/train-model.yml
+    with:
+      plan: ${{ needs.plan.outputs.plan }}
+      configs: ${{ needs.plan.outputs.configs }}
+      model: ${{ matrix.model }}
+      attempt: 2
+
+  train-3:
+    needs: [plan, train-2]
+    if: ${{ !cancelled() && needs.plan.result == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        model: ${{ fromJSON(needs.plan.outputs.models) }}
+    uses: ./.github/workflows/train-model.yml
+    with:
+      plan: ${{ needs.plan.outputs.plan }}
+      configs: ${{ needs.plan.outputs.configs }}
+      model: ${{ matrix.model }}
+      attempt: 3
+
+  evaluate:
+    needs: [plan, train-3]
+    if: ${{ !cancelled() && needs.plan.result == 'success' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
         with:
@@ -138,58 +122,69 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      - name: Data and features (digests checked against the plan)
+        env:
+          PLAN: ${{ needs.plan.outputs.plan }}
+          SPLIT: ${{ needs.plan.outputs.split }}
+        run: |
+          if [ "$SPLIT" = test ]; then
+            node scripts/train-plan.mjs data "$PLAN" "$DATA" train validation test heldout
+          else
+            node scripts/train-plan.mjs data "$PLAN" "$DATA" train validation
+            # Validation-only selection (research R5): the test and held-out splits are not kept.
+            rm -f "$DATA"/test.* "$DATA"/heldout.*
+          fi
+          ls -l "$DATA"
+      - name: Collect the trained models (completed checkpoints)
+        env:
+          MODELS: ${{ needs.plan.outputs.models }}
+          CONFIGS: ${{ needs.plan.outputs.configs }}
+        run: |
+          for m in $(echo "$MODELS" | jq -r '.[]'); do
+            # G0 guard and lineage on this job's regenerated data, as before training.
+            pnpm tma-train --check --config "$CONFIGS/$m.json" \
+              --train "$DATA/train.features.bin" --val "$DATA/validation.features.bin" \
+              --out "$RUNNER_TEMP/models/$m"
+            scripts/train-checkpoint.sh restore "$RUNNER_TEMP/models/$m" "checkpoints/${GITHUB_REF_NAME}/$m"
+            node scripts/train-plan.mjs complete "$RUNNER_TEMP/models/$m" || {
+              echo "::error::$m did not complete in three jobs"
+              exit 1
+            }
+          done
       - uses: actions/download-artifact@v4
         with:
-          path: ${{ runner.temp }}/artifacts
-      - uses: actions/download-artifact@v4
-        if: needs.plan.outputs.reuse_run != ''
-        with:
-          path: ${{ runner.temp }}/artifacts-reused
-          run-id: ${{ needs.plan.outputs.reuse_run }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Collect trained models (this run first, then the plan's reuse_run)
-        run: |
-          for m in instantaneous time-late causal-cnn mlp instantaneous-shuffled; do
-            mkdir -p "$RUNNER_TEMP/models/$m" "$RUNNER_TEMP/logs"
-            # upload-artifact strips the common prefix ($RUNNER_TEMP): models/<m>/… and train.log
-            for src in "$RUNNER_TEMP/artifacts/model-$m" "$RUNNER_TEMP/artifacts-reused/model-$m"; do
-              if [ -f "$src/models/$m/weights.bin" ]; then
-                cp "$src/models/$m/"* "$RUNNER_TEMP/models/$m/"
-                cp "$src/train.log" "$RUNNER_TEMP/logs/$m.log"
-                echo "$m <- $src"
-                break
-              fi
-            done
-            test -f "$RUNNER_TEMP/models/$m/weights.bin" || { echo "no trained $m"; exit 1; }
-          done
-          find "$RUNNER_TEMP/models" -type f | sort
-      - name: Data and features (all splits)
-        run: |
-          pnpm tma-generate --seed 101 --count 100000 --ranges configs/iter1-ranges.json \
-            --heldout-ranges configs/iter1-heldout-ranges.json --out "$DATA"
-          pnpm tma-features norm --train "$DATA/train.f32pack" --out "$DATA/norm.json"
-          for s in train validation test heldout; do
-            pnpm tma-features build --in "$DATA/$s.f32pack" --norm "$DATA/norm.json" --out "$DATA/$s.features.bin"
-          done
-      - name: G1 (naive + classical per-timestep + models; gate exit 3 is a result, not an error)
+          pattern: log-*
+          path: ${{ runner.temp }}/logs
+      - name: Evaluate (tma-g2; gate exit 3 is a result, not an error)
         shell: bash
+        env:
+          PLAN: ${{ needs.plan.outputs.plan }}
+          ID: ${{ needs.plan.outputs.id }}
+          SPLIT: ${{ needs.plan.outputs.split }}
         run: |
-          EXP="experiments/$(date -u +%Y%m%d)-g1"
+          SUFFIX=$([ "$SPLIT" = test ] && echo g2 || echo val)
+          EXP="experiments/$(date -u +%Y%m%d)-$ID-$SUFFIX"
           echo "EXP=$EXP" >> "$GITHUB_ENV"
-          pnpm tma-g1 --data "$DATA" --models "$RUNNER_TEMP/models" --experiment "$EXP" || [ $? -eq 3 ]
+          mapfile -t ARGS < <(node scripts/train-plan.mjs evaluate-args "$PLAN" "$DATA" "$RUNNER_TEMP/models" "$EXP")
+          pnpm tma-g2 "${ARGS[@]}" || [ $? -eq 3 ]
           mkdir -p "$EXP/logs"
-          cp "$RUNNER_TEMP/logs/"*.log "$EXP/logs/"
-          cat "$EXP/verdict.json"
-      - name: Push results branch for the agent panel
+          find "$RUNNER_TEMP/logs" -name train.log | while read -r f; do
+            cp "$f" "$EXP/logs/$(basename "$(dirname "$f")").log"
+          done
+          cat "$EXP"/verdict.json "$EXP"/diagnostic.json 2>/dev/null || true
+      - name: Push results branch
+        env:
+          ID: ${{ needs.plan.outputs.id }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Branch from main: a results branch carrying this branch's workflow edits cannot be pushed
           # with the default token (no workflows permission).
-          git checkout -b "results/g1-${{ github.run_id }}" origin/main
+          B="results/$ID-${{ github.run_id }}"
+          git checkout -b "$B" origin/main
           git add "$EXP"
-          git commit -qm "experiments: G1 run ${{ github.run_id }} (CI, ${{ github.sha }})"
-          git push origin "results/g1-${{ github.run_id }}"
+          git commit -qm "experiments: $ID run ${{ github.run_id }} (CI, ${{ github.sha }})"
+          git push origin "$B"
       - name: Delete checkpoint branches (this run's, and any whose train branch is gone)
         run: |
           heads=$(git ls-remote --heads origin | awk '{print $2}' | sed 's#^refs/heads/##')

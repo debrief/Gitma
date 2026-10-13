@@ -12,7 +12,8 @@
   "bin": {
     "tma-train": "./dist/cli-train.js",
     "tma-model-predict": "./dist/cli-predict.js",
-    "tma-g1": "./dist/cli-g1.js"
+    "tma-g1": "./dist/cli-g1.js",
+    "tma-g2": "./dist/cli-g2.js"
   },
   "scripts": {},
   "dependencies": {

@@ -12,9 +12,16 @@ import {
 import { DEFAULT_RANGES, generateScenario, noiseFree } from "@tma/sim";
 import type { DatasetHeader, NormalisationConstants, Scenario } from "@tma/types";
 import { describe, expect, it } from "vitest";
-import { buildModel, NO } from "../src/architectures.js";
-import { outputsToPrediction, predictScenarios, requireSameNormalisation } from "../src/predict.js";
-import { tinyConfig, tinyFeatures } from "./helpers.js";
+import { buildModel, modelInputWidth, NO } from "../src/architectures.js";
+import {
+  loadModel,
+  outputsToPrediction,
+  predictScenarios,
+  requireSameFeatureSet,
+  requireSameNormalisation,
+} from "../src/predict.js";
+import { train } from "../src/train.js";
+import { tempDir, tinyConfig, tinyFeatures } from "./helpers.js";
 
 const scenarios: Scenario[] = Array.from(
   { length: 8 },
@@ -79,6 +86,74 @@ describe("model outputs → predictions", () => {
     } finally {
       f.close();
     }
+  });
+});
+
+describe("feature sets at predict time (T034)", () => {
+  it("a derived model trains on 13 channels and scores derived files; raw files are refused, and vice versa", async () => {
+    const raw = tinyFeatures(24, 3n, "raw");
+    const der = tinyFeatures(24, 3n, "derived");
+    const out = tempDir();
+    const config = tinyConfig("instantaneous", {
+      feature_set: "derived",
+      max_epochs: 1,
+      length_bucketing: true,
+    });
+    const m = await train({
+      config,
+      trainPath: der.train,
+      valPath: der.val,
+      outDir: out,
+      log: () => undefined,
+      source: { commit: "c".repeat(40), dirty: false },
+    });
+    expect(m.complete).toBe(true);
+    const model = await loadModel(out);
+    expect(modelInputWidth(model)).toBe(13);
+    const ss = Array.from(
+      { length: 24 },
+      (_, i) => generateScenario(3n, i, DEFAULT_RANGES).scenario,
+    );
+    const fd = openFeatures(der.train);
+    const fr = openFeatures(raw.train);
+    try {
+      expect(fd.inputChannels).toBe(13);
+      expect(() => {
+        requireSameFeatureSet(fd, m.config.feature_set, m.id);
+      }).not.toThrow();
+      expect(predictScenarios(model, fd, ss, fd.norm, m.id)).toHaveLength(24);
+      expect(() => {
+        requireSameFeatureSet(fr, m.config.feature_set, m.id);
+      }).toThrow(/feature-set-mismatch: test-instantaneous was trained on feature set derived/);
+      expect(() => predictScenarios(model, fr, ss, fr.norm, m.id)).toThrow(/13 input channels/);
+      // A raw model (feature_set absent) refuses the derived file.
+      const rawModel = buildModel(tinyConfig("instantaneous"));
+      expect(() => {
+        requireSameFeatureSet(fd, undefined, "raw-model");
+      }).toThrow(/trained on feature set raw; .* holds derived/);
+      expect(() => predictScenarios(rawModel, fd, ss, fd.norm, "raw-model")).toThrow(
+        /10 input channels/,
+      );
+      rawModel.dispose();
+    } finally {
+      fd.close();
+      fr.close();
+      model.dispose();
+    }
+  });
+
+  it("training refuses features of another set than the config's", async () => {
+    const raw = tinyFeatures(16, 3n, "raw");
+    await expect(
+      train({
+        config: tinyConfig("instantaneous", { feature_set: "derived", max_epochs: 1 }),
+        trainPath: raw.train,
+        valPath: raw.val,
+        outDir: tempDir(),
+        log: () => undefined,
+        source: { commit: "c".repeat(40), dirty: false },
+      }),
+    ).rejects.toThrow(/feature-set-mismatch/);
   });
 });
 

@@ -82,12 +82,25 @@ tma-g2 --data <dir> --models <dir> --experiment <experiments/<id>> [--split test
        [--compare-models <dir>] [--decision <decision.json>]
 ```
 
-One-command run, as `tma-g1`: naive (per-timestep), classical (per-timestep; skipped for
-`--split validation`), every model's predictions, `tma-eval --bootstrap --compare-to
-classical:per_timestep`, `tma-gate g2`. `--compare-models` scores the non-carried phase's models
-into `<experiment>/other-phase/` (reported, not gated). `--split test` requires `--decision` naming a
-committed decision record (SC-005) when a phase-B directory exists. Held-out split scored into
-`heldout/`. Exit codes as `tma-gate g2`.
+One-command run, as `tma-g1`: naive (per-timestep), classical (per-timestep, on both splits — the
+gate refuses without it and `--compare-to` needs it; PR C), every model's predictions, then the
+library equivalent of `tma-eval --points 300,600 --bootstrap 2000 --compare-to
+classical:per_timestep` and `tma-gate g2` (both command lines recorded in the manifest).
+`--split` defaults to `test`.
+
+- `--split validation` reads only `train.*` and `validation.*`: no test or held-out file is opened
+  (tested with them absent). Its checks go to `diagnostic.json`, not `verdict.json`, with
+  `decided_by` saying it is a validation diagnostic, so the site's gate status never shows it.
+- `--split test` writes `verdict.json`, scores the held-out split into `heldout/`, and refuses
+  (exit 2) a dirty tree (`--allow-dirty` as `tma-g1`). When a phase B exists (`configs/iter2/b/`
+  present, or `--compare-models` given) it requires `--decision`: a valid `ChangeDecision`,
+  tracked by git with no uncommitted change, with `stalled: true` (SC-005).
+- `--compare-models` scores the non-carried phase's models into `<experiment>/other-phase/`
+  (metrics, bootstrap, comparison, `diagnostic.json`; reported, not gated).
+- Each model reads `<split>.<feature_set>.features.bin` if present, else `<split>.features.bin`,
+  and refuses a file of another feature set.
+
+Exit codes as `tma-gate g2`.
 
 ## `tma-g0` (packages/eval) — changed (US6)
 
@@ -110,5 +123,23 @@ Trigger: push to `train/**` or `workflow_dispatch` with input `plan`. Reads
 }
 ```
 
-Training jobs: matrix over `models`, ≤ 358 min each. Evaluation job: runs `evaluate`, pushes
-`results/<plan>-<run id>`. A job fails if regenerated data digests differ from the plan's.
+As built (PR C): the plan also has `id` (results branch `results/<id>-<run id>`) and an optional
+`continue_from`; `evaluate` may add `decision` and `compare_models` (test split only). Branch
+`train/i<N><phase>` selects `configs/iter<N>/<phase>/plan.json`. `digests` are **content digests**:
+SHA-256 of each `.f32pack` from its first scenario block to the end (`scripts/train-plan.mjs
+digest`), because the header records the generator commit and a whole-file digest could never be
+pinned in a committed plan. An iteration-N plan (N ≥ 2) refuses seeds 42 and 101 and ranges files
+other than `configs/iter<N>-*`.
+
+Training: matrix over `models`, up to three chained jobs per model (`train-1` → `train-2` →
+`train-3`, each ≤ 358 min with a 345-min train step, `.github/workflows/train-model.yml`); each
+regenerates and digest-checks the data, restores the checkpoint branch, runs `tma-train --check`
+(G0 guard + lineage, even when the model is already complete), then trains or, if complete, does
+nothing. Evaluation job: restores the completed models, runs `evaluate` (for a validation plan the
+test and held-out files are deleted first) and pushes `results/<id>-<run id>` cut from
+`origin/main`. A job fails if regenerated data digests differ from the plan's.
+
+## `tma-train` — `--check` (PR C)
+
+`tma-train --check …` runs the G0 guard, config parse and lineage checks with the same refusals,
+then exits 0 without training or writing anything.

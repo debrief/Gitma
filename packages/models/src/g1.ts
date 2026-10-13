@@ -41,7 +41,12 @@ import {
 import { openFeatures } from "@tma/features";
 import type { GateVerdict, ModelManifest, Prediction, Scenario } from "@tma/types";
 import { readModelManifest } from "./manifest-io.js";
-import { loadModel, predictScenarios, requireSameNormalisation } from "./predict.js";
+import {
+  loadModel,
+  predictScenarios,
+  requireSameFeatureSet,
+  requireSameNormalisation,
+} from "./predict.js";
 
 export interface G1Options {
   data: string;
@@ -90,7 +95,13 @@ export function findModels(dir: string): { ids: G1Ids; models: TrainedModel[] } 
   return { ids, models };
 }
 
-function writePredictions(path: string, estimator: string, truth: string, ps: Prediction[]): void {
+/** Writes per-timestep predictions as NDJSON (atomic). */
+export function writePredictions(
+  path: string,
+  estimator: string,
+  truth: string,
+  ps: Prediction[],
+): void {
   const tmp = `${path}.tmp-${String(process.pid)}`;
   writeFileSync(
     tmp,
@@ -99,7 +110,8 @@ function writePredictions(path: string, estimator: string, truth: string, ps: Pr
   renameSync(tmp, path);
 }
 
-const set = (estimator: string, ps: Prediction[]): PredictionSet => ({
+/** In-memory per-timestep prediction set, labelled as tma-eval labels it. */
+export const predictionSet = (estimator: string, ps: Prediction[]): PredictionSet => ({
   label: `${estimator}:per_timestep`,
   estimator,
   byIndex: new Map(ps.map((p) => [p.scenario_index, p])),
@@ -124,7 +136,7 @@ export async function runG1(opts: G1Options): Promise<GateVerdict> {
     const truthPath = join(opts.data, `${split}.f32pack`);
     const scenarios: Scenario[] = [...readDataset(truthPath).scenarios()];
     const sets: PredictionSet[] = [
-      set(
+      predictionSet(
         NAIVE,
         scenarios.map((s) => naivePredict(s, naive, "per_timestep")),
       ),
@@ -139,13 +151,14 @@ export async function runG1(opts: G1Options): Promise<GateVerdict> {
       log(`${split}: classical per-timestep on ${String(scenarios.length)} scenarios`);
       const ps = scenarios.map((s) => classicalPredict(s, "per_timestep"));
       writePredictions(classicalPath, CLASSICAL, truthPath, ps);
-      sets.push(set(CLASSICAL, ps));
+      sets.push(predictionSet(CLASSICAL, ps));
     }
 
     const features = openFeatures(join(opts.data, `${split}.features.bin`));
     try {
       for (const m of models) {
         log(`${split}: predicting ${m.manifest.id}`);
+        requireSameFeatureSet(features, m.manifest.config.feature_set, m.manifest.id);
         const note = requireSameNormalisation(features, m.manifest.normalisation, m.manifest.id, {
           header: train.header,
           modelSchemaVersion: m.manifest.schema_version,
@@ -169,7 +182,7 @@ export async function runG1(opts: G1Options): Promise<GateVerdict> {
           truthPath,
           ps,
         );
-        sets.push(set(m.manifest.id, ps));
+        sets.push(predictionSet(m.manifest.id, ps));
       }
     } finally {
       features.close();

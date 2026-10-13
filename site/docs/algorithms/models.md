@@ -42,9 +42,28 @@ which see the whole window anyway. Every model is still **scored** only after th
   epochs then do not count towards patience, and the log says so.
 - On GitHub Actions each job pushes its output folder to a `checkpoints/<branch>/<model>` git
   branch after every epoch and restores it at start, so a cancelled or crashed job resumes and a
-  completed model is not retrained. Once the G1 results branch is pushed, the run deletes its
+  completed model is not retrained. Once the results branch is pushed, the run deletes its
   own checkpoint branches and any whose train branch no longer exists.
-- Training refuses to start without a passing G0 verdict in `experiments/`.
+- Training refuses to start without a passing G0 verdict in `experiments/`, or on features whose
+  dataset lineage or feature set does not match ([provenance](generator.md#provenance)).
+- **Input width** follows the features file: 10 channels for the `raw` set, 13 for `derived`
+  ([feature layout](feature-layout.md#derived-feature-set)). The config's `feature_set` must
+  match the file's; prediction refuses a features file of another set than the model was
+  trained on (`feature-set-mismatch`). Length bucketing works the same at either width.
+
+### Training plans (iteration 2)
+
+`.github/workflows/train.yml` trains a **plan**, `configs/<plan>/plan.json`, chosen by the branch
+(`train/i2a` → `configs/iter2/a/plan.json`) or a manual `plan` input. The plan pins the dataset
+(seed, ranges and the SHA-256 of each split's scenario blocks, header excluded because the header
+records the generator commit), the feature set, the model configs and the evaluation
+(`tma-g2 --split validation` for a phase run). Every job regenerates the data and checks those
+digests. Each model trains in up to three chained jobs of ≤ 345 min (decision 9: 60 epochs,
+patience 3, no binding wall-clock cap); a later job resumes from the checkpoint branch, and a job
+whose model is complete runs only `tma-train --check` (G0 guard and lineage). An iteration-2 plan
+cannot use the G0 or iteration-1 seeds (42, 101) or another iteration's ranges files. Phase A's
+configs are the iteration-1 ones with decision 9's budget, one tfjs thread, length bucketing
+(except the MLP, whose dense layers need all 240 rows) and `feature_set: raw`.
 
 ## Training speed options (iteration 2)
 

@@ -1,5 +1,5 @@
 // Seeded batch assembly from a features file (research R6, R15). Pure apart from file reads.
-import { type FeatureFile, NI, NT, ROWS, type Window } from "@tma/features";
+import { type FeatureFile, NT, ROWS, type Window, WINDOW_MASK } from "@tma/features";
 import { createRng, nextU32 } from "@tma/sim";
 import type { TrainingConfig } from "@tma/types";
 import { NO } from "./architectures.js";
@@ -57,11 +57,13 @@ export function checkBucketing(config: TrainingConfig): void {
 /**
  * Rows a window occupies: one past its last row with any non-zero input. Padding rows are all
  * zero (buildWindow), so every later row is padding; dropout rows keep ownship and time channels
- * and so are never mistaken for padding.
+ * and so are never mistaken for padding. Works for any feature set: the width is inferred from
+ * the array (ROWS rows).
  */
 export function windowLength(inputs: Float32Array): number {
+  const ni = inputs.length / ROWS;
   for (let r = ROWS - 1; r >= 0; r--) {
-    for (let c = 0; c < NI; c++) if ((inputs[r * NI + c] ?? 0) !== 0) return r + 1;
+    for (let c = 0; c < ni; c++) if ((inputs[r * ni + c] ?? 0) !== 0) return r + 1;
   }
   return 0;
 }
@@ -133,7 +135,8 @@ export interface Batch {
 }
 
 /**
- * Pack windows `ks` into x [B, rows, 10] and y [B, rows, 5] (targets 0–3 + row weight). With
+ * Pack windows `ks` into x [B, rows, C] (C = the file's input width, 10 or 13) and y [B, rows, 5]
+ * (targets 0–3 + row weight). With
  * `rows` below ROWS the trailing rows are dropped; the caller guarantees they are padding in every
  * window (batchRows), so they carried zero loss weight.
  */
@@ -145,7 +148,8 @@ export function makeBatch(
   rows: number = ROWS,
 ): Batch {
   const b = ks.length;
-  const x = new Float32Array(b * rows * NI);
+  const ni = file.inputChannels;
+  const x = new Float32Array(b * rows * ni);
   const y = new Float32Array(b * rows * NY);
   const causal = isCausal(config);
   for (let j = 0; j < b; j++) {
@@ -153,9 +157,10 @@ export function makeBatch(
     const w: Window = file.read(k);
     const lk = labels[k] ?? k;
     const lw: Window = lk === k ? w : file.read(lk);
-    x.set(rows === ROWS ? w.inputs : w.inputs.subarray(0, rows * NI), j * rows * NI);
+    x.set(rows === ROWS ? w.inputs : w.inputs.subarray(0, rows * ni), j * rows * ni);
     for (let r = 0; r < rows; r++) {
-      const windowMask = (w.inputs[r * NI + NI - 1] ?? 0) * (lw.inputs[r * NI + NI - 1] ?? 0);
+      const windowMask =
+        (w.inputs[r * ni + WINDOW_MASK] ?? 0) * (lw.inputs[r * ni + WINDOW_MASK] ?? 0);
       const weight = causal ? windowMask * (lw.lossMask[r] ?? 0) : windowMask;
       const o = (j * rows + r) * NY;
       for (let c = 0; c < NO; c++) y[o + c] = lw.targets[r * NT + c] ?? 0;

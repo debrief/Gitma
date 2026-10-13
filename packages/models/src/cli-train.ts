@@ -29,11 +29,12 @@ export async function main(argv: string[], deps: TrainDeps = {}): Promise<unknow
       val: { type: "string" },
       out: { type: "string" },
       experiments: { type: "string", default: "experiments" },
+      check: { type: "boolean", default: false },
     },
   });
   if (!values.config || !values.train || !values.val || !values.out) {
     throw new UsageError(
-      "usage: tma-train --config <config.json> --train <train.features.bin> --val <validation.features.bin> --out <dir> [--experiments dir]",
+      "usage: tma-train --config <config.json> --train <train.features.bin> --val <validation.features.bin> --out <dir> [--experiments dir] [--check]",
     );
   }
   const g0 = g0Accepted(
@@ -68,6 +69,9 @@ export async function main(argv: string[], deps: TrainDeps = {}): Promise<unknow
     trainFile.close();
     valFile.close();
   }
+  // --check: the G0 guard and lineage only (CI runs it before skipping a model whose checkpoint
+  // is already complete, so a no-op job still refuses data the guard would refuse).
+  if (values.check) return { id: config.id, g0_experiment: g0.id, check: "pass" };
   if (config.tfjs_threads !== undefined && config.tfjs_threads !== null) {
     applyThreads(config.tfjs_threads);
   }

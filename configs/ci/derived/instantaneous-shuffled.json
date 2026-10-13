@@ -1,0 +1,18 @@
+{
+  "learning_rate": 0.001,
+  "batch_size": 32,
+  "max_epochs": 1,
+  "patience": 3,
+  "max_wall_s": 600,
+  "loss_weight_range": 1,
+  "loss_weight_course": 1,
+  "loss_weight_speed": 1,
+  "shuffle_labels": true,
+  "id": "ci-d-lstm-instantaneous-shuffled",
+  "model_kind": "instantaneous",
+  "units": 8,
+  "train_seed": "1005",
+  "feature_set": "derived",
+  "length_bucketing": true,
+  "tfjs_threads": 1
+}

@@ -1,5 +1,5 @@
 // Training lineage refusals (spec 003 US1, T008; contracts/cli.md tma-train).
-import { copyFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { readGitProvenance } from "@tma/data";
 import type { FeatureSource } from "@tma/features";
@@ -161,6 +161,23 @@ describe("tma-train refuses on lineage (exit 2 reasons)", () => {
   it("refuses when the data's generator differs from the G0 commit", async () => {
     const differ = { ...FIXTURE_GIT, generatorPathsEqual: () => false };
     await expect(cliTrain(args(data.train, data.val), differ)).rejects.toThrow(/^lineage-mismatch/);
+  });
+
+  it("--check runs the guard and lineage only: passes clean data without training, refuses as training would", async () => {
+    const a = args(data.train, data.val);
+    const out = a[a.indexOf("--out") + 1] ?? "";
+    await expect(cliTrain([...a, "--check"], FIXTURE_GIT)).resolves.toMatchObject({
+      check: "pass",
+      g0_experiment: "g0",
+    });
+    expect(existsSync(join(out, "manifest.json"))).toBe(false);
+    const differ = { ...FIXTURE_GIT, generatorPathsEqual: () => false };
+    await expect(cliTrain([...args(data.train, data.val), "--check"], differ)).rejects.toThrow(
+      /^lineage-mismatch/,
+    );
+    const noG0 = [...args(data.train, data.val), "--check"];
+    noG0[noG0.indexOf("--experiments") + 1] = tempDir();
+    await expect(cliTrain(noG0, FIXTURE_GIT)).rejects.toThrow(/no passing G0 verdict/);
   });
 
   it("refuses validation features from another dataset", async () => {

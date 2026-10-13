@@ -7,13 +7,13 @@ import { type FeatureFile, ROWS } from "@tma/features";
 import { bearingOf, f32, f32Angle } from "@tma/sim";
 import type {
   DatasetHeader,
+  FeatureSet,
   NormalisationConstants,
   Prediction,
   PredictionRow,
   Scenario,
 } from "@tma/types";
-import { NI } from "@tma/features";
-import { NO } from "./architectures.js";
+import { modelInputWidth, NO } from "./architectures.js";
 
 /** Last valid bearing at or before sample i (the derived position uses it, as naive does). */
 function lastBearing(s: Scenario, i: number): number | null {
@@ -127,7 +127,28 @@ export function requireSameNormalisation(
   throw new Error(`${file.path}: normalisation differs from the one ${modelId} was trained with`);
 }
 
-/** Runs the model over every scenario of `truth` (looked up in `features` by index). */
+/**
+ * Refuse features of another feature set than the model was trained on (spec 003 US3 scenario 2):
+ * a raw model never scores derived files, nor the reverse. `trained` is the manifest config's
+ * `feature_set` (absent = raw).
+ */
+export function requireSameFeatureSet(
+  file: FeatureFile,
+  trained: FeatureSet | null | undefined,
+  modelId: string,
+): void {
+  const want = trained ?? "raw";
+  if (file.featureSet !== want) {
+    throw new Error(
+      `feature-set-mismatch: ${modelId} was trained on feature set ${want}; ${file.path} holds ${file.featureSet}`,
+    );
+  }
+}
+
+/**
+ * Runs the model over every scenario of `truth` (looked up in `features` by index). Refuses a
+ * features file whose input width differs from the model's.
+ */
 export function predictScenarios(
   model: tf.LayersModel,
   features: FeatureFile,
@@ -136,21 +157,27 @@ export function predictScenarios(
   estimator: string,
   batchSize = 256,
 ): Prediction[] {
+  const ni = features.inputChannels;
+  if (modelInputWidth(model) !== ni) {
+    throw new Error(
+      `${estimator} takes ${String(modelInputWidth(model))} input channels; ${features.path} (${features.featureSet}) has ${String(ni)}`,
+    );
+  }
   const where = new Map<number, number>();
   features.indices.forEach((idx, k) => where.set(idx, k));
   const out: Prediction[] = [];
   let pending: Scenario[] = [];
   const flush = (): void => {
     if (pending.length === 0) return;
-    const x = new Float32Array(pending.length * ROWS * NI);
+    const x = new Float32Array(pending.length * ROWS * ni);
     pending.forEach((s, j) => {
       const k = where.get(s.metadata.index);
       if (k === undefined)
         throw new Error(`${features.path}: no window for scenario ${String(s.metadata.index)}`);
-      x.set(features.read(k).inputs, j * ROWS * NI);
+      x.set(features.read(k).inputs, j * ROWS * ni);
     });
     const y = tf.tidy(() => {
-      const p = model.predict(tf.tensor3d(x, [pending.length, ROWS, NI])) as tf.Tensor;
+      const p = model.predict(tf.tensor3d(x, [pending.length, ROWS, ni])) as tf.Tensor;
       return p.dataSync() as Float32Array;
     });
     pending.forEach((s, j) => {

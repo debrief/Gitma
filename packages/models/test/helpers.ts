@@ -5,6 +5,7 @@ import { computeNormalisation, type FeatureSource, writeFeatures } from "@tma/fe
 import { DEFAULT_RANGES, GENERATOR_VERSION, generateScenario } from "@tma/sim";
 import {
   type DatasetHeader,
+  type FeatureSet,
   type ModelKind,
   SCHEMA_VERSION,
   type Split,
@@ -76,7 +77,11 @@ export const FIXTURE_GIT = {
 };
 
 /** Small train/validation features files from seed `seed`, carrying lineage (format v2). */
-export function tinyFeatures(n: number, seed = 3n): { train: string; val: string } {
+export function tinyFeatures(
+  n: number,
+  seed = 3n,
+  featureSet: FeatureSet = "raw",
+): { train: string; val: string } {
   const dir = tempDir();
   const tr = Array.from(
     { length: n },
@@ -86,11 +91,11 @@ export function tinyFeatures(n: number, seed = 3n): { train: string; val: string
     { length: 16 },
     (_, i) => generateScenario(seed, 10_000 + i, DEFAULT_RANGES).scenario,
   );
-  const norm = computeNormalisation(tr, "test");
+  const norm = computeNormalisation(tr, "test", featureSet);
   const train = join(dir, "train.features.bin");
   const val = join(dir, "val.features.bin");
-  writeFeatures(train, () => tr, norm, testSource("train", seed, n));
-  writeFeatures(val, () => va, norm, testSource("validation", seed, 16));
+  writeFeatures(train, () => tr, norm, testSource("train", seed, n), featureSet);
+  writeFeatures(val, () => va, norm, testSource("validation", seed, 16), featureSet);
   return { train, val };
 }
 

@@ -1,6 +1,6 @@
 import * as tf from "@tensorflow/tfjs-node";
 import { describe, expect, it } from "vitest";
-import { ALLOWED_LAYERS, buildModel, layerClasses } from "../src/architectures.js";
+import { ALLOWED_LAYERS, buildModel, layerClasses, modelInputWidth } from "../src/architectures.js";
 import { KINDS, tinyConfig } from "./helpers.js";
 
 describe("architectures", () => {
@@ -12,6 +12,30 @@ describe("architectures", () => {
       expect(y.shape).toEqual([2, 240, 4]);
       const used = layerClasses(m).filter((c) => c !== "InputLayer");
       expect(used.filter((c) => !ALLOWED_LAYERS.has(c))).toEqual([]);
+    },
+  );
+
+  it.each(KINDS)("%s takes 13 input channels for the derived feature set (T034)", (kind) => {
+    const raw = buildModel(tinyConfig(kind));
+    const derived = buildModel(tinyConfig(kind, { feature_set: "derived" }));
+    expect(modelInputWidth(raw)).toBe(10);
+    expect(modelInputWidth(derived)).toBe(13);
+    // An explicit width (the features file's) overrides the config's default.
+    expect(modelInputWidth(buildModel(tinyConfig(kind), 13))).toBe(13);
+    const y = derived.predict(tf.zeros([2, 240, 13])) as tf.Tensor;
+    expect(y.shape).toEqual([2, 240, 4]);
+    expect(() => derived.predict(tf.zeros([2, 240, 10]))).toThrow();
+  });
+
+  it.each(["instantaneous", "time_late", "causal_cnn"] as const)(
+    "%s with length bucketing takes a variable time dimension at either width",
+    (kind) => {
+      for (const fs of ["raw", "derived"] as const) {
+        const m = buildModel(tinyConfig(kind, { feature_set: fs, length_bucketing: true }));
+        const w = fs === "raw" ? 10 : 13;
+        expect(m.inputs[0]?.shape).toEqual([null, null, w]);
+        expect((m.predict(tf.zeros([1, 57, w])) as tf.Tensor).shape).toEqual([1, 57, 4]);
+      }
     },
   );
 
