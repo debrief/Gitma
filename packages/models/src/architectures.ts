@@ -44,9 +44,12 @@ function head(next: () => number): tf.layers.Layer {
   });
 }
 
-/** Left-pads `pad` rows (tfjs ignores padding: "causal" — research R3). */
-function causalPad(m: tf.Sequential, rows: number, channels: number, pad: number): void {
-  m.add(tf.layers.reshape({ targetShape: [rows, 1, channels] }));
+/**
+ * Left-pads `pad` rows (tfjs ignores padding: "causal" — research R3). `rows` null means a
+ * variable time dimension (length bucketing), which the reshapes infer (-1).
+ */
+function causalPad(m: tf.Sequential, rows: number | null, channels: number, pad: number): void {
+  m.add(tf.layers.reshape({ targetShape: [rows ?? -1, 1, channels] }));
   m.add(
     tf.layers.zeroPadding2d({
       padding: [
@@ -55,13 +58,23 @@ function causalPad(m: tf.Sequential, rows: number, channels: number, pad: number
       ],
     }),
   );
-  m.add(tf.layers.reshape({ targetShape: [rows + pad, channels] }));
+  m.add(tf.layers.reshape({ targetShape: [rows === null ? -1 : rows + pad, channels] }));
 }
 
+/**
+ * Builds a model. With length bucketing the time dimension is variable (null): the layers, their
+ * parameters and their seeded initial values are unchanged, and so are the outputs on full-length
+ * input. Without it the input shape stays fixed at ROWS (iteration 1).
+ */
 export function buildModel(config: TrainingConfig): tf.Sequential {
   const next = seeder(config);
   const m = tf.sequential();
-  const input = { inputShape: [ROWS, NI] };
+  const variable = config.length_bucketing === true;
+  if (variable && config.model_kind === "mlp") {
+    throw new Error(`${config.id}: length_bucketing is not supported for mlp`);
+  }
+  const rows = variable ? null : ROWS;
+  const input = { inputShape: [rows, NI] };
   switch (config.model_kind) {
     case "instantaneous":
       m.add(tf.layers.masking({ maskValue: 0, ...input }));
@@ -78,11 +91,11 @@ export function buildModel(config: TrainingConfig): tf.Sequential {
     case "causal_cnn": {
       const k = config.kernel_size ?? 9;
       const layers = config.layers ?? 3;
-      m.add(tf.layers.inputLayer({ inputShape: [ROWS, NI] }));
+      m.add(tf.layers.inputLayer(input));
       let channels: number = NI;
       // No dilation: tfjs has no gradient for dilated convolutions, so width comes from the kernel.
       for (let l = 0; l < layers; l++) {
-        causalPad(m, ROWS, channels, k - 1);
+        causalPad(m, rows, channels, k - 1);
         m.add(
           tf.layers.conv1d({
             filters: config.units,
@@ -98,7 +111,7 @@ export function buildModel(config: TrainingConfig): tf.Sequential {
       break;
     }
     case "mlp":
-      m.add(tf.layers.flatten(input));
+      m.add(tf.layers.flatten({ inputShape: [ROWS, NI] }));
       for (let l = 0; l < 2; l++) {
         m.add(
           tf.layers.dense({

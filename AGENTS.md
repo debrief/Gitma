@@ -84,6 +84,8 @@ sessions (containers are reclaimed when idle).
 - **Re-score:** push an `eval/**` branch containing `experiments/<id>-g1/models/`;
   `.github/workflows/evaluate-g1.yml` re-runs `tma-g1` with current code and pushes
   `results/g1-eval-<run id>` (folder `<id>-r2`, with `bootstrap.json`).
+- **Benchmark:** push a `bench/**` branch; `.github/workflows/bench-train.yml` times LSTM/BiLSTM
+  training steps (default vs 1 thread, padded vs length-bucketed) and uploads the table.
 - Weights are byte-reproducible only on the same CPU family (runners vary; `cpu_model` is in each
   manifest). The committed weights are the artefact of record; reproduce a verdict by re-scoring
   them, not by re-training.
