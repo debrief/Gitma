@@ -1,0 +1,32 @@
+{
+  "checks": [
+    {
+      "detail": "10000/10000 scenarios within tolerance (range 0.001, course 0.1°, speed 0.01 kt); worst range 7.19e-5, course 3.10e-2°, speed 6.73e-3 kt",
+      "name": "classical-recovers-noise-free-truth",
+      "result": "pass"
+    },
+    {
+      "detail": "1000 scenarios, 70161 rows: 0 non-converged; 65161/65161 rows ≥ 60 s after the zig within tolerance (worst range 3.32e-4); worst range in the first 60 s 9.13e-4 (reported, not gated)",
+      "name": "classical-per-timestep-recovers",
+      "result": "pass"
+    },
+    {
+      "detail": "10000/10000 final solutions with RMS bearing residual ≤ 0.000001 rad; worst 3.41e-7 rad",
+      "name": "bearing-residuals-at-float32-precision",
+      "result": "pass"
+    },
+    {
+      "detail": "hand-computed 315°, abeam, leg-2 and turn cases (starboard and port, mid-turn and leg 2) match; t = 0 bearing and range match the drawn parameters on 10000 scenarios",
+      "name": "independent-geometry",
+      "result": "pass"
+    },
+    {
+      "detail": "two in-process naive fits gave identical metrics (determinism only; cross-process and cross-commit reproduction is shown by re-running G0 from the manifest)",
+      "name": "naive-baseline-reproduces",
+      "result": "pass"
+    }
+  ],
+  "decided_by": "agent review panel, rounds 1-3 (no rejections; no open blocker or major findings): G0 pass for generator 0.2.0 at 24bbdab; see review.md",
+  "gate": "G0",
+  "result": "pass"
+}

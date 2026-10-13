@@ -142,13 +142,19 @@ export function g2Check(
       : hi < c.threshold
         ? "pass"
         : "inconclusive";
+  // Scenarios too short to reach the point are excluded, not scored; the share kept is stated
+  // because the kept set is not random (longer windows; G0 panel 2026-10-13, decision 13).
+  const reached = (r: MetricsRecord | undefined): string =>
+    r === undefined || r.n + r.excluded === 0
+      ? "none"
+      : `${(Math.round((1000 * r.n) / (r.n + r.excluded)) / 10).toFixed(1)}%`;
   const base = (r: MetricsRecord | undefined): string =>
     `${fmt(r?.[c.field] ?? undefined)} (n ${String(r?.n ?? 0)}, excluded ${String(r?.excluded ?? 0)})`;
   const level = `${String(Math.round(bootstrap.level * 100))}%`;
   const detail =
     `${variant} ${id} median ${c.name} error ${fmt(value)}${c.unit} vs threshold ${String(c.threshold)}${c.unit} ` +
     `on ${opts.slice} at ${point}; ${level} CI [${fmt(lo)}, ${fmt(hi)}] (bootstrap, ${String(bootstrap.resamples)} resamples, n ${String(ci?.n ?? 0)}); ` +
-    `model n ${String(m?.n ?? 0)}, excluded ${String(m?.excluded ?? 0)}; naive ${base(nv)}, classical ${base(cl)}` +
+    `model n ${String(m?.n ?? 0)}, excluded ${String(m?.excluded ?? 0)} (${reached(m)} of the slice reach ${point}; decision 13); naive ${base(nv)}, classical ${base(cl)}` +
     (sameSample ? "" : " — sample mismatch with naive or classical") +
     (ciMatches ? "" : " — interval not from the scored rows");
   const check: GateCheck = { name: `g2-${variant}-${c.name}`, result, detail };

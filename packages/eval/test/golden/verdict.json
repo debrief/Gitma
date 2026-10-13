@@ -16,7 +16,7 @@
       "result": "pass"
     },
     {
-      "detail": "hand-computed 315°, abeam, leg-2 and in-turn cases match; t = 0 bearing and range match the drawn parameters on 4 scenarios",
+      "detail": "hand-computed 315°, abeam, leg-2 and turn cases (starboard and port, mid-turn and leg 2) match; t = 0 bearing and range match the drawn parameters on 4 scenarios",
       "name": "independent-geometry",
       "result": "pass"
     },

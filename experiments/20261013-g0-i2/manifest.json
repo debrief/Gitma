@@ -1,0 +1,145 @@
+{
+  "command_lines": [
+    "tma-generate --seed 42 --count 100000 --noise-free --ranges <custom> --heldout-ranges <custom>",
+    "tma-g0 --data data/g0-i2 --experiment experiments/20261013-g0-i2"
+  ],
+  "created": "2026-10-13T04:52:13.726Z",
+  "datasets": [
+    {
+      "digest": "e57ec2b10f27a5fcb74f46481b415c3db8a4ae0a2d35da954934fd45fa5cc273",
+      "header": {
+        "created_by": "tma-generate --seed 42 --count 100000 --noise-free --ranges <custom> --heldout-ranges <custom>",
+        "dataset_seed": "42",
+        "generator_git_commit": "b2b2aadf0ac4be90ccaa3aebddae24b7696a641b",
+        "generator_git_dirty": false,
+        "generator_version": "0.2.0",
+        "index_end": 80000,
+        "index_start": 0,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0,
+            "min": 0
+          },
+          "dt_s": 10,
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "ownship_turn_rate_rad_s": {
+            "max": 0.05235987755982989,
+            "min": 0.008726646259971648
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          }
+        },
+        "record": "header",
+        "redraw_count": 442,
+        "scenario_count": 80000,
+        "schema_version": "0.8.0",
+        "split": "train"
+      },
+      "path": "data/g0-i2/train.f32pack"
+    },
+    {
+      "digest": "35a85e1094cc79294ef183c4dcea9999b3413e88f359674ca5f20580087ceb64",
+      "header": {
+        "created_by": "tma-generate --seed 42 --count 100000 --noise-free --ranges <custom> --heldout-ranges <custom>",
+        "dataset_seed": "42",
+        "generator_git_commit": "b2b2aadf0ac4be90ccaa3aebddae24b7696a641b",
+        "generator_git_dirty": false,
+        "generator_version": "0.2.0",
+        "index_end": 100000,
+        "index_start": 90000,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0,
+            "min": 0
+          },
+          "dt_s": 10,
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "ownship_turn_rate_rad_s": {
+            "max": 0.05235987755982989,
+            "min": 0.008726646259971648
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          }
+        },
+        "record": "header",
+        "redraw_count": 51,
+        "scenario_count": 10000,
+        "schema_version": "0.8.0",
+        "split": "test"
+      },
+      "path": "data/g0-i2/test.f32pack"
+    }
+  ],
+  "estimators": [
+    {
+      "name": "naive",
+      "settings_json": "{\"fitted_on\":\"train\",\"means\":{\"course_cos\":-0.00002932628693106376,\"course_sin\":-0.0022533412026475566,\"log_range_km\":2.41762381152855,\"n\":80000,\"speed_mps\":5.904464963330328}}"
+    },
+    {
+      "name": "classical",
+      "settings_json": "{\"max_iterations\":50,\"method\":\"levenberg-marquardt\",\"mode\":\"final\"}"
+    },
+    {
+      "name": "classical:per_timestep",
+      "settings_json": "{\"grid_every\":6,\"max_iterations\":50,\"method\":\"levenberg-marquardt\",\"mode\":\"per_timestep\",\"note\":\"first scenarios of the test split, for check classical-per-timestep-recovers\",\"scenarios\":1000}"
+    }
+  ],
+  "generator_version": "0.2.0",
+  "git_commit": "b2b2aadf0ac4be90ccaa3aebddae24b7696a641b",
+  "git_dirty": false,
+  "id": "20261013-g0-i2",
+  "node_version": "v22.22.0",
+  "schema_version": "0.8.0"
+}

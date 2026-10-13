@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { GENERATOR_VERSION } from "@tma/sim";
 import { describe, expect, it } from "vitest";
@@ -14,7 +14,11 @@ interface Exp {
   commit?: string;
 }
 
-function experiment(dir: string, id: string, e: Exp): void {
+function experiment(
+  dir: string,
+  id: string,
+  e: Exp & { decidedBy?: string; review?: boolean },
+): void {
   mkdirSync(join(dir, id));
   writeFileSync(
     join(dir, id, "verdict.json"),
@@ -22,9 +26,10 @@ function experiment(dir: string, id: string, e: Exp): void {
       gate: e.gate ?? "G0",
       result: e.result ?? "pass",
       checks: [],
-      decided_by: "t",
+      decided_by: e.decidedBy ?? "agent review panel, round 1 (no rejections; fixture)",
     }),
   );
+  if (e.review !== false) writeFileSync(join(dir, id, "review.md"), "# review\n");
   writeFileSync(
     join(dir, id, "manifest.json"),
     JSON.stringify({
@@ -99,14 +104,50 @@ describe("G0 guard (constitution V)", () => {
     expect(guard(dir)).toBeNull();
   });
 
-  it("refuses the committed iteration-1 G0 once the generator changed (real git check)", () => {
-    // Generator 0.2.0 (spec 003: header provenance, rate-limited turn) changed GENERATOR_PATHS
-    // after 20261011-g0-r3 was verified, so training is refused until the G0 re-run (T019–T020)
-    // commits a new passing verdict; then this test should expect that experiment's id instead.
+  it("by default accepts only a panel-decided G0 with its review.md", () => {
+    const opts = { generatorUnchanged: (c: string) => c === "verified" };
+    const dir = tempDir();
+    experiment(dir, "harness", {
+      created: T1,
+      decidedBy: "harness (pending agent panel review)",
+      review: false,
+    });
+    expect(g0Accepted(dir, opts)).toBeNull();
+    experiment(dir, "pending", {
+      created: T2,
+      decidedBy: "agent review panel (pending)",
+      review: true,
+    });
+    expect(g0Accepted(dir, opts)).toBeNull();
+    const T3 = "2026-10-11T03:00:00Z";
+    experiment(dir, "no-review", {
+      created: T3,
+      decidedBy: "agent review panel, round 2 (no rejections; no open blocker or major findings)",
+      review: false,
+    });
+    expect(g0Accepted(dir, opts)).toBeNull();
+    writeFileSync(join(dir, "no-review", "review.md"), "# review\n");
+    expect(g0Accepted(dir, opts)).toEqual({ id: "no-review", commit: "verified" });
+    // requireReview: false (tma-train --allow-unreviewed-g0) accepts the machine verdict alone.
+    const lib = tempDir();
+    experiment(lib, "h", { created: T1, decidedBy: "harness (pending agent panel review)" });
+    expect(
+      g0Accepted(lib, { generatorUnchanged: (c) => c === "verified", requireReview: false }),
+    ).not.toBeNull();
+  });
+
+  it("the committed iteration-2 G0 re-run is the latest, and needs its panel review", () => {
+    // Round-1 fixes (24bbdab) touched packages/data/src, so G0 was re-run there (T019-T020).
     const dir = new URL("../../../experiments", import.meta.url).pathname;
-    expect(g0Passed(dir)).toBeNull();
-    // Its manifest also names generator 0.1.0, so it stays refused even if the source matched.
-    expect(g0Passed(dir, { generatorUnchanged: () => true })).toBeNull();
+    const want = { id: "20261013-g0-i2-r2", commit: "24bbdab5d79f3c872f88ac6494c2d73068016225" };
+    expect(g0Accepted(dir, { requireReview: false })).toEqual(want);
+    const verdict = JSON.parse(readFileSync(join(dir, want.id, "verdict.json"), "utf8")) as {
+      decided_by: string;
+    };
+    const reviewed =
+      existsSync(join(dir, want.id, "review.md")) &&
+      /^agent review panel, rounds? \d+(-\d+)? \(no rejections/.test(verdict.decided_by);
+    expect(g0Accepted(dir)).toEqual(reviewed ? want : null);
   });
 
   it("returns the accepted experiment's id and commit", () => {

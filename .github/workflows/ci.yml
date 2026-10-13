@@ -49,7 +49,7 @@ jobs:
           for m in instantaneous time-late causal-cnn mlp instantaneous-shuffled; do
             pnpm tma-train --config configs/ci/$m.json --train "$D/train.features.bin" \
               --val "$D/validation.features.bin" --out "$RUNNER_TEMP/models/$m" \
-              --experiments "$RUNNER_TEMP/exp"
+              --experiments "$RUNNER_TEMP/exp" --allow-unreviewed-g0
           done
           pnpm tma-g1 --data "$D" --models "$RUNNER_TEMP/models" --experiment "$RUNNER_TEMP/exp/g1" || [ $? -eq 3 ]
           test -f "$RUNNER_TEMP/exp/g1/verdict.json"
