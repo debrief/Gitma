@@ -5,8 +5,8 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Models (iteration 1) | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/docs/algorithms/models"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Models (iteration 1) | TMA via ML"><meta data-rh="true" name="description" content="Source SRD §4, spec 002 (research R3–R7)."><meta data-rh="true" property="og:description" content="Source SRD §4, spec 002 (research R3–R7)."><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/docs/algorithms/models"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/algorithms/models" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/algorithms/models" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Models (iteration 1)","item":"https://debrief.github.io/Gitma/docs/algorithms/models"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/assets/css/styles.d219d845.css">
-<script src="/Gitma/assets/js/runtime~main.ded70bab.js" defer="defer"></script>
-<script src="/Gitma/assets/js/main.d6c8b1cd.js" defer="defer"></script>
+<script src="/Gitma/assets/js/runtime~main.df5f7f68.js" defer="defer"></script>
+<script src="/Gitma/assets/js/main.07e99822.js" defer="defer"></script>
 </head>
 <body>
 <svg style="display: none;"><defs>
@@ -72,11 +72,52 @@ the 6-hour wall-clock cap, or a non-finite loss (<code>diverged</code>).</li>
 <li class="">Checkpoint every epoch; a restarted run resumes (the Adam state restarts, recorded in the log).</li>
 <li class="">Training refuses to start without a passing G0 verdict in <code>experiments/</code>.</li>
 </ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="training-speed-options-iteration-2">Training speed options (iteration 2)<a href="#training-speed-options-iteration-2" class="hash-link" aria-label="Direct link to Training speed options (iteration 2)" title="Direct link to Training speed options (iteration 2)" translate="no">​</a></h2>
+<p>Two optional <code>TrainingConfig</code> fields can speed training up (research R15). Both are off by default, so
+the iteration-1 configs train exactly as before (the model golden test is unchanged). Each one is a
+training-procedure change: declare it at the start of an iteration, not partway through.</p>
+<p><strong><code>length_bucketing</code></strong> (default <code>false</code>; group size <code>bucket_batches</code>, default 16). Windows have
+60–240 valid rows, but a batch usually contains one full-length window, so it runs all 240 rows.
+With bucketing, each epoch:</p>
+<ol>
+<li class="">takes the epoch&#x27;s seeded permutation as before;</li>
+<li class="">splits it into groups of <code>bucket_batches × batch_size</code> windows;</li>
+<li class="">sorts each group by window length (ties keep their permutation order) and cuts it into batches;</li>
+<li class="">shuffles the order of all the epoch&#x27;s batches with a seed derived from <code>train_seed</code> and the epoch
+(a separate SplitMix64 stream);</li>
+<li class="">trims each batch to its longest window&#x27;s rows.</li>
+</ol>
+<p>Every window is still seen exactly once per epoch, and the same seed gives the same batches. A
+window&#x27;s length is one past its last row with any non-zero input; padding rows are all zero and
+dropout rows keep their ownship and time channels, so a dropout is never cut. The trimmed rows had
+zero loss weight, and the Masking layer already skipped them, so trimming leaves every kept row&#x27;s
+output unchanged, bit for bit, including the backward direction of the BiLSTM (it starts from the
+last real row either way). Tests check this for outputs, loss and one gradient step. What changes is
+which windows share a batch, so the training trajectory differs from an unbucketed run.</p>
+<p>With bucketing on, the LSTM, BiLSTM and causal CNN are built with a variable time dimension
+(<code>[null, 10]</code> instead of <code>[240, 10]</code>; the CNN&#x27;s reshapes use −1). The layers, parameter count and
+seeded initial weights are the same, and full-length input gives identical outputs, so prediction
+and scoring are unchanged. The MLP&#x27;s dense layers read all 240 rows, so training refuses
+<code>length_bucketing</code> for it. Validation always uses full windows.</p>
+<p><strong><code>tfjs_threads</code></strong> (integer, optional). libtensorflow sizes its thread pools from
+<code>TF_NUM_INTRAOP_THREADS</code> and <code>TF_NUM_INTEROP_THREADS</code> once, when tfjs-node loads. <code>tma-train</code> reads
+the config first, sets both variables to <code>tfjs_threads</code>, and only then imports the trainer (and with
+it tfjs-node). Setting the variables in the shell has the same effect. A single thread was fastest for
+these small recurrent matrix products on a 4-core Xeon. The manifest records the values in force as
+<code>tf_intraop_threads</code> and <code>tf_interop_threads</code>; when they are absent, the variables were unset and
+TensorFlow used one thread per core. Thread count does not change the model, but it can change the
+order of floating-point sums, so weights are only promised byte-identical for the same CPU family
+and thread settings.</p>
+<p>A benchmark workflow (<code>.github/workflows/bench-train.yml</code>, run on a push to <code>bench/**</code>) times
+training steps for the LSTM and BiLSTM, padded or bucketed, with default or single threads, on a
+GitHub runner.</p>
 <h2 class="anchor anchorTargetStickyNavbar_FE5u" id="determinism">Determinism<a href="#determinism" class="hash-link" aria-label="Direct link to Determinism" title="Direct link to Determinism" translate="no">​</a></h2>
 <p>Every initializer has a seed derived from the config&#x27;s <code>train_seed</code> (SplitMix64), and the batch
 order comes from the project PRNG. Two runs on the same machine give byte-identical weights (golden
 test on a tiny config). Across CPU families oneDNN may pick different kernels, so weights are not
-promised identical there; the manifest records <code>cpu_model</code>.</p>
+promised identical there; the manifest records <code>cpu_model</code>. From schema 0.6.0 it also records
+<code>git_commit</code> and <code>git_dirty</code>, read when training starts; a resumed run keeps an earlier job&#x27;s dirty
+flag and logs a change of commit. Models trained before 0.6.0 have neither field.</p>
 <h2 class="anchor anchorTargetStickyNavbar_FE5u" id="tfjs-workarounds">tfjs workarounds<a href="#tfjs-workarounds" class="hash-link" aria-label="Direct link to tfjs workarounds" title="Direct link to tfjs workarounds" translate="no">​</a></h2>
 <ul>
 <li class=""><code>conv1d({ padding: &quot;causal&quot; })</code> silently behaves as <code>&quot;valid&quot;</code> in tfjs; causal padding is built as
@@ -99,6 +140,9 @@ training, same data and constants); <code>tma-g1</code> logs it and records it i
 <p><code>lstm-instantaneous-shuffled</code> is the instantaneous model trained with each scenario&#x27;s targets
 swapped for another scenario&#x27;s (seeded permutation; inputs untouched). With no relation between
 bearings and labels left, it should learn the mean and score like the naive baseline (±10%). Doing
-much better would mean the inputs leak the answer.</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/algorithms/models.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/docs/algorithms/least-squares-solver"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Least-squares bearings-only solver</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/docs/results/iteration-1"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Results: iteration 1 (G1)</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_kFBU thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#loss" class="table-of-contents__link toc-highlight">Loss</a></li><li><a href="#training" class="table-of-contents__link toc-highlight">Training</a></li><li><a href="#determinism" class="table-of-contents__link toc-highlight">Determinism</a></li><li><a href="#tfjs-workarounds" class="table-of-contents__link toc-highlight">tfjs workarounds</a></li><li><a href="#predictions" class="table-of-contents__link toc-highlight">Predictions</a></li><li><a href="#shuffled-label-test" class="table-of-contents__link toc-highlight">Shuffled-label test</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
+much better would mean the inputs leak the answer. The check decides on range error only, as
+pre-registered; its detail also reports the shuffled model&#x27;s median course error beside naive&#x27;s,
+where a weak bearing-as-course prior shows up (iteration 1: 82.9° against a permutation null of
+89.7°).</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/algorithms/models.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/docs/algorithms/least-squares-solver"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Least-squares bearings-only solver</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/docs/results/iteration-1"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Results: iteration 1 (G1)</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_kFBU thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#loss" class="table-of-contents__link toc-highlight">Loss</a></li><li><a href="#training" class="table-of-contents__link toc-highlight">Training</a></li><li><a href="#training-speed-options-iteration-2" class="table-of-contents__link toc-highlight">Training speed options (iteration 2)</a></li><li><a href="#determinism" class="table-of-contents__link toc-highlight">Determinism</a></li><li><a href="#tfjs-workarounds" class="table-of-contents__link toc-highlight">tfjs workarounds</a></li><li><a href="#predictions" class="table-of-contents__link toc-highlight">Predictions</a></li><li><a href="#shuffled-label-test" class="table-of-contents__link toc-highlight">Shuffled-label test</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
 </body>
 </html>
