@@ -33,8 +33,17 @@ which see the whole window anyway. Every model is still **scored** only after th
   windows, read from disk scenario by scenario (never loaded whole).
 - After each epoch: validation loss on all 10,000 validation windows; best-epoch weights kept.
 - Stops at the first of: `max_epochs`, `patience` epochs without improvement (early stopping),
-  the 6-hour wall-clock cap, or a non-finite loss (`diverged`).
-- Checkpoint every epoch; a restarted run resumes (the Adam state restarts, recorded in the log).
+  the wall-clock cap (`max_wall_s`), or a non-finite loss (`diverged`).
+- Checkpoint every epoch (saved atomically: written to a temporary folder, then swapped in); a
+  restarted run resumes and the wall-clock cap counts the time already spent.
+- Each checkpoint also saves the Adam state (`optimizer.json`, `optimizer.bin`), so a resumed run
+  gives the same weights as an uninterrupted one (tested). A checkpoint without it (for example
+  one seeded from committed weights by `scripts/train-continue.mjs`) restarts Adam; the next three
+  epochs then do not count towards patience, and the log says so.
+- On GitHub Actions each job pushes its output folder to a `checkpoints/<branch>/<model>` git
+  branch after every epoch and restores it at start, so a cancelled or crashed job resumes and a
+  completed model is not retrained. Once the G1 results branch is pushed, the run deletes its
+  own checkpoint branches and any whose train branch no longer exists.
 - Training refuses to start without a passing G0 verdict in `experiments/`.
 
 ## Training speed options (iteration 2)

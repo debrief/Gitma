@@ -77,9 +77,11 @@ Full walkthroughs: `specs/001-iteration-0-pipeline/quickstart.md`, `specs/002-it
 Full training (≈ 5.5 h per model on 4 CPU cores) runs on GitHub-hosted runners, not in agent
 sessions (containers are reclaimed when idle).
 
-- **Train:** push a `train/**` branch carrying `.github/workflows/train.yml` and
-  `.github/train-plan.json` (`models` to train; optional `reuse_run` whose model artifacts fill in
-  the rest). One job per model, then a G1 job; results are pushed to `results/g1-<run id>`. Nothing
+- **Train:** push a `train/**` branch, optionally with `.github/train-plan.json` (`models` to train;
+  optional `reuse_run` whose model artifacts fill in the rest; optional `continue_from` to resume a
+  committed model via `scripts/train-continue.mjs`). Checkpoints, with Adam state, go to
+  `checkpoints/<branch>/<model>` after every epoch, so a cancelled job resumes. One job per
+  model, then a G1 job; results are pushed to `results/g1-<run id>`. Nothing
   merges automatically.
 - **Re-score:** push an `eval/**` branch containing `experiments/<id>-g1/models/`;
   `.github/workflows/evaluate-g1.yml` re-runs `tma-g1` with current code and pushes

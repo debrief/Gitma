@@ -12,6 +12,7 @@ export default tseslint.config(
       ".specify/**",
       ".claude/**",
       "site/**",
+      "scripts/**/*.mjs", // CI helper scripts, plain Node (not in a tsconfig project)
     ],
   },
   js.configs.recommended,
