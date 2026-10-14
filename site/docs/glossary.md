@@ -25,6 +25,16 @@ is causal.
 **Classical baseline** — The batch least-squares bearings-only solver; the yardstick a model must
 approach for G3. See [least-squares solver](algorithms/least-squares-solver.md).
 
+**Confidence interval (CI)** — The range a metric would plausibly take on another test set of the
+same size. Here a percentile bootstrap: the test scenarios are resampled with replacement 2,000
+times (seeded), and the 2.5th and 97.5th percentiles of the recomputed median are reported. Ratio
+intervals (model/naive) resample both estimators' scenarios together (paired). See
+[evaluation](evaluation.md).
+
+**Cramér–Rao bound** — The smallest variance any unbiased estimator can achieve from given
+measurements and noise. For a constant-velocity target it says how well the bearings themselves
+pin down range, course and speed. At G2 the classical solver's speed error (0.62 kt) is at it.
+
 **Control model** — A deliberately simpler model trained on the same data as a sequence model
 (a causal CNN for the instantaneous LSTM, an MLP for the BiLSTM). If the sequence model cannot
 beat its control, its result says little about learning the geometry. See
@@ -43,6 +53,10 @@ Reported as a rate because TMA failures are heavy-tailed.
 
 **Held-out geometry** — A test set drawn from parameter ranges outside training (for example
 20–30 km initial range), used to measure extrapolation.
+
+**Inconclusive** — A gate check whose 95% interval contains its threshold: the data cannot say
+which side the true value is on. A gate with an inconclusive check, and no failing one, is
+inconclusive; the agent review panel decides it under a pre-registered rule.
 
 **Instantaneous variant** — The model that gives the operator's running solution: at each time,
 range, course and speed from bearings so far. Scored as a curve of error against time since the zig.

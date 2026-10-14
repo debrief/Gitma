@@ -68,9 +68,14 @@ pnpm tma-model-predict --model <dir> --truth <test.f32pack> --features <test.fea
 pnpm tma-g1 --data data/i1 --models models/i1 --experiment experiments/<id>   # exit 3: gate not passed
 pnpm tma-gate g1 --experiment <dir> --instantaneous <id> --time-late <id> \
   --causal-control <id> --mlp-control <id> --shuffled <id>                   # gate only, on existing metrics
+node scripts/train-plan.mjs data configs/iter2/b/plan.json data/i2 train validation test heldout  # digests checked
+pnpm tma-g2 --data data/i2 --models <carried models> --split validation --experiment <dir>   # diagnostic only
+pnpm tma-g2 --data data/i2 --models <carried> --compare-models <other phase> \
+  --decision <committed decision.json> --split test --experiment experiments/<id>   # the gate; exit 3: not passed
 ```
 
-Full walkthroughs: `specs/001-iteration-0-pipeline/quickstart.md`, `specs/002-iteration-1-signal/quickstart.md`.
+Full walkthroughs: `specs/001-iteration-0-pipeline/quickstart.md`, `specs/002-iteration-1-signal/quickstart.md`,
+`specs/003-iteration-2-noise/quickstart.md`.
 
 ## Training and re-scoring on GitHub Actions
 
@@ -112,6 +117,12 @@ sessions (containers are reclaimed when idle).
 - **Units/frame:** flat-earth Cartesian, x east, y north, metres; bearings true, clockwise from north,
   radians internally; speeds m/s (knots only for reporting).
 - **No leakage:** normalisation stats computed from inputs only, never from truth.
+- **Provenance:** datasets record the generating commit (`generator_git_commit`); `tma-generate`
+  refuses a dirty tree unless `--allow-dirty` (then recorded as `generator_git_dirty: true`). Models
+  record their source dataset header; training, resume and scoring refuse features from other data.
+  Gate data comes from a plan whose content digests are checked (`scripts/train-plan.mjs`).
+- **Feature sets:** `raw` (10 channels) or `derived` (13: adds bearing rate, its validity flag and the
+  bearing-line intercept); a model's config names its set and every CLI refuses a mismatch.
 - **Reporting:** no model result without naive and classical baselines on the same test set alongside it.
   Use medians and 90th percentiles, not means.
 - **Classification:** public repo. Nothing above OFFICIAL; mock data only.
@@ -141,6 +152,16 @@ sessions (containers are reclaimed when idle).
   have no gradient: causal padding is built from Keras layers (spec 002 research R3).
 - Training determinism needs seeded initializers and `trainOnBatch` in PRNG order; never
   `fit({shuffle: true})`.
+- Gate times count from `zig_index`, the first sample after the rate-limited turn ends (generator
+  0.2.0), not the turn start; zig + 600 s is reached by only ~60% of scenarios, so state coverage.
+- Data regenerated at a later commit has a different header digest though the scenarios are
+  identical; prediction tolerates provenance-only header changes (both clean, constants equal) and
+  `train-continue.mjs --train/--val` re-anchors digests. Always run the plan's digest check too.
+- A test split is scored once per carried set; `tma-g2 --split test` needs the committed phase
+  decision. Score phases in one run (`--compare-models`): other-phase predictions are tagged
+  `<split>.other-phase.<id>.ndjson` so they never overwrite the carried set's.
+- Gate checks: pass needs the whole 95% CI and the point below the threshold; fail needs the CI's
+  lower bound at or above it; anything else is inconclusive (FR-015).
 
 ## Gates (SRD §5)
 
@@ -150,7 +171,10 @@ pipeline and must pass G0 before any training. G0 passed (panel round 3,
 pre-registered rule 1, with a caveat: time-late is not shown better than instantaneous. Iteration 2
 (spec 003) changed the generator (rate-limited turn, provenance), so G0 was re-run and passed again
 (panel rounds 1–3, `experiments/20261013-g0-i2-r2/`); `tma-train` accepts only a G0 whose
-`decided_by` names a panel round and whose `review.md` is beside it.
+`decided_by` names a panel round and whose `review.md` is beside it. **G2 failed** (panel round 2,
+`experiments/20261014-i2-g2/`): range and instantaneous course pass, speed fails for both models
+(2.09 / 2.38 kt vs 1 kt; classical 0.62 kt, at the Cramér–Rao bound). Iteration 2b leads and
+prerequisite tooling fixes: spec 003 research R6, R18, R19.
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution
 1.2.0). For each gate experiment:

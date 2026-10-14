@@ -86,6 +86,10 @@ unobservable, so penalising it would only teach the prior.
 ownship speed and timestamp over the **train** split. Target truth is never read. A test shuffles
 target tracks across scenarios and checks that the constants do not change.
 
+`speed_scale_mps` comes from ownship speeds, but it also scales the target-speed target. Target
+speeds go up to about 1.33 × the scale. This does no harm: the constant is still computed from
+inputs only, and the output head is linear, so nothing clips (G2 panel, round 1).
+
 ## File
 
 `.features.bin`: magic `TMAFEAT\0`, version, `FeatureLayout` JSON, `NormalisationConstants` JSON,
