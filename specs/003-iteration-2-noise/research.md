@@ -394,3 +394,19 @@ Notes:
 - Possible derived features: the per-leg fitted shape parameters and the fit residual. These
   are leads for the speed gap seen in phases A and B (about 2.1 kt against classical's 0.60 kt).
   The fitted pre-zig shape constrains the relative velocity, and speed depends on it directly.
+
+## R19. Iteration-2b leads and follow-ups from the G2 panel (2026-10-14)
+
+- **Speed is under-weighted in the loss.** With equal weights, the scaled-speed term is about
+  15% of the loss on the B test predictions. The others are log-range 0.103 and sin+cos 0.213,
+  against speed 0.056. Speed predictions shrink towards the mean (slope ≈ 0.57). Options are a
+  per-term loss weight, or a speed target scaled to unit variance.
+- **Training budget.** Train loss was still falling when patience 6 stopped phase B. Validation
+  loss moves by about ±3% per epoch, which is more than the per-epoch gain. A smoothed stopping
+  criterion or a longer budget is a lever alongside derived features (R6) and the per-leg fit
+  (R18).
+- **Tooling follow-ups:**
+  - `tma-g2` should check the plan's content digests and record them in the manifest.
+  - The SC-005 guard should require that the decision commit is an ancestor of the weights'
+    `git_commit`.
+  - The same-rows check should compare row identity, not only counts.
