@@ -410,3 +410,30 @@ Notes:
   - The SC-005 guard should require that the decision commit is an ancestor of the weights'
     `git_commit`.
   - The same-rows check should compare row identity, not only counts.
+
+## R20. Capacity scan (side experiment, user 2026-10-14)
+
+**Question**: does model capacity move the speed error? Phase B's instantaneous LSTM ended with
+train loss (0.377) still above validation loss (0.346) and still falling: the signature of a model
+that cannot fit the data, not of one short of data. Speed predictions shrink to the mean (slope
+≈ 0.57). And the time-late model has never beaten the instantaneous one despite seeing more data.
+All three point at capacity or optimisation before data or inputs.
+
+**Method**: three instantaneous LSTMs trained from scratch on the iteration-2 data at a fixed
+30-epoch budget, loss weights 1, seed 1001, length bucketing, one thread, as in phase A:
+96 units (the G1/G2 architecture; phase A's own epochs 0–29 are a free cross-check on another CPU
+family), 192 units, and two stacked 128-unit layers (`layers: 2`, new for recurrent kinds). Plan
+`configs/iter2/s/plan.json` (branch `train/i2s`); evaluated by `tma-scan` on **validation only**,
+beside naive and classical, with bootstrap intervals, into `experiments/<date>-i2s-scan/`. Three
+runs, within SRD §7's cap. Reported, never a gate decision.
+
+**Cost**: 96 units take 164–251 s per epoch on the EPYC runners (not the 17 min quoted earlier
+from the i1 BiLSTM); 192 units ≈ 4× and 2 × 128 ≈ 5× by parameter count, so each run fits in one
+to two chained jobs.
+
+**Decision rule, fixed before the run**: if a larger model's σ = 1° validation speed error at
+zig + 600 s is below the 96-unit model's by more than the 96-unit interval's half-width at the same
+budget, capacity is a live lead and a 2c (which needs an SRD §7 amendment) is proposed to the user
+with the measured per-epoch cost. If not, capacity is dropped and the write-up says so.
+
+**Findings**: pending.

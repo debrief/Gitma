@@ -163,13 +163,17 @@ export function loadPlan(path) {
   if (p.continue_allow !== undefined && p.continue_from === undefined)
     fail("continue_allow needs continue_from");
   const e = p.evaluate;
-  if (!isObject(e) || e.command !== "tma-g2") fail('evaluate.command must be "tma-g2"');
+  if (!isObject(e) || !["tma-g2", "tma-scan"].includes(e.command))
+    fail('evaluate.command must be "tma-g2" or "tma-scan"');
   if (!["validation", "test"].includes(e.split)) fail("evaluate.split must be validation or test");
   for (const k of ["decision", "compare_models"]) {
     if (e[k] !== undefined && typeof e[k] !== "string") fail(`evaluate.${k} must be a path`);
   }
   if (e.split === "validation" && (e.decision !== undefined || e.compare_models !== undefined))
     fail("a validation evaluation takes no decision or compare_models");
+  // A scan (side experiment, spec 003 R20) reports every model on validation; it never gates.
+  if (e.command === "tma-scan" && e.split !== "validation")
+    fail("a tma-scan evaluation is validation only");
   return p;
 }
 
@@ -183,6 +187,7 @@ export function resolve(input, ref) {
     models: JSON.stringify(p.models),
     configs: p.configs,
     feature_set: p.feature_set,
+    command: p.evaluate.command,
     split: p.evaluate.split,
     continue_from: JSON.stringify(p.continue_from ?? {}),
     continue_allow: (p.continue_allow ?? []).join(","),
@@ -277,9 +282,11 @@ export function complete(dir) {
   return JSON.parse(readFileSync(m, "utf8")).complete === true;
 }
 
-/** tma-g2 arguments for the plan's evaluation (`planFile`: the plan's path, for --plan on test). */
+/** Arguments for the plan's evaluation command (`planFile`: the plan's path, for --plan on test). */
 export function evaluateArgs(plan, dataDir, models, experiment, planFile) {
   const e = plan.evaluate;
+  if (e.command === "tma-scan")
+    return ["--data", dataDir, "--models", models, "--experiment", experiment];
   return [
     "--data",
     dataDir,

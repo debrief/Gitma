@@ -208,13 +208,13 @@ export function featuresPath(data: string, split: string, fs: FeatureSet): strin
   return existsSync(specific) ? specific : join(data, `${split}.features.bin`);
 }
 
-interface Scored {
+export interface Scored {
   scenarios: Scenario[];
   sets: PredictionSet[];
   notes: string[];
 }
 
-interface ModelSet {
+export interface ModelSet {
   ids: G1Ids;
   models: { dir: string; manifest: ReturnType<typeof readModelManifest> }[];
 }
@@ -224,12 +224,12 @@ interface ModelSet {
  * predictions go to `predictions/<split>.<tag.><model id>.ndjson`; the other phase passes a tag
  * so its files never overwrite the carried set's (same model ids).
  */
-async function scoreSplit(
-  opts: G2RunOptions,
+export async function scoreSplit(
+  opts: Pick<G2RunOptions, "data">,
   split: string,
   naive: NaiveModel,
   trainHeader: ReturnType<typeof readDataset>["header"],
-  groups: ModelSet[],
+  groups: { models: ModelSet["models"] }[],
   log: (l: string) => void,
   tag?: string,
 ): Promise<Scored> {

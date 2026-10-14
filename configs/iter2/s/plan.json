@@ -1,0 +1,23 @@
+{
+  "id": "i2s",
+  "description": "Spec 003 research R20, capacity scan (side experiment, user 2026-10-14): three instantaneous LSTMs from scratch at a fixed 30-epoch budget on the iteration-2 data, loss weights 1: 96 units (the G1/G2 architecture), 192 units, and two stacked 128-unit layers. Validation only, reported by tma-scan beside naive and classical; never a gate decision. Informs whether capacity moves the speed error before any iteration commits to a larger model.",
+  "dataset": {
+    "seed": "201",
+    "count": 100000,
+    "ranges": "configs/iter2-ranges.json",
+    "heldout_ranges": "configs/iter2-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "0b2a79027d89f4e628c74ba2c13167ba9f55591fefa2f2bf378b372a3d93821c",
+      "validation.f32pack": "3fb2d2ad550c95bcee22c168e21c559da69507cd1a4c6425b77ae7ed3b259164",
+      "test.f32pack": "cd2f30611a7d8441af6dd1b7414653ac03d94dc37aca52e986579c31263ee2af",
+      "heldout.f32pack": "57d766df0e8b9b7afd9cbe982d11cdbd54a27c203467bade57eea716474f73e5"
+    }
+  },
+  "feature_set": "raw",
+  "configs": "configs/iter2/s",
+  "models": ["instantaneous-96", "instantaneous-192", "instantaneous-2x128"],
+  "evaluate": {
+    "command": "tma-scan",
+    "split": "validation"
+  }
+}

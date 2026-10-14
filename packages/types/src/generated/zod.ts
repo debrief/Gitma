@@ -242,7 +242,7 @@ export const TrainingConfig = z.strictObject({
   id: z.string(),
   /** Causal CNN kernel size. */
   kernel_size: z.number().int().nullish(),
-  /** Causal CNN conv layers (no dilation). */
+  /** Stacked layers: causal CNN conv layers (no dilation; default 3), or recurrent layers for instantaneous and time_late (default 1; each returns sequences; spec 003 R20). */
   layers: z.number().int().nullish(),
   learning_rate: z.number(),
   /** Length bucketing (research R15; default false). Each group of bucket_batches batches of the epoch's seeded permutation is sorted by valid length, cut into batches whose rows are trimmed to the longest window, and the batch order is shuffled with a seed derived from train_seed and the epoch. The model takes a variable time dimension. Not for mlp. */

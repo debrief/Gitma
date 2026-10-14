@@ -33,6 +33,33 @@ describe("plan resolution", () => {
     expect(r.out).toContain("id=i2a\n");
     expect(r.out).toContain(`models=${JSON.stringify(MODELS)}\n`);
     expect(r.out).toContain("split=validation\n");
+    expect(r.out).toContain("command=tma-g2\n");
+  });
+
+  it("train/i2s → the capacity scan: tma-scan on validation, plain arguments (R20)", () => {
+    const r = run(["resolve"], { env: { REF_NAME: "train/i2s" } });
+    expect(r.status).toBe(0);
+    expect(r.out).toContain("plan=configs/iter2/s/plan.json\n");
+    expect(r.out).toContain("command=tma-scan\n");
+    expect(r.out).toContain("split=validation\n");
+    const args = run(["evaluate-args", "configs/iter2/s/plan.json", "D", "M", "E"]);
+    expect(args.out.trim().split("\n")).toEqual([
+      "--data",
+      "D",
+      "--models",
+      "M",
+      "--experiment",
+      "E",
+    ]);
+    const s = JSON.parse(readFileSync(join(ROOT, "configs/iter2/s/plan.json"), "utf8")) as {
+      dataset: unknown;
+      continue_from?: unknown;
+    };
+    const b = JSON.parse(readFileSync(join(ROOT, "configs/iter2/b/plan.json"), "utf8")) as {
+      dataset: unknown;
+    };
+    expect(s.dataset).toEqual(b.dataset); // the iteration-2 data, from scratch
+    expect(s.continue_from).toBeUndefined();
   });
 
   it("writes the outputs to $GITHUB_OUTPUT; a workflow input wins over the branch", () => {
@@ -56,6 +83,9 @@ describe("plan resolution", () => {
   it("every committed plan validates; phase A configs follow decisions 9 and 10", () => {
     for (const p of [
       "configs/iter2/a/plan.json",
+      "configs/iter2/b/plan.json",
+      "configs/iter2/c/plan.json",
+      "configs/iter2/s/plan.json",
       "configs/ci/plan.json",
       "configs/ci/derived/plan.json",
     ]) {
@@ -143,6 +173,14 @@ describe("plan validation", () => {
       ).err,
     ).toMatch(/validation evaluation takes no decision/);
     expect(validate(workspace((p) => (p.models = ["no-such-model"]))).err).toMatch(/no config/);
+    // A scan never touches the test split.
+    expect(
+      validate(workspace((p) => (p.evaluate = { command: "tma-scan", split: "test" }))).err,
+    ).toMatch(/validation only/);
+    expect(
+      validate(workspace((p) => (p.evaluate = { command: "tma-scan", split: "validation" })))
+        .status,
+    ).toBe(0);
   });
 
   it("a fresh test split needs its own unreserved seed and a digest (spec 004 decision 17)", () => {

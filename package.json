@@ -28,7 +28,8 @@
     "tma-train": "tsc -b && node packages/models/dist/cli-train.js",
     "tma-model-predict": "node packages/models/dist/cli-predict.js",
     "tma-g1": "tsc -b && node packages/models/dist/cli-g1.js",
-    "tma-g2": "tsc -b && node packages/models/dist/cli-g2.js"
+    "tma-g2": "tsc -b && node packages/models/dist/cli-g2.js",
+    "tma-scan": "tsc -b && node packages/models/dist/cli-scan.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

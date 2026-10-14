@@ -82,14 +82,20 @@ export function buildModel(
   switch (config.model_kind) {
     case "instantaneous":
       m.add(tf.layers.masking({ maskValue: 0, ...input }));
-      m.add(lstm(config.units, next));
+      // Stacked recurrent layers (capacity scan, spec 003 R20); every layer returns sequences.
+      for (let l = 0; l < (config.layers ?? 1); l++) m.add(lstm(config.units, next));
       m.add(head(next));
       break;
     case "time_late":
       m.add(tf.layers.masking({ maskValue: 0, ...input }));
-      m.add(
-        tf.layers.bidirectional({ layer: lstm(config.units, next) as tf.RNN, mergeMode: "concat" }),
-      );
+      for (let l = 0; l < (config.layers ?? 1); l++) {
+        m.add(
+          tf.layers.bidirectional({
+            layer: lstm(config.units, next) as tf.RNN,
+            mergeMode: "concat",
+          }),
+        );
+      }
       m.add(head(next));
       break;
     case "causal_cnn": {

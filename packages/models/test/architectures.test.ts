@@ -39,6 +39,20 @@ describe("architectures", () => {
     },
   );
 
+  it.each(["instantaneous", "time_late"] as const)(
+    "%s stacks `layers` recurrent layers, each returning sequences (R20)",
+    (kind) => {
+      const one = buildModel(tinyConfig(kind, { layers: 1 }));
+      const two = buildModel(tinyConfig(kind, { layers: 2 }));
+      const lstms = (m: tf.LayersModel) => layerClasses(m).filter((c) => c === "LSTM").length;
+      expect(lstms(one)).toBe(1);
+      expect(lstms(two)).toBe(2);
+      expect(lstms(buildModel(tinyConfig(kind)))).toBe(1); // absent: one layer, as before
+      expect(two.countParams()).toBeGreaterThan(one.countParams());
+      expect((two.predict(tf.zeros([2, 240, 10])) as tf.Tensor).shape).toEqual([2, 240, 4]);
+    },
+  );
+
   it("is reproducible from the train seed and differs with another seed", () => {
     const w = (seed: string) =>
       buildModel(tinyConfig("instantaneous", { train_seed: seed }))
