@@ -114,7 +114,7 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 
 - [x] T042 [US2] Push `train/i2a`; phase A trains five models; evaluation on validation → `experiments/<date>-i2a-val/` (no test-split metrics)
 - [x] T043 [US3] Decision record `decision.{md,json}` (stalled?, single change, validation evidence, carried-set rule); commit **before** any phase-B run (SC-005)
-- [ ] T044 [US3] If stalled: phase B configs `configs/iter2/b/` (`feature_set: derived` or the recorded change); push `train/i2b`; validation → `experiments/<date>-i2b-val/`; record carried set per the rule
+- [x] T044 [US3] If stalled: phase B configs `configs/iter2/b/` (`feature_set: derived` or the recorded change); push `train/i2b`; validation → `experiments/<date>-i2b-val/`; record carried set per the rule
 - [ ] T045 [US4] G2 on test (`tma-g2 --split test --decision …`) → `experiments/<date>-g2/` (verdict, metrics, curves, bootstrap, comparison, held-out, manifests, weights, logs); if US6, score G1 models on the turn-only diagnostic set into `turn-only/` (reported)
 - [ ] T046 [US5] Agent review panel on the G2 evidence; fix/answer findings; re-invite until no reject and no open blocker/major; `review.md`; `decided_by`
 
