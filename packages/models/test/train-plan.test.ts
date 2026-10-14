@@ -144,6 +144,19 @@ describe("plan validation", () => {
     ).toMatch(/validation evaluation takes no decision/);
     expect(validate(workspace((p) => (p.models = ["no-such-model"]))).err).toMatch(/no config/);
   });
+
+  it("a fresh test split needs its own unreserved seed and a digest (spec 004 decision 17)", () => {
+    const fresh = (f: unknown) => workspace((p) => (dataset(p).fresh_test = f));
+    expect(validate(fresh({ seed: "202", digest: "PLACEHOLDER" })).status).toBe(0);
+    expect(validate(fresh({ seed: "201", digest: "PLACEHOLDER" })).err).toMatch(
+      /must differ from dataset.seed/,
+    );
+    expect(validate(fresh({ seed: "101", digest: "PLACEHOLDER" })).err).toMatch(
+      /reserved for iteration 1/,
+    );
+    expect(validate(fresh({ seed: "202", digest: "abc" })).err).toMatch(/fresh_test.digest/);
+    expect(validate(fresh({ digest: "PLACEHOLDER" })).err).toMatch(/fresh_test.seed/);
+  });
 });
 
 describe("dataset content digests", () => {
@@ -191,7 +204,7 @@ describe("dataset content digests", () => {
     const plan = JSON.parse(readFileSync(p, "utf8")) as {
       dataset: { digests: Record<string, string> };
     };
-    plan.dataset.digests = digests;
+    plan.dataset.digests = { ...digests };
     writeFileSync(p, JSON.stringify(plan));
     const check = () => run(["check-digests", "configs/iter2/a/plan.json", data], { cwd: dir });
     expect(check().status).toBe(0);
@@ -204,6 +217,17 @@ describe("dataset content digests", () => {
     plan.dataset.digests["validation.f32pack"] = "PLACEHOLDER";
     writeFileSync(p, JSON.stringify(plan));
     expect(check().err).toMatch(/placeholders/);
+
+    // With a fresh test split, test.f32pack is checked against the fresh digest, not the plan's.
+    plan.dataset.digests["validation.f32pack"] = digests["validation.f32pack"] ?? "";
+    const withFresh = plan as unknown as { dataset: Record<string, unknown> };
+    withFresh.dataset.fresh_test = { seed: "202", digest: digests["test.f32pack"] };
+    plan.dataset.digests["test.f32pack"] = "0".repeat(64);
+    writeFileSync(p, JSON.stringify(plan));
+    expect(check().status).toBe(0);
+    withFresh.dataset.fresh_test = { seed: "202", digest: "1".repeat(64) };
+    writeFileSync(p, JSON.stringify(plan));
+    expect(check().err).toMatch(/BAD test.f32pack .*\(plan: 1{64}\)/);
   });
 });
 

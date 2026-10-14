@@ -8,7 +8,7 @@ import { type G2Split, runG2 } from "./g2.js";
 const EXIT_GATE_FAILED = 3;
 
 const USAGE =
-  "usage: tma-g2 --data <dir> --models <dir> --experiment <experiments/id> [--split test|validation] [--compare-models <dir>] [--decision <decision.json>] [--allow-dirty]";
+  "usage: tma-g2 --data <dir> --models <dir> --experiment <experiments/id> [--split test|validation] [--compare-models <dir>] [--decision <decision.json>] [--plan <plan.json>] [--allow-dirty]";
 
 export async function main(argv: string[]): Promise<unknown> {
   const { values } = parseArgs({
@@ -21,6 +21,7 @@ export async function main(argv: string[]): Promise<unknown> {
       split: { type: "string", default: "test" },
       "compare-models": { type: "string" },
       decision: { type: "string" },
+      plan: { type: "string" },
       "allow-dirty": { type: "boolean", default: false },
     },
   });
@@ -37,6 +38,7 @@ export async function main(argv: string[]): Promise<unknown> {
     split,
     ...(values["compare-models"] === undefined ? {} : { compareModels: values["compare-models"] }),
     ...(values.decision === undefined ? {} : { decision: values.decision }),
+    ...(values.plan === undefined ? {} : { plan: values.plan }),
     commandLine: ["tma-g2", ...argv].join(" "),
   });
   if (verdict.result !== "pass") process.exitCode = EXIT_GATE_FAILED;

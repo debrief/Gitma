@@ -1,0 +1,35 @@
+{
+  "id": "i2c",
+  "description": "Spec 004 (iteration 2b, user decisions 15-17): the single change is the loss, loss_weight_speed 1 -> 4 (range and course stay 1); every model continues from its committed phase-B weights (experiments/20261014-i2b-val/models; best epoch re-scored under the new loss; Adam restarts once, 3-epoch patience grace), max_epochs 220, patience 6. Same data, features, architectures and seeds. G2 is judged on a fresh test split (seed 202), never on the iteration-2 test split. Scored on validation first (diagnostic).",
+  "dataset": {
+    "seed": "201",
+    "count": 100000,
+    "ranges": "configs/iter2-ranges.json",
+    "heldout_ranges": "configs/iter2-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "0b2a79027d89f4e628c74ba2c13167ba9f55591fefa2f2bf378b372a3d93821c",
+      "validation.f32pack": "3fb2d2ad550c95bcee22c168e21c559da69507cd1a4c6425b77ae7ed3b259164",
+      "test.f32pack": "cd2f30611a7d8441af6dd1b7414653ac03d94dc37aca52e986579c31263ee2af",
+      "heldout.f32pack": "57d766df0e8b9b7afd9cbe982d11cdbd54a27c203467bade57eea716474f73e5"
+    },
+    "fresh_test": {
+      "seed": "202",
+      "digest": "deb1c6e75f35a5c0fbb5d5f2476463c918978896d768a0dd97676495eaffa260"
+    }
+  },
+  "feature_set": "raw",
+  "configs": "configs/iter2/c",
+  "models": ["instantaneous", "time-late", "causal-cnn", "mlp", "instantaneous-shuffled"],
+  "evaluate": {
+    "command": "tma-g2",
+    "split": "validation"
+  },
+  "continue_from": {
+    "causal-cnn": "experiments/20261014-i2b-val/models/cnn-causal-control",
+    "instantaneous-shuffled": "experiments/20261014-i2b-val/models/lstm-instantaneous-shuffled",
+    "instantaneous": "experiments/20261014-i2b-val/models/lstm-instantaneous",
+    "mlp": "experiments/20261014-i2b-val/models/mlp-control",
+    "time-late": "experiments/20261014-i2b-val/models/bilstm-time-late"
+  },
+  "continue_allow": ["max_epochs", "loss_weight_speed"]
+}

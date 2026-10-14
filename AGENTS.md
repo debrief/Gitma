@@ -71,7 +71,8 @@ pnpm tma-gate g1 --experiment <dir> --instantaneous <id> --time-late <id> \
 node scripts/train-plan.mjs data configs/iter2/b/plan.json data/i2 train validation test heldout  # digests checked
 pnpm tma-g2 --data data/i2 --models <carried models> --split validation --experiment <dir>   # diagnostic only
 pnpm tma-g2 --data data/i2 --models <carried> --compare-models <other phase> \
-  --decision <committed decision.json> --split test --experiment experiments/<id>   # the gate; exit 3: not passed
+  --decision <committed decision.json> --plan <plan.json> --split test \
+  --experiment experiments/<id>   # the gate: checks plan digests, decision ancestry, same rows; exit 3: not passed
 ```
 
 Full walkthroughs: `specs/001-iteration-0-pipeline/quickstart.md`, `specs/002-iteration-1-signal/quickstart.md`,
@@ -160,6 +161,8 @@ sessions (containers are reclaimed when idle).
 - A test split is scored once per carried set; `tma-g2 --split test` needs the committed phase
   decision. Score phases in one run (`--compare-models`): other-phase predictions are tagged
   `<split>.other-phase.<id>.ndjson` so they never overwrite the carried set's.
+- A seeded continuation that changes the loss re-scores the best epoch under the new loss
+  (otherwise the old best, on the old scale, is never beaten and the old weights are kept).
 - Gate checks: pass needs the whole 95% CI and the point below the threshold; fail needs the CI's
   lower bound at or above it; anything else is inconclusive (FR-015).
 
@@ -173,8 +176,10 @@ pre-registered rule 1, with a caveat: time-late is not shown better than instant
 (panel rounds 1–3, `experiments/20261013-g0-i2-r2/`); `tma-train` accepts only a G0 whose
 `decided_by` names a panel round and whose `review.md` is beside it. **G2 failed** (panel round 2,
 `experiments/20261014-i2-g2/`): range and instantaneous course pass, speed fails for both models
-(2.09 / 2.38 kt vs 1 kt; classical 0.62 kt, at the Cramér–Rao bound). Iteration 2b leads and
-prerequisite tooling fixes: spec 003 research R6, R18, R19.
+(2.09 / 2.38 kt vs 1 kt; classical 0.62 kt, at the Cramér–Rao bound). Iteration 2b (spec 004, the
+last allowed under G2) continues every model from phase B with `loss_weight_speed` 4 and judges G2
+on a fresh test split (seed 202): plan `configs/iter2/c`, decision
+`experiments/20261014-i2c-decision/`.
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution
 1.2.0). For each gate experiment:

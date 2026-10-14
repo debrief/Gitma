@@ -1,0 +1,9 @@
+{
+  "carried_set_rule": "The 2b models (configs/iter2/c, continued from phase B with loss_weight_speed 4) are carried unconditionally; phase B (experiments/20261014-i2b-val/models) is scored beside them on the same fresh test split as the other phase, reported and never gated (spec 004 FR-006).",
+  "change": "loss: loss_weight_speed 1 -> 4 (range and course 1), every model continued from its committed phase-B weights with max_epochs 220 and patience 6; best epoch re-scored under the new loss (configs/iter2/c; spec 004 decisions 15-16)",
+  "decided_at": "2026-10-14T11:00:00Z",
+  "git_commit": "0598100fe1d086a69c9046fc8ee6037c1cd79dc9",
+  "phase_a_experiment": "20261014-i2-g2",
+  "rationale": "G2 failed (experiments/20261014-i2-g2, panel round 2): speed 2.09 kt [2.00, 2.18] instantaneous and 2.38 kt [2.28, 2.48] time-late against 1 kt, classical 0.62 kt at the Cramer-Rao bound; predictions shrink to the mean (slope ~0.57); with equal weights the scaled-speed term is ~15% of the loss (log-range 0.103, sin+cos 0.213, speed 0.056 per row). User decisions 15-17 (2026-10-14): weight 4, continue from phase B, judge on a fresh test split (seed 202).",
+  "stalled": true
+}
