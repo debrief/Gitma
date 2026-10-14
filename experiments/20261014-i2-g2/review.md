@@ -131,3 +131,41 @@ loss never improved on A's). *Response:* expected; noted.
 **m14 [minor; reproducibility] The manifest's provenance notes do not say which lineage is carried
 and which other-phase.** *Response:* b13474a is phase B (carried), a7a3f33 phase A (other-phase);
 recorded here.
+
+## Round 2 (2026-10-14)
+
+Brief: are your findings fixed or answered, and do the fixes introduce new problems? (≤ 300 words.)
+
+| Reviewer | Verdict | Remaining |
+| --- | --- | --- |
+| TMA geometry | approve-with-findings | [minor] stale phase-A files on disk under the carried names |
+| Estimation and numerics | approve-with-findings | [minor] the tooling follow-ups (R19) must land before iteration 2b scores a gate |
+| Evaluation statistics | approve | [minor] the new rule could pass with the point ≥ threshold if the CI's upper bound were below it; [minor] stale files on disk |
+| Reproducibility | approve | [minor] stale files on disk; [minor] state that the changed gate code was re-gated |
+| Red team | approve-with-findings | [minor] "CI wholly above 2 kt" is false for lstm-instantaneous (lower bound 1.9997 kt) |
+
+The reviewers checked the round-1 fixes, M1 and m1, against the code and tests: 14 of 14 tests
+pass. The reproducibility and red-team reviewers each re-gated the committed metrics with the
+new gate code and got identical checks, detail text included.
+
+Responses (commit 1fb0f5a and this record):
+- **Pass also requires the point below the threshold.** A check now passes only if the CI's
+  upper bound and the point are both below the threshold; otherwise it is inconclusive. A test
+  covers this. Nothing in this run changes.
+- **CI wording corrected.** Speed now reads "CI wholly above 1 kt; lower bounds 2.00 and 2.28 kt",
+  here and in the PR body.
+- **Stale files on disk.** The phase-A files under the carried names in `data/i2/predictions`
+  have been renamed `test.other-phase.<id>.ndjson`, which is what the fixed code writes. They are
+  phase A's predictions. Re-run `tma-g2` to regenerate phase B's on disk. `data/` is not committed.
+- **Gate code changed after scoring.** The manifest names 7bb7641. The gate code changed in
+  ddcb027 and 1fb0f5a, and re-gating the committed metrics with that code gives identical checks.
+  This was done three times: my run and the reproducibility and red-team reviewers' runs.
+- **Tooling follow-ups (R19).** These are the content-digest check in `tma-g2`, decision ancestry
+  for SC-005, and row identity. They are prerequisites for iteration 2b's gate.
+
+No reviewer rejects, and no blocker or major finding is open. **G2 decision: FAIL** (SRD §5).
+Decision 5 therefore allows iteration 2b, whose leads are listed in research R6, R18 and R19.
+
+Not done: T045's turn-only diagnostic (G1 models on `configs/iter2-turn-only-test-ranges.json`),
+which is reported only, not gated. No tooling exists for it. It is deferred to iteration 2b and
+recorded in tasks.md.
