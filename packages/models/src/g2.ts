@@ -196,6 +196,7 @@ async function scoreSplit(
         const note = requireSameNormalisation(features, m.manifest.normalisation, m.manifest.id, {
           header: trainHeader,
           modelSchemaVersion: m.manifest.schema_version,
+          modelSourceHeader: m.manifest.source_dataset_header,
         });
         if (note !== undefined) notes.push(note);
         const model = await loadModel(m.dir);

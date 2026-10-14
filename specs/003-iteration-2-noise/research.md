@@ -373,3 +373,24 @@ scratchpad and are not committed.
 14. **Phase-B change**: training budget (150 epochs, patience 6, continued from phase-A weights)
     rather than derived features; decision record `experiments/20261013-i2a-val/decision.md`.
     Derived features stay the lead for iteration 2b if phase B also stalls.
+
+## R18. Per-leg steady-track fit (user, 2026-10-14) — candidate for iteration 2b
+
+The method: within one ownship leg, if the target also holds course and speed, the relative
+track is a straight line. Then tan B(t) = (x0 + vx·t) / (y0 + vy·t), with relative position
+(x0, y0) and relative velocity (vx, vy). Fit those unknowns to the bearings over a window by
+least squares. While both platforms run straight, the residual stays at the noise level. When
+either one manoeuvres, the residual grows. Ownship turns are known, so fit only inside ownship
+legs. Slide the window, and vary its length, to find the target's steady periods.
+
+Notes:
+- Range is unobservable within a single leg, because the scale cancels in the ratio. The shape
+  test needs only three parameters, for example (x0 : y0 : vx : vy) up to scale, so it does not
+  need range.
+- Window length is a trade-off. A short window localises a zig but has little power at σ = 1°.
+  A long window detects small changes but blurs where they happen.
+- It cannot be tested on the current generator, whose targets never manoeuvre (SRD §3). It
+  becomes relevant once target manoeuvres are added.
+- Possible derived features: the per-leg fitted shape parameters and the fit residual. These
+  are leads for the speed gap seen in phases A and B (about 2.1 kt against classical's 0.60 kt).
+  The fitted pre-zig shape constrains the relative velocity, and speed depends on it directly.
