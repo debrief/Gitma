@@ -21,6 +21,39 @@ const resultClass = (r) => `gate-${r}`;
 // lands on one is +∞ and is dropped from the JSON.
 const fmtCell = (key, v) => (v === null || v === undefined ? "∞" : METRICS[key].fmt(v));
 
+// Bootstrap file formats: G1 (spec 002) maps model id → model/naive interval; G2 onward (spec 003
+// R8) lists `medians` (per estimator, slice, point, metric) and `ratios` (model/naive, paired).
+const isListed = (b) => b !== null && Array.isArray(b.medians);
+const g1Ratios = (b) => Object.entries(b).filter(([, v]) => typeof v === "object" && v !== null);
+const ratiosOf = (b) =>
+  isListed(b)
+    ? b.ratios
+        .filter((r) => r.point === "zig+300s" && r.slice === "overall")
+        .map((r) => [name(r.estimator), r])
+    : g1Ratios(b);
+const CI_METRIC = {
+  range_rel_median: "range_rel",
+  course_deg_median: "course_deg",
+  speed_kt_median: "speed_kt",
+};
+/** 95% interval of a median metric, if the bootstrap covers that estimator, slice and point. */
+function ciOf(b, row, key) {
+  if (!isListed(b) || CI_METRIC[key] === undefined) return undefined;
+  return b.medians.find(
+    (m) =>
+      m.estimator === row.estimator &&
+      m.slice === row.slice &&
+      m.point === row.point &&
+      m.metric === CI_METRIC[key],
+  );
+}
+const fmtCi = (key, ci) =>
+  ci === undefined
+    ? null
+    : ` [${ci.lo === undefined ? "∞" : METRICS[key].fmt(ci.lo)}, ${ci.hi === undefined ? "∞" : METRICS[key].fmt(ci.hi)}]`;
+const pointLabel = (p) =>
+  p === "final" ? "end of window" : p.replace("zig+", "zig + ").replace("s", " s");
+
 function Curves({ curves }) {
   const [metric, setMetric] = useState("range_rel_median");
   const estimators = Array.from(new Set(curves.map((c) => c.estimator)));
@@ -104,7 +137,7 @@ function Curves({ curves }) {
   );
 }
 
-function MetricsTable({ metrics, point, slice = "overall" }) {
+function MetricsTable({ metrics, point, slice = "overall", bootstrap = null }) {
   const rows = metrics.filter((m) => m.point === point && m.slice === slice);
   if (rows.length === 0) return <p>No metrics at {point}.</p>;
   return (
@@ -126,12 +159,54 @@ function MetricsTable({ metrics, point, slice = "overall" }) {
             </td>
             <td>{r.n}</td>
             {Object.keys(METRICS).map((k) => (
-              <td key={k}>{fmtCell(k, r[k])}</td>
+              <td key={k}>
+                {fmtCell(k, r[k])}
+                {fmtCi(k, ciOf(bootstrap, r, k)) && (
+                  <small>{fmtCi(k, ciOf(bootstrap, r, k))}</small>
+                )}
+              </td>
             ))}
           </tr>
         ))}
       </tbody>
     </table>
+  );
+}
+
+/** Overall or σ / dropout-band slice at one point, with 95% intervals where bootstrapped. */
+function PointTable({ metrics, bootstrap }) {
+  const slices = Array.from(new Set(metrics.map((m) => m.slice))).filter(
+    (s) => s === "overall" || s.startsWith("sigma=") || s.startsWith("dropout_band="),
+  );
+  const points = Array.from(new Set(metrics.map((m) => m.point)));
+  const [slice, setSlice] = useState(slices.includes("sigma=1deg") ? "sigma=1deg" : "overall");
+  const [point, setPoint] = useState("zig+300s");
+  return (
+    <div>
+      <label>
+        Slice:{" "}
+        <select value={slice} onChange={(e) => setSlice(e.target.value)}>
+          {slices.map((s) => (
+            <option key={s}>{s}</option>
+          ))}
+        </select>
+      </label>{" "}
+      <label>
+        Point:{" "}
+        <select value={point} onChange={(e) => setPoint(e.target.value)}>
+          {points.map((p) => (
+            <option key={p} value={p}>
+              {pointLabel(p)}
+            </option>
+          ))}
+        </select>
+      </label>
+      <p>
+        Brackets: bootstrap 95% interval of the median (σ and overall slices at zig + 300 s and zig
+        + 600 s).
+      </p>
+      <MetricsTable metrics={metrics} point={point} slice={slice} bootstrap={bootstrap} />
+    </div>
   );
 }
 
@@ -158,8 +233,9 @@ function SliceTable({ metrics }) {
       <label>
         Point:{" "}
         <select value={point} onChange={(e) => setPoint(e.target.value)}>
-          <option>zig+300s</option>
-          <option>final</option>
+          {Array.from(new Set(metrics.map((m) => m.point))).map((p) => (
+            <option key={p}>{p}</option>
+          ))}
         </select>
       </label>
       <p>Median range error by slice:</p>
@@ -199,10 +275,10 @@ function SliceTable({ metrics }) {
 }
 
 function Intervals({ bootstrap }) {
-  const rows = Object.entries(bootstrap).filter(([, v]) => typeof v === "object" && v !== null);
+  const rows = ratiosOf(bootstrap);
   return (
     <>
-      <h2>Uncertainty at the G1 point</h2>
+      <h2>Model / naive at the G1 point</h2>
       <p>
         Median range error of each model divided by naive's, 5 minutes after the zig, with a paired
         bootstrap 95% interval. G1 passes only if the whole interval is below 0.5; an interval that
@@ -313,14 +389,12 @@ function EarlierAttempts({ runs, informational }) {
               <td>{r.verdict.decided_by}</td>
               <td>
                 {r.bootstrap
-                  ? Object.entries(r.bootstrap)
-                      .filter(([, ci]) => typeof ci === "object" && ci !== null)
-                      .map(([id, ci]) => (
-                        <div key={id}>
-                          <code>{id}</code> {ci.ratio.toFixed(3)} [{ci.lo.toFixed(3)},{" "}
-                          {ci.hi.toFixed(3)}]
-                        </div>
-                      ))
+                  ? ratiosOf(r.bootstrap).map(([id, ci]) => (
+                      <div key={id}>
+                        <code>{id}</code> {ci.ratio.toFixed(3)} [{ci.lo.toFixed(3)},{" "}
+                        {ci.hi.toFixed(3)}]
+                      </div>
+                    ))
                   : "–"}
               </td>
             </tr>
@@ -389,10 +463,19 @@ export default function ResultsReview({ gate }) {
       <h2>Error against time since the zig</h2>
       <p>Dashed lines are the naive and classical baselines; test split, all scenarios.</p>
       <Curves curves={run.curves} />
-      <h2>Overall, 5 minutes after the zig (the G1 point)</h2>
-      <MetricsTable metrics={run.metrics} point="zig+300s" />
-      <h2>Overall, end of window</h2>
-      <MetricsTable metrics={run.metrics} point="final" />
+      {isListed(run.bootstrap) ? (
+        <>
+          <h2>Metrics by noise slice and point</h2>
+          <PointTable metrics={run.metrics} bootstrap={run.bootstrap} />
+        </>
+      ) : (
+        <>
+          <h2>Overall, 5 minutes after the zig (the G1 point)</h2>
+          <MetricsTable metrics={run.metrics} point="zig+300s" />
+          <h2>Overall, end of window</h2>
+          <MetricsTable metrics={run.metrics} point="final" />
+        </>
+      )}
       <h2>By slice</h2>
       <SliceTable metrics={run.metrics} />
       {run.heldout.length > 0 && (

@@ -1,0 +1,56 @@
+---
+title: "Results: iteration 2 (G2)"
+description: G2 on noisy bearings with dropouts — the carried models beside the naive and classical baselines, with bootstrap intervals by noise and dropout slice.
+---
+
+import ResultsReview from "@site/src/components/ResultsReview";
+
+# Results: iteration 2 (G2)
+
+**Question:** is the estimate useful on realistic data? Iteration 2 adds bearing noise
+(σ = 1° or 2°), [dropouts](../glossary.md) of up to 10%, and a
+[rate-limited ownship turn](../algorithms/generator.md). G2 is judged on the σ = 1° slice and has
+three thresholds:
+
+- median range error below 20% at zig + 300 s;
+- median course error below 10° at zig + 300 s;
+- median speed error below 1 kt at zig + 600 s.
+
+"Zig" is the end of the turn. Only 59% of the σ = 1° scenarios run long enough to reach
+zig + 600 s, so the speed figure covers those longer windows only.
+
+Each threshold applies to both the instantaneous and time-late models, and each is judged on a
+bootstrap [confidence interval](../glossary.md):
+
+- **pass** if the whole interval is below the threshold;
+- **fail** if the whole interval is at or above it;
+- **[inconclusive](../glossary.md)** otherwise.
+
+The six G1 checks are repeated. The [evaluation](../evaluation.md) page defines every metric.
+
+Training ran in two phases on validation data only:
+
+- **Phase A:** the G1 configurations at 60 epochs. It stalled.
+- **Phase B:** continued the same models to 150 epochs with patience 6. It was carried by a rule
+  fixed before it ran.
+
+The test split was then scored once, for phase B, with phase A reported beside it.
+
+:::danger G2 failed (agent review panel, round 2)
+**Speed fails decisively for both models.** The instantaneous model is at 2.09 kt [2.00, 2.18]
+and the time-late model at 2.38 kt [2.28, 2.48], against 1 kt. Classical reaches 0.62 kt on the
+same scenarios, which is at the [Cramér–Rao bound](../glossary.md). So the speed information is
+in the bearings, and the models are not extracting it.
+
+Range passes for both models, and course passes for the instantaneous model (9.46°, upper bound
+9.90°).
+
+The verdict holds for this architecture, these inputs and this training budget. It does not show
+that a network cannot reach 1 kt: training loss was still falling when patience stopped phase B.
+
+Full record:
+[`review.md`](https://github.com/debrief/Gitma/blob/main/experiments/20261014-i2-g2/review.md) and
+the [write-up](/blog/2026/10/14/iteration-2).
+:::
+
+<ResultsReview gate="G2" />

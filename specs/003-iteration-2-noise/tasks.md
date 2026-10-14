@@ -125,14 +125,14 @@ Tasks marked **[USER]** depend on a pending user decision; **[G1-dependent]** on
 - [x] T047 [P] [US5] `site/docs/algorithms/generator.md` (provenance; rate-limited turn if US6) — lands with PR A
 - [x] T048 [P] [US5] `site/docs/algorithms/feature-layout.md` (derived set, formulae, causality, format v2) — lands with PR C
 - [x] T049 [P] [US5] `site/docs/evaluation.md` (G2, bootstrap CIs, inconclusive, dropout slice, common-row comparison, window-mean position) — lands with PR B
-- [ ] T050 [P] [US5] Glossary: bearing rate, bearing-line intercept, pseudo-linear measurement, dropout, confidence interval, inconclusive, rate-limited turn, provenance
-- [ ] T051 [US5] `ResultsReview.jsx` slice selector (σ, dropout band) and CI column; `site/docs/results/iteration-2.mdx`
-- [ ] T052 [US5] Blog post `site/blog/<date>-iteration-2.md` with G2 figures and CIs beside naive and classical, the change round and the panel decision; welcome page shows G2 from the verdict
+- [x] T050 [P] [US5] Glossary: bearing rate, bearing-line intercept, pseudo-linear measurement, dropout, confidence interval, inconclusive, rate-limited turn, provenance
+- [x] T051 [US5] `ResultsReview.jsx` slice selector (σ, dropout band) and CI column; `site/docs/results/iteration-2.mdx`
+- [x] T052 [US5] Blog post `site/blog/<date>-iteration-2.md` with G2 figures and CIs beside naive and classical, the change round and the panel decision; welcome page shows G2 from the verdict
 
 ## Phase 9: Polish
 
-- [ ] T053 [P] Update `AGENTS.md` (provenance rule, `--allow-dirty`, feature sets, `tma-g2`, iteration-2 gotchas)
-- [ ] T054 Adversarial review: what G2 cannot detect (e.g. a pass carried by short ranges, which log-uniform sampling makes common, while 10–20 km fails; scenarios excluded at zig + 300 s); record in the blog post
+- [x] T053 [P] Update `AGENTS.md` (provenance rule, `--allow-dirty`, feature sets, `tma-g2`, iteration-2 gotchas)
+- [x] T054 Adversarial review: what G2 cannot detect (e.g. a pass carried by short ranges, which log-uniform sampling makes common, while 10–20 km fails; scenarios excluded at zig + 300 s); record in the blog post
 
 ---
 
