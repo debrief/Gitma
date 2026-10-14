@@ -185,9 +185,9 @@ describe("G2 gate (T025)", () => {
   });
 
   const cases: [keyof Model, Ci, Ci, Ci][] = [
-    // [criterion, pass, inconclusive (CI straddles), fail (point at/above)]
+    // [criterion, pass, inconclusive (CI straddles; point either side), fail (CI at/above)]
     ["range", [0.15, 0.13, 0.17], [0.19, 0.17, 0.22], [0.25, 0.22, 0.28]],
-    ["course", [8, 7, 9], [9.5, 8.8, 10.3], [10, 9.5, 10.5]],
+    ["course", [8, 7, 9], [10, 9.5, 10.5], [10.6, 10, 11]],
     ["speed", [0.8, 0.7, 0.9], [0.95, 0.85, 1.05], [1.2, 1.1, 1.3]],
   ];
   for (const [criterion, pass, straddle, above] of cases) {
@@ -203,6 +203,11 @@ describe("G2 gate (T025)", () => {
       expect(f.result).toBe("fail");
     });
   }
+
+  it("cannot pass with the point at or above the threshold, even if the CI is below it", () => {
+    const v = judge({ lstm: { ...GOOD, speed: [1, 0.9, 0.99] }, bilstm: GOOD });
+    expect(resultOf(v, "g2-instantaneous-speed")).toBe("inconclusive");
+  });
 
   it("fails on a sample mismatch with naive (or classical)", () => {
     const v = judge({ lstm: GOOD, bilstm: GOOD }, { lstm: 999 });
