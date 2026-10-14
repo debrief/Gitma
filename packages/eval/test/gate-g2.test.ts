@@ -204,6 +204,11 @@ describe("G2 gate (T025)", () => {
     });
   }
 
+  it("cannot pass with the point at or above the threshold, even if the CI is below it", () => {
+    const v = judge({ lstm: { ...GOOD, speed: [1, 0.9, 0.99] }, bilstm: GOOD });
+    expect(resultOf(v, "g2-instantaneous-speed")).toBe("inconclusive");
+  });
+
   it("fails on a sample mismatch with naive (or classical)", () => {
     const v = judge({ lstm: GOOD, bilstm: GOOD }, { lstm: 999 });
     expect(resultOf(v, "g2-instantaneous-range")).toBe("fail");

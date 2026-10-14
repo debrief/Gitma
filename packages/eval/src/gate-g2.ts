@@ -140,7 +140,7 @@ export function g2Check(
   const result: GateResult =
     !valid || !Number.isFinite(value) || lo >= c.threshold
       ? "fail"
-      : hi < c.threshold
+      : hi < c.threshold && value < c.threshold
         ? "pass"
         : "inconclusive";
   // Scenarios too short to reach the point are excluded, not scored; the share kept is stated

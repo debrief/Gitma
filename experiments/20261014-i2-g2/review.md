@@ -81,12 +81,12 @@ checks (every failing check here has its lower bound ≥ threshold).
 **m3 [minor; statistics, red team] g1-time-late fails on the boundary.** CI lower bound 0.50035;
 with five other bootstrap seeds the lower bound is 0.4995–0.5006, so it is seed-sensitive.
 *Response — recorded:* reported as "fail, on the boundary (seed-sensitive)". The gate outcome
-does not depend on it: speed fails with its CI wholly above 2 kt.
+does not depend on it: speed fails with its CI wholly above 1 kt (lower bounds 2.00 and 2.28 kt).
 
 **m4 [minor; red team] The PR body said "fail, on speed" only.** Time-late course and g1-time-late
 also fail.
 *Response — fixed:* PR #41 body and this record list every failing check; speed is the decisive
-one (both variants, CI lower bound ≥ 2 × threshold).
+one (both variants, CI wholly above 1 kt; lower bounds 2.00 and 2.28 kt).
 
 **m5 [minor; reproducibility, numerics, red team] An earlier test attempt.** `test.classical.ndjson`
 (06:29Z) predates 7bb7641: the first `--split test` run computed naive and classical, then stopped
