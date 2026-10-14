@@ -5,8 +5,8 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Glossary | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/docs/glossary"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Glossary | TMA via ML"><meta data-rh="true" name="description" content="TMA and ML terms as used in this project, alphabetical. Algorithm details are linked where they"><meta data-rh="true" property="og:description" content="TMA and ML terms as used in this project, alphabetical. Algorithm details are linked where they"><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/docs/glossary"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/glossary" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/glossary" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Glossary","item":"https://debrief.github.io/Gitma/docs/glossary"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/assets/css/styles.d219d845.css">
-<script src="/Gitma/assets/js/runtime~main.a9531431.js" defer="defer"></script>
-<script src="/Gitma/assets/js/main.d6c8b1cd.js" defer="defer"></script>
+<script src="/Gitma/assets/js/runtime~main.ff333bbd.js" defer="defer"></script>
+<script src="/Gitma/assets/js/main.b32e2c7f.js" defer="defer"></script>
 </head>
 <body>
 <svg style="display: none;"><defs>
@@ -28,6 +28,14 @@ with ownship&#x27;s own track known. See <a class="" href="/Gitma/docs/algorithm
 is causal.</p>
 <p><strong>Classical baseline</strong> — The batch least-squares bearings-only solver; the yardstick a model must
 approach for G3. See <a class="" href="/Gitma/docs/algorithms/least-squares-solver">least-squares solver</a>.</p>
+<p><strong>Confidence interval (CI)</strong> — The range a metric would plausibly take on another test set of the
+same size. Here a percentile bootstrap: the test scenarios are resampled with replacement 2,000
+times (seeded), and the 2.5th and 97.5th percentiles of the recomputed median are reported. Ratio
+intervals (model/naive) resample both estimators&#x27; scenarios together (paired). See
+<a class="" href="/Gitma/docs/evaluation">evaluation</a>.</p>
+<p><strong>Cramér–Rao bound</strong> — The smallest variance any unbiased estimator can achieve from given
+measurements and noise. For a constant-velocity target it says how well the bearings themselves
+pin down range, course and speed. At G2 the classical solver&#x27;s speed error (0.62 kt) is at it.</p>
 <p><strong>Control model</strong> — A deliberately simpler model trained on the same data as a sequence model
 (a causal CNN for the instantaneous LSTM, an MLP for the BiLSTM). If the sequence model cannot
 beat its control, its result says little about learning the geometry. See
@@ -41,6 +49,9 @@ the best epoch&#x27;s weights are kept.</p>
 Reported as a rate because TMA failures are heavy-tailed.</p>
 <p><strong>Held-out geometry</strong> — A test set drawn from parameter ranges outside training (for example
 20–30 km initial range), used to measure extrapolation.</p>
+<p><strong>Inconclusive</strong> — A gate check whose 95% interval contains its threshold: the data cannot say
+which side the true value is on. A gate with an inconclusive check, and no failing one, is
+inconclusive; the agent review panel decides it under a pre-registered rule.</p>
 <p><strong>Instantaneous variant</strong> — The model that gives the operator&#x27;s running solution: at each time,
 range, course and speed from bearings so far. Scored as a curve of error against time since the zig.</p>
 <p><strong>Leg</strong> — A period of constant ownship course and speed. Every scenario has two legs (joined by a
