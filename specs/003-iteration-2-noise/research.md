@@ -436,4 +436,36 @@ zig + 600 s is below the 96-unit model's by more than the 96-unit interval's hal
 budget, capacity is a live lead and a 2c (which needs an SRD §7 amendment) is proposed to the user
 with the measured per-epoch cost. If not, capacity is dropped and the write-up says so.
 
-**Findings**: pending.
+**Findings** (`experiments/20261014-i2s-scan/`, run 38586488686; validation σ = 1°, 30 epochs
+from scratch, loss weights 1, bootstrap 95% intervals):
+
+| Model | Params | s / epoch | Range, zig + 300 s | Course, zig + 300 s | Speed, zig + 600 s |
+| --- | --- | --- | --- | --- | --- |
+| 96 units | 41,476 | 250 | 21.7% [21.1, 22.7] | 13.10° [12.61, 13.71] | 2.90 kt [2.79, 2.98] |
+| 192 units | 156,676 | 554 | 18.6% [18.0, 19.3] | 10.62° [10.10, 11.22] | 2.25 kt [2.14, 2.35] |
+| 2 × 128 units | 203,268 | 762 | 17.0% [16.5, 17.6] | 10.16° [9.71, 10.58] | 2.24 kt [2.14, 2.33] |
+| classical | – | – | 8.2% [7.8, 8.7] | 3.38° [3.15, 3.66] | 0.60 kt [0.56, 0.64] |
+
+For reference, the 96-unit model after 60 epochs (phase A, same split) was 17.4% / 10.47° /
+2.24 kt, and after 74 (phase B) 16.6% / 9.56° / 2.12 kt. The 96-unit scan run reproduced phase
+A's first 30 epochs exactly (val 0.473 at epoch 29, same CPU family), a free determinism check.
+
+**Decision rule, applied**: 2.90 − 2.25 = 0.65 kt against the 96-unit half-width 0.095 kt. The
+rule fires: capacity is a live lead. Two qualifications matter for how far it leads:
+- At 30 epochs the two larger models land at 2.24–2.25 kt, which is where the 96-unit model
+  lands after 60 epochs. Capacity bought about 2× faster convergence; it is not yet shown to go
+  below the 96-unit model's plateau (2.12 kt at 74 epochs).
+- 157k and 203k parameters give the same speed error to two decimals. If capacity were the
+  limit, the stacked model should lead. That points at the plateau sitting elsewhere (inputs,
+  loss share, or the course-and-speed output parameterisation), with capacity as an accelerant.
+
+**Cost**: 2.2× (192 units) and 3.0× (2 × 128) per epoch, cheaper than the 4–5× estimated from
+parameter counts. A run of either to early stopping (60–100 epochs) is 9–21 h of runner time.
+
+**What would settle it**: a larger model trained to early stopping on validation. The 2b result
+(speed weight 4, due within hours) bears on the same question, so the 2c call is put to the user
+with both in hand rather than from this scan alone.
+
+The first CI `scan.md` rendered the naive row as ∞ / n 0: `tma-scan` looked naive up under
+`naive`, not `naive:per_timestep` (every other row was right). Fixed, test added, and `scan.md`
+re-rendered from the committed `metrics.json` and `bootstrap.json`; the other files are CI's.
