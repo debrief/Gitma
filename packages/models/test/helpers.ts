@@ -111,7 +111,7 @@ export function tinyConfig(kind: ModelKind, over: Partial<TrainingConfig> = {}):
     model_kind: kind,
     units: 8,
     kernel_size: 3,
-    layers: 2,
+    ...(kind === "causal_cnn" ? { layers: 2 } : {}),
     learning_rate: 1e-3,
     batch_size: 16,
     max_epochs: 2,

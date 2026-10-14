@@ -17,6 +17,10 @@ The controls answer "is the sequence model doing anything a simpler model can't?
 sees only the last 43 rows (≈ 7 min), so it is a local-pattern model; the MLP sees the whole window
 but has no notion of order beyond position.
 
+`layers` stacks recurrent layers for the two LSTM kinds (each returns sequences; default 1). It is
+used by the iteration-2 capacity scan (research R20), a validation-only side experiment that
+`tma-scan` scores beside naive and classical; no gated model has used it.
+
 ## Loss
 
 Targets and a per-row weight are packed into `y_true` [240 × 5]. Per row:

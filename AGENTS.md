@@ -70,6 +70,7 @@ pnpm tma-gate g1 --experiment <dir> --instantaneous <id> --time-late <id> \
   --causal-control <id> --mlp-control <id> --shuffled <id>                   # gate only, on existing metrics
 node scripts/train-plan.mjs data configs/iter2/b/plan.json data/i2 train validation test heldout  # digests checked
 pnpm tma-g2 --data data/i2 --models <carried models> --split validation --experiment <dir>   # diagnostic only
+pnpm tma-scan --data data/i2 --models <any models> --experiment <dir>   # side experiment: validation only, scan.md
 pnpm tma-g2 --data data/i2 --models <carried> --compare-models <other phase> \
   --decision <committed decision.json> --plan <plan.json> --split test \
   --experiment experiments/<id>   # the gate: checks plan digests, decision ancestry, same rows; exit 3: not passed
@@ -83,7 +84,8 @@ Full walkthroughs: `specs/001-iteration-0-pipeline/quickstart.md`, `specs/002-it
 Full training (≈ 5.5 h per model on 4 CPU cores) runs on GitHub-hosted runners, not in agent
 sessions (containers are reclaimed when idle).
 
-- **Train:** push `train/i<iteration><phase>` (e.g. `train/i2a` → `configs/iter2/a/plan.json`), or
+- **Train:** push `train/i<iteration><phase>` (e.g. `train/i2a` → `configs/iter2/a/plan.json`;
+  `train/i2s` is the capacity scan, evaluated by `tma-scan`), or
   dispatch `train.yml` with a `plan` input. A plan names the dataset (seed, ranges, pinned content
   digests, checked in every job by `scripts/train-plan.mjs`), the feature set, the model configs,
   an optional `continue_from`, and the `evaluate` step (`tma-g2`, validation or test). Each model

@@ -49,6 +49,7 @@ jobs:
       models: ${{ steps.plan.outputs.models }}
       configs: ${{ steps.plan.outputs.configs }}
       split: ${{ steps.plan.outputs.split }}
+      command: ${{ steps.plan.outputs.command }}
       continue_from: ${{ steps.plan.outputs.continue_from }}
       continue_allow: ${{ steps.plan.outputs.continue_allow }}
     steps:
@@ -157,18 +158,23 @@ jobs:
         with:
           pattern: log-*
           path: ${{ runner.temp }}/logs
-      - name: Evaluate (tma-g2; gate exit 3 is a result, not an error)
+      - name: Evaluate (the plan's command; gate exit 3 is a result, not an error)
         shell: bash
         env:
           PLAN: ${{ needs.plan.outputs.plan }}
           ID: ${{ needs.plan.outputs.id }}
           SPLIT: ${{ needs.plan.outputs.split }}
+          CMD: ${{ needs.plan.outputs.command }}
         run: |
-          SUFFIX=$([ "$SPLIT" = test ] && echo g2 || echo val)
+          case "$CMD" in
+            tma-g2) SUFFIX=$([ "$SPLIT" = test ] && echo g2 || echo val) ;;
+            tma-scan) SUFFIX=scan ;;
+            *) echo "::error::unknown evaluate command $CMD"; exit 1 ;;
+          esac
           EXP="experiments/$(date -u +%Y%m%d)-$ID-$SUFFIX"
           echo "EXP=$EXP" >> "$GITHUB_ENV"
           mapfile -t ARGS < <(node scripts/train-plan.mjs evaluate-args "$PLAN" "$DATA" "$RUNNER_TEMP/models" "$EXP")
-          pnpm tma-g2 "${ARGS[@]}" || [ $? -eq 3 ]
+          pnpm "$CMD" "${ARGS[@]}" || [ $? -eq 3 ]
           mkdir -p "$EXP/logs"
           find "$RUNNER_TEMP/logs" -name train.log | while read -r f; do
             cp "$f" "$EXP/logs/$(basename "$(dirname "$f")").log"

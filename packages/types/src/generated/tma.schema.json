@@ -1445,7 +1445,7 @@
           ]
         },
         "layers": {
-          "description": "Causal CNN conv layers (no dilation).",
+          "description": "Stacked layers: causal CNN conv layers (no dilation; default 3), or recurrent layers for instantaneous and time_late (default 1; each returns sequences; spec 003 R20).",
           "type": [
             "integer",
             "null"
@@ -1565,5 +1565,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.8.0"
+  "version": "0.8.1"
 }
