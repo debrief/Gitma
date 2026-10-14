@@ -5,9 +5,22 @@ import { join } from "node:path";
 import { fileSha256, generateDataset, readDataset } from "@tma/data";
 import { computeNormalisation, writeFeatures } from "@tma/features";
 import { DEFAULT_RANGES } from "@tma/sim";
-import type { FeatureSet, GateVerdict, ParameterRanges, TrainingConfig } from "@tma/types";
+import type { PredictionSet } from "@tma/eval";
+import type {
+  FeatureSet,
+  GateVerdict,
+  ParameterRanges,
+  Prediction,
+  TrainingConfig,
+} from "@tma/types";
 import { beforeAll, describe, expect, it } from "vitest";
-import { DIAGNOSTIC_FILE, featuresPath, type G2RunOptions, runG2 } from "../src/g2.js";
+import {
+  DIAGNOSTIC_FILE,
+  featuresPath,
+  type G2RunOptions,
+  requireSameRows,
+  runG2,
+} from "../src/g2.js";
 import { train } from "../src/train.js";
 import { tempDir, tinyConfig } from "./helpers.js";
 
@@ -54,6 +67,9 @@ describe("tma-g2 end to end (tiny)", () => {
     log: quiet,
     phaseBDir: noPhaseB,
     resamples: 200,
+    plan: "plan.json",
+    checkPlan: () => ["ok  (stub)"],
+    decisionPrecedes: () => true,
     ...over,
   });
 
@@ -212,6 +228,68 @@ describe("tma-g2 end to end (tiny)", () => {
     expect(preds).toContain("test.d-lstm.ndjson");
     expect(preds.filter((f) => f.startsWith("test.other-phase.")).length).toBeGreaterThan(0);
     expect(preds).not.toContain("test.lstm.ndjson");
+  });
+
+  it("test needs a plan whose digests match, and a decision committed before the weights (R19)", async () => {
+    const noPlan = base({ split: "test" });
+    delete noPlan.plan;
+    await expect(runG2(noPlan)).rejects.toThrow(/needs --plan/);
+    await expect(
+      runG2(
+        base({
+          split: "test",
+          checkPlan: () => {
+            throw new Error("BAD test.f32pack");
+          },
+        }),
+      ),
+    ).rejects.toThrow(/BAD test.f32pack/);
+    const d = join(tempDir(), "decision.json");
+    writeFileSync(d, JSON.stringify(DECISION));
+    await expect(
+      runG2(
+        base({
+          split: "test",
+          phaseBDir: tempDir(),
+          decision: d,
+          isCommitted: () => true,
+          decisionPrecedes: () => false,
+        }),
+      ),
+    ).rejects.toThrow(/not committed before .* was trained/);
+  });
+
+  it("requireSameRows refuses estimators that predict different rows", () => {
+    const pred = (idx: number, ts: number[]): Prediction => ({
+      record: "prediction",
+      scenario_index: idx,
+      estimator: "e",
+      mode: "per_timestep",
+      rows: ts.map((t) => ({
+        timestamp_s: t,
+        range_m: 1,
+        course_rad: 0,
+        speed_mps: 1,
+        x_m: 0,
+        y_m: 0,
+        converged: true,
+      })),
+    });
+    const set = (label: string, ps: Prediction[]): PredictionSet => ({
+      label,
+      estimator: label,
+      byIndex: new Map(ps.map((p) => [p.scenario_index, p])),
+    });
+    const a = set("naive", [pred(1, [10, 20]), pred(2, [10])]);
+    expect(() => {
+      requireSameRows([a, set("m", [pred(1, [10, 20]), pred(2, [10])])], "test");
+    }).not.toThrow();
+    expect(() => {
+      requireSameRows([a, set("m", [pred(1, [10, 20]), pred(2, [20])])], "test");
+    }).toThrow(/different rows for scenario 2/);
+    expect(() => {
+      requireSameRows([a, set("m", [pred(1, [10, 20])])], "test");
+    }).toThrow(/predicts 1 scenarios/);
   });
 
   it("refuses a model whose feature set has no matching features file", async () => {

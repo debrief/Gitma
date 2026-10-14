@@ -405,7 +405,7 @@ Notes:
   loss moves by about ±3% per epoch, which is more than the per-epoch gain. A smoothed stopping
   criterion or a longer budget is a lever alongside derived features (R6) and the per-leg fit
   (R18).
-- **Tooling follow-ups:**
+- **Tooling follow-ups** (all done in spec 004 T003):
   - `tma-g2` should check the plan's content digests and record them in the manifest.
   - The SC-005 guard should require that the decision commit is an ancestor of the weights'
     `git_commit`.

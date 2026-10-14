@@ -263,6 +263,18 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
         log(
           `resuming ${config.id} after epoch ${String(epochs.length - 1)} (optimizer state restarts; patience not counted for epochs ${String(epochs.length)}–${String(graceUntil)})`,
         );
+        // A seeded continuation may change the loss (spec 004 decision 15): the recorded best
+        // val_loss was computed under the old one, so later epochs would never "improve" on it and
+        // the old weights would be kept. Re-score the best weights under this config's loss.
+        const bestModel = await tf.loadLayersModel(`${url(bestDir)}/model.json`);
+        const rebased = await validationLoss(bestModel, valFile, config);
+        bestModel.dispose();
+        if (rebased !== best) {
+          log(
+            `${config.id}: best epoch ${String(bestEpoch)} re-scored under this config's loss: val ${rebased.toFixed(5)} (recorded ${best.toFixed(5)})`,
+          );
+        }
+        best = rebased;
       }
       // A dirty earlier job taints the whole run; the commit recorded is this (final) job's.
       dirty ||= prior.git_dirty === true;

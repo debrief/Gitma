@@ -46,6 +46,7 @@ import {
   type GateVerdict,
   type NaiveModel,
   parseRecord,
+  type Prediction,
   RecordError,
   type Scenario,
 } from "@tma/types";
@@ -83,7 +84,70 @@ export interface G2RunOptions {
   phaseBDir?: string;
   /** Whether a file is committed and unmodified (default: git in the working directory). */
   isCommitted?: (path: string) => boolean;
+  /** Plan whose content digests the data must match (configs/<…>/plan.json); required for test. */
+  plan?: string;
+  /** Checks `data` against the plan's digests; returns the report lines, throws on a mismatch. */
+  checkPlan?: (plan: string, data: string) => string[];
+  /** Whether the commit that added `decision` is an ancestor of `commit` (default: git). */
+  decisionPrecedes?: (decision: string, commit: string) => boolean;
   resamples?: number;
+}
+
+/** `node scripts/train-plan.mjs check-digests <plan> <data>` (G2 panel R19: content, not headers). */
+export function checkPlanDigests(plan: string, data: string): string[] {
+  try {
+    const out = execFileSync(
+      process.execPath,
+      ["scripts/train-plan.mjs", "check-digests", plan, data],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+    );
+    return out.trim().split("\n");
+  } catch (e) {
+    const err = e as { stderr?: string; message: string };
+    throw new RecordError(plan, "digests", (err.stderr ?? err.message).trim());
+  }
+}
+
+/** True when the commit that first added `path` is an ancestor of (or equal to) `commit`. */
+export function gitDecisionPrecedes(path: string, commit: string): boolean {
+  try {
+    const added = execFileSync("git", ["log", "--diff-filter=A", "--format=%H", "--", path], {
+      encoding: "utf8",
+    })
+      .trim()
+      .split("\n")
+      .at(-1);
+    if (added === undefined || added === "") return false;
+    execFileSync("git", ["merge-base", "--is-ancestor", added, commit], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Every estimator must predict the same rows (scenario and timestamp) as naive, so the gate's
+ * same-sample check compares the same rows, not only the same counts (G2 panel R19).
+ */
+export function requireSameRows(sets: readonly PredictionSet[], what: string): void {
+  const [ref, ...rest] = sets;
+  if (ref === undefined) return;
+  const key = (p: Prediction | undefined): string =>
+    p === undefined ? "" : p.rows.map((r) => r.timestamp_s).join(",");
+  for (const set of rest) {
+    if (set.byIndex.size !== ref.byIndex.size) {
+      throw new Error(
+        `${what}: ${set.label} predicts ${String(set.byIndex.size)} scenarios, ${ref.label} ${String(ref.byIndex.size)}`,
+      );
+    }
+    for (const [idx, p] of ref.byIndex) {
+      if (key(set.byIndex.get(idx)) !== key(p)) {
+        throw new Error(
+          `${what}: ${set.label} and ${ref.label} predict different rows for scenario ${String(idx)}`,
+        );
+      }
+    }
+  }
 }
 
 /** True when `path` is tracked by git and has no uncommitted change. */
@@ -271,6 +335,32 @@ export async function runG2(opts: G2RunOptions): Promise<GateVerdict> {
   const resamples = opts.resamples ?? BOOTSTRAP_RESAMPLES;
   const decision = requireDecision(opts);
   const carried: ModelSet = findModels(opts.models);
+  // R19: on test, the data must be the plan's (content digests), and the decision must have been
+  // committed before the carried weights were trained (not merely committed now).
+  let planLines: string[] = [];
+  if (opts.split === "test") {
+    if (opts.plan === undefined) {
+      throw new RecordError(
+        "--plan",
+        "R19",
+        "scoring the test split needs --plan <plan.json>: the data are checked against its content digests",
+      );
+    }
+    planLines = (opts.checkPlan ?? checkPlanDigests)(opts.plan, opts.data);
+    if (opts.decision !== undefined) {
+      const precedes = opts.decisionPrecedes ?? gitDecisionPrecedes;
+      for (const m of carried.models) {
+        const commit = m.manifest.git_commit;
+        if (typeof commit !== "string" || !precedes(opts.decision, commit)) {
+          throw new RecordError(
+            opts.decision,
+            "SC-005",
+            `the decision was not committed before ${m.manifest.id} was trained (weights from commit ${String(commit)})`,
+          );
+        }
+      }
+    }
+  }
   const other: ModelSet | undefined =
     opts.compareModels === undefined ? undefined : findModels(opts.compareModels);
   const trainPath = join(opts.data, "train.f32pack");
@@ -280,6 +370,7 @@ export async function runG2(opts: G2RunOptions): Promise<GateVerdict> {
   const decidedBy = opts.split === "test" ? undefined : VALIDATION_DECIDED_BY;
 
   const scored = await scoreSplit(opts, opts.split, naive, train.header, [carried], log);
+  requireSameRows(scored.sets, opts.split);
   const verdict = evaluateInto(
     opts.experiment,
     scored,
@@ -304,11 +395,13 @@ export async function runG2(opts: G2RunOptions): Promise<GateVerdict> {
       "other phase: reported, not gated (research R5)",
     );
     copyModels(dir, other);
+    requireSameRows(o.sets, `${opts.split} (other phase)`);
     for (const n of o.notes) notes.add(n);
   }
   // FR-019: the held-out geometry split is scored with the gate run only (never for validation).
   if (opts.split === "test") {
     const h = await scoreSplit(opts, "heldout", naive, train.header, [carried], log);
+    requireSameRows(h.sets, "heldout");
     writeEvaluation(
       join(opts.experiment, "heldout"),
       evaluate(h.scenarios, h.sets, { points: G2_POINTS, curveStep: 60 }),
@@ -364,6 +457,7 @@ export async function runG2(opts: G2RunOptions): Promise<GateVerdict> {
         `# equivalent: tma-eval --truth ${truth} --pred <naive, classical, models> --experiment ${opts.experiment} --points ${G2_POINTS.join(",")} --bootstrap ${String(resamples)} --compare-to ${COMPARE_TO}`,
         `# equivalent: tma-gate g2 --experiment ${opts.experiment} --instantaneous ${ids.instantaneous} --time-late ${ids.timeLate} --causal-control ${ids.causalControl} --mlp-control ${ids.mlpControl} --shuffled ${ids.shuffled}${opts.split === "test" ? "" : ` (written to ${DIAGNOSTIC_FILE})`}`,
         ...Array.from(notes, (n) => `# ${n}`),
+        ...planLines.map((l) => `# plan ${String(opts.plan)}: ${l}`),
       ],
     ),
   );
