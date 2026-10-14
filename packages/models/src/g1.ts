@@ -162,6 +162,7 @@ export async function runG1(opts: G1Options): Promise<GateVerdict> {
         const note = requireSameNormalisation(features, m.manifest.normalisation, m.manifest.id, {
           header: train.header,
           modelSchemaVersion: m.manifest.schema_version,
+          modelSourceHeader: m.manifest.source_dataset_header,
         });
         if (note !== undefined) {
           log(`${split}: ${note}`);

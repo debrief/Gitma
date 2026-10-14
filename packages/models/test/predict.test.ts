@@ -194,4 +194,35 @@ describe("normalisation check", () => {
     const scaled = { ...before, speed_scale_mps: before.speed_scale_mps * 2 };
     expect(() => requireSameNormalisation(file(now), scaled, "m", train)).toThrow();
   });
+
+  it("accepts data regenerated at a later commit (provenance-only header change) with a note", () => {
+    const at = (commit: string, dirty = false): DatasetHeader => ({
+      ...header,
+      schema_version: "0.8.0",
+      generator_git_commit: commit,
+      generator_git_dirty: dirty,
+    });
+    const later = at("b".repeat(40));
+    const earlier = at("a".repeat(40));
+    const fileNorm = { ...now, train_header_digest: digest(later) };
+    const modelNorm = { ...now, train_header_digest: digest(earlier) };
+    const prov = { header: later, modelSchemaVersion: "0.8.0", modelSourceHeader: earlier };
+    expect(requireSameNormalisation(file(fileNorm), modelNorm, "m", prov)).toMatch(
+      /regenerated at b{40}.*from a{40}/,
+    );
+    // Without the model's source header, or with a dirty header, or other data: refused.
+    const noSource = { header: prov.header, modelSchemaVersion: prov.modelSchemaVersion };
+    expect(() => requireSameNormalisation(file(fileNorm), modelNorm, "m", noSource)).toThrow();
+    const dirty = { ...prov, modelSourceHeader: at("a".repeat(40), true) };
+    const dirtyNorm = { ...now, train_header_digest: digest(at("a".repeat(40), true)) };
+    expect(() => requireSameNormalisation(file(fileNorm), dirtyNorm, "m", dirty)).toThrow();
+    const otherData = { ...earlier, dataset_seed: "2" };
+    const otherNorm = { ...now, train_header_digest: digest(otherData) };
+    expect(() =>
+      requireSameNormalisation(file(fileNorm), otherNorm, "m", {
+        ...prov,
+        modelSourceHeader: otherData,
+      }),
+    ).toThrow();
+  });
 });

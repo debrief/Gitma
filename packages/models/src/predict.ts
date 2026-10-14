@@ -100,12 +100,29 @@ export interface TrainProvenance {
   header: DatasetHeader;
   /** schema_version recorded in the model's manifest. */
   modelSchemaVersion: string;
+  /** The model manifest's `source_dataset_header` (schema 0.8.0+), when recorded. */
+  modelSourceHeader?: DatasetHeader | null | undefined;
 }
 
+/** Header fields that name where and when data were generated, not what the data are. */
+const PROVENANCE_FIELDS = [
+  "generator_git_commit",
+  "generator_git_dirty",
+  "schema_version",
+] as const;
+
+const withoutProvenance = (h: DatasetHeader): string =>
+  canonicalJson(
+    Object.fromEntries(
+      Object.entries(h).filter(([k]) => !(PROVENANCE_FIELDS as readonly string[]).includes(k)),
+    ),
+  );
+
 /**
- * Refuse features normalised differently from the model's training data. The one tolerated
- * difference: identical constants, and train headers that differ only in `schema_version` (a
- * schema bump after training, data unchanged). Returns a note saying so; undefined if identical.
+ * Refuse features normalised differently from the model's training data. Tolerated, with
+ * identical constants: train headers that differ only in `schema_version` (a schema bump after
+ * training), or only in provenance (data regenerated, clean, at a later commit; needs the model's
+ * `source_dataset_header`). Returns a note saying so; undefined if identical.
  */
 export function requireSameNormalisation(
   file: FeatureFile,
@@ -123,6 +140,23 @@ export function requireSameNormalisation(
     headerDigest({ ...train.header, schema_version: train.modelSchemaVersion }) === modelDigest
   ) {
     return `${modelId}: train header differs only in schema_version (${train.modelSchemaVersion} → ${train.header.schema_version}); normalisation constants identical`;
+  }
+  // Data regenerated at a later commit (same seed, ranges and generator version; the plan's
+  // content digests pin the scenarios): the headers differ only in provenance, so the train
+  // header digest differs while the constants are identical. Both headers must be clean.
+  const src = train?.modelSourceHeader;
+  if (
+    train !== undefined &&
+    src !== undefined &&
+    src !== null &&
+    canonicalJson(fileConstants) === canonicalJson(modelConstants) &&
+    headerDigest(train.header) === fileDigest &&
+    headerDigest(src) === modelDigest &&
+    train.header.generator_git_dirty === false &&
+    src.generator_git_dirty === false &&
+    withoutProvenance(train.header) === withoutProvenance(src)
+  ) {
+    return `${modelId}: train data regenerated at ${String(train.header.generator_git_commit)} (model trained on data from ${String(src.generator_git_commit)}); headers identical apart from provenance, normalisation constants identical`;
   }
   throw new Error(`${file.path}: normalisation differs from the one ${modelId} was trained with`);
 }

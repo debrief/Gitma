@@ -41,7 +41,11 @@ export async function main(argv: string[]): Promise<unknown> {
       manifest.id,
       values.train === undefined
         ? undefined
-        : { header: readDataset(values.train).header, modelSchemaVersion: manifest.schema_version },
+        : {
+            header: readDataset(values.train).header,
+            modelSchemaVersion: manifest.schema_version,
+            modelSourceHeader: manifest.source_dataset_header,
+          },
     );
     if (note !== undefined) process.stderr.write(`${note}\n`);
     const ds = readDataset(values.truth);
