@@ -143,12 +143,29 @@ research R12); a five-minute speed threshold would ask the model to beat the cla
 Each check records the median (`value`), the `threshold`, and its 95% interval (`ci_low`,
 `ci_high`, `ci_level`), and its detail gives naive's and classical's medians on the same rows:
 
-- **pass**: the whole interval is below the threshold;
-- **fail**: the median is at or above the threshold (or the interval lies wholly above it);
-- **inconclusive**: the median is below the threshold but the interval reaches it.
+- **pass**: the whole interval and the median are below the threshold;
+- **fail**: the interval lies wholly at or above the threshold;
+- **inconclusive**: anything else, i.e. the interval contains the threshold, on whichever side
+  the median falls (FR-015; corrected after the G2 panel, which found the median alone could fail
+  a straddling interval).
 
 A check also fails if the model was not scored on the same rows as naive and classical (`n` and
 `excluded` must match), or if its interval was not computed from those rows.
+
+### Test-split integrity
+
+`tma-g2 --split test` refuses to score unless three things hold. The G2 panel asked for these, and
+they arrived with iteration 2b (spec 004):
+
+- **The data are the plan's.** `--plan` checks the scenarios' content digests against the plan's
+  and records the result in the manifest.
+- **The decision came first.** The commit that added the phase decision is an ancestor of every
+  carried model's training commit.
+- **Same rows.** Every estimator predicts exactly the same rows (scenario and timestamp) as naive.
+
+Each test split decides at most one gate. A later round is judged on a **fresh test split**: the
+test split of a new seed, with the same count and ranges, pinned by digest in the plan as
+`dataset.fresh_test`.
 
 ### Inconclusive
 
