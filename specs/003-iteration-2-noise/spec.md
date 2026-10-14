@@ -137,8 +137,9 @@ speed; a sample mismatch between model and naive → fail.
 **Acceptance Scenarios**:
 
 1. **Given** predictions for every estimator, **When** G2 is judged, **Then** each gated variant
-   passes only if, on the σ = 1° slice at zig + 300 s, median range error < 20%, median course
-   error < 10° and median speed error < 1 kt, each with its 95% CI upper bound below the threshold.
+   passes only if, on the σ = 1° slice, median range error < 20% and median course error < 10° at
+   zig + 300 s and median speed error < 1 kt at zig + 600 s (decisions 8 and 13), each with its
+   95% CI upper bound below the threshold.
 2. **Given** a CI that straddles a threshold, **When** the verdict is written, **Then** that check is
    `inconclusive` and the gate cannot be `pass`.
 3. **Given** the evaluation, **When** results are reported, **Then** every metric is shown overall
@@ -265,8 +266,9 @@ hand-computed arc end-point and course; t = 0 invariants unchanged; G0 noise-fre
 - **FR-013**: Evaluation MUST add a dropout-band slice (0–5%, 5–10%) to the existing range, zig and σ
   slices, report n per slice and draw no conclusions from slices with n < 200.
 - **FR-014**: The system MUST judge G2: for each gated variant **[USER: both variants, as G1]**, on
-  the σ = 1° slice at zig + 300 s, median range error < 0.20, median course error < 10°, median speed
-  error < 1 kt, scored on the same scenarios as naive and classical.
+  the σ = 1° slice, median range error < 0.20 and median course error < 10° at zig + 300 s, and
+  median speed error < 1 kt at zig + 600 s (decisions 8 and 13; the share of the slice reaching each
+  point is stated), scored on the same scenarios as naive and classical.
 - **FR-015**: Each gated median MUST carry a seeded, scenario-resampling bootstrap 95% CI; a check
   whose CI straddles its threshold MUST be `inconclusive`. The machine verdict combines checks as
   G1 did (research R8): any threshold, ratio or shuffled-label failure ⇒ `fail`; otherwise any

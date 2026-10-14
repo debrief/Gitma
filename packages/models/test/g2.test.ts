@@ -1,6 +1,6 @@
 // T038: tma-g2 one-command run, tiny. Validation reads only train + validation and writes a
 // diagnostic (not a verdict); test needs a committed decision once a phase B exists (SC-005).
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileSha256, generateDataset, readDataset } from "@tma/data";
 import { computeNormalisation, writeFeatures } from "@tma/features";
@@ -206,6 +206,12 @@ describe("tma-g2 end to end (tiny)", () => {
     expect(diag.decided_by).toMatch(/not gated/);
     expect(readFileSync(join(other, "metrics.csv"), "utf8")).toContain("lstm:per_timestep");
     expect(readFileSync(join(exp, "manifest.json"), "utf8")).toContain("feature_set: derived");
+    // The other phase's predictions are tagged, so they never overwrite the carried set's
+    // (phases A and B share model ids; G2 panel round 1).
+    const preds = readdirSync(join(data, "predictions")).filter((f) => f.startsWith("test."));
+    expect(preds).toContain("test.d-lstm.ndjson");
+    expect(preds.filter((f) => f.startsWith("test.other-phase.")).length).toBeGreaterThan(0);
+    expect(preds).not.toContain("test.lstm.ndjson");
   });
 
   it("refuses a model whose feature set has no matching features file", async () => {

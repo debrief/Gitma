@@ -136,8 +136,9 @@ export function g2Check(
   // The interval must come from the same rows as the point estimate.
   const ciMatches = ci !== undefined && m !== undefined && ci.n === m.n && m.n > 0;
   const valid = sameSample && ciMatches;
+  // FR-015 / R8: a CI containing the threshold is inconclusive, whatever side the point is on.
   const result: GateResult =
-    !valid || value >= c.threshold || lo >= c.threshold
+    !valid || !Number.isFinite(value) || lo >= c.threshold
       ? "fail"
       : hi < c.threshold
         ? "pass"

@@ -155,7 +155,11 @@ interface ModelSet {
   models: { dir: string; manifest: ReturnType<typeof readModelManifest> }[];
 }
 
-/** Naive, classical (cached per split) and every model of each set, on one split. */
+/**
+ * Naive, classical (cached per split) and every model of each set, on one split. Model
+ * predictions go to `predictions/<split>.<tag.><model id>.ndjson`; the other phase passes a tag
+ * so its files never overwrite the carried set's (same model ids).
+ */
 async function scoreSplit(
   opts: G2RunOptions,
   split: string,
@@ -163,6 +167,7 @@ async function scoreSplit(
   trainHeader: ReturnType<typeof readDataset>["header"],
   groups: ModelSet[],
   log: (l: string) => void,
+  tag?: string,
 ): Promise<Scored> {
   const truthPath = join(opts.data, `${split}.f32pack`);
   const scenarios: Scenario[] = [...readDataset(truthPath).scenarios()];
@@ -209,7 +214,7 @@ async function scoreSplit(
         );
         model.dispose();
         writePredictions(
-          join(predDir, `${split}.${m.manifest.id}.ndjson`),
+          join(predDir, `${split}.${tag === undefined ? "" : `${tag}.`}${m.manifest.id}.ndjson`),
           m.manifest.id,
           truthPath,
           ps,
@@ -288,7 +293,7 @@ export async function runG2(opts: G2RunOptions): Promise<GateVerdict> {
 
   if (other !== undefined) {
     const dir = join(opts.experiment, "other-phase");
-    const o = await scoreSplit(opts, opts.split, naive, train.header, [other], log);
+    const o = await scoreSplit(opts, opts.split, naive, train.header, [other], log, "other-phase");
     // Reported beside the carried set, never gated (research R5).
     evaluateInto(
       dir,
