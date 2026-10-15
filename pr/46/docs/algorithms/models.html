@@ -5,8 +5,8 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Models (iteration 1) | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/pr/46/docs/algorithms/models"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Models (iteration 1) | TMA via ML"><meta data-rh="true" name="description" content="Source SRD §4, spec 002 (research R3–R7)."><meta data-rh="true" property="og:description" content="Source SRD §4, spec 002 (research R3–R7)."><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/pr/46/docs/algorithms/models"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/46/docs/algorithms/models" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/46/docs/algorithms/models" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Models (iteration 1)","item":"https://debrief.github.io/Gitma/pr/46/docs/algorithms/models"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/pr/46/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/pr/46/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/pr/46/assets/css/styles.d219d845.css">
-<script src="/Gitma/pr/46/assets/js/runtime~main.4735cf1d.js" defer="defer"></script>
-<script src="/Gitma/pr/46/assets/js/main.5bb32e6a.js" defer="defer"></script>
+<script src="/Gitma/pr/46/assets/js/runtime~main.c90bef87.js" defer="defer"></script>
+<script src="/Gitma/pr/46/assets/js/main.59323a5f.js" defer="defer"></script>
 </head>
 <body>
 <svg style="display: none;"><defs>
@@ -78,6 +78,12 @@ restarted run resumes and the wall-clock cap counts the time already spent.</li>
 gives the same weights as an uninterrupted one (tested). A checkpoint without it (for example
 one seeded from committed weights by <code>scripts/train-continue.mjs</code>) restarts Adam; the next three
 epochs then do not count towards patience, and the log says so.</li>
+<li class="">A seeded continuation may change the loss (iteration 2b weighted speed 4×). On a restart the best
+weights are re-scored under the new loss, and that value is written to the manifest as
+<code>best_val_loss</code> so a later chained job compares against the same number; otherwise the recorded
+old-loss value, always lower, could never be beaten and the old weights would be kept silently.
+The manifest&#x27;s <code>continued_from</code> names the source weights, epoch and loss; the epoch records up
+to that epoch keep their old-loss values.</li>
 <li class="">On GitHub Actions each job pushes its output folder to a <code>checkpoints/&lt;branch&gt;/&lt;model&gt;</code> git
 branch after every epoch and restores it at start, so a cancelled or crashed job resumes and a
 completed model is not retrained. Once the results branch is pushed, the run deletes its
