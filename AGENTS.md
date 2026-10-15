@@ -163,8 +163,9 @@ sessions (containers are reclaimed when idle).
 - A test split is scored once per carried set; `tma-g2 --split test` needs the committed phase
   decision. Score phases in one run (`--compare-models`): other-phase predictions are tagged
   `<split>.other-phase.<id>.ndjson` so they never overwrite the carried set's.
-- A seeded continuation that changes the loss re-scores the best epoch under the new loss
-  (otherwise the old best, on the old scale, is never beaten and the old weights are kept).
+- A seeded continuation that changes the loss re-scores the best epoch under the new loss and
+  persists it as `best_val_loss` (schema 0.8.2); a chained job resumes against that value. Without
+  it the old best, on the old scale, is never beaten and the old weights are kept silently.
 - Gate checks: pass needs the whole 95% CI and the point below the threshold; fail needs the CI's
   lower bound at or above it; anything else is inconclusive (FR-015).
 
@@ -178,12 +179,14 @@ pre-registered rule 1, with a caveat: time-late is not shown better than instant
 (panel rounds 1–3, `experiments/20261013-g0-i2-r2/`); `tma-train` accepts only a G0 whose
 `decided_by` names a panel round and whose `review.md` is beside it. **G2 failed** (panel round 2,
 `experiments/20261014-i2-g2/`): range and instantaneous course pass, speed fails for both models
-(2.09 / 2.38 kt vs 1 kt; classical 0.62 kt, at the Cramér–Rao bound). Iteration 2b (spec 004) continues
-every model from phase B with `loss_weight_speed` 4 and judges G2 on a fresh test split (seed 202):
-plan `configs/iter2/c`, decision `experiments/20261014-i2c-decision/`; on validation speed fell to
-1.77 kt, still above 1 kt. SRD §7 was amended on 2026-10-15 to allow one more iteration, 2c (spec
-005, the last under G2): 2 × 128 stacked recurrent layers with `loss_weight_speed` 4, from scratch,
-judged on fresh seed 203: plan `configs/iter2/d`, decision `experiments/20261015-i2d-decision/`.
+(2.09 / 2.38 kt vs 1 kt; classical 0.62 kt, at the Cramér–Rao bound). Iteration 2b (spec 004)
+continued every model from phase B with `loss_weight_speed` 4 and judged G2 on a fresh test split
+(seed 202; plan `configs/iter2/c`, decision `experiments/20261014-i2c-decision/`). **G2 failed
+again** (panel round 2, `experiments/20261015-i2c-g2/`): range and course pass for both models,
+speed 1.77 kt for both (classical 0.60 kt). SRD §7 was amended on 2026-10-15 (before 2b's test
+scoring) to allow one more iteration, 2c (spec 005, the last under G2): 2 × 128 stacked recurrent
+layers with `loss_weight_speed` 4, from scratch, judged on fresh seed 203: plan `configs/iter2/d`,
+decision `experiments/20261015-i2d-decision/`.
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution
 1.2.0). For each gate experiment:

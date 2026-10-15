@@ -41,6 +41,44 @@
       "title": "ChangeDecision",
       "type": "object"
     },
+    "Continuation": {
+      "additionalProperties": false,
+      "description": "The committed model a seeded continuation started from (scripts/train-continue.mjs; spec 003 decision 14, spec 004 decision 15). Its epoch records up to best_epoch are kept in the continued run's manifest, with their val_loss as recorded under the earlier config.",
+      "properties": {
+        "best_epoch": {
+          "type": "integer"
+        },
+        "git_commit": {
+          "description": "The source model's training-code commit, when it recorded one.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rescored_val_loss": {
+          "description": "The source's best weights re-scored under the continued run's loss, written by tma-train when it resumed (spec 004 FR-002). With best_epoch and best_val_loss it makes the kept weights auditable: a run whose best_epoch is the source's must have best_val_loss equal to this value and weights_digest equal to the source's.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "val_loss": {
+          "description": "The source's best-epoch validation loss under the source's config.",
+          "type": "number"
+        },
+        "weights_digest": {
+          "description": "SHA-256 of the weights the continuation resumed from (the source's best epoch).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "weights_digest",
+        "best_epoch",
+        "val_loss"
+      ],
+      "title": "Continuation",
+      "type": "object"
+    },
     "CurvePoint": {
       "additionalProperties": false,
       "description": "One point of an error-vs-time-since-zig curve (curves.csv row).",
@@ -611,12 +649,30 @@
         "best_epoch": {
           "type": "integer"
         },
+        "best_val_loss": {
+          "description": "The validation loss a later epoch must beat, under this manifest's config: the best epoch's val_loss, or, after a continuation changed the loss, the best weights re-scored under the new loss (spec 004 FR-002). Persisted so a chained job resumes against the same value. Absent before schema 0.8.2 (then the best epoch's recorded val_loss).",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "complete": {
           "description": "False while training is in progress (checkpoint).",
           "type": "boolean"
         },
         "config": {
           "$ref": "#/$defs/TrainingConfig"
+        },
+        "continued_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Continuation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Present when the run was seeded from a committed model (absent before schema 0.8.2)."
         },
         "cpu_model": {
           "type": "string"
@@ -1565,5 +1621,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.8.1"
+  "version": "0.8.2"
 }

@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import { copyFileSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { checkContinuation } from "../src/cli-train.js";
 import { train } from "../src/train.js";
 import { tempDir, tinyConfig, tinyFeatures } from "./helpers.js";
 
@@ -54,10 +55,24 @@ describe("train-continue.mjs", () => {
     const seeded = JSON.parse(readFileSync(join(out, "manifest.json"), "utf8")) as {
       complete: boolean;
       config: { max_epochs: number; patience: number };
+      best_val_loss?: number;
+      continued_from?: { weights_digest: string; best_epoch: number; val_loss: number };
     };
     expect(seeded.complete).toBe(false);
     expect(seeded.config.max_epochs).toBe(5);
     expect(seeded.config.patience).toBe(6);
+    // The source is recorded (schema 0.8.2); the comparison value is left for tma-train to set.
+    const srcManifest = JSON.parse(readFileSync(join(src, "manifest.json"), "utf8")) as {
+      weights_digest: string;
+      best_epoch: number;
+      epochs: { epoch: number; val_loss: number }[];
+    };
+    expect(seeded.best_val_loss).toBeUndefined();
+    expect(seeded.continued_from).toMatchObject({
+      weights_digest: srcManifest.weights_digest,
+      best_epoch: srcManifest.best_epoch,
+      val_loss: srcManifest.epochs.find((e) => e.epoch === srcManifest.best_epoch)?.val_loss,
+    });
 
     // Features from another dataset: refused.
     const other = tinyFeatures(16, 9n);
@@ -112,5 +127,103 @@ describe("train-continue.mjs", () => {
     expect(after.length).toBeGreaterThan(0);
     const bestAfter = Math.min(...after.map((e) => e.val_loss));
     expect(m.best_epoch > first.best_epoch).toBe(bestAfter < rebased);
+    // The comparison value is in the manifest (schema 0.8.2), with the continuation's source.
+    expect(m.best_val_loss).toBe(Math.min(rebased, bestAfter));
+    expect(m.continued_from?.weights_digest).toBe(first.weights_digest);
   }, 120_000);
+
+  it("a chained job after a loss change resumes against the re-scored value (G2 2b panel, numerics)", async () => {
+    const src = tempDir();
+    const config = tinyConfig("mlp", { max_epochs: 2 });
+    const first = await train({
+      config,
+      trainPath: data.train,
+      valPath: data.val,
+      outDir: src,
+      log: () => undefined,
+    });
+    const recorded = first.epochs.find((e) => e.epoch === first.best_epoch)?.val_loss ?? NaN;
+    const heavier = { ...config, max_epochs: first.best_epoch + 5, loss_weight_speed: 4 };
+    const cfg = join(tempDir(), "config.json");
+    writeFileSync(cfg, JSON.stringify(heavier));
+    const out = tempDir();
+    expect(run(src, cfg, out, "--allow", "max_epochs,loss_weight_speed").status).toBe(0);
+    // Job 1: re-scores, trains one epoch, then dies (a runner's time limit) before the next one.
+    const lines1: string[] = [];
+    const killAt = first.best_epoch + 2;
+    await expect(
+      train({
+        config: heavier,
+        trainPath: data.train,
+        valPath: data.val,
+        outDir: out,
+        log: (l) => {
+          lines1.push(l);
+          if (new RegExp(`epoch ${String(killAt)} train`).test(l)) throw new Error("killed");
+        },
+      }),
+    ).rejects.toThrow(/killed/);
+    const rebased = Number(
+      /val ([\d.]+) \(recorded/.exec(lines1.find((l) => l.includes("re-scored")) ?? "")?.[1],
+    );
+    expect(rebased).toBeGreaterThan(recorded);
+    const job1 = JSON.parse(readFileSync(join(out, "manifest.json"), "utf8")) as {
+      complete: boolean;
+      best_epoch: number;
+      best_val_loss: number;
+      continued_from: Record<string, unknown>;
+      epochs: { epoch: number; val_loss: number }[];
+    };
+    expect(job1.complete).toBe(false);
+    expect(job1.epochs).toHaveLength(first.best_epoch + 2);
+    const epoch1 = job1.epochs.at(-1)?.val_loss ?? NaN;
+    // The re-scored value is in the record (the log prints it to 5 decimals).
+    const rescored = job1.continued_from.rescored_val_loss as number;
+    expect(rescored).toBeCloseTo(rebased, 4);
+    expect(job1.continued_from).toMatchObject({
+      weights_digest: first.weights_digest,
+      best_epoch: first.best_epoch,
+      val_loss: recorded,
+    });
+    // Persisted: the re-scored value, or the new epoch's if it beat it; never the old-loss one.
+    expect(job1.best_val_loss).toBe(Math.min(rescored, epoch1));
+    // Job 2 must resume from best_val_loss, not from the best epoch's recorded val_loss: make
+    // that record unbeatable and check job 2 still compares against the persisted value (on the
+    // code before 17b8399 it would read 0 and never improve again).
+    const bestRecord = job1.epochs.find((e) => e.epoch === job1.best_epoch);
+    expect(bestRecord).toBeDefined();
+    if (bestRecord !== undefined) bestRecord.val_loss = 0;
+    writeFileSync(join(out, "manifest.json"), JSON.stringify(job1));
+    // Job 2: optimizer state restored, so no re-score; it must compare against the same value.
+    const lines2: string[] = [];
+    const m = await train({
+      config: heavier,
+      trainPath: data.train,
+      valPath: data.val,
+      outDir: out,
+      log: (l) => lines2.push(l),
+    });
+    expect(lines2.some((l) => l.includes("optimizer state restored"))).toBe(true);
+    expect(lines2.some((l) => l.includes("re-scored"))).toBe(false);
+    const later = m.epochs.filter((e) => e.epoch > job1.best_epoch);
+    expect(later.length).toBeGreaterThan(0);
+    const bestLater = Math.min(...later.map((e) => e.val_loss));
+    expect(m.best_val_loss).toBeGreaterThan(0);
+    expect(m.best_val_loss).toBe(Math.min(job1.best_val_loss, bestLater));
+    expect(m.best_epoch > job1.best_epoch).toBe(bestLater < job1.best_val_loss);
+    expect(m.complete).toBe(true);
+    // The completed record explains the kept weights (tma-train --check).
+    const manifestPath = join(out, "manifest.json");
+    expect(() => {
+      checkContinuation(m, manifestPath);
+    }).not.toThrow();
+    const tampered = { ...m, best_val_loss: 0 };
+    expect(() => {
+      checkContinuation(tampered, manifestPath);
+    }).toThrow(/best_val_loss/);
+    const source = { ...m, best_epoch: first.best_epoch, best_val_loss: rescored };
+    expect(() => {
+      checkContinuation(source, manifestPath);
+    }).toThrow(m.best_epoch > first.best_epoch ? /weights differ/ : /best_val_loss/);
+  }, 180_000);
 });

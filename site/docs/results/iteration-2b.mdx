@@ -1,0 +1,49 @@
+---
+title: "Results: iteration 2b (G2, second attempt)"
+description: G2 judged again on a fresh test split after continuing every model with a speed-weighted loss — the 2b models beside the naive and classical baselines and the phase-B weights they started from.
+---
+
+import ResultsReview from "@site/src/components/ResultsReview";
+
+# Results: iteration 2b (G2, second attempt)
+
+**Question:** does weighting speed in the loss get the iteration-2 models to the
+[G2](iteration-2.mdx) speed threshold? Iteration 2b (spec 004) keeps the data, the inputs and the
+architectures of iteration 2 and changes one thing: every model is continued from its committed
+phase-B weights with the speed term of the loss weighted 4×, to 220 epochs at most with patience 6.
+The best epoch is re-scored under the new loss before training resumes, so the continuation has to
+beat the old weights on the new scale.
+
+The gate is judged on a **fresh test split** (seed 202, same count and ranges), pinned by content
+digest in the training plan. The iteration-2 test split (seed 201) decided the first attempt and is
+not used again. The 2b models are the carried set by a rule fixed before training; the phase-B
+weights are scored beside them on the same split and reported, never gated.
+
+The thresholds, the σ = 1° slice, the zig + 600 s coverage and the pass / fail / inconclusive rule
+are as on the [iteration-2 page](iteration-2.mdx).
+
+:::danger G2 failed again (agent review panel, round 2)
+**Speed still fails for both models, by less.** The instantaneous model is at 1.77 kt
+[1.68, 1.83] and the time-late model at 1.77 kt [1.67, 1.86], against 1 kt; phase B on the same
+scenarios is at 2.02 kt and 2.31 kt. Classical reaches 0.60 kt, at the
+[Cramér–Rao bound](../glossary.md).
+
+Range and course pass for both models: 14.6% / 8.22° instantaneous and 15.8% / 8.66° time-late.
+The time-late model's course failure from iteration 2 is gone, and it now passes its G1 ratio
+check cleanly. Its "not worse than instantaneous" check fails at 2 of 19 points without an
+interval; the paired intervals contain the slack. Read it as the G1 caveat persisting: the
+time-late model is slightly worse than the instantaneous one at 17 of 19 points, not better.
+
+By range band the models are ahead of classical beyond 10 km only at zig + 300 s, and on the
+σ = 1° slice only because classical's non-converged scenarios count against it; at zig + 600 s
+classical is better in every band. Target speeds above ownship's 15 kt map to normalised targets
+above 1, where the models' shrinkage is worst; the output scaling was not changed in 2b.
+
+Full record:
+[`review.md`](https://github.com/debrief/Gitma/blob/main/experiments/20261015-i2c-g2/review.md),
+the validation note
+[`validation.md`](https://github.com/debrief/Gitma/blob/main/experiments/20261015-i2c-val/validation.md)
+and the [write-up](/blog/2026/10/15/iteration-2b).
+:::
+
+<ResultsReview gate="G2" experiment="20261015-i2c-g2" />

@@ -13,7 +13,7 @@
 
 ## Run
 
-- [ ] T007 [US1] Push `train/i2c`; collect `results/i2c-<run>`; commit `experiments/<date>-i2c-val` (validation diagnostic)
-- [ ] T008 [US4] G2 on the fresh test split at a clean main commit → `experiments/<date>-i2c-g2` (phase B beside it as the other phase)
-- [ ] T009 [US4] Agent review panel; fix or answer findings; `review.md`; `decided_by`
-- [ ] T010 [US4] Site: `results/iteration-2b.mdx`, blog post, glossary as needed; AGENTS.md gate status
+- [x] T007 [US1] Push `train/i2c`; collect `results/i2c-<run>`; commit `experiments/<date>-i2c-val` (validation diagnostic)
+- [x] T008 [US4] G2 on the fresh test split at a clean main commit → `experiments/<date>-i2c-g2` (phase B beside it as the other phase)
+- [x] T009 [US4] Agent review panel; fix or answer findings; `review.md`; `decided_by`
+- [x] T010 [US4] Site: `results/iteration-2b.mdx`, blog post, glossary as needed; AGENTS.md gate status

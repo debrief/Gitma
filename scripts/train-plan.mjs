@@ -35,7 +35,19 @@ export const SPLITS = ["train", "validation", "test", "heldout"];
 const FEATURE_SETS = ["raw", "derived"];
 const PLACEHOLDER = /^PLACEHOLDER/;
 /** Dataset seeds of earlier gates (G0 review process rule: one seed per dataset). */
-export const RESERVED_SEEDS = { 42: "G0", 101: "iteration 1" };
+export const RESERVED_SEEDS = { 42: "G0", 101: "iteration 1", 202: "iteration 2b G2 (fresh test)" };
+/** Dataset seeds owned by one iteration's plans: its test split decided that iteration's gate. */
+export const ITERATION_DATASET_SEEDS = { 201: "2" };
+/**
+ * Seeds whose test split has already decided a gate: a fresh test split may use one only in the
+ * plan that decided it (so the committed plan of record still validates), never in another.
+ */
+export const RESERVED_TEST_SEEDS = {
+  42: { for: "G0" },
+  101: { for: "iteration 1" },
+  201: { for: "iteration 2 G2 (the iteration-2 dataset's own test split)" },
+  202: { for: "iteration 2b G2", plan: "configs/iter2/c/plan.json" },
+};
 
 class PlanError extends Error {}
 
@@ -111,10 +123,16 @@ export function loadPlan(path) {
   // An iteration-N plan (N ≥ 2) must use its own dataset: never an earlier gate's seed, and only
   // configs/iterN-* ranges (so train/i2* can never regenerate the iteration-1 data).
   const iter = /(?:^|\/)configs\/iter(\d+)\//.exec(path);
+  // Reserved seeds are refused whatever the plan's path (G2 2b panel, red team round 2).
+  if (Object.hasOwn(RESERVED_SEEDS, d.seed))
+    fail(`dataset.seed ${d.seed} is reserved for ${RESERVED_SEEDS[d.seed]}`);
+  const owner = ITERATION_DATASET_SEEDS[d.seed];
+  if (owner !== undefined && iter?.[1] !== owner)
+    fail(
+      `dataset.seed ${d.seed} is the iteration-${owner} dataset: only configs/iter${owner}/ plans may use it`,
+    );
   if (iter !== null && Number(iter[1]) >= 2) {
     const n = iter[1];
-    if (Object.hasOwn(RESERVED_SEEDS, d.seed))
-      fail(`dataset.seed ${d.seed} is reserved for ${RESERVED_SEEDS[d.seed]}`);
     for (const k of ["ranges", "heldout_ranges"]) {
       if (!d[k].startsWith(`configs/iter${n}-`))
         fail(`dataset.${k} must be an iteration-${n} ranges file (configs/iter${n}-*.json)`);
@@ -133,8 +151,10 @@ export function loadPlan(path) {
     if (!isObject(f) || typeof f.seed !== "string" || !/^\d+$/.test(f.seed))
       fail("dataset.fresh_test.seed must be a decimal string");
     if (f.seed === d.seed) fail("dataset.fresh_test.seed must differ from dataset.seed");
-    if (Object.hasOwn(RESERVED_SEEDS, f.seed))
-      fail(`dataset.fresh_test.seed ${f.seed} is reserved for ${RESERVED_SEEDS[f.seed]}`);
+    // The exemption is bound to the committed plan's path, not to its id (any plan can claim an id).
+    const reserved = RESERVED_TEST_SEEDS[f.seed];
+    if (reserved !== undefined && !path.replace(/\\/g, "/").endsWith(reserved.plan ?? "\0"))
+      fail(`dataset.fresh_test.seed ${f.seed} is reserved for ${reserved.for}`);
     if (
       typeof f.digest !== "string" ||
       !(/^[0-9a-f]{64}$/.test(f.digest) || PLACEHOLDER.test(f.digest))

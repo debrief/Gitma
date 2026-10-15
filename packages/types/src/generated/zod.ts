@@ -16,6 +16,20 @@ export const ChangeDecision = z.strictObject({
 });
 export type ChangeDecision = z.infer<typeof ChangeDecision>;
 
+/** The committed model a seeded continuation started from (scripts/train-continue.mjs; spec 003 decision 14, spec 004 decision 15). Its epoch records up to best_epoch are kept in the continued run's manifest, with their val_loss as recorded under the earlier config. */
+export const Continuation = z.strictObject({
+  best_epoch: z.number().int(),
+  /** The source model's training-code commit, when it recorded one. */
+  git_commit: z.string().nullish(),
+  /** The source's best weights re-scored under the continued run's loss, written by tma-train when it resumed (spec 004 FR-002). With best_epoch and best_val_loss it makes the kept weights auditable: a run whose best_epoch is the source's must have best_val_loss equal to this value and weights_digest equal to the source's. */
+  rescored_val_loss: z.number().nullish(),
+  /** The source's best-epoch validation loss under the source's config. */
+  val_loss: z.number(),
+  /** SHA-256 of the weights the continuation resumed from (the source's best epoch). */
+  weights_digest: z.string(),
+});
+export type Continuation = z.infer<typeof Continuation>;
+
 /** One point of an error-vs-time-since-zig curve (curves.csv row). */
 export const CurvePoint = z.strictObject({
   course_deg_median: z.number().nullish(),
@@ -272,9 +286,13 @@ export type TrainingConfig = z.infer<typeof TrainingConfig>;
 /** Everything needed to reproduce and identify a trained model. */
 export const ModelManifest = z.strictObject({
   best_epoch: z.number().int(),
+  /** The validation loss a later epoch must beat, under this manifest's config: the best epoch's val_loss, or, after a continuation changed the loss, the best weights re-scored under the new loss (spec 004 FR-002). Persisted so a chained job resumes against the same value. Absent before schema 0.8.2 (then the best epoch's recorded val_loss). */
+  best_val_loss: z.number().nullish(),
   /** False while training is in progress (checkpoint). */
   complete: z.boolean(),
   config: TrainingConfig,
+  /** Present when the run was seeded from a committed model (absent before schema 0.8.2). */
+  continued_from: Continuation.nullish(),
   cpu_model: z.string(),
   epochs: z.array(EpochRecord),
   /** Id of the G0 experiment whose verdict the training guard accepted. */

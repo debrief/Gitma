@@ -21,6 +21,39 @@ export interface TrainDeps {
   generatorPathsEqual?: (a: string, b: string) => boolean;
 }
 
+/**
+ * A completed continuation's kept weights must be explained by its record (schema 0.8.2; G2 2b
+ * panel, red team round 2): a best epoch after the source's has best_val_loss equal to that
+ * epoch's val_loss; the source's own best epoch kept means best_val_loss equals the re-scored
+ * value and the weights are the source's.
+ */
+export function checkContinuation(m: ModelManifest, path: string): void {
+  const c = m.continued_from;
+  if (c == null || !m.complete) return;
+  const lineage = (msg: string): never => {
+    throw new RecordError(path, "lineage", msg);
+  };
+  if (m.best_val_loss == null) lineage("a continuation must record best_val_loss");
+  if (m.best_epoch > c.best_epoch) {
+    const kept = m.epochs.find((e) => e.epoch === m.best_epoch)?.val_loss;
+    if (kept !== m.best_val_loss) {
+      lineage(
+        `best_val_loss ${String(m.best_val_loss)} is not best epoch ${String(m.best_epoch)}'s val_loss ${String(kept)}`,
+      );
+    }
+  } else {
+    if (m.best_epoch !== c.best_epoch) lineage("best_epoch precedes the continuation's source");
+    if (c.rescored_val_loss == null || m.best_val_loss !== c.rescored_val_loss) {
+      lineage(
+        `the source's weights were kept, so best_val_loss ${String(m.best_val_loss)} must be the re-scored value ${String(c.rescored_val_loss)}`,
+      );
+    }
+    if (m.weights_digest !== c.weights_digest) {
+      lineage("the source's best epoch was kept but the weights differ from the source's");
+    }
+  }
+}
+
 export async function main(argv: string[], deps: TrainDeps = {}): Promise<unknown> {
   const { values } = parseArgs({
     args: argv,
@@ -103,6 +136,7 @@ export async function main(argv: string[], deps: TrainDeps = {}): Promise<unknow
           `checkpoint trained on train ${prior.train_features_digest} / validation ${prior.val_features_digest}, these files are ${now.train} / ${now.val}`,
         );
       }
+      checkContinuation(prior, manifestPath);
     }
     return { id: config.id, g0_experiment: g0.id, check: "pass" };
   }
