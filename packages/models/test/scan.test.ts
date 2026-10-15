@@ -69,6 +69,11 @@ describe("tma-scan (tiny)", () => {
       resamples: 50,
     });
     expect(rows.map((r) => r.estimator)).toEqual(["naive", "classical", "lstm-8u", "lstm-8u-x2"]);
+    // Every row is looked up under its per-timestep label (the first CI scan rendered naive as ∞).
+    for (const r of rows) {
+      expect(r.n300, r.estimator).toBeGreaterThan(0);
+      expect(r.speed, r.estimator).toMatch(/kt \[/);
+    }
     const [, , one, two] = rows;
     expect(one?.params).toBeGreaterThan(0);
     expect(two?.params ?? 0).toBeGreaterThan(one?.params ?? 0);

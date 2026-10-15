@@ -1,0 +1,9 @@
+{
+  "carried_set_rule": "The 2c models (configs/iter2/d, from scratch) are carried unconditionally; the 2b models (experiments/20261015-i2c-val/models) are scored beside them on the same fresh test split (seed 203) as the other phase, reported and never gated.",
+  "change": "capacity and loss together, from scratch: 2 x 128-unit stacked recurrent layers for the instantaneous LSTM, the time-late BiLSTM and the shuffled control, loss_weight_speed 4 (range and course 1), max_epochs 150, patience 6; CNN and MLP controls unchanged in size with the same loss (configs/iter2/d; spec 005 decisions 18-20)",
+  "decided_at": "2026-10-15T05:30:00Z",
+  "git_commit": "7f1fd4cc9cf15fd436b906de1fb02daf6eb82237",
+  "phase_a_experiment": "20261015-i2c-val",
+  "rationale": "Iteration 2b on validation (experiments/20261015-i2c-val, sigma=1deg): speed 1.77 kt [1.67, 1.83] instantaneous and 1.76 kt [1.70, 1.84] time-late against 1 kt (from 2.12 and 2.34 kt in phase B); range 15.2% and course 8.47 deg pass; classical 0.60 kt. The capacity scan (research R20, validation, 30 epochs, loss weights 1): 96 units 2.90 kt, 192 units 2.25 kt, 2 x 128 units 2.24 kt; the larger models reach the 96-unit model's 60-epoch plateau in half the epochs. Each lever moves speed; neither reaches 1 kt alone. User decisions 18-20 (2026-10-15): amend SRD section 7 for a 2c; 2 x 128 from scratch with speed weight 4; judge on fresh seed 203. Forecast recorded before the run: about 1.4-1.6 kt, likely still above 1 kt.",
+  "stalled": true
+}
