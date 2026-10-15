@@ -4,10 +4,251 @@
         <title>TMA via ML Blog</title>
         <link>https://debrief.github.io/Gitma/blog</link>
         <description>TMA via ML Blog</description>
-        <lastBuildDate>Wed, 14 Oct 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 15 Oct 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Iteration 2b: speed-weighted loss, G2 failed again]]></title>
+            <link>https://debrief.github.io/Gitma/blog/2026/10/15/iteration-2b</link>
+            <guid>https://debrief.github.io/Gitma/blog/2026/10/15/iteration-2b</guid>
+            <pubDate>Thu, 15 Oct 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Iteration 2b asks one question: does weighting speed in the loss get the iteration-2 models to the]]></description>
+            <content:encoded><![CDATA[<p>Iteration 2b asks one question: does weighting speed in the loss get the iteration-2 models to the
+G2 speed threshold? It changes nothing else, and judges G2 on a fresh test split.</p>
+<p><strong>Verdict: G2 failed</strong> (agent review panel, round 2, no rejections).</p>
+<ul>
+<li class=""><strong>Range passes</strong> for both models: 14.6% [14.1, 15.2] instantaneous and 15.8% [15.2, 16.2]
+time-late at zig + 300 s on the σ = 1° slice, against 20%.</li>
+<li class=""><strong>Course passes for both:</strong> 8.22° [7.88, 8.54] and 8.66° [8.29, 9.03], against 10°. The
+time-late course failure of iteration 2 is gone.</li>
+<li class=""><strong>Speed fails for both, by less:</strong> 1.77 kt [1.68, 1.83] and 1.77 kt [1.67, 1.86] at
+zig + 600 s, against 1 kt. The same weights before 2b, scored on the same scenarios, were at
+2.02 kt and 2.31 kt. Classical reaches 0.60 kt.</li>
+</ul>
+<p>Experiment of record:
+<a href="https://github.com/debrief/Gitma/tree/main/experiments/20261015-i2c-g2" target="_blank" rel="noopener noreferrer" class=""><code>experiments/20261015-i2c-g2/</code></a>.
+Curves and slices: <a class="" href="https://debrief.github.io/Gitma/docs/results/iteration-2b">iteration-2b results</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-changed">What changed<a href="https://debrief.github.io/Gitma/blog/2026/10/15/iteration-2b#what-changed" class="hash-link" aria-label="Direct link to What changed" title="Direct link to What changed" translate="no">​</a></h2>
+<p>The SRD allows one more round after a stalled G2. Iteration 2 left three leads (research R19):
+derived features, speed in the loss, and the training budget. The user chose the loss (decisions
+15–17 in spec 004):</p>
+<ul>
+<li class=""><strong>Loss weight.</strong> The speed term of the loss is weighted 4× (<code>loss_weight_speed: 4</code>). Speed
+contributed about 15% of the loss before; now it is about 40%.</li>
+<li class=""><strong>Continued, not restarted.</strong> Every model (the two carried ones and the three controls) starts
+from its committed phase-B weights, to 220 epochs at most with patience 6. Because the loss
+changed, <code>tma-train</code> re-scores the best epoch under the new loss before it resumes; otherwise
+the old best, on the old scale, could never be beaten and the old weights would be kept.</li>
+<li class=""><strong>A fresh test split.</strong> The iteration-2 test split (seed 201) decided the first attempt and is
+never scored again. The gate is judged on the test split of seed 202, generated with the same
+count and ranges and pinned by content digest in the training plan. Train and validation are
+unchanged.</li>
+</ul>
+<p>Three tooling checks promised at the end of iteration 2 arrived with 2b and were on for this
+gate: <code>tma-g2</code> checks the plan's content digests itself, refuses a phase decision that is not a
+git ancestor of the carried weights, and checks that every estimator was scored on the same rows,
+not just the same number of them. The <a class="" href="https://debrief.github.io/Gitma/docs/evaluation">evaluation</a> page describes them.</p>
+<p>The carried set was fixed before training: the 2b models, unconditionally. Phase B is scored
+beside them on the fresh split and reported, never gated.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="results-on-the-fresh-test-split-σ--1">Results on the fresh test split (σ = 1°)<a href="https://debrief.github.io/Gitma/blog/2026/10/15/iteration-2b#results-on-the-fresh-test-split-%CF%83--1" class="hash-link" aria-label="Direct link to Results on the fresh test split (σ = 1°)" title="Direct link to Results on the fresh test split (σ = 1°)" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Estimator</th><th>Range, zig+300 s</th><th>Course, zig+300 s</th><th>Speed, zig+600 s</th></tr></thead><tbody><tr><td>G2 threshold</td><td>&lt; 20%</td><td>&lt; 10°</td><td>&lt; 1 kt</td></tr><tr><td>lstm-instantaneous (2b)</td><td><strong>14.6%</strong> [14.1, 15.2]</td><td><strong>8.22°</strong> [7.88, 8.54]</td><td>1.77 kt [1.68, 1.83]</td></tr><tr><td>bilstm-time-late (2b)</td><td><strong>15.8%</strong> [15.2, 16.2]</td><td><strong>8.66°</strong> [8.29, 9.03]</td><td>1.77 kt [1.67, 1.86]</td></tr><tr><td>lstm-instantaneous (B, reported)</td><td>16.5%</td><td>9.20°</td><td>2.02 kt</td></tr><tr><td>bilstm-time-late (B, reported)</td><td>19.2%</td><td>10.36°</td><td>2.31 kt</td></tr><tr><td>classical</td><td>8.5%</td><td>3.31°</td><td>0.60 kt</td></tr><tr><td>naive</td><td>37.9%</td><td>90.4°</td><td>4.22 kt</td></tr></tbody></table>
+<p>n = 4,682 scenarios at zig + 300 s (93% of the slice) and 2,973 at zig + 600 s (59%).</p>
+<p>Phase B's numbers here differ from the iteration-2 verdict (2.09 / 2.38 kt) because this is a
+different split; the intervals overlap.</p>
+<h3 class="anchor anchorTargetStickyNavbar_FE5u" id="the-repeated-g1-checks">The repeated G1 checks<a href="https://debrief.github.io/Gitma/blog/2026/10/15/iteration-2b#the-repeated-g1-checks" class="hash-link" aria-label="Direct link to The repeated G1 checks" title="Direct link to The repeated G1 checks" translate="no">​</a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Check</th><th>Result</th></tr></thead><tbody><tr><td>instantaneous / naive &lt; 0.5</td><td>pass: 0.418 [0.405, 0.432]</td></tr><tr><td>time-late / naive &lt; 0.5</td><td>pass: 0.430 [0.419, 0.443]</td></tr><tr><td>time-late not worse than instantaneous</td><td>fail: 2 of 19 points (t = 840 and 960 s)</td></tr><tr><td>both models beat their controls</td><td>pass</td></tr><tr><td>shuffled-label model at naive</td><td>pass: 1.000 ×</td></tr></tbody></table>
+<p>The time-late model's knife-edge G1 fail from iteration 2 (0.514) is now a clear pass. Its
+deficit since G1 was a training deficit, not an architectural one: given the same budget it
+matches the instantaneous model on every check. The "not worse" check has no interval; the two
+exceedances (ratios 1.055 and 1.056 against 1.05) have paired intervals that contain 1.05, so
+this fail is not distinguishable from a pass. What is real is the G1 caveat persisting: the
+time-late model is slightly worse than the instantaneous one at 17 of 19 points, not better.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-the-speed-weight-did-and-did-not-do">What the speed weight did, and did not do<a href="https://debrief.github.io/Gitma/blog/2026/10/15/iteration-2b#what-the-speed-weight-did-and-did-not-do" class="hash-link" aria-label="Direct link to What the speed weight did, and did not do" title="Direct link to What the speed weight did, and did not do" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Speed moved by 12–23%</strong> (2.02 → 1.77 kt; 2.31 → 1.77 kt), and range and course improved with
+it. Nothing got worse.</li>
+<li class=""><strong>It is still 1.8 kt against 1 kt</strong>, with the whole interval above 1.67 kt. The models are
+about three times classical, which is at the Cramér–Rao bound on these bearings: the panel
+recomputed the per-scenario bound on this split (median 1.05 kt for the bearings to
+zig + 600 s) and classical's error is 0.62 of it at the median, where an efficient estimator
+gives 0.67.</li>
+<li class=""><strong>The gain is less scatter as much as less shrinkage.</strong> The slope of predicted on true speed
+rose from 0.58 to 0.65 and the residual spread fell from 2.38 to 2.21 kt; correcting the
+shrinkage alone would not help (it would give 2.3 kt). Target speeds above ownship's 15 kt map
+to normalised targets above 1, where the shrinkage is worst; the output scaling was not changed.</li>
+<li class=""><strong>The gap is where classical is near-perfect.</strong> By true range at zig + 600 s (all noise):</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>True range</th><th>Instantaneous</th><th>Time-late</th><th>Classical</th></tr></thead><tbody><tr><td>2–5 km (n 731)</td><td>1.44 kt</td><td>1.43 kt</td><td>0.17 kt</td></tr><tr><td>5–10 km (n 2,219)</td><td>1.55 kt</td><td>1.53 kt</td><td>0.57 kt</td></tr><tr><td>10–20 km (n 2,568)</td><td>2.12 kt</td><td>2.01 kt</td><td>1.51 kt</td></tr><tr><td>20–30 km (n 420)</td><td>2.98 kt</td><td>3.08 kt</td><td>3.54 kt</td></tr></tbody></table>
+<p>Classical's 0.60 kt median is carried by the short ranges, where a few hundred metres of range
+error fixes speed to a fraction of a knot. The models are 1.4–1.5 kt there, flat across bands
+they resolve well, and only beyond 20 km do they beat classical on speed.</p>
+<ul>
+<li class=""><strong>The range advantage beyond 10 km is narrower than iteration 2 suggested.</strong> At zig + 300 s
+the models are ahead at 10–20 km (14.2% against 18.6%, all noise) and at 20–30 km (24.1%
+against 27.4%), but the gap is carried by classical's non-converged tail (117 of 1,806 scenarios
+at 10–20 km on the σ = 1° slice, scored as infinite error). On converged scenarios alone the two
+are level, and at zig + 600 s classical is better in every band.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-the-panel-found">What the panel found<a href="https://debrief.github.io/Gitma/blog/2026/10/15/iteration-2b#what-the-panel-found" class="hash-link" aria-label="Direct link to What the panel found" title="Direct link to What the panel found" translate="no">​</a></h2>
+<p>Five reviewers again: TMA geometry, estimation and numerics, evaluation statistics,
+reproducibility, and red team. All five returned approve-with-findings in round 1, and none
+rejected. Every one of them reproduced the speed medians independently, and none found a path
+from a pipeline error to the verdict.</p>
+<p><strong>One latent major, fixed.</strong> When a continuation changes the loss, <code>tma-train</code> re-scores the best
+weights under the new loss before it resumes. It used that value in memory but never wrote it to
+the manifest, so a chained job (resuming with its optimizer state) compared new-loss epochs against
+the old-loss number. Had a continuation's first job ended before any epoch beat the re-scored
+value, later jobs would have kept the old weights silently. It did not happen in this run (the
+reviewer checked every job boundary in the CI logs), but it could have. The manifest now records
+the value a later epoch must beat and the source of a continuation, a chained-job test covers the
+case, and <code>tma-train --check</code> verifies that a finished continuation's kept weights are explained
+by its record.</p>
+<p><strong>What else the panel established:</strong></p>
+<ul>
+<li class="">The fresh split is fresh: per-scenario seeds derive from the dataset seed and index, a seed-201
+and seed-202 collision would need an index difference of 10¹⁸, and no test scenario shares a
+seed or parameter set with any of the 100,000 seed-201 scenarios.</li>
+<li class="">The fail margin is 16–20 standard errors. Only 30% of scenarios have a speed error under 1 kt;
+for the interval merely to touch the threshold the test set would have to be about 28 scenarios.</li>
+<li class="">The re-scoring worked as specified: the reviewers recomputed the re-scored losses to five
+decimals and confirmed each model's best epoch was chosen under the new loss. The shuffled
+control's weights are unchanged from phase B because no epoch beat its re-scored loss, which is
+the right outcome for a control.</li>
+<li class="">Classical's non-converged scenarios (1.4%) are scored as infinite error and included; its
+0.60 kt is not flattered.</li>
+</ul>
+<p>Nineteen minor findings were answered or fixed in two rounds, mostly record-keeping: the
+manifests of the committed 2b models do not say they are continuations (the facts are in the
+review), gate-deciding seeds are now reserved in the plan checker, and the write-up wording above
+follows the geometry reviewer's corrections.</p>
+<p>Record:
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261015-i2c-g2/review.md" target="_blank" rel="noopener noreferrer" class=""><code>review.md</code></a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="next">Next<a href="https://debrief.github.io/Gitma/blog/2026/10/15/iteration-2b#next" class="hash-link" aria-label="Direct link to Next" title="Direct link to Next" translate="no">​</a></h2>
+<p>SRD §7 was amended on 2026-10-15 to allow one further round, iteration 2c, and then stop. The
+capacity scan (research R20) showed that a two-layer 128-unit LSTM reaches the 96-unit model's
+plateau in half the epochs. Iteration 2c trains that model from scratch with the speed weight, on
+yet another fresh test split (seed 203). The decision record, with the forecast (1.4–1.6 kt) and
+the stopping rule, is committed before training:
+<a href="https://github.com/debrief/Gitma/tree/main/experiments/20261015-i2d-decision" target="_blank" rel="noopener noreferrer" class=""><code>experiments/20261015-i2d-decision/</code></a>.</p>]]></content:encoded>
+        </item>
         <item>
             <title><![CDATA[Iteration 2: G2 failed on speed]]></title>
             <link>https://debrief.github.io/Gitma/blog/2026/10/14/iteration-2</link>
