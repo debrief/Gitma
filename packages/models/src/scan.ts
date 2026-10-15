@@ -150,7 +150,7 @@ export async function runScan(opts: ScanOptions): Promise<ScanRow[]> {
   writeBootstrap(opts.experiment, report);
 
   const rows: ScanRow[] = [
-    row(ev.metrics, report, NAIVE),
+    row(ev.metrics, report, perTimestep(NAIVE)),
     row(ev.metrics, report, perTimestep(CLASSICAL)),
   ];
   for (const m of models) {
