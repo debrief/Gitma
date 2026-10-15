@@ -179,10 +179,14 @@ pre-registered rule 1, with a caveat: time-late is not shown better than instant
 (panel rounds 1–3, `experiments/20261013-g0-i2-r2/`); `tma-train` accepts only a G0 whose
 `decided_by` names a panel round and whose `review.md` is beside it. **G2 failed** (panel round 2,
 `experiments/20261014-i2-g2/`): range and instantaneous course pass, speed fails for both models
-(2.09 / 2.38 kt vs 1 kt; classical 0.62 kt, at the Cramér–Rao bound). Iteration 2b (spec 004, the
-last allowed under G2) continues every model from phase B with `loss_weight_speed` 4 and judges G2
-on a fresh test split (seed 202): plan `configs/iter2/c`, decision
-`experiments/20261014-i2c-decision/`.
+(2.09 / 2.38 kt vs 1 kt; classical 0.62 kt, at the Cramér–Rao bound). Iteration 2b (spec 004)
+continued every model from phase B with `loss_weight_speed` 4 and judged G2 on a fresh test split
+(seed 202; plan `configs/iter2/c`, decision `experiments/20261014-i2c-decision/`). **G2 failed
+again** (panel round 2, `experiments/20261015-i2c-g2/`): range and course pass for both models,
+speed 1.77 kt for both (classical 0.60 kt). SRD §7 was amended on 2026-10-15 (before 2b's test
+scoring) to allow one more iteration, 2c (spec 005, the last under G2): 2 × 128 stacked recurrent
+layers with `loss_weight_speed` 4, from scratch, judged on fresh seed 203: plan `configs/iter2/d`,
+decision `experiments/20261015-i2d-decision/`.
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution
 1.2.0). For each gate experiment:
