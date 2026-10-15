@@ -1,0 +1,27 @@
+{
+  "id": "i2d",
+  "description": "Spec 005 (iteration 2c, SRD \u00a77 amended 2026-10-15; user decisions 18-20): both levers that moved speed on validation combined, from scratch: 2 x 128-unit stacked recurrent layers (instantaneous LSTM, time-late BiLSTM, and the shuffled-label control) with loss_weight_speed 4 (range and course 1), max_epochs 150, patience 6; the CNN and MLP controls keep their sizes with the same loss. Same data, features and seeds as iteration 2. G2 is judged on a fresh test split (seed 203), never on seeds 201 or 202. Scored on validation first (diagnostic).",
+  "dataset": {
+    "seed": "201",
+    "count": 100000,
+    "ranges": "configs/iter2-ranges.json",
+    "heldout_ranges": "configs/iter2-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "0b2a79027d89f4e628c74ba2c13167ba9f55591fefa2f2bf378b372a3d93821c",
+      "validation.f32pack": "3fb2d2ad550c95bcee22c168e21c559da69507cd1a4c6425b77ae7ed3b259164",
+      "test.f32pack": "cd2f30611a7d8441af6dd1b7414653ac03d94dc37aca52e986579c31263ee2af",
+      "heldout.f32pack": "57d766df0e8b9b7afd9cbe982d11cdbd54a27c203467bade57eea716474f73e5"
+    },
+    "fresh_test": {
+      "seed": "203",
+      "digest": "af0aaa4ea5d4665526ff09104a11dbae6553e22c6a9c0996671590f76a7cec1f"
+    }
+  },
+  "feature_set": "raw",
+  "configs": "configs/iter2/d",
+  "models": ["instantaneous", "time-late", "causal-cnn", "mlp", "instantaneous-shuffled"],
+  "evaluate": {
+    "command": "tma-g2",
+    "split": "validation"
+  }
+}

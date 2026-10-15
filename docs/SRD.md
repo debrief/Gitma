@@ -199,7 +199,7 @@ Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; 
 | --- | --- | --- | --- |
 | 0 — Pipeline | Generator, store, classical solver, naive baseline, eval harness, golden tests | G0 | Fix; do not start training on an unverified generator |
 | 1 — Signal | Both variants on 10^5 clean scenarios (σ = 0.5°, no dropouts) | G1 | Stop and report |
-| 2 — Noise | Same models on σ = 1–2°, 10% dropouts; one round of feature/architecture changes | G2 | One more iteration allowed, then stop |
+| 2 — Noise | Same models on σ = 1–2°, 10% dropouts; one round of feature/architecture changes | G2 | One more iteration allowed, then stop (amended 2026-10-15, after iteration 2b's validation result and before its test scoring: a second extra iteration, 2c, is allowed, combining the two levers each shown to move speed on validation, a speed-weighted loss (2b) and model capacity (spec 003 research R20), judged on a fresh test split; then stop. The hyperparameter cap stands: 2c is one configuration, chosen from those two measured levers, not a search) |
 | 3 — Parity | 10^6 scenarios, held-out geometry set, classical comparison by slice | G3 | Not a stop; result feeds the next-phase decision |
 
 **Each iteration produces**

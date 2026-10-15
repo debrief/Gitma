@@ -1,0 +1,19 @@
+{
+  "learning_rate": 0.001,
+  "batch_size": 256,
+  "max_epochs": 150,
+  "patience": 6,
+  "max_wall_s": 172800,
+  "loss_weight_range": 1,
+  "loss_weight_course": 1,
+  "loss_weight_speed": 4,
+  "shuffle_labels": false,
+  "id": "bilstm-time-late",
+  "model_kind": "time_late",
+  "units": 128,
+  "train_seed": "1002",
+  "length_bucketing": true,
+  "tfjs_threads": 1,
+  "feature_set": "raw",
+  "layers": 2
+}
