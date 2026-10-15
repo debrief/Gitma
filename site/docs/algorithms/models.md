@@ -44,6 +44,12 @@ which see the whole window anyway. Every model is still **scored** only after th
   gives the same weights as an uninterrupted one (tested). A checkpoint without it (for example
   one seeded from committed weights by `scripts/train-continue.mjs`) restarts Adam; the next three
   epochs then do not count towards patience, and the log says so.
+- A seeded continuation may change the loss (iteration 2b weighted speed 4×). On a restart the best
+  weights are re-scored under the new loss, and that value is written to the manifest as
+  `best_val_loss` so a later chained job compares against the same number; otherwise the recorded
+  old-loss value, always lower, could never be beaten and the old weights would be kept silently.
+  The manifest's `continued_from` names the source weights, epoch and loss; the epoch records up
+  to that epoch keep their old-loss values.
 - On GitHub Actions each job pushes its output folder to a `checkpoints/<branch>/<model>` git
   branch after every epoch and restores it at start, so a cancelled or crashed job resumes and a
   completed model is not retrained. Once the results branch is pushed, the run deletes its

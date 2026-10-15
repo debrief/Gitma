@@ -54,10 +54,24 @@ describe("train-continue.mjs", () => {
     const seeded = JSON.parse(readFileSync(join(out, "manifest.json"), "utf8")) as {
       complete: boolean;
       config: { max_epochs: number; patience: number };
+      best_val_loss?: number;
+      continued_from?: { weights_digest: string; best_epoch: number; val_loss: number };
     };
     expect(seeded.complete).toBe(false);
     expect(seeded.config.max_epochs).toBe(5);
     expect(seeded.config.patience).toBe(6);
+    // The source is recorded (schema 0.8.2); the comparison value is left for tma-train to set.
+    const srcManifest = JSON.parse(readFileSync(join(src, "manifest.json"), "utf8")) as {
+      weights_digest: string;
+      best_epoch: number;
+      epochs: { epoch: number; val_loss: number }[];
+    };
+    expect(seeded.best_val_loss).toBeUndefined();
+    expect(seeded.continued_from).toMatchObject({
+      weights_digest: srcManifest.weights_digest,
+      best_epoch: srcManifest.best_epoch,
+      val_loss: srcManifest.epochs.find((e) => e.epoch === srcManifest.best_epoch)?.val_loss,
+    });
 
     // Features from another dataset: refused.
     const other = tinyFeatures(16, 9n);
@@ -112,5 +126,72 @@ describe("train-continue.mjs", () => {
     expect(after.length).toBeGreaterThan(0);
     const bestAfter = Math.min(...after.map((e) => e.val_loss));
     expect(m.best_epoch > first.best_epoch).toBe(bestAfter < rebased);
+    // The comparison value is in the manifest (schema 0.8.2), with the continuation's source.
+    expect(m.best_val_loss).toBe(Math.min(rebased, bestAfter));
+    expect(m.continued_from?.weights_digest).toBe(first.weights_digest);
   }, 120_000);
+
+  it("a chained job after a loss change resumes against the re-scored value (G2 2b panel, numerics)", async () => {
+    const src = tempDir();
+    const config = tinyConfig("mlp", { max_epochs: 2 });
+    const first = await train({
+      config,
+      trainPath: data.train,
+      valPath: data.val,
+      outDir: src,
+      log: () => undefined,
+    });
+    const recorded = first.epochs.find((e) => e.epoch === first.best_epoch)?.val_loss ?? NaN;
+    const heavier = { ...config, max_epochs: first.best_epoch + 5, loss_weight_speed: 4 };
+    const cfg = join(tempDir(), "config.json");
+    writeFileSync(cfg, JSON.stringify(heavier));
+    const out = tempDir();
+    expect(run(src, cfg, out, "--allow", "max_epochs,loss_weight_speed").status).toBe(0);
+    // Job 1: re-scores, trains one epoch, then dies (a runner's time limit) before the next one.
+    const lines1: string[] = [];
+    const killAt = first.best_epoch + 2;
+    await expect(
+      train({
+        config: heavier,
+        trainPath: data.train,
+        valPath: data.val,
+        outDir: out,
+        log: (l) => {
+          lines1.push(l);
+          if (new RegExp(`epoch ${String(killAt)} train`).test(l)) throw new Error("killed");
+        },
+      }),
+    ).rejects.toThrow(/killed/);
+    const rebased = Number(
+      /val ([\d.]+) \(recorded/.exec(lines1.find((l) => l.includes("re-scored")) ?? "")?.[1],
+    );
+    expect(rebased).toBeGreaterThan(recorded);
+    const job1 = JSON.parse(readFileSync(join(out, "manifest.json"), "utf8")) as {
+      complete: boolean;
+      best_epoch: number;
+      best_val_loss: number;
+      epochs: { epoch: number; val_loss: number }[];
+    };
+    expect(job1.complete).toBe(false);
+    expect(job1.epochs).toHaveLength(first.best_epoch + 2);
+    const epoch1 = job1.epochs.at(-1)?.val_loss ?? NaN;
+    // Persisted: the re-scored value, or the new epoch's if it beat it; never the old-loss one.
+    expect(job1.best_val_loss).toBe(Math.min(rebased, epoch1));
+    // Job 2: optimizer state restored, so no re-score; it must compare against the same value.
+    const lines2: string[] = [];
+    const m = await train({
+      config: heavier,
+      trainPath: data.train,
+      valPath: data.val,
+      outDir: out,
+      log: (l) => lines2.push(l),
+    });
+    expect(lines2.some((l) => l.includes("optimizer state restored"))).toBe(true);
+    expect(lines2.some((l) => l.includes("re-scored"))).toBe(false);
+    const later = m.epochs.filter((e) => e.epoch > first.best_epoch);
+    const bestLater = Math.min(...later.map((e) => e.val_loss));
+    expect(m.best_val_loss).toBe(Math.min(rebased, bestLater));
+    expect(m.best_epoch > first.best_epoch).toBe(bestLater < rebased);
+    expect(m.complete).toBe(true);
+  }, 180_000);
 });

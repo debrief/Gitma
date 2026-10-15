@@ -59,8 +59,22 @@ for (const d of ["checkpoint", "best"]) {
   mkdirSync(join(out, d), { recursive: true });
   for (const f of ["model.json", "weights.bin"]) copyFileSync(join(src, f), join(out, d, f));
 }
-const { stop_reason: _stop, ...rest } = manifest;
-const seeded = { ...rest, config, epochs, complete: false, wall_s: epochs.at(-1).seconds };
+// best_val_loss is dropped: tma-train re-scores the source's best weights under the new config's
+// loss when it resumes without optimizer state, and records that value (schema 0.8.2).
+const { stop_reason: _stop, best_val_loss: _best, ...rest } = manifest;
+const seeded = {
+  ...rest,
+  config,
+  epochs,
+  complete: false,
+  wall_s: epochs.at(-1).seconds,
+  continued_from: {
+    weights_digest: manifest.weights_digest,
+    best_epoch: best,
+    val_loss: epochs.at(-1).val_loss,
+    ...(typeof manifest.git_commit === "string" ? { git_commit: manifest.git_commit } : {}),
+  },
+};
 if (values.train !== undefined && values.val !== undefined) {
   const { openFeatures } = await import(
     new URL("../packages/features/dist/index.js", import.meta.url).href

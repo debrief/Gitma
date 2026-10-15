@@ -35,7 +35,17 @@ export const SPLITS = ["train", "validation", "test", "heldout"];
 const FEATURE_SETS = ["raw", "derived"];
 const PLACEHOLDER = /^PLACEHOLDER/;
 /** Dataset seeds of earlier gates (G0 review process rule: one seed per dataset). */
-export const RESERVED_SEEDS = { 42: "G0", 101: "iteration 1" };
+export const RESERVED_SEEDS = { 42: "G0", 101: "iteration 1", 202: "iteration 2b G2 (fresh test)" };
+/**
+ * Seeds whose test split has already decided a gate: a fresh test split may use one only in the
+ * plan that decided it (so the committed plan of record still validates), never in another.
+ */
+export const RESERVED_TEST_SEEDS = {
+  42: { for: "G0" },
+  101: { for: "iteration 1" },
+  201: { for: "iteration 2 G2 (the iteration-2 dataset's own test split)" },
+  202: { for: "iteration 2b G2", plan: "i2c" },
+};
 
 class PlanError extends Error {}
 
@@ -133,8 +143,9 @@ export function loadPlan(path) {
     if (!isObject(f) || typeof f.seed !== "string" || !/^\d+$/.test(f.seed))
       fail("dataset.fresh_test.seed must be a decimal string");
     if (f.seed === d.seed) fail("dataset.fresh_test.seed must differ from dataset.seed");
-    if (Object.hasOwn(RESERVED_SEEDS, f.seed))
-      fail(`dataset.fresh_test.seed ${f.seed} is reserved for ${RESERVED_SEEDS[f.seed]}`);
+    const reserved = RESERVED_TEST_SEEDS[f.seed];
+    if (reserved !== undefined && reserved.plan !== p.id)
+      fail(`dataset.fresh_test.seed ${f.seed} is reserved for ${reserved.for}`);
     if (
       typeof f.digest !== "string" ||
       !(/^[0-9a-f]{64}$/.test(f.digest) || PLACEHOLDER.test(f.digest))

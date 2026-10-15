@@ -163,8 +163,9 @@ sessions (containers are reclaimed when idle).
 - A test split is scored once per carried set; `tma-g2 --split test` needs the committed phase
   decision. Score phases in one run (`--compare-models`): other-phase predictions are tagged
   `<split>.other-phase.<id>.ndjson` so they never overwrite the carried set's.
-- A seeded continuation that changes the loss re-scores the best epoch under the new loss
-  (otherwise the old best, on the old scale, is never beaten and the old weights are kept).
+- A seeded continuation that changes the loss re-scores the best epoch under the new loss and
+  persists it as `best_val_loss` (schema 0.8.2); a chained job resumes against that value. Without
+  it the old best, on the old scale, is never beaten and the old weights are kept silently.
 - Gate checks: pass needs the whole 95% CI and the point below the threshold; fail needs the CI's
   lower bound at or above it; anything else is inconclusive (FR-015).
 
