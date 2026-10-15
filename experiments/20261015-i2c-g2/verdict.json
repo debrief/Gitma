@@ -1,0 +1,97 @@
+{
+  "checks": [
+    {
+      "ci_high": 0.15197175769490429,
+      "ci_level": 0.95,
+      "ci_low": 0.14126394609214388,
+      "detail": "instantaneous lstm-instantaneous median range error 0.1461 vs threshold 0.2 on sigma=1deg at zig+300s; 95% CI [0.1413, 0.1520] (bootstrap, 2000 resamples, n 4682); model n 4682, excluded 329 (93.4% of the slice reach zig+300s; decision 13); naive 0.3787 (n 4682, excluded 329), classical 0.0845 (n 4682, excluded 329)",
+      "name": "g2-instantaneous-range",
+      "result": "pass",
+      "threshold": 0.2,
+      "value": 0.1460879542611437
+    },
+    {
+      "ci_high": 8.536165519006838,
+      "ci_level": 0.95,
+      "ci_low": 7.879565773715168,
+      "detail": "instantaneous lstm-instantaneous median course error 8.2203° vs threshold 10° on sigma=1deg at zig+300s; 95% CI [7.8796, 8.5362] (bootstrap, 2000 resamples, n 4682); model n 4682, excluded 329 (93.4% of the slice reach zig+300s; decision 13); naive 90.4037 (n 4682, excluded 329), classical 3.3111 (n 4682, excluded 329)",
+      "name": "g2-instantaneous-course",
+      "result": "pass",
+      "threshold": 10,
+      "value": 8.220269269893747
+    },
+    {
+      "ci_high": 1.833449172149724,
+      "ci_level": 0.95,
+      "ci_low": 1.6838748305714155,
+      "detail": "instantaneous lstm-instantaneous median speed error 1.7669 kt vs threshold 1 kt on sigma=1deg at zig+600s; 95% CI [1.6839, 1.8334] (bootstrap, 2000 resamples, n 2973); model n 2973, excluded 2038 (59.3% of the slice reach zig+600s; decision 13); naive 4.2236 (n 2973, excluded 2038), classical 0.6025 (n 2973, excluded 2038)",
+      "name": "g2-instantaneous-speed",
+      "result": "fail",
+      "threshold": 1,
+      "value": 1.7669201927102667
+    },
+    {
+      "ci_high": 0.1622348329001909,
+      "ci_level": 0.95,
+      "ci_low": 0.152127185873064,
+      "detail": "time-late bilstm-time-late median range error 0.1579 vs threshold 0.2 on sigma=1deg at zig+300s; 95% CI [0.1521, 0.1622] (bootstrap, 2000 resamples, n 4682); model n 4682, excluded 329 (93.4% of the slice reach zig+300s; decision 13); naive 0.3787 (n 4682, excluded 329), classical 0.0845 (n 4682, excluded 329)",
+      "name": "g2-time-late-range",
+      "result": "pass",
+      "threshold": 0.2,
+      "value": 0.15794098957890126
+    },
+    {
+      "ci_high": 9.028881705353218,
+      "ci_level": 0.95,
+      "ci_low": 8.285934708574247,
+      "detail": "time-late bilstm-time-late median course error 8.6621° vs threshold 10° on sigma=1deg at zig+300s; 95% CI [8.2859, 9.0289] (bootstrap, 2000 resamples, n 4682); model n 4682, excluded 329 (93.4% of the slice reach zig+300s; decision 13); naive 90.4037 (n 4682, excluded 329), classical 3.3111 (n 4682, excluded 329)",
+      "name": "g2-time-late-course",
+      "result": "pass",
+      "threshold": 10,
+      "value": 8.662127867680208
+    },
+    {
+      "ci_high": 1.8581546923511743,
+      "ci_level": 0.95,
+      "ci_low": 1.6730959420585219,
+      "detail": "time-late bilstm-time-late median speed error 1.7729 kt vs threshold 1 kt on sigma=1deg at zig+600s; 95% CI [1.6731, 1.8582] (bootstrap, 2000 resamples, n 2973); model n 2973, excluded 2038 (59.3% of the slice reach zig+600s; decision 13); naive 4.2236 (n 2973, excluded 2038), classical 0.6025 (n 2973, excluded 2038)",
+      "name": "g2-time-late-speed",
+      "result": "fail",
+      "threshold": 1,
+      "value": 1.772913510547086
+    },
+    {
+      "detail": "lstm-instantaneous median range error 0.1579 vs limit 0.1886 (0.5 × naive 0.3772) at zig+300s; n 9342 (naive 9342), excluded 658 (naive 658); model/naive 0.418, 95% CI [0.405, 0.432] (paired bootstrap, 2000 resamples, n 9342)",
+      "name": "g1-instantaneous",
+      "result": "pass"
+    },
+    {
+      "detail": "bilstm-time-late median range error 0.1620 vs limit 0.1886 (0.5 × naive 0.3772) at zig+300s; n 9342 (naive 9342), excluded 658 (naive 658); model/naive 0.430, 95% CI [0.419, 0.443] (paired bootstrap, 2000 resamples, n 9342)",
+      "name": "g1-time-late",
+      "result": "pass"
+    },
+    {
+      "detail": "2/19 points worse: t=840s 0.1390 > 0.1318; t=960s 0.1483 > 0.1405 (4 later points with n < 500 reported, not gated)",
+      "name": "time-late-not-worse",
+      "result": "fail"
+    },
+    {
+      "detail": "lstm-instantaneous vs cnn-causal-control median range error — zig+300s: 0.1579 vs 0.2787, final: 0.1539 vs 0.2849",
+      "name": "instantaneous-beats-control",
+      "result": "pass"
+    },
+    {
+      "detail": "bilstm-time-late vs mlp-control median range error — zig+300s: 0.1620 vs 0.2593, final: 0.1685 vs 0.2761",
+      "name": "time-late-beats-control",
+      "result": "pass"
+    },
+    {
+      "detail": "lstm-instantaneous-shuffled median range error 0.3774 = 1.000 × naive 0.3772 (allowed 1 ± 0.1) at zig+300s; course error median 70.0° vs naive 90.8° (reported, not gated)",
+      "name": "shuffled-labels-at-naive",
+      "result": "pass"
+    }
+  ],
+  "decided_by": "harness (pending agent panel review)",
+  "gate": "G2",
+  "result": "fail"
+}
