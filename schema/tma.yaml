@@ -549,6 +549,13 @@ classes:
         range: float
         required: true
         description: "The source's best-epoch validation loss under the source's config."
+      rescored_val_loss:
+        range: float
+        description: >-
+          The source's best weights re-scored under the continued run's loss, written by tma-train
+          when it resumed (spec 004 FR-002). With best_epoch and best_val_loss it makes the kept
+          weights auditable: a run whose best_epoch is the source's must have best_val_loss equal
+          to this value and weights_digest equal to the source's.
       git_commit:
         range: string
         description: "The source model's training-code commit, when it recorded one."

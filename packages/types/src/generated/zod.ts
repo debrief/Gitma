@@ -21,6 +21,8 @@ export const Continuation = z.strictObject({
   best_epoch: z.number().int(),
   /** The source model's training-code commit, when it recorded one. */
   git_commit: z.string().nullish(),
+  /** The source's best weights re-scored under the continued run's loss, written by tma-train when it resumed (spec 004 FR-002). With best_epoch and best_val_loss it makes the kept weights auditable: a run whose best_epoch is the source's must have best_val_loss equal to this value and weights_digest equal to the source's. */
+  rescored_val_loss: z.number().nullish(),
   /** The source's best-epoch validation loss under the source's config. */
   val_loss: z.number(),
   /** SHA-256 of the weights the continuation resumed from (the source's best epoch). */

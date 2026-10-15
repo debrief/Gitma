@@ -31,12 +31,13 @@ scenarios is at 2.02 kt and 2.31 kt. Classical reaches 0.60 kt, at the
 Range and course pass for both models: 14.6% / 8.22° instantaneous and 15.8% / 8.66° time-late.
 The time-late model's course failure from iteration 2 is gone, and it now passes its G1 ratio
 check cleanly. Its "not worse than instantaneous" check fails at 2 of 19 points without an
-interval; the paired intervals contain the slack, so read it as the G1 caveat persisting (not
-shown better) rather than a new deficit.
+interval; the paired intervals contain the slack. Read it as the G1 caveat persisting: the
+time-late model is slightly worse than the instantaneous one at 17 of 19 points, not better.
 
-By range band the models are ahead of classical beyond 10 km only at zig + 300 s and only when
-classical's non-converged scenarios count against it; at zig + 600 s classical is better in every
-band.
+By range band the models are ahead of classical beyond 10 km only at zig + 300 s, and on the
+σ = 1° slice only because classical's non-converged scenarios count against it; at zig + 600 s
+classical is better in every band. Target speeds above ownship's 15 kt map to normalised targets
+above 1, where the models' shrinkage is worst; the output scaling was not changed in 2b.
 
 Full record:
 [`review.md`](https://github.com/debrief/Gitma/blob/main/experiments/20261015-i2c-g2/review.md),

@@ -46,7 +46,7 @@ export const RESERVED_TEST_SEEDS = {
   42: { for: "G0" },
   101: { for: "iteration 1" },
   201: { for: "iteration 2 G2 (the iteration-2 dataset's own test split)" },
-  202: { for: "iteration 2b G2", plan: "i2c" },
+  202: { for: "iteration 2b G2", plan: "configs/iter2/c/plan.json" },
 };
 
 class PlanError extends Error {}
@@ -123,6 +123,9 @@ export function loadPlan(path) {
   // An iteration-N plan (N ≥ 2) must use its own dataset: never an earlier gate's seed, and only
   // configs/iterN-* ranges (so train/i2* can never regenerate the iteration-1 data).
   const iter = /(?:^|\/)configs\/iter(\d+)\//.exec(path);
+  // Reserved seeds are refused whatever the plan's path (G2 2b panel, red team round 2).
+  if (Object.hasOwn(RESERVED_SEEDS, d.seed))
+    fail(`dataset.seed ${d.seed} is reserved for ${RESERVED_SEEDS[d.seed]}`);
   const owner = ITERATION_DATASET_SEEDS[d.seed];
   if (owner !== undefined && iter?.[1] !== owner)
     fail(
@@ -130,8 +133,6 @@ export function loadPlan(path) {
     );
   if (iter !== null && Number(iter[1]) >= 2) {
     const n = iter[1];
-    if (Object.hasOwn(RESERVED_SEEDS, d.seed))
-      fail(`dataset.seed ${d.seed} is reserved for ${RESERVED_SEEDS[d.seed]}`);
     for (const k of ["ranges", "heldout_ranges"]) {
       if (!d[k].startsWith(`configs/iter${n}-`))
         fail(`dataset.${k} must be an iteration-${n} ranges file (configs/iter${n}-*.json)`);
@@ -150,8 +151,9 @@ export function loadPlan(path) {
     if (!isObject(f) || typeof f.seed !== "string" || !/^\d+$/.test(f.seed))
       fail("dataset.fresh_test.seed must be a decimal string");
     if (f.seed === d.seed) fail("dataset.fresh_test.seed must differ from dataset.seed");
+    // The exemption is bound to the committed plan's path, not to its id (any plan can claim an id).
     const reserved = RESERVED_TEST_SEEDS[f.seed];
-    if (reserved !== undefined && reserved.plan !== p.id)
+    if (reserved !== undefined && !path.replace(/\\/g, "/").endsWith(reserved.plan ?? "\0"))
       fail(`dataset.fresh_test.seed ${f.seed} is reserved for ${reserved.for}`);
     if (
       typeof f.digest !== "string" ||

@@ -226,6 +226,8 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
           "manifest",
         )
       : null;
+    // The continuation record is carried only when this run resumes that checkpoint (below).
+    let continuedFrom: ModelManifest["continued_from"];
     const ckptSaved = savedModelDir(ckptDir);
     if (
       prior !== null &&
@@ -252,6 +254,7 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       if (bestSaved !== null && bestSaved !== bestDir) renameSync(bestSaved, bestDir);
       epochs = prior.epochs;
       bestEpoch = prior.best_epoch;
+      continuedFrom = prior.continued_from;
       // The value later epochs must beat: persisted (schema 0.8.2) so that a chained job compares
       // against the same number as the job before it, including a re-scored one (below).
       best = prior.best_val_loss ?? epochs.find((e) => e.epoch === bestEpoch)?.val_loss ?? Infinity;
@@ -281,6 +284,9 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
         }
         best = rebased;
         rescored = true;
+        if (prior.continued_from != null) {
+          continuedFrom = { ...prior.continued_from, rescored_val_loss: rebased };
+        }
       }
       // A dirty earlier job taints the whole run; the commit recorded is this (final) job's.
       dirty ||= prior.git_dirty === true;
@@ -318,7 +324,7 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       epochs,
       best_epoch: bestEpoch,
       ...(Number.isFinite(best) ? { best_val_loss: best } : {}),
-      ...(prior?.continued_from == null ? {} : { continued_from: prior.continued_from }),
+      ...(continuedFrom == null ? {} : { continued_from: continuedFrom }),
       ...(stop === undefined ? {} : { stop_reason: stop }),
       complete,
       wall_s: elapsed(),

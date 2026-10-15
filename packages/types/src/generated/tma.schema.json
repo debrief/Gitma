@@ -55,6 +55,13 @@
             "null"
           ]
         },
+        "rescored_val_loss": {
+          "description": "The source's best weights re-scored under the continued run's loss, written by tma-train when it resumed (spec 004 FR-002). With best_epoch and best_val_loss it makes the kept weights auditable: a run whose best_epoch is the source's must have best_val_loss equal to this value and weights_digest equal to the source's.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "val_loss": {
           "description": "The source's best-epoch validation loss under the source's config.",
           "type": "number"
