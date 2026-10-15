@@ -192,6 +192,16 @@ describe("plan validation", () => {
     expect(validate(fresh({ seed: "101", digest: "PLACEHOLDER" })).err).toMatch(
       /reserved for iteration 1/,
     );
+    // The iteration-2 dataset seed is only for configs/iter2/ plans (its test split decided G2).
+    const elsewhere = workspace();
+    mkdirSync(join(elsewhere, "configs/iter3"));
+    cpSync(
+      join(elsewhere, "configs/iter2/a/plan.json"),
+      join(elsewhere, "configs/iter3/plan.json"),
+    );
+    expect(run(["validate", "configs/iter3/plan.json"], { cwd: elsewhere }).err).toMatch(
+      /iteration-2 dataset/,
+    );
     // Seeds whose test split already decided a gate (201: iteration 2, 202: iteration 2b).
     expect(validate(fresh({ seed: "202", digest: "PLACEHOLDER" })).err).toMatch(
       /reserved for iteration 2b/,

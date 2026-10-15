@@ -36,6 +36,8 @@ const FEATURE_SETS = ["raw", "derived"];
 const PLACEHOLDER = /^PLACEHOLDER/;
 /** Dataset seeds of earlier gates (G0 review process rule: one seed per dataset). */
 export const RESERVED_SEEDS = { 42: "G0", 101: "iteration 1", 202: "iteration 2b G2 (fresh test)" };
+/** Dataset seeds owned by one iteration's plans: its test split decided that iteration's gate. */
+export const ITERATION_DATASET_SEEDS = { 201: "2" };
 /**
  * Seeds whose test split has already decided a gate: a fresh test split may use one only in the
  * plan that decided it (so the committed plan of record still validates), never in another.
@@ -121,6 +123,11 @@ export function loadPlan(path) {
   // An iteration-N plan (N ≥ 2) must use its own dataset: never an earlier gate's seed, and only
   // configs/iterN-* ranges (so train/i2* can never regenerate the iteration-1 data).
   const iter = /(?:^|\/)configs\/iter(\d+)\//.exec(path);
+  const owner = ITERATION_DATASET_SEEDS[d.seed];
+  if (owner !== undefined && iter?.[1] !== owner)
+    fail(
+      `dataset.seed ${d.seed} is the iteration-${owner} dataset: only configs/iter${owner}/ plans may use it`,
+    );
   if (iter !== null && Number(iter[1]) >= 2) {
     const n = iter[1];
     if (Object.hasOwn(RESERVED_SEEDS, d.seed))
