@@ -405,10 +405,15 @@ function EarlierAttempts({ runs, informational }) {
   );
 }
 
-export default function ResultsReview({ gate }) {
+/**
+ * The latest experiment of `gate`, or the one named by `experiment` (a page pinned to one attempt,
+ * e.g. iteration 2 after iteration 2b): later attempts are then not shown, earlier ones are.
+ */
+export default function ResultsReview({ gate, experiment }) {
   // Newest first (prebuild sorts experiment ids in reverse).
   const runs = results.filter((r) => r.verdict.gate === gate);
-  const run = runs[0];
+  const index = experiment === undefined ? 0 : runs.findIndex((r) => r.id === experiment);
+  const run = runs[index];
   if (run === undefined) {
     return (
       <div className="alert alert--info">
@@ -420,7 +425,7 @@ export default function ResultsReview({ gate }) {
   const v = run.verdict;
   // Older folders still carrying a harness verdict were never put to the panel (e.g. a training
   // run's own informational folder, superseded by its re-score): not attempts of record.
-  const older = runs.slice(1);
+  const older = runs.slice(index + 1);
   const harness = (r) => /^harness/.test(r.verdict.decided_by);
   const earlier = older.filter((r) => !harness(r));
   const informational = older.filter(harness);

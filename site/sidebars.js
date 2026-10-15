@@ -15,7 +15,11 @@ const sidebars = {
         "algorithms/models",
       ],
     },
-    { type: "category", label: "Results", items: ["results/iteration-1", "results/iteration-2"] },
+    {
+      type: "category",
+      label: "Results",
+      items: ["results/iteration-1", "results/iteration-2", "results/iteration-2b"],
+    },
   ],
 };
 
