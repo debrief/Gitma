@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Results: iteration 2b (G2, second attempt) | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/pr/46/docs/results/iteration-2b"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Results: iteration 2b (G2, second attempt) | TMA via ML"><meta data-rh="true" name="description" content="G2 judged again on a fresh test split after continuing every model with a speed-weighted loss — the 2b models beside the naive and classical baselines and the phase-B weights they started from."><meta data-rh="true" property="og:description" content="G2 judged again on a fresh test split after continuing every model with a speed-weighted loss — the 2b models beside the naive and classical baselines and the phase-B weights they started from."><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/pr/46/docs/results/iteration-2b"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/46/docs/results/iteration-2b" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/46/docs/results/iteration-2b" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Results: iteration 2b (G2, second attempt)","item":"https://debrief.github.io/Gitma/pr/46/docs/results/iteration-2b"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/pr/46/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/pr/46/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/pr/46/assets/css/styles.d219d845.css">
-<script src="/Gitma/pr/46/assets/js/runtime~main.c6d961b7.js" defer="defer"></script>
+<script src="/Gitma/pr/46/assets/js/runtime~main.c18824f6.js" defer="defer"></script>
 <script src="/Gitma/pr/46/assets/js/main.5bb32e6a.js" defer="defer"></script>
 </head>
 <body>
@@ -31,10 +31,11 @@ scenarios is at 2.02 kt and 2.31 kt. Classical reaches 0.60 kt, at the
 <a class="" href="/Gitma/pr/46/docs/glossary">Cramér–Rao bound</a>.</p><p>Range and course pass for both models: 14.6% / 8.22° instantaneous and 15.8% / 8.66° time-late.
 The time-late model&#x27;s course failure from iteration 2 is gone, and it now passes its G1 ratio
 check cleanly. Its &quot;not worse than instantaneous&quot; check fails at 2 of 19 points without an
-interval; the paired intervals contain the slack, so read it as the G1 caveat persisting (not
-shown better) rather than a new deficit.</p><p>By range band the models are ahead of classical beyond 10 km only at zig + 300 s and only when
-classical&#x27;s non-converged scenarios count against it; at zig + 600 s classical is better in every
-band.</p><p>Full record:
+interval; the paired intervals contain the slack. Read it as the G1 caveat persisting: the
+time-late model is slightly worse than the instantaneous one at 17 of 19 points, not better.</p><p>By range band the models are ahead of classical beyond 10 km only at zig + 300 s, and on the
+σ = 1° slice only because classical&#x27;s non-converged scenarios count against it; at zig + 600 s
+classical is better in every band. Target speeds above ownship&#x27;s 15 kt map to normalised targets
+above 1, where the models&#x27; shrinkage is worst; the output scaling was not changed in 2b.</p><p>Full record:
 <a href="https://github.com/debrief/Gitma/blob/main/experiments/20261015-i2c-g2/review.md" target="_blank" rel="noopener noreferrer" class=""><code>review.md</code></a>,
 the validation note
 <a href="https://github.com/debrief/Gitma/blob/main/experiments/20261015-i2c-val/validation.md" target="_blank" rel="noopener noreferrer" class=""><code>validation.md</code></a>.</p></div></div>
