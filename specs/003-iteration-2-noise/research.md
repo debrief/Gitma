@@ -467,5 +467,9 @@ parameter counts. A run of either to early stopping (60–100 epochs) is 9–21 
 with both in hand rather than from this scan alone.
 
 The first CI `scan.md` rendered the naive row as ∞ / n 0: `tma-scan` looked naive up under
-`naive`, not `naive:per_timestep` (every other row was right). Fixed, test added, and `scan.md`
-re-rendered from the committed `metrics.json` and `bootstrap.json`; the other files are CI's.
+`naive`, not `naive:per_timestep` (every other row was right). Fixed, test added. The committed
+`scan.md` is from a local re-run of `tma-scan` on the committed models (Intel Xeon; CI ran on AMD
+EPYC): its `metrics.json` and `bootstrap.json` agree with CI's to within 1 part in 10⁵ on the
+model rows (float noise in inference across CPU families, as for weights) and exactly on naive
+and classical, so every digit in the table is the same as CI's would have been. Only `scan.md`
+was replaced; the other files are CI's.
