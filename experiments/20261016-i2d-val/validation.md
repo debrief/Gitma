@@ -31,7 +31,7 @@ Training:
 | bilstm-time-late (2 × 128) | 537,604 | 74 (67), val 0.326 | 1,338 | 27.5 h, five chained jobs over two runs | patience |
 | cnn-causal-control | 132,932 | 33 (26) | 231 | 2.1 h | patience |
 | mlp-control | 927,168 | 40 (33) | 10 | 0.1 h | patience |
-| lstm-instantaneous-shuffled (2 × 128) | 203,268 | 8 (1) | 904 | 2.0 h | patience |
+| lstm-instantaneous-shuffled (2 × 128) | 203,268 | 8 (1) | 908 | 2.0 h | patience |
 
 Validation losses under the same loss (speed weight 4): 2b LSTM 0.462 at epoch 104, 2c LSTM 0.412
 at epoch 75; 2b BiLSTM 0.515 at epoch 134, 2c BiLSTM 0.326 at epoch 67.
@@ -45,8 +45,9 @@ at epoch 75; 2b BiLSTM 0.515 at epoch 134, 2c BiLSTM 0.326 at epoch 67.
   which is at the Cramér–Rao bound (0.60 kt).
 - For the first time the time-late model is clearly *better* than the instantaneous one on range
   and course (12.2% vs 13.0%, 6.4° vs 7.2°) but worse on speed (1.52 vs 1.42 kt). The
-  `time-late-not-worse` check fails at four late points (960–1140 s), where the backward pass has
-  little context.
+  `time-late-not-worse` check fails at four late points (960–1140 s): the deficit is late, largest
+  at σ = 2°, and worst near the window end where the backward pass has little context (the check
+  carries no interval; the G2 panel's paired intervals contain the slack).
 - Per-epoch cost rose 1.4× (LSTM) and 2.2× (BiLSTM) against 2b; the BiLSTM needed five chained
   jobs over two runs (27.5 runner-hours).
 

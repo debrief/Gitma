@@ -35,7 +35,12 @@ export const SPLITS = ["train", "validation", "test", "heldout"];
 const FEATURE_SETS = ["raw", "derived"];
 const PLACEHOLDER = /^PLACEHOLDER/;
 /** Dataset seeds of earlier gates (G0 review process rule: one seed per dataset). */
-export const RESERVED_SEEDS = { 42: "G0", 101: "iteration 1", 202: "iteration 2b G2 (fresh test)" };
+export const RESERVED_SEEDS = {
+  42: "G0",
+  101: "iteration 1",
+  202: "iteration 2b G2 (fresh test)",
+  203: "iteration 2c G2 (fresh test)",
+};
 /** Dataset seeds owned by one iteration's plans: its test split decided that iteration's gate. */
 export const ITERATION_DATASET_SEEDS = { 201: "2" };
 /**
@@ -47,6 +52,7 @@ export const RESERVED_TEST_SEEDS = {
   101: { for: "iteration 1" },
   201: { for: "iteration 2 G2 (the iteration-2 dataset's own test split)" },
   202: { for: "iteration 2b G2", plan: "configs/iter2/c/plan.json" },
+  203: { for: "iteration 2c G2", plan: "configs/iter2/d/plan.json" },
 };
 
 class PlanError extends Error {}
