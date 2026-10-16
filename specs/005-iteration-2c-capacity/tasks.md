@@ -12,6 +12,6 @@
 ## Run
 
 - [x] T005 Push `train/i2d`; chained jobs and re-pushes until every model completes; commit `experiments/<date>-i2d-val`
-- [ ] T006 G2 on the seed-203 split at a clean commit → `experiments/<date>-i2d-g2` (2b beside as other phase)
+- [x] T006 G2 on the seed-203 split at a clean commit → `experiments/<date>-i2d-g2` (2b beside as other phase)
 - [ ] T007 Agent review panel; `review.md`; `decided_by`
 - [ ] T008 Site: results page, blog post; AGENTS.md; if G2 fails, the no-go write-up
