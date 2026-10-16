@@ -186,7 +186,11 @@ again** (panel round 2, `experiments/20261015-i2c-g2/`): range and course pass f
 speed 1.77 kt for both (classical 0.60 kt). SRD §7 was amended on 2026-10-15 (before 2b's test
 scoring) to allow one more iteration, 2c (spec 005, the last under G2): 2 × 128 stacked recurrent
 layers with `loss_weight_speed` 4, from scratch, judged on fresh seed 203: plan `configs/iter2/d`,
-decision `experiments/20261015-i2d-decision/`.
+decision `experiments/20261015-i2d-decision/`. **G2 failed a third time** (panel round 2,
+`experiments/20261016-i2d-g2/`): range 13.5% / 12.1% and course 7.4° / 6.1° pass, speed 1.47 /
+1.53 kt fails (classical 0.61 kt). **The project stops at G2: no-go** on speed, pass on range and
+course (write-up: `site/blog/2026-10-17-iteration-2c.md`). Seeds 201–203 are reserved; no further
+training is planned. Tooling follow-ups are recorded in that experiment's `review.md`.
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution
 1.2.0). For each gate experiment:
