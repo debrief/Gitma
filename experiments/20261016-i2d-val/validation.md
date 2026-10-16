@@ -25,13 +25,15 @@ Classical on the same rows: 8.2% / 3.38° / 0.60 kt [0.56, 0.64]. Controls beate
 
 Training:
 
-| Model | Params | Epochs (best) | s / epoch | Wall | Stop |
+| Model | Params | Epochs (best) | s / epoch † | Wall | Stop |
 | --- | --- | --- | --- | --- | --- |
 | lstm-instantaneous (2 × 128) | 203,268 | 82 (75), val 0.412 | 554 | 12.6 h | patience |
 | bilstm-time-late (2 × 128) | 537,604 | 74 (67), val 0.326 | 1,338 | 27.5 h, five chained jobs over two runs | patience |
 | cnn-causal-control | 132,932 | 33 (26) | 231 | 2.1 h | patience |
 | mlp-control | 927,168 | 40 (33) | 10 | 0.1 h | patience |
-| lstm-instantaneous-shuffled (2 × 128) | 203,268 | 8 (1) | 908 | 2.0 h | patience |
+| lstm-instantaneous-shuffled (2 × 128) | 203,268 | 8 (1) | 904 | 2.0 h | patience |
+
+† mean increment after epoch 0, (last − first) / (n − 1), as `tma-scan` reports it.
 
 Validation losses under the same loss (speed weight 4): 2b LSTM 0.462 at epoch 104, 2c LSTM 0.412
 at epoch 75; 2b BiLSTM 0.515 at epoch 134, 2c BiLSTM 0.326 at epoch 67.
