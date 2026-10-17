@@ -49,6 +49,7 @@ The generator must produce scenarios fast enough that data volume is never the b
 | Window length | 10–40 min, sampled per scenario; 1 bearing / 10 s (60–240 samples) | Variable length from the outset; inputs padded to 240 and masked |
 | Ownship speed | 5–15 kt | Constant within a leg |
 | Ownship zig | Course change 30–90°, at 40–60% of window | Turn modelled as instantaneous in iteration 1, then rate-limited |
+| Ownship zig, from iteration 3 | First zig at 40–60% of window, then a second zig 3–5 min after leg 2 starts; each turn crosses the line of sight, putting the target 30–90° on the other bow (shorter turn; median 143°) | Generator 0.3.0, Annex A lever B.2.1, spec 007; same turn rate (0.5–3°/s) for both turns; gate times still count from the end of the first turn |
 | Target initial range | 2–20 km | Log-uniform so short ranges aren't under-represented |
 | Target initial bearing | Uniform 0–360° | Relative to ownship at window start |
 | Target speed | 3–20 kt | Constant |
@@ -239,6 +240,7 @@ Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; 
 
 - Decision 21: the effort budget is lifted; failing G2 no longer ends the project. Further work follows Annex A: the engagement and model viewer first (Part A), then pre-registered levers (Part B).
 - Viewer: inference in the browser on the committed weights (D1); bearing-window trimming deferred (D2); every gate's carried pair offered by default (D3).
+- Decision 22 (Annex A D4): the realism check is recorded (Annex A §A.7), and the first Part B lever is observability in the data. Iteration 3 (spec 007) adds a second zig, with both turns across the line of sight, keeps the first zig's timing, and is judged on fresh seed 204.
 
 ## 9. Development practice and public site
 

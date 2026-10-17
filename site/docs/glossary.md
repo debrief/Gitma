@@ -5,6 +5,11 @@ title: Glossary
 TMA and ML terms as used in this project, alphabetical. Algorithm details are linked where they
 exist.
 
+**Across the line of sight** — A zig that puts the target on ownship's other bow. It reverses
+ownship's velocity component across the line of sight, the change bearings respond to most. It
+is iteration 3's rule for both turns (`zig_rule: across_los`; see
+[generator](algorithms/generator.md)).
+
 **Bearing** — True direction from ownship to the target, clockwise from north, in radians in
 [0, 2π). The only measurement the estimators receive about the target.
 
@@ -61,8 +66,8 @@ inconclusive; the agent review panel decides it under a pre-registered rule.
 **Instantaneous variant** — The model that gives the operator's running solution: at each time,
 range, course and speed from bearings so far. Scored as a curve of error against time since the zig.
 
-**Leg** — A period of constant ownship course and speed. Every scenario has two legs (joined by a
-rate-limited turn from iteration 2).
+**Leg** — A period of constant ownship course and speed. Scenarios have two legs (joined by a
+rate-limited turn from iteration 2), or three from iteration 3 (a second zig).
 
 **Naive baseline** — Predicts training-set means and ignores the bearings. Anything that cannot
 beat it has learned nothing. See [naive baseline](algorithms/naive-baseline.md).
@@ -104,4 +109,5 @@ must score at least as well.
 240 rows.
 
 **Zig** — Ownship's course change part-way through the window (30–90° at 40–60% of the window;
-instantaneous in iterations 0–1, a rate-limited turn from iteration 2).
+instantaneous in iterations 0–1, a rate-limited turn from iteration 2). Iteration 3 adds a second
+zig 3–5 minutes into leg 2, and both turns are across the line of sight.

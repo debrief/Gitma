@@ -237,6 +237,8 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
     return out;
   };
   const markers: Marker[] = [{ t: zigT, label: "zig" }];
+  const zig2 = s.metadata.zig2_index;
+  if (zig2 != null) markers.push({ t: zig2 * dt, label: "zig 2" });
   if (v.mode !== "truth") {
     for (const [m, label] of [
       [300, "zig+5"],
@@ -245,8 +247,9 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
       if (zigT + m <= windowS) markers.push({ t: zigT + m, label });
     }
   }
-  const turnShade: [number, number] | null =
-    view.legs.turn[1] > view.legs.turn[0] ? [view.legs.turn[0] * dt, view.legs.turn[1] * dt] : null;
+  const turnShade: [number, number][] = [view.legs.turn, view.legs.turn2]
+    .filter((t): t is [number, number] => t !== undefined && t[1] > t[0])
+    .map(([a, b]) => [a * dt, b * dt]);
   const common = {
     t: ser.t,
     cursorT: tCur,

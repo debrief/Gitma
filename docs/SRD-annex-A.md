@@ -173,8 +173,30 @@ training-progress demo (§9, PR preview apps) remains a separate item.
 
 ## A.7 Record of the realism check
 
-To be filled in when A.5 has been done: date, datasets and indices looked at, findings, and the
-decision whether Part B starts on the current generator or after generator changes.
+**2026-10-17, the owner, in the viewer's PR preview (PR #51).** The owner looked at engagements
+in the viewer; the record does not list the indices viewed.
+
+**Findings.**
+
+- **Platform motion looks right.** Tracks, turns and bearings are realistic.
+- **The zig comes too late.** With both platforms on steady legs there is not enough information
+  for TMA, unless there is other context such as a predicted initial detection range or a speed
+  estimate from acoustic cues.
+- **Operational practice.** An operator with no steady solution zigs again, and turning towards
+  the contact traditionally gives a better solution.
+
+**What the gate data says.** Spec 007 research R1 tested these ideas against the seed-203 test
+predictions.
+
+- **Shorter first legs are worse at a fixed time after the zig.** The gates and the training loss
+  already exclude the pre-zig period.
+- **Turning towards the contact helps only when the turn crosses the line of sight.**
+- **Larger turns help every estimator.**
+
+**Decision (decision 22, D4).** Part B starts after a generator change: lever B.2.1. There is a
+second zig, both turns cross the line of sight, and the first zig keeps its timing. This is
+iteration 3, spec 007, judged on fresh seed 204. The new engagements are shown in the viewer
+before training.
 
 ## B. Phase 2: a further attempt at G2
 
@@ -261,4 +283,5 @@ Each is a separate, pre-registered experiment (B.3). None is chosen until A.7 is
 - **D3** Which model folders ship by default (the 2c pair, or every gate's carried pair).
   _Decided 2026-10-17: every gate's carried pair (iterations 1, 2, 2b and 2c), so one engagement
   can be stepped through the project's history; controls remain selectable by path._
-- **D4** After A.7: the first lever of B.2.
+- **D4** After A.7: the first lever of B.2. _Decided 2026-10-17: B.2.1, a second zig with both
+  turns across the line of sight (spec 007)._

@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { GENERATOR_VERSION } from "@tma/sim";
 import { describe, expect, it } from "vitest";
@@ -136,18 +136,17 @@ describe("G0 guard (constitution V)", () => {
     ).not.toBeNull();
   });
 
-  it("the committed iteration-2 G0 re-run is the latest, and needs its panel review", () => {
-    // Round-1 fixes (24bbdab) touched packages/data/src, so G0 was re-run there (T019-T020).
+  it("generator 0.3.0 does not accept the iteration-2 G0 (0.2.0): G0 must be re-run (spec 007)", () => {
+    // The latest committed G0 (20261013-g0-i2-r2) verified generator 0.2.0. Generator 0.3.0 adds
+    // the second zig and the across-LOS rule, so training refuses until a G0 on 0.3.0 passes its
+    // panel; this test moves to that experiment when it is committed.
     const dir = new URL("../../../experiments", import.meta.url).pathname;
-    const want = { id: "20261013-g0-i2-r2", commit: "24bbdab5d79f3c872f88ac6494c2d73068016225" };
-    expect(g0Accepted(dir, { requireReview: false })).toEqual(want);
-    const verdict = JSON.parse(readFileSync(join(dir, want.id, "verdict.json"), "utf8")) as {
-      decided_by: string;
-    };
-    const reviewed =
-      existsSync(join(dir, want.id, "review.md")) &&
-      /^agent review panel, rounds? \d+(-\d+)? \(no rejections/.test(verdict.decided_by);
-    expect(g0Accepted(dir)).toEqual(reviewed ? want : null);
+    const latest = JSON.parse(
+      readFileSync(join(dir, "20261013-g0-i2-r2", "manifest.json"), "utf8"),
+    ) as { generator_version: string };
+    expect(latest.generator_version).toBe("0.2.0");
+    expect(g0Accepted(dir, { requireReview: false })).toBeNull();
+    expect(g0Accepted(dir)).toBeNull();
   });
 
   it("returns the accepted experiment's id and commit", () => {

@@ -196,9 +196,13 @@ decision `experiments/20261015-i2d-decision/`. **G2 failed a third time** (panel
 1.53 kt fails (classical 0.61 kt), no-go on speed and pass on range and course (write-up:
 `site/blog/2026-10-17-iteration-2c.md`). Seeds 201–203 are reserved. **SRD Annex A** (accepted
 2026-10-17) lifts the effort budget. The engagement and model viewer (spec 006, `packages/demos`,
-site page `/viewer`) is built; next is the owner's realism check (T010), then pre-registered
-levers (Annex A Part B),
-each with a decision record committed before training and a fresh test seed (204 onward).
+site page `/viewer`) is built, and the owner's realism check is recorded (Annex A §A.7). Part B
+levers are pre-registered one at a time, each with a decision record committed before training
+and a fresh test seed (204 onward). **Iteration 3** (spec 007, decision 22) is lever B.2.1:
+generator 0.3.0 adds a second zig 3–5 min into leg 2, and both turns cross the line of sight
+(`zig_rule: across_los`). Its dataset is seed 204, and G0 must be re-run on 0.3.0 before
+training. The classical forecast is 0.36 kt at zig + 600 s, and the model forecast is 1.1–1.3 kt
+(spec 007 research R2).
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution
 1.2.0). For each gate experiment:

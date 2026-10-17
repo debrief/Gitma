@@ -6,6 +6,7 @@ import { generateScenario } from "../src/scenario.js";
 
 const GOLDEN = new URL("./golden/seed1-3.ndjson", import.meta.url);
 const GOLDEN_TURN = new URL("./golden/seed1-3-turn.ndjson", import.meta.url);
+const GOLDEN_ZIG2 = new URL("./golden/seed1-3-zig2-across.ndjson", import.meta.url);
 
 describe("golden: sim", () => {
   it("seed 1, scenarios 0–2 are byte-identical to the committed golden file", () => {
@@ -30,5 +31,22 @@ describe("golden: sim", () => {
     if (process.env.UPDATE_GOLDEN === "1") writeFileSync(GOLDEN_TURN, text);
     expect(existsSync(GOLDEN_TURN), "golden file missing: run with UPDATE_GOLDEN=1").toBe(true);
     expect(text === readFileSync(GOLDEN_TURN, "utf8")).toBe(true);
+  });
+
+  it("generator 0.3.0, two zigs across the line of sight: seed 1, scenarios 0–2 are byte-identical", () => {
+    const ranges = {
+      ...DEFAULT_RANGES,
+      ownship_turn_rate_rad_s: { min: degToRad(0.5), max: degToRad(3) },
+      zig_rule: "across_los" as const,
+      los_offset_rad: { min: degToRad(30), max: degToRad(90) },
+      zig2_delay_s: { min: 180, max: 300 },
+    };
+    const text = [0, 1, 2]
+      .map((i) => JSON.stringify(generateScenario(1n, i, ranges).scenario))
+      .join("\n")
+      .concat("\n");
+    if (process.env.UPDATE_GOLDEN === "1") writeFileSync(GOLDEN_ZIG2, text);
+    expect(existsSync(GOLDEN_ZIG2), "golden file missing: run with UPDATE_GOLDEN=1").toBe(true);
+    expect(text === readFileSync(GOLDEN_ZIG2, "utf8")).toBe(true);
   });
 });

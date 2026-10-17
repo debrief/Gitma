@@ -21,9 +21,17 @@ For each attempt: sample count `S` (uniform integer, window/dt), ownship speed, 
 |zig angle|, zig sign (±), zig fraction `f`, initial range `r₀` (log-uniform by default), initial
 bearing `β₀`, target speed `v_t`, target course `θ_t`, noise σ (uniform choice from a set), dropout
 fraction `d`, then — only when the ranges give `ownship_turn_rate_rad_s` — the turn rate `ω`
-(uniform; iteration 2 uses 0.5–3°/s). All parameters are float32-rounded before use, so the
-metadata describes the data exactly. Ranges without a turn rate consume the random stream exactly
-as generator 0.1.0 did, so they reproduce iteration-1 datasets byte for byte.
+(uniform; iteration 2 uses 0.5–3°/s). Generator 0.3.0 (iteration 3) then draws, only when the
+ranges ask for them:
+
+- **Across-the-line-of-sight offset.** The first turn's offset, from `los_offset_rad`, under
+  `zig_rule: across_los`.
+- **Second zig.** Its delay, from `zig2_delay_s`, then its offset (or, under the random rule, its
+  size and side).
+
+All parameters are float32-rounded before use, so the metadata describes the data exactly. Ranges
+without a turn rate consume the random stream exactly as generator 0.1.0 did, and ranges without
+the 0.3.0 options exactly as 0.2.0 did. Both reproduce earlier datasets byte for byte.
 
 ## Motion
 
@@ -59,6 +67,35 @@ first sample with `τ ≥ T`, i.e. the first sample on leg 2. Everything downstr
 `zig_index` (loss masking, "zig + 300 s" gate points, curves) therefore measures time on the new
 leg, as in iteration 1. A turn that would not finish inside the window is redrawn (it cannot happen
 with the iteration-2 ranges: at most 180 s of turn against at least 240 s after the turn starts).
+
+### Across the line of sight (iteration 3)
+
+Under `zig_rule: across_los` each turn is chosen from the geometry at its start, not drawn. Take
+ownship at `p` on course `c` and the true bearing `b` to the target at the last sample before the
+turn. The relative bearing is `ρ = b − c`, wrapped to (−180°, 180°].
+
+- **New course.** The turn puts the target on the other bow at the drawn offset `φ` (30–90° in
+  iteration 3): the new course is `b + sign(ρ) · φ`.
+- **Turn direction.** The turn takes the shorter way, so `zig = wrap(b + sign(ρ) φ − c)` and
+  `|zig| ≤ 180°`.
+
+A target ahead is crossed by turning towards it; a target on the quarter by turning away, across
+the stern line of sight. Both reverse ownship's velocity component across the line of sight,
+which is what makes the bearings informative (spec 007 research R4). The realised turn is stored
+as `zig_angle_rad`, so the tracks depend only on the parameters.
+
+Worked check: heading north with the target 40° on the starboard bow and `φ` = 60°, the turn is
+100° to starboard. With the target on the starboard quarter (150°) it is 150° to port.
+
+### Second zig (iteration 3)
+
+With `zig2_delay_s` the second turn starts at sample `k₂ = zig_index + round(delay / dt)`, still
+on the leg-2 course. It follows the first turn's conventions:
+
+- **Turn.** It is instantaneous at `k₂`, or an arc at the same turn rate.
+- **Indices.** `turn2_start_index = k₂ + 1`, and `zig2_index` is the first sample on leg 3.
+- **Redraws.** A second turn that does not finish inside the window is redrawn. Gate times still
+  count from `zig_index`, the end of the first turn.
 
 Target: `q(t) = r₀ (sin β₀, cos β₀) + v_t t (sin θ_t, cos θ_t)`.
 

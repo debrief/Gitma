@@ -65,17 +65,34 @@ export function seriesOf(s: Scenario): Series {
   return out;
 }
 
-/** Ownship's legs as sample index ranges: leg 1, the turn (empty for an instantaneous zig), leg 2. */
+/**
+ * Ownship's legs as sample index ranges: leg 1, the turn (empty for an instantaneous zig), leg 2,
+ * and with a second zig (generator 0.3.0) the second turn and leg 3; leg 2 then ends where the
+ * second turn starts. The second-zig keys are absent with one zig.
+ */
 export interface Legs {
   leg1: [number, number];
   turn: [number, number];
   leg2: [number, number];
+  turn2?: [number, number];
+  leg3?: [number, number];
 }
 
 export function legsOf(s: Scenario): Legs {
   const m = s.metadata;
   const turnStart = m.turn_start_index ?? m.zig_index;
-  return { leg1: [0, turnStart], turn: [turnStart, m.zig_index], leg2: [m.zig_index, m.samples] };
+  const z2 = m.zig2_index;
+  if (z2 == null) {
+    return { leg1: [0, turnStart], turn: [turnStart, m.zig_index], leg2: [m.zig_index, m.samples] };
+  }
+  const t2 = m.turn2_start_index ?? z2;
+  return {
+    leg1: [0, turnStart],
+    turn: [turnStart, m.zig_index],
+    leg2: [m.zig_index, t2],
+    turn2: [t2, z2],
+    leg3: [z2, m.samples],
+  };
 }
 
 /** Sample index nearest a time, within the window. */

@@ -27,7 +27,8 @@ export interface TimePlotProps {
   cursorT: number;
   windowS: number;
   markers?: readonly Marker[];
-  shade?: readonly [number, number] | null;
+  /** Shaded spans (ownship turns), seconds. */
+  shade?: readonly (readonly [number, number])[];
   /** Grey band from 0 to this time, labelled unobservable (estimates before the zig). */
   unobservableUntil?: number | null;
   /** Fixed y range (angles); otherwise from the data. */
@@ -172,16 +173,17 @@ export function TimePlot(props: TimePlotProps): JSX.Element {
           </text>
         </g>
       )}
-      {props.shade != null && (
+      {(props.shade ?? []).map(([a, b]) => (
         <rect
-          x={x(props.shade[0])}
+          key={`shade${String(a)}`}
+          x={x(a)}
           y={T}
-          width={Math.max(0, x(props.shade[1]) - x(props.shade[0]))}
+          width={Math.max(0, x(b) - x(a))}
           height={H - T - B}
           fill={C.turn}
           opacity={0.12}
         />
-      )}
+      ))}
       {ticks.map((v) => (
         <g key={`y${v}`}>
           <line x1={L} x2={W - R} y1={y(v)} y2={y(v)} stroke={C.grid} />
