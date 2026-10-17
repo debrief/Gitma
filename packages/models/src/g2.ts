@@ -133,6 +133,17 @@ function samePath(a: string, b: string): boolean {
   }
 }
 
+/** `dataset_seed` from the header of `<data>/test.f32pack`; undefined when absent or unreadable. */
+function dataTestSeed(data: string): string | undefined {
+  const path = join(data, "test.f32pack");
+  if (!existsSync(path)) return undefined;
+  try {
+    return readDataset(path).header.dataset_seed;
+  } catch {
+    return undefined;
+  }
+}
+
 /** The plan's test seed (its fresh test split's, else its dataset's); undefined if unreadable. */
 function testSeedOf(plan: string | undefined): string | undefined {
   if (plan === undefined || !existsSync(plan)) return undefined;
@@ -285,10 +296,16 @@ export function requireDecision(opts: G2RunOptions): ChangeDecision | undefined 
   // names its plan, so an earlier iteration's decision cannot unlock a later iteration's test.
   // Bound by the plan's path or by its content (a test seed of 204 or later), however spelled.
   const planSeed = testSeedOf(opts.plan);
+  // The test data's own header names its seed, so a forged plan copy cannot unbind it (G0 red
+  // team round 3).
+  const dataSeed = dataTestSeed(opts.data);
+  const isBoundSeed = (seed: string | undefined): boolean =>
+    seed !== undefined && /^\d+$/.test(seed) && Number(seed) >= FIRST_BOUND_SEED;
   const iteration = /(?:^|\/)configs\/+(?:\.\/)*iter(\d+)\//.exec(normPath(opts.plan ?? ""));
   const bound =
     (iteration !== null && Number(iteration[1]) >= 3) ||
-    (planSeed !== undefined && /^\d+$/.test(planSeed) && Number(planSeed) >= FIRST_BOUND_SEED);
+    isBoundSeed(planSeed) ||
+    isBoundSeed(dataSeed);
   if (opts.decision === undefined) {
     if (bound) {
       throw new RecordError(
@@ -324,6 +341,13 @@ export function requireDecision(opts: G2RunOptions): ChangeDecision | undefined 
       opts.decision,
       "test_seed",
       "a decision bound to a plan must name its test seed",
+    );
+  }
+  if (d.test_seed != null && dataSeed !== undefined && dataSeed !== d.test_seed) {
+    throw new RecordError(
+      opts.decision,
+      "test_seed",
+      `the decision commits to test seed ${d.test_seed}, but the test data are seed ${dataSeed}`,
     );
   }
   if (d.test_seed != null && opts.plan !== undefined) {

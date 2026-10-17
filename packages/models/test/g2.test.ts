@@ -381,4 +381,32 @@ describe("decisions bind to their plan from iteration 3 (spec 007, G0 red team)"
     expect(respelled).not.toBe(p);
     expect(requireDecision(opts({ plan: respelled, decision: d }))?.plan).toBe(p);
   });
+
+  it("binds by the test data's own seed, so a forged plan copy cannot unbind it (red team round 3)", () => {
+    const dir = tempDir();
+    const data = join(dir, "data");
+    generateDataset({
+      seed: 204n,
+      count: 20,
+      outDir: data,
+      ranges: DEFAULT_RANGES,
+      heldoutRanges: DEFAULT_RANGES,
+      format: "f32pack",
+      createdBy: "test",
+      provenance: { generator_git_commit: "0".repeat(40), generator_git_dirty: false },
+    });
+    mkdirSync(join(dir, "elsewhere"));
+    const forged = join(dir, "elsewhere", "plan.json");
+    writeFileSync(forged, JSON.stringify({ dataset: { seed: "100" } }));
+    const old = join(dir, "old.json");
+    writeFileSync(old, JSON.stringify(DECISION));
+    expect(() => requireDecision(opts({ data, plan: forged, decision: old }))).toThrow(
+      /pre-registers no plan/,
+    );
+    const d = join(dir, "decision.json");
+    writeFileSync(d, JSON.stringify({ ...DECISION, plan: forged, test_seed: "205" }));
+    expect(() => requireDecision(opts({ data, plan: forged, decision: d }))).toThrow(
+      /test data are seed 204/,
+    );
+  });
 });

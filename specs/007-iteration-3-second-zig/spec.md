@@ -104,8 +104,8 @@ seed-204 test split, with the 2c models beside it as the other phase. Then the a
      LSTM, has a 95% interval wholly below 1. 2c degrades on the new problem, so this shows only
      that training on it helped, never that the lever worked.
   4. **Reported measure of what the models gained.** The paired median speed ratio, iteration-3
-     LSTM over classical on the same rows, with its interval. It is set beside 2c's 2.37 (1.42 /
-     0.60 kt) on its own validation.
+     LSTM over classical on the same rows, with its interval. 2c's 2.37 (1.42 / 0.60 kt) on its
+     own validation is context only: unpaired, and on another problem.
 
   The time-late model is reported the same way, not as a condition. The carried pair goes to the
   test split only if conditions 2 and 3 both hold. Otherwise the iteration stops at validation and
