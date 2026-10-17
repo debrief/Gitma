@@ -115,7 +115,7 @@ The time-late variant has strictly more information at every timestep, so it mus
 **TensorFlow.js constraints**
 
 - `@tensorflow/tfjs-node` for training; `tfjs-node-gpu` optional, not assumed.
-- Expect throughput roughly an order of magnitude below PyTorch; iteration-1 datasets are about 10^5 scenarios. Each model trains for at most 6 hours wall-clock on a 4-core CPU (amended 2026-10-11 from "under an hour": measured throughput of ≈ 110–200 windows/s allows only ≈ 4 BiLSTM epochs in an hour; see spec 002 research R1). Training stops earlier on early stopping.
+- Expect throughput roughly an order of magnitude below PyTorch; iteration-1 datasets are about 10^5 scenarios. ~~Each model trains for at most 6 hours wall-clock on a 4-core CPU~~ (amended 2026-10-11 from "under an hour", see spec 002 research R1; replaced 2026-10-17 by Annex A §B.4): training runs as chained jobs on CI with checkpoints after every epoch (AGENTS.md); there is no cap beyond the runners' limits, and every job's duration is recorded. Training stops on early stopping or `max_epochs`.
 - Only layers with direct Keras equivalents (LSTM, Bidirectional, Conv1D, Dense, Masking), so a port to Keras or PyTorch is mechanical.
 - Models saved in the `tfjs` layers format plus a JSON manifest (hyperparameters, dataset seed, normalisation constants, generator version); every run is reproducible from manifest plus dataset.
 
@@ -178,7 +178,7 @@ packages/
   models/     tfjs model definitions + training CLI + manifests
   classical/  naive baseline, least-squares bearings-only solver
   eval/       metrics, slicing, gate checks, report generation
-  demos/      browser apps for PR previews (tfjs in-browser)
+  demos/      browser apps (tfjs in-browser): the engagement and model viewer (Annex A, spec 006)
 experiments/  one folder per run: manifest, metrics, plots
 site/         GH Pages content: welcome, blog, glossary, data dictionary, algorithms
 .github/      CI, schema generation, PR preview + GH Pages deploy workflows
@@ -199,7 +199,7 @@ Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; 
 | --- | --- | --- | --- |
 | 0 — Pipeline | Generator, store, classical solver, naive baseline, eval harness, golden tests | G0 | Fix; do not start training on an unverified generator |
 | 1 — Signal | Both variants on 10^5 clean scenarios (σ = 0.5°, no dropouts) | G1 | Stop and report |
-| 2 — Noise | Same models on σ = 1–2°, 10% dropouts; one round of feature/architecture changes | G2 | One more iteration allowed, then stop (amended 2026-10-15, after iteration 2b's validation result and before its test scoring: a second extra iteration, 2c, is allowed, combining the two levers each shown to move speed on validation, a speed-weighted loss (2b) and model capacity (spec 003 research R20), judged on a fresh test split; then stop. The hyperparameter cap stands: 2c is one configuration, chosen from those two measured levers, not a search) |
+| 2 — Noise | Same models on σ = 1–2°, 10% dropouts; one round of feature/architecture changes | G2 | One more iteration allowed, then stop (amended 2026-10-15, after iteration 2b's validation result and before its test scoring: a second extra iteration, 2c, is allowed, combining the two levers each shown to move speed on validation, a speed-weighted loss (2b) and model capacity (spec 003 research R20), judged on a fresh test split; then stop. The hyperparameter cap stands: 2c is one configuration, chosen from those two measured levers, not a search. Amended 2026-10-17 by Annex A: the stop was an effort-budget rule and is lifted; after 2c, Annex A Part B: further iterations at the owner's discretion, one pre-registered lever each, judged on fresh seeds) |
 | 3 — Parity | 10^6 scenarios, held-out geometry set, classical comparison by slice | G3 | Not a stop; result feeds the next-phase decision |
 
 **Each iteration produces**
@@ -208,7 +208,7 @@ Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; 
 - A blog post on the project site with the sliced metrics, an interactive results review, and the gate decision taken (section 9).
 - No model is reported without its naive and classical numbers on the same test set beside it.
 
-**Working pattern.** Infrastructure is front-loaded into iteration 0 so later iterations are mostly configuration changes. Hyperparameter search is capped at a handful of runs per iteration; the question is whether the signal is there, not how good the best possible model is.
+**Working pattern.** Infrastructure is front-loaded into iteration 0 so later iterations are mostly configuration changes. ~~Hyperparameter search is capped at a handful of runs per iteration~~ (replaced 2026-10-17 by Annex A §B.3): any number of configurations may be trained, but what is scored on a test split is declared, with its forecast, in a decision record committed before it is trained; the question is still whether the signal is there, not how good the best possible model is.
 
 ## 8. Risks, assumptions and decisions
 
@@ -234,6 +234,11 @@ Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; 
 - The instantaneous model is scored at every timestep after the zig and reported as an error-vs-time curve; gates use the 5-minute point (G2 speed: the 10-minute point, amended 2026-10-11).
 - Batch least-squares is the only classical reference up to G3; an EKF is added only if G3 is reached.
 - Gate verdicts are taken by an agent review panel (amended 2026-10-11; replaces the team review): independent AI reviewers with distinct specialities review the evidence, their findings are fixed or answered, and they are re-invited until all approve. No human sign-off is required.
+
+**Decisions taken** (17 Oct 2026, Annex A)
+
+- Decision 21: the effort budget is lifted; failing G2 no longer ends the project. Further work follows Annex A: the engagement and model viewer first (Part A), then pre-registered levers (Part B).
+- Viewer: inference in the browser on the committed weights (D1); bearing-window trimming deferred (D2); every gate's carried pair offered by default (D3).
 
 ## 9. Development practice and public site
 
@@ -279,5 +284,5 @@ The repository is public on GitHub from day one; nothing above OFFICIAL enters i
 
 - [Annex A: Engagement viewer and phase 2](SRD-annex-A.md) (2026-10-17): the effort budget is
   lifted; an interactive engagement and model viewer is built and verified first, then further
-  pre-registered attempts at G2 at the owner's discretion. Its B.4 lists the amendments to apply
-  to this body once the annex is accepted.
+  pre-registered attempts at G2 at the owner's discretion. Accepted 2026-10-17; its §B.4
+  amendments are applied above (§4, §6, §7, §8).

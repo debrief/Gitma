@@ -41,6 +41,7 @@ packages/
   classical/           naive baseline, least-squares solver; CLIs tma-naive, tma-solve
   eval/                metrics, slices, curves, gates, bootstrap; CLIs tma-eval, tma-gate (g0, g1), tma-g0
   models/              tfjs-node models, training, predictions; CLIs tma-train, tma-model-predict, tma-g1
+  demos/               browser engagement and model viewer (spec 006); site page /viewer
 configs/               generator ranges (iter1-*.json) and training configs (iter1/<model>.json)
 experiments/<id>/      committed run outputs: manifest, metrics, curves, verdict, seeds
 site/                  Docusaurus site (docs, blog); data dictionary generated at build
@@ -188,9 +189,11 @@ scoring) to allow one more iteration, 2c (spec 005, the last under G2): 2 × 128
 layers with `loss_weight_speed` 4, from scratch, judged on fresh seed 203: plan `configs/iter2/d`,
 decision `experiments/20261015-i2d-decision/`. **G2 failed a third time** (panel round 2,
 `experiments/20261016-i2d-g2/`): range 13.5% / 12.1% and course 7.4° / 6.1° pass, speed 1.47 /
-1.53 kt fails (classical 0.61 kt). **The project stops at G2: no-go** on speed, pass on range and
-course (write-up: `site/blog/2026-10-17-iteration-2c.md`). Seeds 201–203 are reserved; no further
-training is planned. Tooling follow-ups are recorded in that experiment's `review.md`.
+1.53 kt fails (classical 0.61 kt), no-go on speed and pass on range and course (write-up:
+`site/blog/2026-10-17-iteration-2c.md`). Seeds 201–203 are reserved. **SRD Annex A** (accepted
+2026-10-17) lifts the effort budget: next is the engagement and model viewer (spec 006,
+`packages/demos`), then the owner's realism check, then pre-registered levers (Annex A Part B),
+each with a decision record committed before training and a fresh test seed (204 onward).
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution
 1.2.0). For each gate experiment:
