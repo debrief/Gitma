@@ -5,8 +5,8 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Scenario generator | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/pr/52/docs/algorithms/generator"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Scenario generator | TMA via ML"><meta data-rh="true" name="description" content="Source SRD §2–3, spec 001"><meta data-rh="true" property="og:description" content="Source SRD §2–3, spec 001"><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/pr/52/docs/algorithms/generator"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/52/docs/algorithms/generator" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/52/docs/algorithms/generator" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Scenario generator","item":"https://debrief.github.io/Gitma/pr/52/docs/algorithms/generator"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/pr/52/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/pr/52/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/pr/52/assets/css/styles.d219d845.css">
-<script src="/Gitma/pr/52/assets/js/runtime~main.eea987b2.js" defer="defer"></script>
-<script src="/Gitma/pr/52/assets/js/main.f9dd27a1.js" defer="defer"></script>
+<script src="/Gitma/pr/52/assets/js/runtime~main.043c554c.js" defer="defer"></script>
+<script src="/Gitma/pr/52/assets/js/main.3c5b3322.js" defer="defer"></script>
 </head>
 <body>
 <svg style="display: none;"><defs>
@@ -72,15 +72,27 @@ with the iteration-2 ranges: at most 180 s of turn against at least 240 s after 
 ownship at <code>p</code> on course <code>c</code> and the true bearing <code>b</code> to the target at the last sample before the
 turn. The relative bearing is <code>ρ = b − c</code>, wrapped to (−180°, 180°].</p>
 <ul>
-<li class=""><strong>New course.</strong> The turn puts the target on the other bow at the drawn offset <code>φ</code> (30–90° in
-iteration 3): the new course is <code>b + sign(ρ) · φ</code>.</li>
-<li class=""><strong>Turn direction.</strong> The turn takes the shorter way, so <code>zig = wrap(b + sign(ρ) φ − c)</code> and
-<code>|zig| ≤ 180°</code>.</li>
+<li class="">
+<p><strong>New course.</strong> The turn puts the target on the other bow at the drawn offset <code>φ</code> (30–90° in
+iteration 3): the new course is <code>b + sign(ρ) · φ</code>.</p>
+</li>
+<li class="">
+<p><strong>Turn direction.</strong> The turn takes the shorter way, so <code>zig = wrap(b + sign(ρ) φ − c)</code> and
+<code>|zig| ≤ 180°</code>.</p>
+</li>
+<li class="">
+<p><strong>Through the bow line of sight.</strong> When <code>|ρ| + φ &lt; 180°</code> the turn is towards the target.</p>
+</li>
+<li class="">
+<p><strong>Through the stern line of sight.</strong> Otherwise the shorter turn is away from the target.</p>
+</li>
 </ul>
-<p>A target ahead is crossed by turning towards it; a target on the quarter by turning away, across
-the stern line of sight. Both reverse ownship&#x27;s velocity component across the line of sight,
-which is what makes the bearings informative (spec 007 research R4). The realised turn is stored
-as <code>zig_angle_rad</code>, so the tracks depend only on the parameters.</p>
+<p>Either way, ownship&#x27;s velocity component across the line of sight reverses, which is what makes
+the bearings informative (spec 007 research R4). The rule holds at the start of the turn. During
+a long turn at short range the bearing keeps drawing, so on the new leg the angle off can fall
+outside the drawn range, and in rare cases the target returns to the original bow. Turns near
+180° can go either way for a tiny change in geometry. The realised turn is stored as
+<code>zig_angle_rad</code>, so the tracks depend only on the parameters.</p>
 <p>Worked check: heading north with the target 40° on the starboard bow and <code>φ</code> = 60°, the turn is
 100° to starboard. With the target on the starboard quarter (150°) it is 150° to port.</p>
 <h3 class="anchor anchorTargetStickyNavbar_FE5u" id="second-zig-iteration-3">Second zig (iteration 3)<a href="#second-zig-iteration-3" class="hash-link" aria-label="Direct link to Second zig (iteration 3)" title="Direct link to Second zig (iteration 3)" translate="no">​</a></h3>
