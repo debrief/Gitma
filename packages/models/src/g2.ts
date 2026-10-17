@@ -23,6 +23,7 @@ import {
   BOOTSTRAP_RESAMPLES,
   BOOTSTRAP_SEED,
   bootstrapEvaluation,
+  bootstrapMedianRatio,
   compareOnCommonRows,
   evaluate,
   type G1Ids,
@@ -30,9 +31,11 @@ import {
   g2Verdict,
   loadPredictionSet,
   makeManifest,
+  pairedErrors,
   type PredictionSet,
   perTimestep,
   prettyJson,
+  sliceKeys,
   writeBootstrap,
   writeComparison,
   writeEvaluation,
@@ -126,6 +129,71 @@ export function gitDecisionPrecedes(path: string, commit: string): boolean {
   } catch {
     return false;
   }
+}
+
+/** Paired comparison of the carried set with the other phase, on the same rows (spec 007 FR-006). */
+export const PAIRED_FILE = "paired.json";
+
+export interface PairedRecord {
+  variant: "instantaneous" | "time_late";
+  model: string;
+  other: string;
+  slice: string;
+  metric: "range_rel" | "course_deg" | "speed_kt";
+  point_s: number;
+  /** median(model) / median(other) with its paired 95% bootstrap interval. */
+  ratio: number;
+  lo: number;
+  hi: number;
+  n: number;
+  resamples: number;
+  seed: string;
+}
+
+/**
+ * For each sequence model, the paired bootstrap of median error, carried / other phase, at the G2
+ * points on σ = 1°: range and course at 300 s, speed at 600 s. Spec 007 FR-006's validation rule
+ * reads the instantaneous speed record; the rest are reported.
+ */
+export function pairedComparison(
+  carried: Scored,
+  carriedIds: G1Ids,
+  other: Scored,
+  otherIds: G1Ids,
+  resamples: number,
+): PairedRecord[] {
+  const slice = "sigma=1deg";
+  const truth = carried.scenarios.filter((s) => sliceKeys(s.metadata).includes(slice));
+  const find = (sc: Scored, id: string): PredictionSet => {
+    const set = sc.sets.find((x) => x.estimator === id);
+    if (set === undefined) throw new Error(`paired comparison: no predictions for ${id}`);
+    return set;
+  };
+  const out: PairedRecord[] = [];
+  for (const variant of ["instantaneous", "time_late"] as const) {
+    const key = variant === "instantaneous" ? "instantaneous" : "timeLate";
+    const a = find(carried, carriedIds[key]);
+    const b = find(other, otherIds[key]);
+    for (const [metric, point] of [
+      ["range_rel", 300],
+      ["course_deg", 300],
+      ["speed_kt", 600],
+    ] as const) {
+      const e = pairedErrors(truth, a, b, point, metric);
+      if (e.a.length === 0) continue;
+      const r = bootstrapMedianRatio(e.a, e.b, resamples);
+      out.push({
+        variant,
+        model: carriedIds[key],
+        other: otherIds[key],
+        slice,
+        metric,
+        point_s: point,
+        ...r,
+      });
+    }
+  }
+  return out;
 }
 
 /**
@@ -431,6 +499,10 @@ export async function runG2(opts: G2RunOptions): Promise<GateVerdict> {
     copyModels(dir, other);
     requireSameRows(o.sets, `${opts.split} (other phase)`);
     for (const n of o.notes) notes.add(n);
+    writeFileSync(
+      join(opts.experiment, PAIRED_FILE),
+      prettyJson(pairedComparison(scored, carried.ids, o, other.ids, resamples)),
+    );
   }
   // FR-019: the held-out geometry split is scored with the gate run only (never for validation).
   if (opts.split === "test") {

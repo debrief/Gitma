@@ -18,6 +18,8 @@ import {
   DIAGNOSTIC_FILE,
   featuresPath,
   type G2RunOptions,
+  PAIRED_FILE,
+  type PairedRecord,
   requireDecision,
   requireSameRows,
   runG2,
@@ -223,6 +225,14 @@ describe("tma-g2 end to end (tiny)", () => {
     expect(diag.decided_by).toMatch(/not gated/);
     expect(readFileSync(join(other, "metrics.csv"), "utf8")).toContain("lstm:per_timestep");
     expect(readFileSync(join(exp, "manifest.json"), "utf8")).toContain("feature_set: derived");
+    // Spec 007 FR-006: carried / other phase, paired on the same rows, per model and metric.
+    const paired = JSON.parse(readFileSync(join(exp, PAIRED_FILE), "utf8")) as PairedRecord[];
+    expect(paired.length).toBeGreaterThan(0);
+    for (const r of paired) {
+      expect(r.slice).toBe("sigma=1deg");
+      expect(r.lo).toBeLessThanOrEqual(r.hi);
+      expect(["instantaneous", "time_late"]).toContain(r.variant);
+    }
     // The other phase's predictions are tagged, so they never overwrite the carried set's
     // (phases A and B share model ids; G2 panel round 1).
     const preds = readdirSync(join(data, "predictions")).filter((f) => f.startsWith("test."));
