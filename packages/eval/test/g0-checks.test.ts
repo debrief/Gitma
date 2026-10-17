@@ -42,3 +42,30 @@ describe("G0 independent geometry: in-turn case", () => {
     expect(checkBearingResiduals(scenarios(6n, 50, TURN)).result).toBe("pass");
   });
 });
+
+const ACROSS: ParameterRanges = {
+  ...TURN,
+  zig_rule: "across_los",
+  los_offset_rad: { min: degToRad(30), max: degToRad(90) },
+  zig2_delay_s: { min: 180, max: 300 },
+};
+
+describe("G0 independent geometry: generator 0.3.0 (spec 007)", () => {
+  it("passes on across-LOS two-zig scenarios and counts both turns", () => {
+    const c = checkIndependentGeometry(scenarios(8n, 100, ACROSS), ACROSS);
+    expect(c.result).toBe("pass");
+    expect(c.detail).toContain("leg-3");
+    expect(c.detail).toContain("200 turns put the target on the other bow");
+  });
+
+  it("fails when random-rule scenarios are claimed to be across the line of sight", () => {
+    const random: ParameterRanges = { ...TURN, zig2_delay_s: { min: 180, max: 300 } };
+    const c = checkIndependentGeometry(scenarios(8n, 100, random), {
+      ...random,
+      zig_rule: "across_los",
+      los_offset_rad: { min: degToRad(30), max: degToRad(90) },
+    });
+    expect(c.result).toBe("fail");
+    expect(c.detail).toMatch(/not across the line of sight/);
+  });
+});

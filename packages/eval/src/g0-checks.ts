@@ -3,7 +3,13 @@
 // geometry checks that do not go through the solver.
 import { bearingData, solveBatch } from "@tma/classical";
 import { angleDiff, createRng, degToRad, observe, simulateTruth } from "@tma/sim";
-import type { GateCheck, Prediction, Scenario, ScenarioParameters } from "@tma/types";
+import type {
+  GateCheck,
+  ParameterRanges,
+  Prediction,
+  Scenario,
+  ScenarioParameters,
+} from "@tma/types";
 import { rowError } from "./errors.js";
 import { G0_TOLERANCE } from "./gate.js";
 
@@ -162,7 +168,10 @@ export function inTurnBearings(): { name: string; got: number; want: number }[] 
  * the shared bearingOf) and, for every truth scenario, the t = 0 bearing and range against the
  * drawn parameters. Catches frame errors that the solver would share with the generator.
  */
-export function checkIndependentGeometry(truth: Iterable<Scenario>): GateCheck {
+export function checkIndependentGeometry(
+  truth: Iterable<Scenario>,
+  ranges?: ParameterRanges,
+): GateCheck {
   const fails: string[] = [];
   const bearingsOf = (p: ScenarioParameters): number[] =>
     observe(createRng(1n), p, simulateTruth(p)).map((o) => o.bearing_rad);
@@ -193,6 +202,24 @@ export function checkIndependentGeometry(truth: Iterable<Scenario>): GateCheck {
     if (!(Math.abs(angleDiff(c.got, c.want)) < 1e-6))
       fails.push(`${c.name} turn case gave ${String(c.got)}, want ${String(c.want)}`);
   }
+  // Second zig (generator 0.3.0): as the leg-2 case, then a second instantaneous zig of −120°
+  // 100 s into leg 2 (t = 400 s, at (866.03, 3500)) onto course 300°. At t = 500 s ownship is at
+  // (866.03 − 1000 sin 60°, 3500 + 1000 cos 60°) = (0, 4000).
+  const leg3 = bearingsOf({
+    ...KNOWN,
+    target_bearing0_rad: Math.PI / 2,
+    target_range0_m: 5000,
+    zig2_delay_s: 100,
+    zig2_angle_rad: degToRad(-120),
+  })[50];
+  if (!(Math.abs(angleDiff(leg3 ?? NaN, Math.atan2(5000, -4000))) < 1e-6))
+    fails.push(`leg-3 case gave ${String(leg3)}`);
+  // Across the line of sight (zig_rule across_los): every turn of every scenario puts the target
+  // on the other bow at an offset inside the drawn range, recomputed with literal atan2 from the
+  // stored positions at the last sample before the turn and the course after it.
+  const los = ranges?.zig_rule === "across_los" ? ranges.los_offset_rad : null;
+  let turns = 0;
+  const rel = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
   let n = 0;
   for (const s of truth) {
     const p = s.metadata.parameters;
@@ -203,6 +230,36 @@ export function checkIndependentGeometry(truth: Iterable<Scenario>): GateCheck {
     if (o === undefined || t === undefined || z === undefined) {
       fails.push(`scenario ${String(s.metadata.index)}: empty`);
       continue;
+    }
+    if (los != null) {
+      const m = s.metadata;
+      const pairs: [number, number][] = [
+        [(m.turn_start_index ?? m.zig_index + 1) - 1, m.zig_index],
+      ];
+      if (m.zig2_index != null)
+        pairs.push([(m.turn2_start_index ?? m.zig2_index + 1) - 1, m.zig2_index]);
+      for (const [k, after] of pairs) {
+        const ok = s.ownship.states[k];
+        const tk = s.target.states[k];
+        const oa = s.ownship.states[after];
+        if (ok === undefined || tk === undefined || oa === undefined) continue;
+        turns++;
+        const brg = Math.atan2(tk.x_m - ok.x_m, tk.y_m - ok.y_m);
+        // An instantaneous zig changes course at sample k itself: the old course is at k − 1.
+        const instant = after === k;
+        const oldCourse = (instant ? s.ownship.states[k - 1] : ok)?.course_rad ?? NaN;
+        const before = rel(brg - oldCourse);
+        const now = rel(brg - oa.course_rad);
+        const off = Math.abs(now);
+        const tol = 1e-4; // float32 storage of positions and courses
+        if (Math.sign(now) === Math.sign(before) || off < los.min - tol || off > los.max + tol) {
+          if (fails.length < 5)
+            fails.push(
+              `scenario ${String(m.index)}: turn at sample ${String(k)} not across the line of sight`,
+            );
+          else fails.push("…");
+        }
+      }
     }
     const b = Math.atan2(t.x_m - o.x_m, t.y_m - o.y_m);
     const r = Math.hypot(t.x_m - o.x_m, t.y_m - o.y_m);
@@ -219,7 +276,10 @@ export function checkIndependentGeometry(truth: Iterable<Scenario>): GateCheck {
     "independent-geometry",
     fails.length === 0,
     fails.length === 0
-      ? `hand-computed 315°, abeam, leg-2 and turn cases (starboard and port, mid-turn and leg 2) match; t = 0 bearing and range match the drawn parameters on ${String(n)} scenarios`
+      ? `hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2) and leg-3 cases match; t = 0 bearing and range match the drawn parameters on ${String(n)} scenarios` +
+          (los != null
+            ? `; ${String(turns)} turns put the target on the other bow inside the drawn offset range`
+            : "")
       : fails.slice(0, 6).join("; "),
   );
 }
