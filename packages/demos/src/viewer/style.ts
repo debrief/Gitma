@@ -26,6 +26,7 @@ export const CSS = `
 .tmav-bar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 8px 0 12px; }
 .tmav-bar label { display: inline-flex; gap: 6px; align-items: center; }
 .tmav-bar input[type=number] { width: 7.5em; }
+.tmav-bar select { max-width: 24em; }
 .tmav-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 @media (max-width: 960px) { .tmav-grid { grid-template-columns: minmax(0, 1fr); } }
 .tmav-panel { border: 1px solid var(--ifm-color-emphasis-300, #d0d7de); border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; overflow-x: auto; }

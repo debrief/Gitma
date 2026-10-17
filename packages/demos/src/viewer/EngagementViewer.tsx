@@ -203,6 +203,7 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
   };
 
   const root = useRef<HTMLDivElement | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
   const planRef = useRef<SVGSVGElement | null>(null);
   const fileStem = `tma-${source.id}-${String(v.index)}-${v.mode}`;
 
@@ -359,6 +360,13 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
     instantaneous: "instantaneous",
     "time-late": "time-late",
   };
+
+  const scenarioPanel = (
+    <div className="tmav-panel">
+      <h3>Scenario</h3>
+      <Metadata s={s} source={source} generatorVersion={catalogue.generatorVersion} />
+    </div>
+  );
 
   return (
     <div className="tmav" ref={root}>
@@ -531,11 +539,15 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
         <button
           type="button"
           onClick={() => {
+            // Array.from, not a spread: the site's Babel compiles [...nodeList] to [].concat(nodeList).
             const svgs =
               root.current === null
                 ? []
-                : [...root.current.querySelectorAll<SVGSVGElement>("svg.tmav-svg")];
-            void savePng(svgs, `${fileStem}.png`);
+                : Array.from(root.current.querySelectorAll<SVGSVGElement>("svg.tmav-svg"));
+            setExportError(null);
+            savePng(svgs, `${fileStem}.png`).catch((e: unknown) => {
+              setExportError(e instanceof Error ? e.message : String(e));
+            });
           }}
         >
           PNG
@@ -576,11 +588,12 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
           }}
         />
         <span style={{ whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>
-          {(tCur / 60).toFixed(1)} / {(windowS / 60).toFixed(0)} min (
+          {(tCur / 60).toFixed(1)} / {(windowS / 60).toFixed(1)} min (
           {tCur >= zigT ? "zig+" : "zig−"}
           {(Math.abs(tCur - zigT) / 60).toFixed(1)})
         </span>
       </div>
+      {exportError !== null && <p className="tmav-warn">PNG export failed: {exportError}</p>}
       {entry !== null && (
         <p
           className={inference?.key === key && inference.error !== null ? "tmav-warn" : "tmav-note"}
@@ -610,6 +623,7 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
             Drag to pan, wheel to zoom, double-click to reset. Velocity vectors show 5 min of
             motion.
           </p>
+          {v.mode === "truth" && scenarioPanel}
           {v.mode !== "truth" && (
             <div className="tmav-panel">
               <h3>At the cursor</h3>
@@ -625,10 +639,7 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
         </div>
         <div>
           {plots}
-          <div className="tmav-panel">
-            <h3>Scenario</h3>
-            <Metadata s={s} source={source} generatorVersion={catalogue.generatorVersion} />
-          </div>
+          {v.mode !== "truth" && scenarioPanel}
           <div className="tmav-panel">
             <h3>Models</h3>
             <ModelInfo pair={pair} source={source} />

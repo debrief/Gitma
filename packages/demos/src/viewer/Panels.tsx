@@ -14,7 +14,11 @@ const deg = (rad: number): number => {
 };
 const dash = "—";
 const fx = (v: number | null | undefined, digits: number): string =>
-  v === null || v === undefined || !Number.isFinite(v) ? dash : v.toFixed(digits);
+  v === null || v === undefined || Number.isNaN(v)
+    ? dash
+    : v === Infinity
+      ? "∞"
+      : v.toFixed(digits);
 
 export interface Estimate {
   label: string;
@@ -208,7 +212,7 @@ export function Metadata({ s, source, generatorVersion }: MetadataProps): JSX.El
     ["generator", generatorVersion],
     [
       "window",
-      `${(p.window_s / 60).toFixed(0)} min, ${String(m.samples)} samples at ${String(p.dt_s)} s`,
+      `${String(m.samples)} samples at ${String(p.dt_s)} s (${(((m.samples - 1) * p.dt_s) / 60).toFixed(1)} min)`,
     ],
     ["noise σ", `${radToDeg(p.noise_sigma_rad).toFixed(2)}°`],
     ["dropouts", `${(p.dropout_fraction * 100).toFixed(1)}%`],
@@ -270,16 +274,16 @@ export function ModelInfo({ pair, source }: ModelInfoProps): JSX.Element {
         <p className="tmav-note">The manifest does not record the training dataset&apos;s seed.</p>
       ) : trained === source.seed ? (
         <p className="tmav-note">
-          Trained on seed {trained}; this scenario is from the same dataset&apos;s {source.label}{" "}
-          split, which training never saw.
+          Trained on seed {trained}&apos;s training split; this scenario is from a split of the same
+          seed that training never saw.
         </p>
       ) : (
         <p className="tmav-warn">
           Trained on seed {trained}; this scenario comes from a different dataset (seed{" "}
           {source.seed}).
-          {source.note === undefined ? "" : ` ${source.note}`}
         </p>
       )}
+      {source.note !== undefined && <p className="tmav-warn">{source.note}</p>}
     </div>
   );
 }

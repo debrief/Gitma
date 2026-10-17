@@ -60,7 +60,8 @@ pnpm test                        # vitest: unit, golden, e2e (~30 s)
 UPDATE_GOLDEN=1 pnpm test        # regenerate golden files; review the diff, say why in the PR
 pnpm schema:gen                  # after editing schema/tma.yaml; bump its version
 pnpm schema:check                # fails if generated types are stale
-pnpm site:build                  # data dictionary + gate status + site; fails on broken links
+pnpm site:build                  # tsc -b, then data dictionary + gate status + viewer catalogue + site
+node scripts/viewer-smoke.mjs [url] [dir]   # Playwright smoke of a served /viewer (PLAYWRIGHT=<pkg dir>)
 pnpm tma-generate --seed 42 --count 100000 --noise-free --out data/g0
 pnpm tma-g0 --data data/g0 --experiment experiments/<id>
 pnpm tma-train --config configs/iter1/<model>.json --train <dir>/train.features.bin \
@@ -167,6 +168,9 @@ sessions (containers are reclaimed when idle).
 - A seeded continuation that changes the loss re-scores the best epoch under the new loss and
   persists it as `best_val_loss` (schema 0.8.2); a chained job resumes against that value. Without
   it the old best, on the old scale, is never beaten and the old weights are kept silently.
+- The viewer page imports `@tma/demos` from `dist/`, so `site:build` runs `tsc -b` first. The
+  site's Babel compiles `[...iterable]` to `[].concat(iterable)`: in browser code spread arrays
+  only, and use `Array.from` for NodeLists, Maps and Sets.
 - Gate checks: pass needs the whole 95% CI and the point below the threshold; fail needs the CI's
   lower bound at or above it; anything else is inconclusive (FR-015).
 
@@ -191,8 +195,9 @@ decision `experiments/20261015-i2d-decision/`. **G2 failed a third time** (panel
 `experiments/20261016-i2d-g2/`): range 13.5% / 12.1% and course 7.4° / 6.1° pass, speed 1.47 /
 1.53 kt fails (classical 0.61 kt), no-go on speed and pass on range and course (write-up:
 `site/blog/2026-10-17-iteration-2c.md`). Seeds 201–203 are reserved. **SRD Annex A** (accepted
-2026-10-17) lifts the effort budget: next is the engagement and model viewer (spec 006,
-`packages/demos`), then the owner's realism check, then pre-registered levers (Annex A Part B),
+2026-10-17) lifts the effort budget. The engagement and model viewer (spec 006, `packages/demos`,
+site page `/viewer`) is built; next is the owner's realism check (T010), then pre-registered
+levers (Annex A Part B),
 each with a decision record committed before training and a fresh test seed (204 onward).
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution

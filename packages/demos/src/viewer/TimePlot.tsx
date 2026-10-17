@@ -57,8 +57,9 @@ function niceTicks(lo: number, hi: number, n = 4): number[] {
   return out;
 }
 
-const fmt = (v: number): string =>
-  Math.abs(v) >= 100 || Number.isInteger(v) ? v.toFixed(0) : v.toPrecision(2);
+/** Tick label with as many decimals as the tick step needs. */
+const fmt = (v: number, step: number): string =>
+  v.toFixed(step > 0 && step < 1 ? Math.min(3, Math.ceil(-Math.log10(step) - 1e-9)) : 0);
 
 export function TimePlot(props: TimePlotProps): JSX.Element {
   const { t, lines, cursorT, windowS, onCursor } = props;
@@ -82,6 +83,7 @@ export function TimePlot(props: TimePlotProps): JSX.Element {
   const y = (v: number): number =>
     T + ((H - T - B) * (hi - Math.min(hi, Math.max(lo, v)))) / (hi - lo);
   const ticks = props.yTicks ?? niceTicks(lo, hi);
+  const tickStep = ticks.length > 1 ? (ticks[1] ?? 0) - (ticks[0] ?? 0) : 1;
   const tTicks = niceTicks(0, windowS / 60, 6).filter((m) => m * 60 <= windowS);
 
   const pick = useCallback(
@@ -184,7 +186,7 @@ export function TimePlot(props: TimePlotProps): JSX.Element {
         <g key={`y${v}`}>
           <line x1={L} x2={W - R} y1={y(v)} y2={y(v)} stroke={C.grid} />
           <text x={L - 4} y={y(v) + 4} fontSize={10} textAnchor="end" fill={C.muted}>
-            {fmt(v)}
+            {fmt(v, tickStep)}
           </text>
         </g>
       ))}

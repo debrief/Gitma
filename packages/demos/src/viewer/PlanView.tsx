@@ -437,9 +437,9 @@ export function PlanView(props: PlanViewProps): JSX.Element {
       </g>
       <g fontSize={11}>
         <rect
-          x={6}
+          x={0}
           y={6}
-          width={150}
+          width={158}
           height={18 + legend.length * 15}
           fill={C.paper}
           opacity={0.85}

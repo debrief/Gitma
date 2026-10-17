@@ -183,6 +183,9 @@ importers:
       '@mermaid-js/layout-elk':
         specifier: ^0.1.9
         version: 0.1.9(mermaid@12.1.0)
+      '@tma/demos':
+        specifier: workspace:*
+        version: link:../packages/demos
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
