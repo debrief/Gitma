@@ -13,16 +13,20 @@ across-the-line-of-sight rule (`zig_rule: across_los`) and an optional second zi
 **Evidence.**
 
 - Round 1: `../20261017-g0-i3/` at c804757.
-- Round 2: this folder, at 5989b3e. It carries the round-1 fixes to the G0 checks and the zig
-  bands up to 180°. The generator source (`packages/sim/src`, `packages/data/src`) is unchanged
-  from 90f4873, so the same data stand.
+- Round 2: `../20261017-g0-i3-r2/` at 5989b3e. It carries the round-1 fixes to the G0 checks and
+  the zig bands up to 180°.
+- Round 3: this folder, at 928995a. It carries the round-2 fixes: the step lower bound and the
+  turn sums. Metrics and seeds are byte-identical to round 2.
 
-| Check | Round 1 (c804757) | Round 2 (5989b3e) |
+The generator source (`packages/sim/src`, `packages/data/src`) is unchanged from 90f4873, so the
+same data stand throughout.
+
+| Check | Round 1 (c804757) | Rounds 2–3 (5989b3e, 928995a) |
 | --- | --- | --- |
 | classical-recovers-noise-free-truth | pass; worst range 8.70e-6, course 2.54e-3°, speed 3.43e-4 kt | same |
 | classical-per-timestep-recovers | pass; 67,208/67,208 rows ≥ 60 s after the zig | same |
 | bearing-residuals-at-float32-precision | pass; worst 2.77e-7 rad | same |
-| independent-geometry | pass; hand cases incl. leg 3; 20,000 turns across the line of sight | pass; adds the second turn in both directions (mid-arc and leg 3), ownship kinematics on every scenario, \|turn\| ≤ 180°, unchecked turns counted |
+| independent-geometry | pass; hand cases incl. leg 3; 20,000 turns across the line of sight | pass; adds the second turn in both directions (mid-arc and leg 3), ownship kinematics on every scenario (round 3: also arc chord ≤ step and summed turn = stored angle), \|turn\| ≤ 180°, unchecked turns counted |
 | naive-baseline-reproduces | pass | pass |
 
 ## Round 1 (2026-10-17)
@@ -64,3 +68,39 @@ across-the-line-of-sight rule (`zig_rule: across_los`) and an optional second zi
 | The manifest's `tma-generate` line has no `--out`, and the data and G0 commits differ (reproducibility) | The data are identified by their sha256 in the manifest, and `generator_git_commit` (90f4873) is in the dataset header. The lineage is: data at 90f4873, G0 round 1 at c804757, round 2 at 5989b3e, with no generator change between them |
 | G0 does not score the held-out split (red team) | As in iterations 1–2. The geometry reviewer integrated the held-out split independently: worst 6.7e-4 m, 0 index mismatches |
 | Leakage: the post-turn course bounds the true bearing to a 60° band. It cuts the RMS bearing error at the turn sample by 1.5% (1 bearing, σ = 1°) to 0.5% (10 bearings); turn timing and redraws reveal no range, course or speed (red team) | Negligible; recorded |
+
+## Round 2 (2026-10-17)
+
+The reviewers re-checked their round-1 findings at c648455 against the round-2 evidence (G0 at
+5989b3e).
+
+| Reviewer | Verdict |
+| --- | --- |
+| TMA geometry: own RK4 tracks pass the new checks; mutations: long-way turn with matching \|zig\| and leg-3 course +5° fail, long-way turn with the short angle stored and leg 3 at 0.98 v pass | approve-with-findings |
+| Estimation and numerics: new checks' margins on all four splits (110,000 scenarios): step 50×, course rate 21×, chord bracket 11× | approve |
+| Evaluation statistics: FR-006 condition against 2c is a weak reference, since 2c degrades on the new problem | approve-with-findings |
+| Reproducibility: round 2 re-run from its manifest byte-identical; full suite 320/320; guard accepts round 2 only once panel-decided | approve-with-findings |
+| Red team: round-1 survivors M1b, M5b and M2b now fail G0, and M4 fails the σ = 2° unit test; new M7 (second turn at half rate) fails; new M8 (leg 3 at 0.9 v) is caught only by the hand case; decision-binding bypass attempts stopped | approve-with-findings |
+
+### Major finding and response
+
+| # | Finding (reviewer) | Response | Commit |
+| --- | --- | --- | --- |
+| M6 | FR-006 condition 1 (iteration-3 LSTM beats 2c on the same rows) compares with a reference that degrades on the new problem. On scratch seed 9001, 2c's LSTM is at 1.93 kt here against 1.49 kt on the iteration-2 ranges, so a model worse than 2c on its own problem would pass (statistics) | Spec 007 FR-006 and the decision record now say that a change to the problem has no like-for-like counterfactual. The **operative** condition is a possible G2 speed pass: the iteration-3 LSTM's validation interval has a lower bound under 1 kt. Beating 2c on the same rows stays as a **sanity** condition, labelled a weak reference and never cited as evidence that the lever worked. The measure of what the models gained is the paired ratio of model to classical speed error on the same rows, with its interval, against 2c's 2.37. `paired.json` now carries it | 928995a |
+
+### Minor findings and responses
+
+| Finding (reviewers) | Response |
+| --- | --- |
+| No lower bound on step length: a slower ownship (0.98 v, 0.9 v, frozen) passes the per-scenario check (geometry, red team, numerics) | Each step must be at least the full-step arc chord, 2(v/ω) sin(ω dt/2), which is v·dt on a leg (3df0750). No false failures on the four splits; tests added |
+| A turn flown the other way round to the same course, with the short angle stored, passes (geometry) | Each rate-limited turn's summed course change must equal its stored signed angle, to within 1e-4 rad (3df0750); test added |
+| Decision binding keyed on the plan's path: a copy elsewhere, or another spelling, escaped it; a bound decision without `test_seed` passed (red team, reproducibility, statistics) | A decision binds by the plan's path or its content (a test seed of 204 or later). Paths are compared resolved, and a bound decision must name its `test_seed` (3df0750); tests added. The train-plan seed ownership was already a second layer |
+| The planned gate command needs `stalled: true` because `--compare-models` implies a phase B (red team) | The decision record sets `stalled: true` and says why: the previous configuration (2c) failed G2 |
+| `tma-model-predict` plus `tma-eval` can score seed 204's test split outside the gate (red team) | Known limit since iteration 2: only the gate CLIs check the decision. The gate of record is `tma-g2` with the committed decision; any other scoring is not a gate result |
+| The schema changed under the same version (reproducibility) | Bumped to 0.9.1; the goldens change only in `schema_version` (928995a) |
+| The round-1 folder's verdict still read "pending" (reproducibility) | Marked superseded (928995a); round 2 likewise, once round 3 ran |
+| `pnpm test` timed out once under load (train.test.ts, time-late resume) (reproducibility) | Load-dependent; it passes alone and on a re-run (320/320, then 323/323 at 928995a) |
+
+**G0 round 3.** G0 was re-run at 928995a (this folder) so the verdict's checks are the code of
+record. The kinematic and turn-sum checks pass on all 10,000 test scenarios; the data and every
+other figure are unchanged.
