@@ -253,7 +253,7 @@ Each is a separate, pre-registered experiment (B.3). None is chosen until A.7 is
 ### B.5 Decisions the owner takes before the viewer spec is written
 
 - **D1** Inference location: in the browser (V-016, the default here) or precomputed estimate
-  files committed per experiment.
+  files committed per experiment. _Decided 2026-10-17: in the browser._
 - **D2** Whether V-014 (bearing-window trimming) is in the first viewer or deferred.
 - **D3** Which model folders ship by default (the 2c pair, or every gate's carried pair).
 - **D4** After A.7: the first lever of B.2.
