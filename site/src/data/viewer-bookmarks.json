@@ -1,0 +1,33 @@
+[
+  {
+    "label": "Typical engagement: 2c instantaneous near its median errors at zig + 10 min",
+    "source": "s203-test",
+    "index": 97612,
+    "mode": "instantaneous",
+    "t": 1690,
+    "pair": "i2c"
+  },
+  {
+    "label": "Largest 2c instantaneous speed error at zig + 10 min, σ = 1° (10.9 kt)",
+    "source": "s203-test",
+    "index": 95484,
+    "mode": "instantaneous",
+    "t": 1980,
+    "pair": "i2c"
+  },
+  {
+    "label": "Held-out engagement starting at 26 km: 2c time-late, median range error at zig + 5 min",
+    "source": "s201-heldout",
+    "index": 102983,
+    "mode": "time-late",
+    "t": 1300,
+    "pair": "i2c"
+  },
+  {
+    "label": "Iteration 1 engagement: σ = 0.5°, no dropouts, instantaneous zig",
+    "source": "s101-test",
+    "index": 90000,
+    "mode": "truth",
+    "pair": "i1"
+  }
+]

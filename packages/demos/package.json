@@ -1,0 +1,40 @@
+{
+  "name": "@tma/demos",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser engagement and model viewer (SRD Annex A, spec 006).",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./viewer": {
+      "types": "./dist/viewer/index.d.ts",
+      "default": "./dist/viewer/index.js"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@tensorflow/tfjs-backend-cpu": "4.22.0",
+    "@tensorflow/tfjs-core": "4.22.0",
+    "@tensorflow/tfjs-layers": "4.22.0",
+    "@tma/classical": "workspace:*",
+    "@tma/data": "workspace:*",
+    "@tma/eval": "workspace:*",
+    "@tma/features": "workspace:*",
+    "@tma/sim": "workspace:*",
+    "@tma/types": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19.2.0"
+  },
+  "devDependencies": {
+    "@tma/models": "workspace:*",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.2.3",
+    "esbuild": "0.28.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  }
+}

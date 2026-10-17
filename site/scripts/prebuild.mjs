@@ -1,7 +1,16 @@
-// Generated site inputs (not committed): gate status from experiments/*/verdict.json and the
-// data dictionary from schema/tma.yaml (SRD §9: generated, never hand-edited).
+// Generated site inputs (not committed): gate status from experiments/*/verdict.json, the
+// data dictionary from schema/tma.yaml (SRD §9: generated, never hand-edited), and the viewer's
+// catalogue and model copies from the gate experiments (spec 006 FR-007).
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -111,7 +120,117 @@ function dataDictionary() {
   writeFileSync(join(site, "docs", "data-dictionary.md"), `${front}\n${md}`);
 }
 
+/**
+ * Each gate's carried pair (Annex A decision D3), oldest first: the viewer defaults to the last.
+ * The scenario sources are those experiments' test and held-out datasets, from their headers.
+ */
+const VIEWER_PAIRS = [
+  { id: "i1", label: "Iteration 1", experiment: "20261012-g1-r2" },
+  { id: "i2", label: "Iteration 2", experiment: "20261014-i2-g2" },
+  { id: "i2b", label: "Iteration 2b", experiment: "20261015-i2c-g2" },
+  { id: "i2c", label: "Iteration 2c", experiment: "20261016-i2d-g2" },
+];
+const VIEWER_MODELS = { instantaneous: "lstm-instantaneous", timeLate: "bilstm-time-late" };
+
+/** The panel's decision where it overrides the machine result (e.g. G1 passed under rule 1). */
+function decision(verdict) {
+  const m = /\b(G\d) (PASS|FAIL)\b/.exec(verdict.decided_by ?? "");
+  return m === null ? `${verdict.gate} ${verdict.result}` : `${m[1]} ${m[2].toLowerCase()}`;
+}
+
+function viewer() {
+  const read = (path) => JSON.parse(readFileSync(path, "utf8"));
+  const out = join(site, "static", "viewer", "models");
+  rmSync(out, { recursive: true, force: true });
+  const sources = [];
+  const pairs = [];
+  let bytes = 0;
+  for (const p of [...VIEWER_PAIRS].reverse()) {
+    const base = join(root, "experiments", p.experiment);
+    const exp = read(join(base, "manifest.json"));
+    const verdict = read(join(base, "verdict.json"));
+    const train = exp.datasets.find((d) => d.header.split === "train")?.header;
+    for (const split of ["test", "heldout"]) {
+      const h = exp.datasets.find((d) => d.header.split === split)?.header;
+      if (h === undefined) continue;
+      const id = `s${h.dataset_seed}-${split}`;
+      if (sources.some((x) => x.id === id)) continue;
+      const fresh = h.dataset_seed !== train?.dataset_seed;
+      const r0 = h.parameter_ranges.target_range0_m;
+      const t0 = train?.parameter_ranges.target_range0_m;
+      const km = (r) => `${String(r.min / 1000)}–${String(r.max / 1000)} km`;
+      const notes = [];
+      if (fresh)
+        notes.push(`A fresh test split: seed ${h.dataset_seed}'s test split, never trained on.`);
+      if (t0 !== undefined && (r0.min !== t0.min || r0.max !== t0.max))
+        notes.push(`Start ranges ${km(r0)}, outside the training ranges (${km(t0)}).`);
+      sources.push({
+        id,
+        label:
+          split === "test"
+            ? `Seed ${h.dataset_seed} test (${p.label} ${verdict.gate})`
+            : `Seed ${h.dataset_seed} held-out (${km(r0)})`,
+        seed: h.dataset_seed,
+        start: h.index_start,
+        end: h.index_end,
+        ranges: h.parameter_ranges,
+        ...(notes.length > 0 ? { note: notes.join(" ") } : {}),
+      });
+    }
+    const naive = JSON.parse(exp.estimators.find((e) => e.name === "naive").settings_json).means;
+    const entry = (variant, id) => {
+      const dir = join(base, "models", id);
+      const m = read(join(dir, "manifest.json"));
+      const c = m.config;
+      const kind = c.model_kind === "time_late" ? "BiLSTM" : "LSTM";
+      const layers = c.layers ?? 1;
+      const dest = join(out, p.experiment, id);
+      mkdirSync(dest, { recursive: true });
+      for (const f of ["model.json", "weights.bin"]) {
+        copyFileSync(join(dir, f), join(dest, f));
+        bytes += readFileSync(join(dir, f)).length;
+      }
+      return {
+        id,
+        variant,
+        path: `${p.experiment}/${id}`,
+        featureSet: c.feature_set ?? "raw",
+        normalisation: m.normalisation,
+        parameterCount: m.parameter_count,
+        architecture: `${kind} ${layers > 1 ? `${String(layers)} × ` : ""}${String(c.units)} units`,
+        trainedOnSeed: m.source_dataset_header?.dataset_seed ?? train?.dataset_seed ?? null,
+        bestEpoch: m.best_epoch,
+      };
+    };
+    pairs.unshift({
+      id: p.id,
+      label: p.label,
+      experiment: `experiments/${p.experiment}`,
+      gate: decision(verdict),
+      instantaneous: entry("instantaneous", VIEWER_MODELS.instantaneous),
+      timeLate: entry("time_late", VIEWER_MODELS.timeLate),
+      naive,
+    });
+  }
+  const sim = readFileSync(join(root, "packages", "sim", "src", "scenario.ts"), "utf8");
+  const generatorVersion = /GENERATOR_VERSION = "([^"]+)"/.exec(sim)?.[1] ?? "unknown";
+  const bookmarks = read(join(site, "src", "data", "viewer-bookmarks.json"));
+  for (const b of bookmarks) {
+    if (!sources.some((x) => x.id === b.source))
+      throw new Error(`viewer bookmark: no source ${b.source}`);
+  }
+  writeFileSync(
+    join(site, "src", "generated", "viewer.json"),
+    `${JSON.stringify({ generatorVersion, sources, pairs, bookmarks })}\n`,
+  );
+  return { sources: sources.length, pairs: pairs.length, mb: bytes / 1e6 };
+}
+
 const n = gates();
 const r = results();
+const v = viewer();
 dataDictionary();
-console.log(`prebuild: ${n} gate verdict(s), ${r} result set(s); data dictionary generated`);
+console.log(
+  `prebuild: ${n} gate verdict(s), ${r} result set(s); viewer: ${v.sources} sources, ` +
+    `${v.pairs} model pairs, ${v.mb.toFixed(1)} MB of weights; data dictionary generated`,
+);

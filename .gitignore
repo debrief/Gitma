@@ -158,3 +158,6 @@ site/docs/data-dictionary.md
 site/src/generated/
 /models/
 .claude/worktrees/
+
+# Viewer model copies (site prebuild, from experiments/)
+site/static/viewer/

@@ -21,6 +21,9 @@
     },
     {
       "path": "packages/models"
+    },
+    {
+      "path": "packages/demos"
     }
   ]
 }

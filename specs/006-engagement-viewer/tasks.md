@@ -9,16 +9,16 @@
 
 ## Implementation PR
 
-- [ ] T003 Browser-safe subpaths: `@tma/features/browser` (with `decode.ts` moved from models),
+- [x] T003 Browser-safe subpaths: `@tma/features/browser` (with `decode.ts` moved from models),
   `@tma/classical/browser`, `@tma/data/canonical`; goldens unchanged
-- [ ] T004 `@tma/demos` core: catalogue types, `scenarioAt`, geometry, inference glue, errors,
+- [x] T004 `@tma/demos` core: catalogue types, `scenarioAt`, geometry, inference glue, errors,
   classical and naive rows, URL state, NDJSON export
-- [ ] T005 Tests: browser bundle (FR-001), agreement (FR-007), golden, server render
-- [ ] T006 React viewer: controls, plan view, time plots, panels, three modes, model choice,
+- [x] T005 Tests: browser bundle (FR-001), agreement (FR-007), golden, server render
+- [x] T006 React viewer: controls, plan view, time plots, panels, three modes, model choice,
   overlays, PNG and NDJSON export, URL state
-- [ ] T007 Site: prebuild catalogue and model copy, `/viewer` page, navbar link, featured bookmarks
-- [ ] T008 Playwright smoke on the built site; screenshots
-- [ ] T009 Blog post with linked views (SC-003); site pages (algorithm note on the viewer)
+- [x] T007 Site: prebuild catalogue and model copy, `/viewer` page, navbar link, featured bookmarks
+- [x] T008 Playwright smoke on the built site; screenshots
+- [x] T009 Blog post with linked views (SC-003); site pages (algorithm note on the viewer)
 
 ## Owner
 
