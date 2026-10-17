@@ -274,3 +274,10 @@ The repository is public on GitHub from day one; nothing above OFFICIAL enters i
 - Site: Docusaurus — blog and docs out of the box; demos embed as React components in MDX pages. LinkML's `gen-markdown` output is copied into the docs tree by CI.
 - PR previews: deployed to `gh-pages` under `/pr/N/` by a workflow on each push; a second workflow deletes the folder when the PR closes, keeping the branch from bloating.
 - Open: confirm in iteration 0 whether LinkML's TypeScript generator is adequate or whether TS types and `zod` validators are better derived from its JSON Schema output.
+
+## Annexes
+
+- [Annex A: Engagement viewer and phase 2](SRD-annex-A.md) (2026-10-17): the effort budget is
+  lifted; an interactive engagement and model viewer is built and verified first, then further
+  pre-registered attempts at G2 at the owner's discretion. Its B.4 lists the amendments to apply
+  to this body once the annex is accepted.
