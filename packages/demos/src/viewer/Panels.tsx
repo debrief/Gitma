@@ -235,7 +235,7 @@ export function Metadata({ s, source, generatorVersion }: MetadataProps): JSX.El
       : [
           [
             "zig 2",
-            `${radToDeg(p.zig2_angle_rad).toFixed(0)}°, ${String(p.zig2_delay_s ?? 0)} s after leg 2 starts, leg 3 from ${((m.zig2_index * p.dt_s) / 60).toFixed(1)} min`,
+            `${radToDeg(p.zig2_angle_rad).toFixed(0)}°, ${String(Math.round(p.zig2_delay_s ?? 0))} s after leg 2 starts, leg 3 from ${((m.zig2_index * p.dt_s) / 60).toFixed(1)} min`,
           ] as [string, string],
         ]),
     [
