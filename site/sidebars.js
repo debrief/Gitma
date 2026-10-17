@@ -18,7 +18,12 @@ const sidebars = {
     {
       type: "category",
       label: "Results",
-      items: ["results/iteration-1", "results/iteration-2", "results/iteration-2b"],
+      items: [
+        "results/iteration-1",
+        "results/iteration-2",
+        "results/iteration-2b",
+        "results/iteration-2c",
+      ],
     },
   ],
 };

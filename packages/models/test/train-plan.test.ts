@@ -206,6 +206,9 @@ describe("plan validation", () => {
     expect(validate(fresh({ seed: "202", digest: "PLACEHOLDER" })).err).toMatch(
       /reserved for iteration 2b/,
     );
+    expect(validate(fresh({ seed: "203", digest: "PLACEHOLDER" })).err).toMatch(
+      /reserved for iteration 2c/,
+    );
     expect(validate(fresh({ seed: "204", digest: "abc" })).err).toMatch(/fresh_test.digest/);
     expect(validate(fresh({ digest: "PLACEHOLDER" })).err).toMatch(/fresh_test.seed/);
   });

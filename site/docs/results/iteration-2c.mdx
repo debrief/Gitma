@@ -1,0 +1,37 @@
+---
+title: "Results: iteration 2c (G2, final attempt)"
+description: The last G2 attempt under the SRD — both measured levers combined, judged on a third fresh test split — beside the naive and classical baselines and the 2b models.
+---
+
+import ResultsReview from "@site/src/components/ResultsReview";
+
+# Results: iteration 2c (G2, final attempt)
+
+**Question:** do the two levers that each moved speed on validation reach the
+[G2](iteration-2.mdx) speed threshold together? Iteration 2c (spec 005) combines the speed-weighted
+loss of [iteration 2b](iteration-2b.mdx) with the capacity the scan pointed to (two stacked
+128-unit recurrent layers, from scratch) and judges G2 on a third fresh test split (seed 203). It
+is the last iteration the SRD allows under G2 (§7, amended 2026-10-15 before 2b's test scoring).
+
+The carried set is the 2c models, declared before training; the 2b models are scored beside them on
+the same split and reported, never gated. Thresholds, slice, coverage and the pass / fail /
+inconclusive rule are as on the [iteration-2 page](iteration-2.mdx).
+
+:::danger G2 failed; the project stops at G2 (agent review panel, round 2)
+**Speed fails for both models, by less again.** The instantaneous model is at 1.47 kt
+[1.37, 1.52] and the time-late model at 1.53 kt [1.47, 1.61], against 1 kt; the 2b models on the
+same scenarios are at 1.78 kt and 1.77 kt, and classical at 0.61 kt, at the
+[Cramér–Rao bound](../glossary.md).
+
+Range and course are the best of the project and pass for both models: 13.5% / 7.36° instantaneous
+and 12.1% / 6.12° time-late. The time-late model is now better than the instantaneous one on range
+and course, and worse on speed.
+
+Full record:
+[`review.md`](https://github.com/debrief/Gitma/blob/main/experiments/20261016-i2d-g2/review.md),
+the validation note
+[`validation.md`](https://github.com/debrief/Gitma/blob/main/experiments/20261016-i2d-val/validation.md)
+and the [no-go write-up](/blog/2026/10/17/iteration-2c).
+:::
+
+<ResultsReview gate="G2" experiment="20261016-i2d-g2" />
