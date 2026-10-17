@@ -115,4 +115,26 @@ describe("G0 kinematic consistency (red team round 1 mutations)", () => {
     }
     expect(kinematicFailure(s)).not.toBeNull();
   });
+
+  it("catches leg 3 flown slower than the stored speed (red team round 2, M8)", () => {
+    const s = structuredClone(base);
+    const own = s.ownship.states;
+    const start = own[z2];
+    if (start === undefined) throw new Error("index");
+    for (let i = z2 + 1; i < own.length; i++) {
+      const o = own[i];
+      if (o === undefined) continue;
+      o.x_m = Math.fround(start.x_m + 0.98 * (o.x_m - start.x_m));
+      o.y_m = Math.fround(start.y_m + 0.98 * (o.y_m - start.y_m));
+    }
+    expect(kinematicFailure(s)).toMatch(/slower than the stored speed/);
+  });
+
+  it("catches a turn whose stored angle disagrees with the turn flown (geometry round 2)", () => {
+    const s = structuredClone(base);
+    const zig = s.metadata.parameters.zig_angle_rad;
+    // The same final course reached the other way round: stored angle replaced by 2π − |zig|.
+    s.metadata.parameters.zig_angle_rad = zig - Math.sign(zig) * 2 * Math.PI;
+    expect(kinematicFailure(s)).toMatch(/course changed .* stored/);
+  });
 });

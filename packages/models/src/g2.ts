@@ -8,7 +8,14 @@
 // a committed decision record (SC-005), and it also scores the held-out split (FR-019).
 // Lives here rather than in @tma/eval so tfjs-node stays out of the evaluation package.
 import { execFileSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import {
   CLASSICAL,
@@ -113,6 +120,31 @@ export function checkPlanDigests(plan: string, data: string): string[] {
 
 /** A repository-relative path in one spelling: forward slashes, no leading "./". */
 const normPath = (p: string): string => p.replace(/\\/g, "/").replace(/^(\.\/)+/, "");
+
+/** Test seeds from this one on are bound to their decision by content (spec 007: seed 204). */
+export const FIRST_BOUND_SEED = 204;
+
+/** Two spellings of one file: the same resolved real path when both exist, else the same text. */
+function samePath(a: string, b: string): boolean {
+  try {
+    return realpathSync(a) === realpathSync(b);
+  } catch {
+    return normPath(a) === normPath(b);
+  }
+}
+
+/** The plan's test seed (its fresh test split's, else its dataset's); undefined if unreadable. */
+function testSeedOf(plan: string | undefined): string | undefined {
+  if (plan === undefined || !existsSync(plan)) return undefined;
+  try {
+    const p = JSON.parse(readFileSync(plan, "utf8")) as {
+      dataset?: { seed?: string; fresh_test?: { seed?: string } };
+    };
+    return p.dataset?.fresh_test?.seed ?? p.dataset?.seed;
+  } catch {
+    return undefined;
+  }
+}
 
 /** True when the commit that first added `path` is an ancestor of (or equal to) `commit`. */
 export function gitDecisionPrecedes(path: string, commit: string): boolean {
@@ -242,8 +274,12 @@ export function requireDecision(opts: G2RunOptions): ChangeDecision | undefined 
   const phaseB = opts.compareModels !== undefined || existsSync(opts.phaseBDir ?? PHASE_B_CONFIGS);
   // From iteration 3 (spec 007, G0 red team): a test split is scored only with the decision that
   // names its plan, so an earlier iteration's decision cannot unlock a later iteration's test.
-  const iteration = /(?:^|\/)configs\/iter(\d+)\//.exec(normPath(opts.plan ?? ""));
-  const bound = iteration !== null && Number(iteration[1]) >= 3;
+  // Bound by the plan's path or by its content (a test seed of 204 or later), however spelled.
+  const planSeed = testSeedOf(opts.plan);
+  const iteration = /(?:^|\/)configs\/+(?:\.\/)*iter(\d+)\//.exec(normPath(opts.plan ?? ""));
+  const bound =
+    (iteration !== null && Number(iteration[1]) >= 3) ||
+    (planSeed !== undefined && /^\d+$/.test(planSeed) && Number(planSeed) >= FIRST_BOUND_SEED);
   if (opts.decision === undefined) {
     if (bound) {
       throw new RecordError(
@@ -267,18 +303,22 @@ export function requireDecision(opts: G2RunOptions): ChangeDecision | undefined 
     opts.decision,
     "decision",
   );
-  if (bound && (d.plan == null || normPath(d.plan) !== normPath(opts.plan ?? ""))) {
+  if (bound && (d.plan == null || !samePath(d.plan, opts.plan ?? ""))) {
     throw new RecordError(
       opts.decision,
       "plan",
       `the decision pre-registers ${d.plan ?? "no plan"}, not ${String(opts.plan)}`,
     );
   }
+  if (bound && d.test_seed == null) {
+    throw new RecordError(
+      opts.decision,
+      "test_seed",
+      "a decision bound to a plan must name its test seed",
+    );
+  }
   if (d.test_seed != null && opts.plan !== undefined) {
-    const p = JSON.parse(readFileSync(opts.plan, "utf8")) as {
-      dataset?: { seed?: string; fresh_test?: { seed?: string } };
-    };
-    const seed = p.dataset?.fresh_test?.seed ?? p.dataset?.seed;
+    const seed = planSeed;
     if (seed !== d.test_seed) {
       throw new RecordError(
         opts.decision,

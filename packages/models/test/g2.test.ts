@@ -354,4 +354,30 @@ describe("decisions bind to their plan from iteration 3 (spec 007, G0 red team)"
     // Validation needs nothing.
     expect(requireDecision(opts({ plan: p, split: "validation" }))).toBeUndefined();
   });
+
+  it("binds by content and resolved path, however the plan is spelled (red team round 2)", () => {
+    const dir = tempDir();
+    const p = plan(dir, "204");
+    const old = join(dir, "old.json");
+    writeFileSync(old, JSON.stringify(DECISION));
+    // A copy of the plan outside configs/iter3 is still bound: its test seed is 204.
+    mkdirSync(join(dir, "elsewhere"));
+    const copy = join(dir, "elsewhere", "plan.json");
+    writeFileSync(copy, JSON.stringify({ dataset: { seed: "204" } }));
+    expect(() => requireDecision(opts({ plan: copy, decision: old }))).toThrow(
+      /pre-registers no plan/,
+    );
+    expect(() => requireDecision(opts({ plan: copy }))).toThrow(/needs --decision/);
+    // A bound decision must name its test seed.
+    const d = join(dir, "decision.json");
+    writeFileSync(d, JSON.stringify({ ...DECISION, plan: p }));
+    expect(() => requireDecision(opts({ plan: p, decision: d }))).toThrow(
+      /must name its test seed/,
+    );
+    // Another spelling of the same file is the same plan.
+    writeFileSync(d, JSON.stringify({ ...DECISION, plan: p, test_seed: "204" }));
+    const respelled = `${dir}/configs/./iter3/a/../a/plan.json`; // not normalised (join would)
+    expect(respelled).not.toBe(p);
+    expect(requireDecision(opts({ plan: respelled, decision: d }))?.plan).toBe(p);
+  });
 });

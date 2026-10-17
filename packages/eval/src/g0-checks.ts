@@ -219,9 +219,10 @@ export function secondTurnBearings(): { name: string; got: number; want: number 
 const wrapPi = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
 
 /**
- * Kinematic consistency of one scenario's ownship track (G0 red team round 1): each step is at
- * most v·dt; the chord's heading lies between the stored courses at the step's ends (equal to
- * them on a leg); and the course changes by at most ω·dt per step (rate-limited turns).
+ * Kinematic consistency of one scenario's ownship track (G0 panel rounds 1–2): each step lies
+ * between the full-step arc chord and v·dt; the chord's heading lies between the stored courses at
+ * the step's ends (equal to them on a leg); the course changes by at most ω·dt per step; and each
+ * rate-limited turn's summed course change equals its stored angle.
  * The stored course is a model input, so a course that disagrees with the positions fails here
  * even when the solver, which uses positions only, is unaffected. Returns the first failure.
  */
@@ -231,6 +232,8 @@ export function kinematicFailure(s: Scenario): string | null {
   const dt = p.dt_s;
   const rate = p.ownship_turn_rate_rad_s ?? 0;
   const own = s.ownship.states;
+  // The shortest a step at speed v can be: the chord of a full-step arc at ω (v·dt on a leg).
+  const minStep = rate > 0 ? 2 * (v / rate) * Math.sin((rate * dt) / 2) : v * dt;
   for (let i = 1; i < own.length; i++) {
     const a = own[i - 1];
     const b = own[i];
@@ -239,6 +242,8 @@ export function kinematicFailure(s: Scenario): string | null {
     const dy = b.y_m - a.y_m;
     const step = Math.hypot(dx, dy);
     if (step > v * dt + 0.05) return `sample ${String(i)}: step ${step.toFixed(3)} m > v·dt`;
+    if (step < minStep - 0.05)
+      return `sample ${String(i)}: step ${step.toFixed(3)} m < ${minStep.toFixed(3)} m (slower than the stored speed)`;
     const dc = wrapPi(b.course_rad - a.course_rad);
     if (rate > 0 && Math.abs(dc) > rate * dt + 1e-5)
       return `sample ${String(i)}: course changed ${dc.toFixed(5)} rad > ω·dt`;
@@ -251,6 +256,27 @@ export function kinematicFailure(s: Scenario): string | null {
       if (off < lo || off > hi)
         return `sample ${String(i)}: chord heading ${off.toExponential(2)} rad off the course, outside [0, ${dc.toExponential(2)}]`;
     }
+  }
+  // Each rate-limited turn's summed course change equals its stored signed angle, so a track that
+  // turns 2π − |zig| the other way to the same course fails (G0 panel round 2, geometry).
+  const m = s.metadata;
+  const turns: [number | null | undefined, number | null | undefined, number | null | undefined][] =
+    [
+      [m.turn_start_index, m.zig_index, p.zig_angle_rad],
+      [m.turn2_start_index, m.zig2_index, p.zig2_angle_rad],
+    ];
+  for (const [start, end, angle] of turns) {
+    if (start == null || end == null || angle == null) continue;
+    let sum = 0;
+    for (let i = start; i <= end; i++) {
+      const a = own[i - 1];
+      const b = own[i];
+      if (a === undefined || b === undefined)
+        return `turn at sample ${String(start)}: samples missing`;
+      sum += wrapPi(b.course_rad - a.course_rad);
+    }
+    if (Math.abs(sum - angle) > 1e-4)
+      return `turn at sample ${String(start)}: course changed ${sum.toFixed(5)} rad, stored ${angle.toFixed(5)}`;
   }
   return null;
 }
@@ -390,7 +416,7 @@ export function checkIndependentGeometry(
     "independent-geometry",
     fails.length === 0 && skipped === 0,
     fails.length === 0 && skipped === 0
-      ? `hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2), leg-3 and second-turn (both directions, mid-arc and leg 3) cases match; t = 0 bearing and range match the drawn parameters, and ownship kinematics (step ≤ v·dt, chord heading between the stored courses, turn ≤ ω·dt per step, |turn| ≤ 180°) hold, on ${String(n)} scenarios` +
+      ? `hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2), leg-3 and second-turn (both directions, mid-arc and leg 3) cases match; t = 0 bearing and range match the drawn parameters, and ownship kinematics (arc chord ≤ step ≤ v·dt, chord heading between the stored courses, turn ≤ ω·dt per step, summed turn = stored angle, |turn| ≤ 180°) hold, on ${String(n)} scenarios` +
           (los != null
             ? `; ${String(turns)} turns put the target on the other bow inside the drawn offset range`
             : "")
