@@ -17,7 +17,7 @@
 - [x] T008 Dataset seed 204 generated at a clean commit; plan `configs/iter3/a/plan.json` with
   digests; seed 204 reserved in `scripts/train-plan.mjs`; viewer catalogue shows the validation
   split
-- [ ] T009 Decision record `experiments/<date>-i3-decision/` (change, forecast, validation rule,
+- [x] T009 Decision record `experiments/<date>-i3-decision/` (change, forecast, validation rule,
   carried set, seed 204), committed before training
 
 ## Run
