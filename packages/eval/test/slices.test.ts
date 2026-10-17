@@ -25,6 +25,21 @@ describe("slices", () => {
     expect(sliceKeys(m).slice(1, 3)).toEqual(["range_band=5-10km", "zig_band=70-90deg"]);
   });
 
+  it("iteration-3 turns beyond 90° get their own bands up to 180° (spec 007)", () => {
+    const [s] = scenarios(4n, 1);
+    if (s === undefined) throw new Error();
+    const zig = (deg: number) =>
+      sliceKeys({
+        ...s.metadata,
+        parameters: { ...s.metadata.parameters, zig_angle_rad: (deg * Math.PI) / 180 },
+      })[2];
+    expect(zig(100)).toBe("zig_band=90-120deg");
+    expect(zig(-143)).toBe("zig_band=120-150deg");
+    expect(zig(179.9)).toBe("zig_band=150-180deg");
+    expect(zig(180.0004)).toBe("zig_band=150-180deg");
+    expect(zig(29.9995)).toBe("zig_band=30-50deg");
+  });
+
   it("dropout band: 3% → 0-5pct, 7% → 5-10pct, boundary 5% → upper band (T021)", () => {
     const [s] = scenarios(5n, 1);
     if (s === undefined) throw new Error();
