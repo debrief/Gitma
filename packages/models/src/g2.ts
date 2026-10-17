@@ -169,6 +169,8 @@ export const PAIRED_FILE = "paired.json";
 export interface PairedRecord {
   variant: "instantaneous" | "time_late";
   model: string;
+  /** The other phase's model of the same variant, or the classical solver on the same rows. */
+  reference: "other-phase" | "classical";
   other: string;
   slice: string;
   metric: "range_rel" | "course_deg" | "speed_kt";
@@ -183,9 +185,10 @@ export interface PairedRecord {
 }
 
 /**
- * For each sequence model, the paired bootstrap of median error, carried / other phase, at the G2
- * points on σ = 1°: range and course at 300 s, speed at 600 s. Spec 007 FR-006's validation rule
- * reads the instantaneous speed record; the rest are reported.
+ * For each sequence model, the paired bootstrap of median error at the G2 points on σ = 1° (range
+ * and course at 300 s, speed at 600 s), against the other phase's model of the same variant and
+ * against the classical solver, on the same rows. Spec 007 FR-006 reads the instantaneous speed
+ * records; the rest are reported.
  */
 export function pairedComparison(
   carried: Scored,
@@ -205,24 +208,30 @@ export function pairedComparison(
   for (const variant of ["instantaneous", "time_late"] as const) {
     const key = variant === "instantaneous" ? "instantaneous" : "timeLate";
     const a = find(carried, carriedIds[key]);
-    const b = find(other, otherIds[key]);
-    for (const [metric, point] of [
-      ["range_rel", 300],
-      ["course_deg", 300],
-      ["speed_kt", 600],
-    ] as const) {
-      const e = pairedErrors(truth, a, b, point, metric);
-      if (e.a.length === 0) continue;
-      const r = bootstrapMedianRatio(e.a, e.b, resamples);
-      out.push({
-        variant,
-        model: carriedIds[key],
-        other: otherIds[key],
-        slice,
-        metric,
-        point_s: point,
-        ...r,
-      });
+    const refs = [
+      { reference: "other-phase" as const, set: find(other, otherIds[key]), name: otherIds[key] },
+      { reference: "classical" as const, set: find(carried, CLASSICAL), name: CLASSICAL },
+    ];
+    for (const ref of refs) {
+      for (const [metric, point] of [
+        ["range_rel", 300],
+        ["course_deg", 300],
+        ["speed_kt", 600],
+      ] as const) {
+        const e = pairedErrors(truth, a, ref.set, point, metric);
+        if (e.a.length === 0) continue;
+        const r = bootstrapMedianRatio(e.a, e.b, resamples);
+        out.push({
+          variant,
+          model: carriedIds[key],
+          reference: ref.reference,
+          other: ref.name,
+          slice,
+          metric,
+          point_s: point,
+          ...r,
+        });
+      }
     }
   }
   return out;

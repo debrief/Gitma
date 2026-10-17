@@ -89,22 +89,27 @@ seed-204 test split, with the 2c models beside it as the other phase. Then the a
 - **FR-004**: Generator 0.3.0 reads 0.1.0 and 0.2.0 datasets. `tma-train` requires a G0 on 0.3.0.
 - **FR-005**: The decision record MUST be committed before any iteration-3 weights are trained.
   `tma-g2` checks ancestry.
-- **FR-006 (validation rule, B.3.3; amended after the G0 panel's statistics finding).** The rule
-  compares models **on the same rows of the new problem**. Comparing against 2c's iteration-2
-  validation figures would credit the easier problem to the lever. The steps:
-  1. Score both sets of models on seed 204's validation split, σ = 1°, zig + 600 s, rows common to
-     both: the iteration-3 models, and the 2c models, whose other-phase predictions
-     `tma-g2 --compare-models` already writes.
-  2. **Primary condition (instantaneous model).** Take the paired bootstrap (eval's
-     `bootstrapMedianRatio`: 2,000 resamples, seed 20261011) of median speed error, iteration-3
-     LSTM / 2c LSTM. Its 95% interval must lie wholly below 1.
-  3. **Second condition.** The iteration-3 LSTM's G2 speed check on validation must not be a
-     fail: its interval's lower bound is under 1 kt.
+- **FR-006 (validation rule, B.3.3; amended after G0 panel rounds 1–2, statistics).** A lever
+  that changes the problem has no like-for-like counterfactual for B.3.3's "moved speed". 2c's
+  figures are on another problem. 2c scored on the new problem degrades out of distribution: on
+  scratch seed 9001 its LSTM reaches 1.93 kt here, against 1.49 kt on the iteration-2 ranges. The
+  rule is therefore:
+  1. Score both sets on seed 204's validation split, σ = 1°, zig + 600 s, on rows common to both:
+     the iteration-3 models, and the 2c models as the other phase (`tma-g2 --compare-models`). It
+     writes `paired.json`, with paired bootstrap intervals from `bootstrapMedianRatio`, 2,000
+     resamples, seed 20261011.
+  2. **Operative condition.** The iteration-3 LSTM's G2 speed interval has a lower bound under
+     1 kt, so a G2 pass is possible.
+  3. **Sanity condition (weak reference).** The paired median speed ratio, iteration-3 LSTM over 2c
+     LSTM, has a 95% interval wholly below 1. 2c degrades on the new problem, so this shows only
+     that training on it helped, never that the lever worked.
+  4. **Reported measure of what the models gained.** The paired median speed ratio, iteration-3
+     LSTM over classical on the same rows, with its interval. It is set beside 2c's 2.37 (1.42 /
+     0.60 kt) on its own validation.
 
-  The time-late model is reported the same way but is not a condition. The carried pair goes to
-  the test split only if both conditions hold. Otherwise the iteration stops at validation and is
-  written up. The model / classical speed ratio on the same rows is reported beside, against 2c's
-  2.37 on its own validation.
+  The time-late model is reported the same way, not as a condition. The carried pair goes to the
+  test split only if conditions 2 and 3 both hold. Otherwise the iteration stops at validation and
+  is written up. The write-up does not cite condition 3 as evidence that the lever worked.
 - **FR-007**: The carried set is the iteration-3 LSTM and BiLSTM, unconditionally. The 2c models
   are scored beside them on the same split, reported and never gated.
 - **FR-008**: Thresholds, slices, bootstrap and the gate rule are spec 003's as amended by the G2
@@ -114,7 +119,8 @@ seed-204 test split, with the 2c models beside it as the other phase. Then the a
   across-LOS turn is not the same population as iteration 2's.
 - **FR-009 (decision binding; G0 red team).** From iteration 3, `tma-g2 --split test` requires a
   committed decision whose `plan` names the plan being scored and whose `test_seed` matches it. An
-  earlier iteration's decision cannot unlock seed 204's test split.
+  earlier iteration's decision cannot unlock seed 204's test split. A decision binds by the plan's
+  path or by its content (a test seed of 204 or later), and must name its `test_seed`.
 
 ## Reading the gate under three legs (G0 panel, statistics and geometry)
 

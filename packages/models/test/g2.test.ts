@@ -228,6 +228,7 @@ describe("tma-g2 end to end (tiny)", () => {
     // Spec 007 FR-006: carried / other phase, paired on the same rows, per model and metric.
     const paired = JSON.parse(readFileSync(join(exp, PAIRED_FILE), "utf8")) as PairedRecord[];
     expect(paired.length).toBeGreaterThan(0);
+    expect(new Set(paired.map((r) => r.reference))).toEqual(new Set(["other-phase", "classical"]));
     for (const r of paired) {
       expect(r.slice).toBe("sigma=1deg");
       expect(r.lo).toBeLessThanOrEqual(r.hi);
