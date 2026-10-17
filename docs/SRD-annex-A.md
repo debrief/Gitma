@@ -108,8 +108,10 @@ Numbered V-nnn so a spec can trace them.
 
 - **V-015** Any committed model folder under `experiments/<id>/models` (tfjs layers format) can be
   selected; its manifest (id, config, source dataset header, the gate experiment it was scored in)
-  is shown. The default is the carried pair of the latest gate experiment (at the time of writing,
-  the 2c models in `experiments/20261016-i2d-val/models`).
+  is shown. The viewer offers every gate's carried pair by default (D3): iteration 1
+  (`experiments/20261012-g1-r2/models`), iteration 2 (`20261014-i2-g2/models`), 2b
+  (`20261015-i2c-val/models`) and 2c (`20261016-i2d-val/models`); the controls stay selectable
+  by path. The latest gate's pair is selected on load.
 - **V-016** Inference runs in the browser with `@tensorflow/tfjs` on the same `@tma/features`
   functions and normalisation constants the pipeline uses. A test shows the browser prediction
   for a fixed scenario agrees with `tma-model-predict` to float32 tolerance. Budget: under two
@@ -257,4 +259,6 @@ Each is a separate, pre-registered experiment (B.3). None is chosen until A.7 is
 - **D2** Whether V-014 (bearing-window trimming) is in the first viewer or deferred. _Decided
   2026-10-17: deferred; the first viewer has the "now" cursor only._
 - **D3** Which model folders ship by default (the 2c pair, or every gate's carried pair).
+  _Decided 2026-10-17: every gate's carried pair (iterations 1, 2, 2b and 2c), so one engagement
+  can be stepped through the project's history; controls remain selectable by path._
 - **D4** After A.7: the first lever of B.2.
