@@ -108,6 +108,9 @@ export function checkPlanDigests(plan: string, data: string): string[] {
   }
 }
 
+/** A repository-relative path in one spelling: forward slashes, no leading "./". */
+const normPath = (p: string): string => p.replace(/\\/g, "/").replace(/^(\.\/)+/, "");
+
 /** True when the commit that first added `path` is an ancestor of (or equal to) `commit`. */
 export function gitDecisionPrecedes(path: string, commit: string): boolean {
   try {
@@ -169,7 +172,18 @@ export function gitCommitted(path: string): boolean {
 export function requireDecision(opts: G2RunOptions): ChangeDecision | undefined {
   if (opts.split !== "test") return undefined;
   const phaseB = opts.compareModels !== undefined || existsSync(opts.phaseBDir ?? PHASE_B_CONFIGS);
+  // From iteration 3 (spec 007, G0 red team): a test split is scored only with the decision that
+  // names its plan, so an earlier iteration's decision cannot unlock a later iteration's test.
+  const iteration = /(?:^|\/)configs\/iter(\d+)\//.exec(normPath(opts.plan ?? ""));
+  const bound = iteration !== null && Number(iteration[1]) >= 3;
   if (opts.decision === undefined) {
+    if (bound) {
+      throw new RecordError(
+        "--decision",
+        "spec 007",
+        `scoring the test split of ${String(opts.plan)} needs --decision <the committed decision.json that names this plan>`,
+      );
+    }
     if (phaseB) {
       throw new RecordError(
         "--decision",
@@ -185,6 +199,26 @@ export function requireDecision(opts: G2RunOptions): ChangeDecision | undefined 
     opts.decision,
     "decision",
   );
+  if (bound && (d.plan == null || normPath(d.plan) !== normPath(opts.plan ?? ""))) {
+    throw new RecordError(
+      opts.decision,
+      "plan",
+      `the decision pre-registers ${d.plan ?? "no plan"}, not ${String(opts.plan)}`,
+    );
+  }
+  if (d.test_seed != null && opts.plan !== undefined) {
+    const p = JSON.parse(readFileSync(opts.plan, "utf8")) as {
+      dataset?: { seed?: string; fresh_test?: { seed?: string } };
+    };
+    const seed = p.dataset?.fresh_test?.seed ?? p.dataset?.seed;
+    if (seed !== d.test_seed) {
+      throw new RecordError(
+        opts.decision,
+        "test_seed",
+        `the decision commits to test seed ${d.test_seed}, but ${opts.plan} tests seed ${String(seed)}`,
+      );
+    }
+  }
   if (!(opts.isCommitted ?? gitCommitted)(opts.decision)) {
     throw new RecordError(
       opts.decision,

@@ -16,7 +16,7 @@
       "result": "pass"
     },
     {
-      "detail": "hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2) and leg-3 cases match; t = 0 bearing and range match the drawn parameters on 4 scenarios",
+      "detail": "hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2), leg-3 and second-turn (both directions, mid-arc and leg 3) cases match; t = 0 bearing and range match the drawn parameters, and ownship kinematics (step ≤ v·dt, chord heading between the stored courses, turn ≤ ω·dt per step, |turn| ≤ 180°) hold, on 4 scenarios",
       "name": "independent-geometry",
       "result": "pass"
     },

@@ -105,9 +105,11 @@ describe("second zig: known answers", () => {
   });
 });
 
+// Noisy (σ = 2°), so a rule planned from the observed bearing rather than the true one fails the
+// offset bounds below (G0 red team round 1, mutation M4: G0's noise-free data cannot see it).
 const ITER3: ParameterRanges = {
   ...DEFAULT_RANGES,
-  noise_sigma_rad_values: [0],
+  noise_sigma_rad_values: [degToRad(2)],
   ownship_turn_rate_rad_s: { min: degToRad(0.5), max: degToRad(3) },
   zig_rule: "across_los",
   los_offset_rad: { min: degToRad(30), max: degToRad(90) },

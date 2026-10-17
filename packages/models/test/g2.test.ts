@@ -1,6 +1,6 @@
 // T038: tma-g2 one-command run, tiny. Validation reads only train + validation and writes a
 // diagnostic (not a verdict); test needs a committed decision once a phase B exists (SC-005).
-import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileSha256, generateDataset, readDataset } from "@tma/data";
 import { computeNormalisation, writeFeatures } from "@tma/features";
@@ -18,6 +18,7 @@ import {
   DIAGNOSTIC_FILE,
   featuresPath,
   type G2RunOptions,
+  requireDecision,
   requireSameRows,
   runG2,
 } from "../src/g2.js";
@@ -302,5 +303,45 @@ describe("tma-g2 end to end (tiny)", () => {
     await expect(runG2(base({ data: rawOnly, models: modelsB }))).rejects.toThrow(
       /feature-set-mismatch/,
     );
+  });
+});
+
+describe("decisions bind to their plan from iteration 3 (spec 007, G0 red team)", () => {
+  const plan = (dir: string, seed: string): string => {
+    const p = join(dir, "configs/iter3/a/plan.json");
+    mkdirSync(join(dir, "configs/iter3/a"), { recursive: true });
+    writeFileSync(p, JSON.stringify({ dataset: { seed } }));
+    return p;
+  };
+  const opts = (over: Partial<G2RunOptions>): G2RunOptions => ({
+    data: "d",
+    models: "m",
+    experiment: "e",
+    split: "test",
+    commandLine: "test",
+    phaseBDir: join(tempDir(), "absent"),
+    isCommitted: () => true,
+    ...over,
+  });
+
+  it("an iteration-3 test needs a decision, and only the one that names its plan and seed", () => {
+    const dir = tempDir();
+    const p = plan(dir, "204");
+    expect(() => requireDecision(opts({ plan: p }))).toThrow(/needs --decision/);
+    // An earlier iteration's decision (no plan) cannot unlock it.
+    const old = join(dir, "old.json");
+    writeFileSync(old, JSON.stringify(DECISION));
+    expect(() => requireDecision(opts({ plan: p, decision: old }))).toThrow(
+      /pre-registers no plan/,
+    );
+    const d = join(dir, "decision.json");
+    writeFileSync(d, JSON.stringify({ ...DECISION, plan: "configs/iter3/b/plan.json" }));
+    expect(() => requireDecision(opts({ plan: p, decision: d }))).toThrow(/pre-registers/);
+    writeFileSync(d, JSON.stringify({ ...DECISION, plan: p, test_seed: "205" }));
+    expect(() => requireDecision(opts({ plan: p, decision: d }))).toThrow(/test seed 205/);
+    writeFileSync(d, JSON.stringify({ ...DECISION, plan: p, test_seed: "204" }));
+    expect(requireDecision(opts({ plan: p, decision: d }))?.test_seed).toBe("204");
+    // Validation needs nothing.
+    expect(requireDecision(opts({ plan: p, split: "validation" }))).toBeUndefined();
   });
 });

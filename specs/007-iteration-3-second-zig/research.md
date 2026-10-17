@@ -107,10 +107,22 @@ The rule is implemented as follows:
 
 - **New course.** The new course is the bearing plus the side of the target times the offset, by
   the shorter turn.
-- **Target ahead.** It turns towards the target and through the line of sight.
-- **Target on the quarter.** It turns away, through the stern line of sight.
+- **Turn direction.** When the relative bearing plus the offset is under 180°, it turns towards
+  the target, through the bow line of sight. Otherwise the shorter turn is away from the target,
+  through the stern line of sight. In the G0 data, every target ahead is crossed towards. Of the
+  targets abaft the beam, 5,793 turns go away and 3,398 towards (G0 panel, geometry).
 
-Both cases reverse the across-line-of-sight component.
+Both directions reverse the across-line-of-sight component at the start of the turn.
+
+**Caveats** (G0 panel round 1):
+
+- **Defined at the start of the turn.** The rule fixes the course from the bearing at the turn's
+  start. The bearing keeps drawing during the turn, by median 1.5° and p99 23°. At the first
+  sample of the new leg, 5.9% of turns have the angle off outside 30–90°. In 26 of 20,000 turns
+  the target is back on the original bow, all at ranges under about 3 km.
+- **Near-reversals.** Turns near 180° (1% of turns over 179°) are near-ambiguous in direction.
+  A tiny change in geometry flips the arc side and moves the track by up to 2v/ω, about 1.8 km.
+  The rule is deterministic, so this is a property of the problem, not an error.
 
 The rule uses the true bearing, not the observed one: at σ ≤ 2° the difference is small, and it
 keeps the parameters a pure function of the draws.

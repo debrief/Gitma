@@ -89,18 +89,62 @@ seed-204 test split, with the 2c models beside it as the other phase. Then the a
 - **FR-004**: Generator 0.3.0 reads 0.1.0 and 0.2.0 datasets. `tma-train` requires a G0 on 0.3.0.
 - **FR-005**: The decision record MUST be committed before any iteration-3 weights are trained.
   `tma-g2` checks ancestry.
-- **FR-006 (validation rule, B.3.3)**: The carried pair goes to the test split only if:
-  - the instantaneous model's validation speed (σ = 1°, zig + 600 s) is below 1.36 kt, which is
-    2c's validation 1.42 kt less its interval half-width;
-  - or the time-late model's validation speed is below 1.45 kt, which is 2c's 1.52 kt less its
-    half-width.
+- **FR-006 (validation rule, B.3.3; amended after the G0 panel's statistics finding).** The rule
+  compares models **on the same rows of the new problem**. Comparing against 2c's iteration-2
+  validation figures would credit the easier problem to the lever. The steps:
+  1. Score both sets of models on seed 204's validation split, σ = 1°, zig + 600 s, rows common to
+     both: the iteration-3 models, and the 2c models, whose other-phase predictions
+     `tma-g2 --compare-models` already writes.
+  2. **Primary condition (instantaneous model).** Take the paired bootstrap (eval's
+     `bootstrapMedianRatio`: 2,000 resamples, seed 20261011) of median speed error, iteration-3
+     LSTM / 2c LSTM. Its 95% interval must lie wholly below 1.
+  3. **Second condition.** The iteration-3 LSTM's G2 speed check on validation must not be a
+     fail: its interval's lower bound is under 1 kt.
 
-  Otherwise the iteration stops at validation and is written up.
+  The time-late model is reported the same way but is not a condition. The carried pair goes to
+  the test split only if both conditions hold. Otherwise the iteration stops at validation and is
+  written up. The model / classical speed ratio on the same rows is reported beside, against 2c's
+  2.37 on its own validation.
 - **FR-007**: The carried set is the iteration-3 LSTM and BiLSTM, unconditionally. The 2c models
   are scored beside them on the same split, reported and never gated.
 - **FR-008**: Thresholds, slices, bootstrap and the gate rule are spec 003's as amended by the G2
   panels. Classical and naive are re-baselined on the new data, and the improvement is reported
-  rather than subtracted (B.2.1).
+  rather than subtracted (B.2.1). Zig bands run to 180°. Every slice is reported with its n, and
+  slices under 100 rows are marked indicative. Bands are not compared across iterations: a 30–90°
+  across-LOS turn is not the same population as iteration 2's.
+- **FR-009 (decision binding; G0 red team).** From iteration 3, `tma-g2 --split test` requires a
+  committed decision whose `plan` names the plan being scored and whose `test_seed` matches it. An
+  earlier iteration's decision cannot unlock seed 204's test split.
+
+## Reading the gate under three legs (G0 panel, statistics and geometry)
+
+Gate times still count from the end of the **first** turn. On the G0 test split:
+
+- **The second turn.** It starts 180–300 s after the zig (median 240 s) and lasts 20–350 s
+  (median 70 s).
+- **At zig + 300 s.** 4% of scenarios are still on leg 2, 59% are mid-way through the second
+  turn and 37% are on leg 3. Range and course are judged mostly **during** the second manoeuvre.
+- **At zig + 600 s.** 99.9% are on leg 3, with a median of 280 s of it (p10 190 s, p90 340 s).
+  Speed is judged after 4–5 minutes of leg 3.
+
+So zig + 300 s is not like-for-like with iterations 1–2c, and the report says so. The
+re-baselined classical figures, on the same rows, sit beside every model figure.
+
+**Realised distribution.** Redraws (second turns that do not complete) remove short windows, so
+"10–40 min" is no longer uniform:
+
+| Statistic | Value |
+| --- | --- |
+| redraws per scenario | 0.21 |
+| window p10 | 16.7 min (first draws: 13.0 min) |
+| window median | 27.7 min (first draws: 25.2 min) |
+| scenarios with 10–15 min windows | 5.6% (16.7% if uniform) |
+| mean turn rate | 1.83°/s (first draws: 1.75°/s) |
+| reaching zig + 300 s | 98.9% |
+| reaching zig + 600 s | 65.4% |
+
+The drawn delay is rounded to whole samples, so 180 s and 300 s carry half the weight of the
+interior values.
 
 ## Success criteria
 
@@ -114,7 +158,7 @@ seed-204 test split, with the 2c models beside it as the other phase. Then the a
 - **Large turns.** With an offset of 30–90° on the other bow, the median first turn is 143° (p90
   173°), against 61° in iteration 2. The owner checks this in the viewer (US1). A cap on turn size
   would be a further change to the problem.
-- **Longer windows.** Redraws for second turns that do not fit remove short windows: p10 window
-  16.5 min, against 12.7. The share reaching zig + 600 s rises from 61% to 66%.
+- **Longer windows.** Redraws for second turns that do not fit remove short windows (see "Reading
+  the gate under three legs").
 - **An easier problem.** Every estimator gains, so a G2 pass is a pass on the three-leg problem,
   and is reported as such.

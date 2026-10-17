@@ -164,6 +164,98 @@ export function inTurnBearings(): { name: string; got: number; want: number }[] 
 }
 
 /**
+ * Second-turn known answers (generator 0.3.0, spec 007; G0 red team round 1): as `inTurnBearings`'
+ * first turn (+60° at 1°/s from t = 300 s, so leg 2 starts at t = 360 s from
+ * p₁ = (r(1 − cos 60°), 3000 + r sin 60°) on course 60°), then 100 s of leg 2 to
+ * p₂ = p₁ + 1000 (sin 60°, cos 60°) at t = 460 s and a second ±60° turn at 1°/s:
+ * - mid-arc (t = 490 s, sample 49): heading 60° ± 30°, p = p₂ + (±r)(cos 60° − cos c, sin c − sin 60°);
+ * - leg 3 (t = 560 s, sample 56): the arc ended at t = 520 s on course 60° ± 60°, then 40 s straight.
+ * Both directions, so a second arc flown the wrong way, or leg 3 left on the leg-2 track, fails.
+ */
+export function secondTurnBearings(): { name: string; got: number; want: number }[] {
+  const omega = Math.PI / 180;
+  const r = 10 / omega;
+  const c1 = Math.PI / 3;
+  const p1x = r * (1 - Math.cos(c1));
+  const p1y = 3000 + r * Math.sin(c1);
+  const p2x = p1x + 1000 * Math.sin(c1);
+  const p2y = p1y + 1000 * Math.cos(c1);
+  const out: { name: string; got: number; want: number }[] = [];
+  for (const side of [1, -1]) {
+    const p: ScenarioParameters = {
+      ...KNOWN,
+      zig_angle_rad: degToRad(60),
+      target_bearing0_rad: Math.PI / 2,
+      target_range0_m: 5000,
+      ownship_turn_rate_rad_s: omega,
+      zig2_delay_s: 100,
+      zig2_angle_rad: side * degToRad(60),
+    };
+    const obs = observe(createRng(1n), p, simulateTruth(p));
+    const label = side > 0 ? "second turn to starboard" : "second turn to port";
+    const c = c1 + side * (Math.PI / 6);
+    const midX = p2x + side * r * (Math.cos(c1) - Math.cos(c));
+    const midY = p2y + side * r * (Math.sin(c) - Math.sin(c1));
+    out.push({
+      name: `${label}, mid-arc`,
+      got: obs[49]?.bearing_rad ?? NaN,
+      want: Math.atan2(5000 - midX, 0 - midY),
+    });
+    const c2 = c1 + side * (Math.PI / 3);
+    const endX = p2x + side * r * (Math.cos(c1) - Math.cos(c2));
+    const endY = p2y + side * r * (Math.sin(c2) - Math.sin(c1));
+    const legX = endX + 10 * 40 * Math.sin(c2);
+    const legY = endY + 10 * 40 * Math.cos(c2);
+    out.push({
+      name: `${label}, leg 3`,
+      got: obs[56]?.bearing_rad ?? NaN,
+      want: Math.atan2(5000 - legX, 0 - legY),
+    });
+  }
+  return out;
+}
+
+/** Wrapped angle difference in (−π, π]. */
+const wrapPi = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
+
+/**
+ * Kinematic consistency of one scenario's ownship track (G0 red team round 1): each step is at
+ * most v·dt; the chord's heading lies between the stored courses at the step's ends (equal to
+ * them on a leg); and the course changes by at most ω·dt per step (rate-limited turns).
+ * The stored course is a model input, so a course that disagrees with the positions fails here
+ * even when the solver, which uses positions only, is unaffected. Returns the first failure.
+ */
+export function kinematicFailure(s: Scenario): string | null {
+  const p = s.metadata.parameters;
+  const v = p.ownship_speed_mps;
+  const dt = p.dt_s;
+  const rate = p.ownship_turn_rate_rad_s ?? 0;
+  const own = s.ownship.states;
+  for (let i = 1; i < own.length; i++) {
+    const a = own[i - 1];
+    const b = own[i];
+    if (a === undefined || b === undefined) return `sample ${String(i)} missing`;
+    const dx = b.x_m - a.x_m;
+    const dy = b.y_m - a.y_m;
+    const step = Math.hypot(dx, dy);
+    if (step > v * dt + 0.05) return `sample ${String(i)}: step ${step.toFixed(3)} m > v·dt`;
+    const dc = wrapPi(b.course_rad - a.course_rad);
+    if (rate > 0 && Math.abs(dc) > rate * dt + 1e-5)
+      return `sample ${String(i)}: course changed ${dc.toFixed(5)} rad > ω·dt`;
+    if (rate > 0 && step > 1) {
+      // On a constant-speed path that turns one way during the step, the chord's heading lies
+      // between the headings at its ends (equal to them on a straight leg).
+      const off = wrapPi(Math.atan2(dx, dy) - a.course_rad);
+      const lo = Math.min(0, dc) - 2e-4;
+      const hi = Math.max(0, dc) + 2e-4;
+      if (off < lo || off > hi)
+        return `sample ${String(i)}: chord heading ${off.toExponential(2)} rad off the course, outside [0, ${dc.toExponential(2)}]`;
+    }
+  }
+  return null;
+}
+
+/**
  * Solver-independent geometry: hand-computed bearings (Math.atan2 with literal coordinates, not
  * the shared bearingOf) and, for every truth scenario, the t = 0 bearing and range against the
  * drawn parameters. Catches frame errors that the solver would share with the generator.
@@ -214,6 +306,12 @@ export function checkIndependentGeometry(
   })[50];
   if (!(Math.abs(angleDiff(leg3 ?? NaN, Math.atan2(5000, -4000))) < 1e-6))
     fails.push(`leg-3 case gave ${String(leg3)}`);
+  for (const c of secondTurnBearings()) {
+    if (!(Math.abs(angleDiff(c.got, c.want)) < 1e-6))
+      fails.push(`${c.name} gave ${String(c.got)}, want ${String(c.want)}`);
+  }
+  let skipped = 0;
+  let kinematic = 0;
   // Across the line of sight (zig_rule across_los): every turn of every scenario puts the target
   // on the other bow at an offset inside the drawn range, recomputed with literal atan2 from the
   // stored positions at the last sample before the turn and the course after it.
@@ -231,6 +329,19 @@ export function checkIndependentGeometry(
       fails.push(`scenario ${String(s.metadata.index)}: empty`);
       continue;
     }
+    const pz = s.metadata.parameters;
+    if (
+      Math.abs(pz.zig_angle_rad) > Math.PI + 1e-6 ||
+      Math.abs(pz.zig2_angle_rad ?? 0) > Math.PI + 1e-6
+    ) {
+      if (fails.length < 5)
+        fails.push(`scenario ${String(s.metadata.index)}: turn larger than 180°`);
+    }
+    const kin = kinematicFailure(s);
+    if (kin !== null) {
+      kinematic++;
+      if (fails.length < 5) fails.push(`scenario ${String(s.metadata.index)}: ${kin}`);
+    }
     if (los != null) {
       const m = s.metadata;
       const pairs: [number, number][] = [
@@ -242,7 +353,10 @@ export function checkIndependentGeometry(
         const ok = s.ownship.states[k];
         const tk = s.target.states[k];
         const oa = s.ownship.states[after];
-        if (ok === undefined || tk === undefined || oa === undefined) continue;
+        if (ok === undefined || tk === undefined || oa === undefined) {
+          skipped++;
+          continue;
+        }
         turns++;
         const brg = Math.atan2(tk.x_m - ok.x_m, tk.y_m - ok.y_m);
         // An instantaneous zig changes course at sample k itself: the old course is at k − 1.
@@ -274,12 +388,16 @@ export function checkIndependentGeometry(
   }
   return check(
     "independent-geometry",
-    fails.length === 0,
-    fails.length === 0
-      ? `hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2) and leg-3 cases match; t = 0 bearing and range match the drawn parameters on ${String(n)} scenarios` +
+    fails.length === 0 && skipped === 0,
+    fails.length === 0 && skipped === 0
+      ? `hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2), leg-3 and second-turn (both directions, mid-arc and leg 3) cases match; t = 0 bearing and range match the drawn parameters, and ownship kinematics (step ≤ v·dt, chord heading between the stored courses, turn ≤ ω·dt per step, |turn| ≤ 180°) hold, on ${String(n)} scenarios` +
           (los != null
             ? `; ${String(turns)} turns put the target on the other bow inside the drawn offset range`
             : "")
-      : fails.slice(0, 6).join("; "),
+      : [
+          ...fails.slice(0, 6),
+          ...(skipped > 0 ? [`${String(skipped)} turns could not be checked`] : []),
+          ...(kinematic > 0 ? [`${String(kinematic)} scenarios fail kinematics`] : []),
+        ].join("; "),
   );
 }

@@ -1,11 +1,13 @@
 // G0 independent geometry with the rate-limited turn (spec 003 US6, T016).
-import { DEFAULT_RANGES, degToRad, noiseFree } from "@tma/sim";
+import { DEFAULT_RANGES, degToRad, noiseFree, simulateTruth } from "@tma/sim";
 import type { ParameterRanges } from "@tma/types";
 import { describe, expect, it } from "vitest";
 import {
   checkBearingResiduals,
   checkIndependentGeometry,
   inTurnBearings,
+  kinematicFailure,
+  secondTurnBearings,
 } from "../src/g0-checks.js";
 import { scenarios } from "./helpers.js";
 
@@ -67,5 +69,50 @@ describe("G0 independent geometry: generator 0.3.0 (spec 007)", () => {
     });
     expect(c.result).toBe("fail");
     expect(c.detail).toMatch(/not across the line of sight/);
+  });
+});
+
+describe("G0 kinematic consistency (red team round 1 mutations)", () => {
+  const [base] = scenarios(9n, 1, ACROSS);
+  if (base === undefined) throw new Error("no scenario");
+  const z2 = base.metadata.zig2_index ?? NaN;
+  const t2 = base.metadata.turn2_start_index ?? NaN;
+
+  it("passes the generated three-leg scenario and the hand-computed second turns", () => {
+    expect(kinematicFailure(base)).toBeNull();
+    for (const c of secondTurnBearings())
+      expect(Math.abs(c.got - c.want), c.name).toBeLessThan(1e-6);
+  });
+
+  it("catches leg 3 left on the leg-2 track while its course is written (M5b)", () => {
+    const s = structuredClone(base);
+    const own = s.ownship.states;
+    const a = own[t2 - 2];
+    const b = own[t2 - 1];
+    if (a === undefined || b === undefined) throw new Error("index");
+    for (let i = t2; i < own.length; i++) {
+      const o = own[i];
+      if (o === undefined) continue;
+      const k = i - (t2 - 1);
+      o.x_m = Math.fround(b.x_m + k * (b.x_m - a.x_m));
+      o.y_m = Math.fround(b.y_m + k * (b.y_m - a.y_m));
+    }
+    expect(kinematicFailure(s)).toMatch(/chord heading/);
+  });
+
+  it("catches the second arc flown the wrong way with the courses unchanged (M1b)", () => {
+    const p = {
+      ...base.metadata.parameters,
+      zig2_angle_rad: -(base.metadata.parameters.zig2_angle_rad ?? 0),
+    };
+    const wrong = simulateTruth(p);
+    const s = structuredClone(base);
+    for (let i = t2; i < z2 + 3 && i < s.ownship.states.length; i++) {
+      const o = s.ownship.states[i];
+      if (o === undefined) continue;
+      o.x_m = Math.fround(wrong.ownX[i] ?? 0);
+      o.y_m = Math.fround(wrong.ownY[i] ?? 0);
+    }
+    expect(kinematicFailure(s)).not.toBeNull();
   });
 });

@@ -736,3 +736,13 @@ classes:
       carried_set_rule: { range: string, required: true }
       decided_at: { range: string, required: true }
       git_commit: { range: string, required: true }
+      plan:
+        range: string
+        description: >-
+          The plan this decision pre-registers (configs/<…>/plan.json). Required from iteration 3
+          (spec 007): tma-g2 scores a test split only with the decision that names its plan.
+      test_seed:
+        range: string
+        description: >-
+          Dataset seed of the test split the decision commits to (the plan's fresh_test seed, or
+          its dataset seed); tma-g2 checks it against the plan.

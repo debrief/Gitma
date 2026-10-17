@@ -79,10 +79,15 @@ turn. The relative bearing is `ρ = b − c`, wrapped to (−180°, 180°].
 - **Turn direction.** The turn takes the shorter way, so `zig = wrap(b + sign(ρ) φ − c)` and
   `|zig| ≤ 180°`.
 
-A target ahead is crossed by turning towards it; a target on the quarter by turning away, across
-the stern line of sight. Both reverse ownship's velocity component across the line of sight,
-which is what makes the bearings informative (spec 007 research R4). The realised turn is stored
-as `zig_angle_rad`, so the tracks depend only on the parameters.
+- **Through the bow line of sight.** When `|ρ| + φ < 180°` the turn is towards the target.
+- **Through the stern line of sight.** Otherwise the shorter turn is away from the target.
+
+Either way, ownship's velocity component across the line of sight reverses, which is what makes
+the bearings informative (spec 007 research R4). The rule holds at the start of the turn. During
+a long turn at short range the bearing keeps drawing, so on the new leg the angle off can fall
+outside the drawn range, and in rare cases the target returns to the original bow. Turns near
+180° can go either way for a tiny change in geometry. The realised turn is stored as
+`zig_angle_rad`, so the tracks depend only on the parameters.
 
 Worked check: heading north with the target 40° on the starboard bow and `φ` = 60°, the turn is
 100° to starboard. With the target on the starboard quarter (150°) it is 150° to port.

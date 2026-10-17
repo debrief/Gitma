@@ -5,9 +5,9 @@ title: Glossary
 TMA and ML terms as used in this project, alphabetical. Algorithm details are linked where they
 exist.
 
-**Across the line of sight** — A zig that puts the target on ownship's other bow. It reverses
-ownship's velocity component across the line of sight, the change bearings respond to most. It
-is iteration 3's rule for both turns (`zig_rule: across_los`; see
+**Across the line of sight** — A zig that puts the target on ownship's other bow, judged from the
+bearing at the start of the turn. It reverses ownship's velocity component across the line of
+sight, the change bearings respond to most. It is iteration 3's rule for both turns (`zig_rule: across_los`; see
 [generator](algorithms/generator.md)).
 
 **Bearing** — True direction from ownship to the target, clockwise from north, in radians in

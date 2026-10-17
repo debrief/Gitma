@@ -9,10 +9,14 @@ export const ChangeDecision = z.strictObject({
   decided_at: z.string(),
   git_commit: z.string(),
   phase_a_experiment: z.string(),
+  /** The plan this decision pre-registers (configs/<…>/plan.json). Required from iteration 3 (spec 007): tma-g2 scores a test split only with the decision that names its plan. */
+  plan: z.string().nullish(),
   /** Validation evidence cited. */
   rationale: z.string(),
   /** Any gated criterion failed or was inconclusive on validation. */
   stalled: z.boolean(),
+  /** Dataset seed of the test split the decision commits to (the plan's fresh_test seed, or its dataset seed); tma-g2 checks it against the plan. */
+  test_seed: z.string().nullish(),
 });
 export type ChangeDecision = z.infer<typeof ChangeDecision>;
 

@@ -20,6 +20,13 @@
         "phase_a_experiment": {
           "type": "string"
         },
+        "plan": {
+          "description": "The plan this decision pre-registers (configs/<…>/plan.json). Required from iteration 3 (spec 007): tma-g2 scores a test split only with the decision that names its plan.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "rationale": {
           "description": "Validation evidence cited.",
           "type": "string"
@@ -27,6 +34,13 @@
         "stalled": {
           "description": "Any gated criterion failed or was inconclusive on validation.",
           "type": "boolean"
+        },
+        "test_seed": {
+          "description": "Dataset seed of the test split the decision commits to (the plan's fresh_test seed, or its dataset seed); tma-g2 checks it against the plan.",
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
