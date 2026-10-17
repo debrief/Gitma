@@ -98,11 +98,11 @@ Numbered V-nnn so a spec can trace them.
   per-timestep estimates on the same scenario as a third track, with its convergence flags; the
   naive baseline's numbers in the panel. Every model figure is shown beside both, as §5 requires
   of any reported result.
-- **V-014** *Bearing-window trimming* (optional, off by default, labelled experimental): a second
-  slider sets the first bearing passed to the model, so the effect of withholding early bearings
-  can be seen. The models were trained on windows that start at window start, with the frame and
-  the time channel anchored there (§2, §4); a trimmed window is outside their training
-  distribution and the viewer says so. A spec may defer this control.
+- **V-014** *Bearing-window trimming* (deferred, D2): a second slider setting the first bearing
+  passed to the model, so the effect of withholding early bearings can be seen. The models were
+  trained on windows that start at window start, with the frame and the time channel anchored
+  there (§2, §4); a trimmed window is outside their training distribution and the viewer would
+  say so. Not in the first viewer.
 
 **Models**
 
@@ -254,6 +254,7 @@ Each is a separate, pre-registered experiment (B.3). None is chosen until A.7 is
 
 - **D1** Inference location: in the browser (V-016, the default here) or precomputed estimate
   files committed per experiment. _Decided 2026-10-17: in the browser._
-- **D2** Whether V-014 (bearing-window trimming) is in the first viewer or deferred.
+- **D2** Whether V-014 (bearing-window trimming) is in the first viewer or deferred. _Decided
+  2026-10-17: deferred; the first viewer has the "now" cursor only._
 - **D3** Which model folders ship by default (the 2c pair, or every gate's carried pair).
 - **D4** After A.7: the first lever of B.2.
