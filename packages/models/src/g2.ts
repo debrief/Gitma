@@ -25,7 +25,7 @@ import {
   NAIVE,
   naivePredict,
 } from "@tma/classical";
-import { readDataset } from "@tma/data";
+import { fileSha256, readDataset } from "@tma/data";
 import {
   BOOTSTRAP_RESAMPLES,
   BOOTSTRAP_SEED,
@@ -49,7 +49,7 @@ import {
   writeManifest,
   writeVerdict,
 } from "@tma/eval";
-import { openFeatures } from "@tma/features";
+import { openFeatures, writeFeatures } from "@tma/features";
 import {
   ChangeDecision,
   type FeatureSet,
@@ -433,15 +433,35 @@ export async function scoreSplit(
     for (const m of g.models) {
       const fs = m.manifest.config.feature_set ?? "raw";
       const path = featuresPath(opts.data, split, fs);
-      const features = openFeatures(path);
+      let features = openFeatures(path);
       try {
         log(`${split}: predicting ${m.manifest.id} (${fs}, ${path})`);
         requireSameFeatureSet(features, m.manifest.config.feature_set, m.manifest.id);
-        const note = requireSameNormalisation(features, m.manifest.normalisation, m.manifest.id, {
-          header: trainHeader,
-          modelSchemaVersion: m.manifest.schema_version,
-          modelSourceHeader: m.manifest.source_dataset_header,
-        });
+        let note: string | undefined;
+        try {
+          note = requireSameNormalisation(features, m.manifest.normalisation, m.manifest.id, {
+            header: trainHeader,
+            modelSchemaVersion: m.manifest.schema_version,
+            modelSourceHeader: m.manifest.source_dataset_header,
+          });
+        } catch (e) {
+          // The other phase may come from other training data (spec 007: the 2c models beside
+          // iteration 3). Its inputs are then built with its own normalisation, which holds
+          // inputs-only constants from its training data; the carried set never takes this path.
+          if (tag === undefined) throw e;
+          features.close();
+          const own = join(predDir, `${split}.${tag}.${m.manifest.id}.features.bin`);
+          const truth = readDataset(truthPath);
+          writeFeatures(
+            own,
+            () => readDataset(truthPath).scenarios(),
+            m.manifest.normalisation,
+            { header: truth.header, digest: fileSha256(truthPath) },
+            fs,
+          );
+          features = openFeatures(own);
+          note = `${m.manifest.id} (${tag}): trained on other data, so scored on inputs built with its own normalisation (${own})`;
+        }
         if (note !== undefined) notes.push(note);
         const model = await loadModel(m.dir);
         const ps = predictScenarios(

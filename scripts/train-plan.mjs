@@ -196,8 +196,12 @@ export function loadPlan(path) {
   for (const k of ["decision", "compare_models"]) {
     if (e[k] !== undefined && typeof e[k] !== "string") fail(`evaluate.${k} must be a path`);
   }
-  if (e.split === "validation" && (e.decision !== undefined || e.compare_models !== undefined))
-    fail("a validation evaluation takes no decision or compare_models");
+  // A validation run may score a reference set beside it on the same rows (spec 007 FR-006:
+  // paired.json); a decision is only for test.
+  if (e.split === "validation" && e.decision !== undefined)
+    fail("a validation evaluation takes no decision");
+  if (e.compare_models !== undefined && !existsSync(e.compare_models))
+    fail(`evaluate.compare_models ${e.compare_models} does not exist`);
   // A scan (side experiment, spec 003 R20) reports every model on validation; it never gates.
   if (e.command === "tma-scan" && e.split !== "validation")
     fail("a tma-scan evaluation is validation only");

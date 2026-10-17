@@ -18,6 +18,7 @@
   "models": ["instantaneous", "time-late", "causal-cnn", "mlp", "instantaneous-shuffled"],
   "evaluate": {
     "command": "tma-g2",
-    "split": "validation"
+    "split": "validation",
+    "compare_models": "experiments/20261016-i2d-g2/models"
   }
 }

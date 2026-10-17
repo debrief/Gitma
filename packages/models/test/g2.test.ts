@@ -1,6 +1,14 @@
 // T038: tma-g2 one-command run, tiny. Validation reads only train + validation and writes a
 // diagnostic (not a verdict); test needs a committed decision once a phase B exists (SC-005).
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { fileSha256, generateDataset, readDataset } from "@tma/data";
 import { computeNormalisation, writeFeatures } from "@tma/features";
@@ -269,6 +277,32 @@ describe("tma-g2 end to end (tiny)", () => {
         }),
       ),
     ).rejects.toThrow(/not committed before .* was trained/);
+  });
+
+  it("validation with an other phase trained on other data: its inputs use its own normalisation (spec 007)", async () => {
+    // A copy of the raw models whose manifests carry another normalisation, as models trained on
+    // another dataset would (the 2c models beside iteration 3).
+    const foreign = tempDir();
+    cpSync(modelsA, foreign, { recursive: true });
+    for (const id of readdirSync(foreign)) {
+      const mp = join(foreign, id, "manifest.json");
+      const m = JSON.parse(readFileSync(mp, "utf8")) as { normalisation: Record<string, unknown> };
+      m.normalisation = { ...m.normalisation, train_header_digest: "f".repeat(64) };
+      writeFileSync(mp, JSON.stringify(m));
+    }
+    const exp = join(tempDir(), "val-foreign");
+    await runG2(base({ split: "validation", compareModels: foreign, experiment: exp }));
+    expect(readFileSync(join(exp, "manifest.json"), "utf8")).toMatch(
+      /scored on inputs built with its own normalisation/,
+    );
+    expect(readdirSync(join(data, "predictions")).some((f) => f.endsWith(".features.bin"))).toBe(
+      true,
+    );
+    expect(existsSync(join(exp, PAIRED_FILE))).toBe(true);
+    // The carried set never takes this path: foreign models as the carried set are refused.
+    await expect(
+      runG2(base({ split: "validation", models: foreign, experiment: join(tempDir(), "x") })),
+    ).rejects.toThrow();
   });
 
   it("requireSameRows refuses estimators that predict different rows", () => {

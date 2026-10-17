@@ -173,6 +173,19 @@ describe("plan validation", () => {
         ),
       ).err,
     ).toMatch(/validation evaluation takes no decision/);
+    // A reference set may be scored beside a validation run (spec 007 FR-006), if it exists.
+    expect(
+      validate(
+        workspace(
+          (p) =>
+            (p.evaluate = {
+              command: "tma-g2",
+              split: "validation",
+              compare_models: "no/such/models",
+            }),
+        ),
+      ).err,
+    ).toMatch(/does not exist/);
     expect(validate(workspace((p) => (p.models = ["no-such-model"]))).err).toMatch(/no config/);
     // A scan never touches the test split.
     expect(
