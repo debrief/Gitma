@@ -20,6 +20,15 @@ const fx = (v: number | null | undefined, digits: number): string =>
       ? "∞"
       : v.toFixed(digits);
 
+/** Which leg (or turn) ownship is on at sample i. */
+function legName(s: Scenario, i: number): string {
+  const m = s.metadata;
+  if (i < (m.turn_start_index ?? m.zig_index)) return "leg 1";
+  if (i < m.zig_index) return "turning";
+  if (m.zig2_index == null || i < (m.turn2_start_index ?? m.zig2_index)) return "leg 2";
+  return i < m.zig2_index ? "second turn" : "leg 3";
+}
+
 export interface Estimate {
   label: string;
   color: string;
@@ -140,13 +149,8 @@ export function Readout({ s, cursor, estimates }: ReadoutProps): JSX.Element {
       </table>
       <p className="tmav-note">
         Ownship ({(o.x_m / 1000).toFixed(2)}, {(o.y_m / 1000).toFixed(2)}) km, course{" "}
-        {deg(o.course_rad).toFixed(0)}°, speed {mpsToKt(o.speed_mps).toFixed(1)} kt
-        {cursor < (s.metadata.turn_start_index ?? zig)
-          ? ", leg 1"
-          : cursor < zig
-            ? ", turning"
-            : ", leg 2"}
-        .
+        {deg(o.course_rad).toFixed(0)}°, speed {mpsToKt(o.speed_mps).toFixed(1)} kt ,{" "}
+        {legName(s, cursor)}.
       </p>
       {cursor <= zig && (
         <p className="tmav-warn">
@@ -226,6 +230,14 @@ export function Metadata({ s, source, generatorVersion }: MetadataProps): JSX.El
         (rate > 0 ? `, turn rate ${radToDeg(rate).toFixed(2)}°/s` : ", instantaneous") +
         `, zig index ${String(m.zig_index)}`,
     ],
+    ...(p.zig2_angle_rad == null || m.zig2_index == null
+      ? []
+      : [
+          [
+            "zig 2",
+            `${radToDeg(p.zig2_angle_rad).toFixed(0)}°, ${String(Math.round(p.zig2_delay_s ?? 0))} s after leg 2 starts, leg 3 from ${((m.zig2_index * p.dt_s) / 60).toFixed(1)} min`,
+          ] as [string, string],
+        ]),
     [
       "target",
       `${(p.target_range0_m / 1000).toFixed(1)} km on ${deg(p.target_bearing0_rad).toFixed(0)}°, course ${deg(p.target_course_rad).toFixed(0)}°, ${mpsToKt(p.target_speed_mps).toFixed(1)} kt`,

@@ -1,0 +1,24 @@
+{
+  "id": "i3a",
+  "description": "Spec 007 (iteration 3, Annex A lever B.2.1, decision 22): the single change is the problem. Generator 0.3.0 with a second zig 180-300 s after leg 2 starts, and both turns across the line of sight (target 30-90 deg on the other bow); first-zig timing, ranges, noise and dropouts as iteration 2 (configs/iter3-ranges.json). Models: the 2c configuration from scratch (2 x 128 stacked recurrent layers, loss_weight_speed 4, max_epochs 150, patience 6, raw features, same seeds). Dataset seed 204: its own test split decides G2. Scored on validation first (diagnostic; validation rule FR-006).",
+  "dataset": {
+    "seed": "204",
+    "count": 100000,
+    "ranges": "configs/iter3-ranges.json",
+    "heldout_ranges": "configs/iter3-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "f8f0629b7db7333c9f079aefadaf02c254ce0f83402e787cadb429e6cc7b32f8",
+      "validation.f32pack": "01fe0295953e175309c1fe00a6d8a81dcbeb461f237bb2c0e361ea8d464651d5",
+      "test.f32pack": "947776b48136e31317b5ebd84be80fc8dd64377aab5740400b6c6ef686d9733f",
+      "heldout.f32pack": "425f4f0df90edddf9392a92de578ece680a78040ffef5742fbcb3caf65b4ee6b"
+    }
+  },
+  "feature_set": "raw",
+  "configs": "configs/iter3/a",
+  "models": ["instantaneous", "time-late", "causal-cnn", "mlp", "instantaneous-shuffled"],
+  "evaluate": {
+    "command": "tma-g2",
+    "split": "validation",
+    "compare_models": "experiments/20261016-i2d-g2/models"
+  }
+}

@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.8.2
+version: 0.9.1
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -39,6 +39,16 @@ enums:
     permissible_values:
       uniform: {}
       log_uniform: {}
+  ZigRule:
+    description: How each zig's direction and size are chosen (generator 0.3.0, spec 007).
+    permissible_values:
+      random:
+        description: Size from zig_angle_abs_rad, side uniformly ±, regardless of the target.
+      across_los:
+        description: >-
+          Turn across the line of sight: the new course puts the target on the other bow at an
+          angle off drawn from los_offset_rad, by the shorter turn. Uses the true bearing at the
+          last sample before the turn.
   PredictionMode:
     permissible_values:
       final: { description: One row at the last timestep of the window. }
@@ -141,6 +151,16 @@ classes:
         description: >-
           Ownship turn rate at the zig (rate-limited turn, spec 003 US6). Absent or 0: the course
           changes instantaneously, as in generator 0.1.0.
+      zig2_delay_s:
+        range: float
+        unit: { ucum_code: s }
+        description: >-
+          Second zig (generator 0.3.0, spec 007): time from the first sample on leg 2 to the start
+          of the second turn. Absent: one zig, two legs.
+      zig2_angle_rad:
+        range: float
+        unit: { ucum_code: rad }
+        description: Signed course change at the second zig; positive is clockwise.
 
   ParameterRanges:
     description: >-
@@ -167,6 +187,24 @@ classes:
         range: FloatRange
         inlined: true
         description: Turn rate drawn uniformly per scenario; absent means an instantaneous zig.
+      zig_rule:
+        range: ZigRule
+        description: >-
+          How each zig is chosen; absent means random (generators 0.1.0–0.2.0). Under across_los
+          zig_angle_abs_rad is still drawn but not used.
+      los_offset_rad:
+        range: FloatRange
+        inlined: true
+        description: >-
+          Angle off the line of sight, on the other bow, after an across_los turn; required when
+          zig_rule is across_los.
+      zig2_delay_s:
+        range: FloatRange
+        inlined: true
+        unit: { ucum_code: s }
+        description: >-
+          Delay from the start of leg 2 to the second turn; absent means one zig. The second zig
+          follows zig_rule (and uses the same turn rate as the first).
       min_range_m:
         {
           range: float,
@@ -213,6 +251,14 @@ classes:
       turn_start_index:
         range: integer
         description: First timestep after the turn starts (absent for an instantaneous zig).
+      zig2_index:
+        range: integer
+        description: >-
+          First timestep on leg 3, after the second turn completes (absent with one zig). Gate
+          times still count from zig_index.
+      turn2_start_index:
+        range: integer
+        description: First timestep after the second turn starts (absent with one zig or no turn rate).
       zig_time_s: { range: float, required: true, unit: { ucum_code: s } }
       mean_range_m: { range: float, required: true, unit: { ucum_code: m } }
       min_range_m: { range: float, required: true, unit: { ucum_code: m } }
@@ -690,3 +736,13 @@ classes:
       carried_set_rule: { range: string, required: true }
       decided_at: { range: string, required: true }
       git_commit: { range: string, required: true }
+      plan:
+        range: string
+        description: >-
+          The plan this decision pre-registers (configs/<…>/plan.json). Required from iteration 3
+          (spec 007): tma-g2 scores a test split only with the decision that names its plan.
+      test_seed:
+        range: string
+        description: >-
+          Dataset seed of the test split the decision commits to (the plan's fresh_test seed, or
+          its dataset seed); tma-g2 checks it against the plan.

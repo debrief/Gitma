@@ -1,0 +1,20 @@
+{
+  "learning_rate": 0.001,
+  "batch_size": 256,
+  "max_epochs": 150,
+  "patience": 6,
+  "max_wall_s": 172800,
+  "loss_weight_range": 1,
+  "loss_weight_course": 1,
+  "loss_weight_speed": 4,
+  "shuffle_labels": false,
+  "id": "cnn-causal-control",
+  "model_kind": "causal_cnn",
+  "units": 64,
+  "kernel_size": 15,
+  "layers": 3,
+  "train_seed": "1003",
+  "length_bucketing": true,
+  "tfjs_threads": 1,
+  "feature_set": "raw"
+}

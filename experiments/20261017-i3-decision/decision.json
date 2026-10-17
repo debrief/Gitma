@@ -1,0 +1,11 @@
+{
+  "carried_set_rule": "The iteration-3 LSTM and BiLSTM (configs/iter3/a, from scratch on seed 204) are carried unconditionally once the validation rule passes; the 2c models (experiments/20261016-i2d-g2/models) are scored beside them on the same seed-204 rows as the other phase, reported and never gated.",
+  "change": "the problem: generator 0.3.0 with configs/iter3-ranges.json, a second zig 180-300 s after leg 2 starts and both turns across the line of sight (target 30-90 deg on the other bow, shorter turn); first-zig timing, ranges, noise and dropouts as iteration 2; models the 2c configuration from scratch (configs/iter3/a); dataset seed 204, whose own test split decides G2 (spec 007, decision 22)",
+  "decided_at": "2026-10-17T10:07:00Z",
+  "git_commit": "491ee1b4a8c1a39202779ac4a897c87fa1387ff6",
+  "phase_a_experiment": "20261016-i2d-g2",
+  "plan": "configs/iter3/a/plan.json",
+  "rationale": "2c failed G2 on speed (1.47 / 1.53 kt against 1 kt; classical 0.61 kt; experiments/20261016-i2d-g2). Owner's realism check (SRD Annex A A.7): on steady legs there is too little information; operators zig again and turn across towards the contact. Spec 007 R1 (seed-203 slices): shorter first legs are worse, a towards turn helps only when it crosses the line of sight, larger turns help every estimator. R2 (classical forecast): speed at zig + 600 s 0.67 -> 0.36 kt. Forecast recorded before training: models 1.1-1.3 kt, probably still above 1 kt. Validation rule (FR-006): carry to test only if the iteration-3 LSTM's G2 speed interval has a lower bound under 1 kt (operative) and its paired speed ratio to the 2c LSTM on the same rows is wholly below 1 (sanity, weak reference). stalled is true because the previous configuration (2c) failed G2.",
+  "stalled": true,
+  "test_seed": "204"
+}

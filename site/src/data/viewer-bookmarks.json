@@ -1,5 +1,11 @@
 [
   {
+    "label": "Iteration 3 engagement: two zigs across the line of sight (before training)",
+    "source": "s204-validation",
+    "index": 80000,
+    "mode": "truth"
+  },
+  {
     "label": "Typical engagement: 2c instantaneous near its median errors at zig + 10 min",
     "source": "s203-test",
     "index": 97612,

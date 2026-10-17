@@ -96,7 +96,7 @@ export function PlanView(props: PlanViewProps): JSX.Element {
   const tgt = s.target.states;
   const n = s.metadata.samples;
   const zig = s.metadata.zig_index;
-  const { leg1, turn, leg2 } = view.legs;
+  const { leg1, turn, leg2, turn2, leg3 } = view.legs;
   const ownAt = (i: number): [number, number] | null => {
     const o = own[i];
     return o === undefined ? null : pt(o.x_m, o.y_m);
@@ -265,7 +265,15 @@ export function PlanView(props: PlanViewProps): JSX.Element {
     }
   }
 
-  const zigP = ownAt(zig);
+  // Zig markers at the first sample on each new leg.
+  const zigMarks: [string, [number, number]][] = [];
+  for (const [label, k] of [
+    ["zig", zig],
+    ["zig 2", s.metadata.zig2_index],
+  ] as const) {
+    const q = k == null ? null : ownAt(k);
+    if (q !== null) zigMarks.push([label, q]);
+  }
   const ownStart = ownAt(0);
   const tgtStart = tgt[0] === undefined ? null : pt(tgt[0].x_m, tgt[0].y_m);
   const tgtPath = pathOf(tgt.map((p) => pt(p.x_m, p.y_m)));
@@ -376,7 +384,13 @@ export function PlanView(props: PlanViewProps): JSX.Element {
         <path d={tgtPath} fill="none" stroke={C.target} strokeWidth={2} />
         <path d={seg(leg1[0], leg1[1] + 1)} fill="none" stroke={C.own} strokeWidth={2} />
         <path d={seg(turn[0] - 1, turn[1] + 1)} fill="none" stroke={C.turn} strokeWidth={2.4} />
-        <path d={seg(leg2[0], leg2[1])} fill="none" stroke={C.own} strokeWidth={2} />
+        <path d={seg(leg2[0], leg2[1] + 1)} fill="none" stroke={C.own} strokeWidth={2} />
+        {turn2 !== undefined && (
+          <path d={seg(turn2[0] - 1, turn2[1] + 1)} fill="none" stroke={C.turn} strokeWidth={2.4} />
+        )}
+        {leg3 !== undefined && (
+          <path d={seg(leg3[0], leg3[1])} fill="none" stroke={C.own} strokeWidth={2} />
+        )}
         {estimates}
         {ownStart !== null && (
           <circle
@@ -398,22 +412,22 @@ export function PlanView(props: PlanViewProps): JSX.Element {
             strokeWidth={2}
           />
         )}
-        {zigP !== null && (
-          <g>
+        {zigMarks.map(([label, q]) => (
+          <g key={label}>
             <rect
-              x={zigP[0] - 5}
-              y={zigP[1] - 5}
+              x={q[0] - 5}
+              y={q[1] - 5}
               width={10}
               height={10}
-              transform={`rotate(45 ${f1(zigP[0])} ${f1(zigP[1])})`}
+              transform={`rotate(45 ${f1(q[0])} ${f1(q[1])})`}
               fill={C.turn}
               stroke={C.paper}
             />
-            <text x={zigP[0] + 9} y={zigP[1] - 7} fontSize={11} fill={C.turn}>
-              zig
+            <text x={q[0] + 9} y={q[1] - 7} fontSize={11} fill={C.turn}>
+              {label}
             </text>
           </g>
-        )}
+        ))}
         {oc !== undefined && heading(oc.x_m, oc.y_m, oc.course_rad, C.own, "own")}
         {tc !== undefined && heading(tc.x_m, tc.y_m, tc.course_rad, C.target, "tgt")}
       </g>

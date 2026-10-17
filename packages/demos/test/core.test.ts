@@ -21,7 +21,7 @@ import {
   type ViewerCatalogue,
   viewNdjson,
 } from "../src/index.js";
-import { I1_TEST, I2_TEST } from "./helpers.js";
+import { I1_TEST, I2_TEST, ranges } from "./helpers.js";
 
 const MEANS = { log_range_km: 2, course_sin: 0, course_cos: 1, speed_mps: 5.9, n: 1 };
 
@@ -143,5 +143,22 @@ describe("view state", () => {
       classical: true,
       trueBearings: false,
     });
+  });
+});
+
+describe("three legs (generator 0.3.0)", () => {
+  it("legs cover the window contiguously, with the second turn and leg 3", () => {
+    const src = { ...I2_TEST, id: "i3", ranges: ranges("iter3-ranges.json") };
+    for (const i of [90000, 90001, 90002]) {
+      const s = scenarioAt(src, i);
+      const l = legsOf(s);
+      if (l.turn2 === undefined || l.leg3 === undefined) throw new Error("no second zig");
+      expect(l.leg1[1]).toBe(l.turn[0]);
+      expect(l.turn[1]).toBe(l.leg2[0]);
+      expect(l.leg2[1]).toBe(l.turn2[0]);
+      expect(l.turn2[1]).toBe(l.leg3[0]);
+      expect(l.leg3[1]).toBe(s.metadata.samples);
+      expect(l.turn2[1]).toBeGreaterThan(l.turn2[0]);
+    }
   });
 });

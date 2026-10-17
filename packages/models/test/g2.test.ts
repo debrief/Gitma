@@ -1,6 +1,14 @@
 // T038: tma-g2 one-command run, tiny. Validation reads only train + validation and writes a
 // diagnostic (not a verdict); test needs a committed decision once a phase B exists (SC-005).
-import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { fileSha256, generateDataset, readDataset } from "@tma/data";
 import { computeNormalisation, writeFeatures } from "@tma/features";
@@ -18,6 +26,9 @@ import {
   DIAGNOSTIC_FILE,
   featuresPath,
   type G2RunOptions,
+  PAIRED_FILE,
+  type PairedRecord,
+  requireDecision,
   requireSameRows,
   runG2,
 } from "../src/g2.js";
@@ -222,6 +233,15 @@ describe("tma-g2 end to end (tiny)", () => {
     expect(diag.decided_by).toMatch(/not gated/);
     expect(readFileSync(join(other, "metrics.csv"), "utf8")).toContain("lstm:per_timestep");
     expect(readFileSync(join(exp, "manifest.json"), "utf8")).toContain("feature_set: derived");
+    // Spec 007 FR-006: carried / other phase, paired on the same rows, per model and metric.
+    const paired = JSON.parse(readFileSync(join(exp, PAIRED_FILE), "utf8")) as PairedRecord[];
+    expect(paired.length).toBeGreaterThan(0);
+    expect(new Set(paired.map((r) => r.reference))).toEqual(new Set(["other-phase", "classical"]));
+    for (const r of paired) {
+      expect(r.slice).toBe("sigma=1deg");
+      expect(r.lo).toBeLessThanOrEqual(r.hi);
+      expect(["instantaneous", "time_late"]).toContain(r.variant);
+    }
     // The other phase's predictions are tagged, so they never overwrite the carried set's
     // (phases A and B share model ids; G2 panel round 1).
     const preds = readdirSync(join(data, "predictions")).filter((f) => f.startsWith("test."));
@@ -257,6 +277,32 @@ describe("tma-g2 end to end (tiny)", () => {
         }),
       ),
     ).rejects.toThrow(/not committed before .* was trained/);
+  });
+
+  it("validation with an other phase trained on other data: its inputs use its own normalisation (spec 007)", async () => {
+    // A copy of the raw models whose manifests carry another normalisation, as models trained on
+    // another dataset would (the 2c models beside iteration 3).
+    const foreign = tempDir();
+    cpSync(modelsA, foreign, { recursive: true });
+    for (const id of readdirSync(foreign)) {
+      const mp = join(foreign, id, "manifest.json");
+      const m = JSON.parse(readFileSync(mp, "utf8")) as { normalisation: Record<string, unknown> };
+      m.normalisation = { ...m.normalisation, train_header_digest: "f".repeat(64) };
+      writeFileSync(mp, JSON.stringify(m));
+    }
+    const exp = join(tempDir(), "val-foreign");
+    await runG2(base({ split: "validation", compareModels: foreign, experiment: exp }));
+    expect(readFileSync(join(exp, "manifest.json"), "utf8")).toMatch(
+      /scored on inputs built with its own normalisation/,
+    );
+    expect(readdirSync(join(data, "predictions")).some((f) => f.endsWith(".features.bin"))).toBe(
+      true,
+    );
+    expect(existsSync(join(exp, PAIRED_FILE))).toBe(true);
+    // The carried set never takes this path: foreign models as the carried set are refused.
+    await expect(
+      runG2(base({ split: "validation", models: foreign, experiment: join(tempDir(), "x") })),
+    ).rejects.toThrow();
   });
 
   it("requireSameRows refuses estimators that predict different rows", () => {
@@ -301,6 +347,100 @@ describe("tma-g2 end to end (tiny)", () => {
     }
     await expect(runG2(base({ data: rawOnly, models: modelsB }))).rejects.toThrow(
       /feature-set-mismatch/,
+    );
+  });
+});
+
+describe("decisions bind to their plan from iteration 3 (spec 007, G0 red team)", () => {
+  const plan = (dir: string, seed: string): string => {
+    const p = join(dir, "configs/iter3/a/plan.json");
+    mkdirSync(join(dir, "configs/iter3/a"), { recursive: true });
+    writeFileSync(p, JSON.stringify({ dataset: { seed } }));
+    return p;
+  };
+  const opts = (over: Partial<G2RunOptions>): G2RunOptions => ({
+    data: "d",
+    models: "m",
+    experiment: "e",
+    split: "test",
+    commandLine: "test",
+    phaseBDir: join(tempDir(), "absent"),
+    isCommitted: () => true,
+    ...over,
+  });
+
+  it("an iteration-3 test needs a decision, and only the one that names its plan and seed", () => {
+    const dir = tempDir();
+    const p = plan(dir, "204");
+    expect(() => requireDecision(opts({ plan: p }))).toThrow(/needs --decision/);
+    // An earlier iteration's decision (no plan) cannot unlock it.
+    const old = join(dir, "old.json");
+    writeFileSync(old, JSON.stringify(DECISION));
+    expect(() => requireDecision(opts({ plan: p, decision: old }))).toThrow(
+      /pre-registers no plan/,
+    );
+    const d = join(dir, "decision.json");
+    writeFileSync(d, JSON.stringify({ ...DECISION, plan: "configs/iter3/b/plan.json" }));
+    expect(() => requireDecision(opts({ plan: p, decision: d }))).toThrow(/pre-registers/);
+    writeFileSync(d, JSON.stringify({ ...DECISION, plan: p, test_seed: "205" }));
+    expect(() => requireDecision(opts({ plan: p, decision: d }))).toThrow(/test seed 205/);
+    writeFileSync(d, JSON.stringify({ ...DECISION, plan: p, test_seed: "204" }));
+    expect(requireDecision(opts({ plan: p, decision: d }))?.test_seed).toBe("204");
+    // Validation needs nothing.
+    expect(requireDecision(opts({ plan: p, split: "validation" }))).toBeUndefined();
+  });
+
+  it("binds by content and resolved path, however the plan is spelled (red team round 2)", () => {
+    const dir = tempDir();
+    const p = plan(dir, "204");
+    const old = join(dir, "old.json");
+    writeFileSync(old, JSON.stringify(DECISION));
+    // A copy of the plan outside configs/iter3 is still bound: its test seed is 204.
+    mkdirSync(join(dir, "elsewhere"));
+    const copy = join(dir, "elsewhere", "plan.json");
+    writeFileSync(copy, JSON.stringify({ dataset: { seed: "204" } }));
+    expect(() => requireDecision(opts({ plan: copy, decision: old }))).toThrow(
+      /pre-registers no plan/,
+    );
+    expect(() => requireDecision(opts({ plan: copy }))).toThrow(/needs --decision/);
+    // A bound decision must name its test seed.
+    const d = join(dir, "decision.json");
+    writeFileSync(d, JSON.stringify({ ...DECISION, plan: p }));
+    expect(() => requireDecision(opts({ plan: p, decision: d }))).toThrow(
+      /must name its test seed/,
+    );
+    // Another spelling of the same file is the same plan.
+    writeFileSync(d, JSON.stringify({ ...DECISION, plan: p, test_seed: "204" }));
+    const respelled = `${dir}/configs/./iter3/a/../a/plan.json`; // not normalised (join would)
+    expect(respelled).not.toBe(p);
+    expect(requireDecision(opts({ plan: respelled, decision: d }))?.plan).toBe(p);
+  });
+
+  it("binds by the test data's own seed, so a forged plan copy cannot unbind it (red team round 3)", () => {
+    const dir = tempDir();
+    const data = join(dir, "data");
+    generateDataset({
+      seed: 204n,
+      count: 20,
+      outDir: data,
+      ranges: DEFAULT_RANGES,
+      heldoutRanges: DEFAULT_RANGES,
+      format: "f32pack",
+      createdBy: "test",
+      provenance: { generator_git_commit: "0".repeat(40), generator_git_dirty: false },
+    });
+    mkdirSync(join(dir, "elsewhere"));
+    const forged = join(dir, "elsewhere", "plan.json");
+    writeFileSync(forged, JSON.stringify({ dataset: { seed: "100" } }));
+    const old = join(dir, "old.json");
+    writeFileSync(old, JSON.stringify(DECISION));
+    expect(() => requireDecision(opts({ data, plan: forged, decision: old }))).toThrow(
+      /pre-registers no plan/,
+    );
+    const d = join(dir, "decision.json");
+    writeFileSync(d, JSON.stringify({ ...DECISION, plan: forged, test_seed: "205" }));
+    expect(() => requireDecision(opts({ data, plan: forged, decision: d }))).toThrow(
+      /test data are seed 204/,
     );
   });
 });

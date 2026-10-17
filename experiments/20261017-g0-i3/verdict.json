@@ -1,0 +1,32 @@
+{
+  "checks": [
+    {
+      "detail": "10000/10000 scenarios within tolerance (range 0.001, course 0.1°, speed 0.01 kt); worst range 8.70e-6, course 2.54e-3°, speed 3.43e-4 kt",
+      "name": "classical-recovers-noise-free-truth",
+      "result": "pass"
+    },
+    {
+      "detail": "1000 scenarios, 72208 rows: 0 non-converged; 67208/67208 rows ≥ 60 s after the zig within tolerance (worst range 9.78e-6); worst range in the first 60 s 1.92e-5 (reported, not gated)",
+      "name": "classical-per-timestep-recovers",
+      "result": "pass"
+    },
+    {
+      "detail": "10000/10000 final solutions with RMS bearing residual ≤ 0.000001 rad; worst 2.77e-7 rad",
+      "name": "bearing-residuals-at-float32-precision",
+      "result": "pass"
+    },
+    {
+      "detail": "hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2) and leg-3 cases match; t = 0 bearing and range match the drawn parameters on 10000 scenarios; 20000 turns put the target on the other bow inside the drawn offset range",
+      "name": "independent-geometry",
+      "result": "pass"
+    },
+    {
+      "detail": "two in-process naive fits gave identical metrics (determinism only; cross-process and cross-commit reproduction is shown by re-running G0 from the manifest)",
+      "name": "naive-baseline-reproduces",
+      "result": "pass"
+    }
+  ],
+  "decided_by": "superseded: round-1 evidence of the iteration-3 G0 panel; the round-1 fixes changed the G0 checks (packages/eval), so G0 was re-run and the verdict of record is ../20261017-g0-i3-r3 (see its review.md)",
+  "gate": "G0",
+  "result": "pass"
+}
