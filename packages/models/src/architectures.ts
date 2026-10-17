@@ -1,12 +1,12 @@
 // The four SRD §4 models, built only from layers with direct Keras equivalents (constitution III).
 // Every initializer is seeded from the run's train seed, so training is reproducible (research R2).
 import * as tf from "@tensorflow/tfjs-node";
-import { inputWidth, ROWS } from "@tma/features";
+import { inputWidth, NO, ROWS } from "@tma/features";
 import type { TrainingConfig } from "@tma/types";
 import { initSeed } from "./seeds.js";
 
-/** Model outputs per row: log_range_km, course_sin, course_cos, speed_scaled. */
-export const NO = 4;
+/** Model outputs per row (defined with the decoding in `@tma/features`). */
+export { NO };
 
 /** Keras layer classes the models may use (checked by tests). */
 export const ALLOWED_LAYERS = new Set([

@@ -13,8 +13,16 @@
       "@tma/features": ["./packages/features/src/index.ts"],
       "@tma/classical": ["./packages/classical/src/index.ts"],
       "@tma/eval": ["./packages/eval/src/index.ts"],
-      "@tma/models": ["./packages/models/src/index.ts"]
-    }
+      "@tma/models": ["./packages/models/src/index.ts"],
+      "@tma/features/browser": ["./packages/features/src/browser.ts"],
+      "@tma/classical/browser": ["./packages/classical/src/browser.ts"],
+      "@tma/eval/browser": ["./packages/eval/src/browser.ts"],
+      "@tma/data/canonical": ["./packages/data/src/canonical.ts"],
+      "@tma/demos": ["./packages/demos/src/index.ts"],
+      "@tma/demos/viewer": ["./packages/demos/src/viewer/index.ts"]
+    },
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx"
   },
   "include": [
     "packages/*/src",
