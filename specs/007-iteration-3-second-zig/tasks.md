@@ -11,10 +11,10 @@
   golden tests; 0.2.0 goldens unchanged; 0.1.0 and 0.2.0 data readable
 - [x] T004 Viewer: second turn, leg 3, "zig 2" marker and readout
 - [x] T005 Ranges `configs/iter3-ranges.json`, `configs/iter3-heldout-ranges.json`
-- [ ] T006 SRD: Annex A §A.7 record, §3 rows, §8 decision 22; AGENTS.md
-- [ ] T007 G0 on generator 0.3.0 (seed 42, noise-free, iteration-3 ranges) and its agent panel;
+- [x] T006 SRD: Annex A §A.7 record, §3 rows, §8 decision 22; AGENTS.md
+- [x] T007 G0 on generator 0.3.0 (seed 42, noise-free, iteration-3 ranges) and its agent panel;
   the G0 guard test moves to it
-- [ ] T008 Dataset seed 204 generated at a clean commit; plan `configs/iter3/a/plan.json` with
+- [x] T008 Dataset seed 204 generated at a clean commit; plan `configs/iter3/a/plan.json` with
   digests; seed 204 reserved in `scripts/train-plan.mjs`; viewer catalogue shows the validation
   split
 - [ ] T009 Decision record `experiments/<date>-i3-decision/` (change, forecast, validation rule,

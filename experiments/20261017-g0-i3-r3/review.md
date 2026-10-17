@@ -104,3 +104,28 @@ The reviewers re-checked their round-1 findings at c648455 against the round-2 e
 **G0 round 3.** G0 was re-run at 928995a (this folder) so the verdict's checks are the code of
 record. The kinematic and turn-sum checks pass on all 10,000 test scenarios; the data and every
 other figure are unchanged.
+
+## Round 3 (2026-10-17): final confirmation
+
+The reviewers checked their round-2 findings at b1e36fc against this folder (G0 at 928995a).
+
+| Reviewer | Verdict |
+| --- | --- |
+| TMA geometry: both long-way mutations (short angle stored) now fail on the turn sum; leg 3 at 0.98 v fails on the step floor; own RK4 tracks and the real data pass | approve |
+| Estimation and numerics: no false failures on 110,000 scenarios; leg-3 mutations at 0.8 v, frozen, and +0.01° course now caught 193/200, 193/200 and 200/200, where the 7 misses have a one-sample leg 3 that the mutation does not change | approve |
+| Evaluation statistics: relabelled FR-006 answers M6; `pairedComparison` emits both references on the same rows | approve |
+| Reproducibility: round 3 re-run from its manifest byte-identical; full suite 323/323 at b1e36fc; binding and guard cases re-exercised | approve-with-findings |
+| Red team: M8 now fails G0; every path spelling and plan copy refused with the 2c decision; the correct decision accepted for every spelling and a symlink | approve-with-findings |
+
+### Minor findings and responses
+
+| Finding (reviewers) | Response |
+| --- | --- |
+| A forged plan copy, with its dataset seed edited and the digests kept, still bound nothing, so the 2c decision unlocked seed 204's test data (red team) | A decision now also binds by the `dataset_seed` in the test data's own header, and a bound decision's `test_seed` must match it (0df0df2); test added. It is outside G0's scope, so no re-run was needed |
+| 2c's 2.37 is an unpaired ratio from another problem (statistics) | Spec 007 and the decision record call it context only, not a threshold the paired interval is tested against |
+| The round-1 verdict linked to `../20261017-g0-i3-r2/review.md`, which moved (reproducibility) | The link now points to this folder |
+
+**Decision.** No reviewer rejects, and no blocker or major finding is open. G0 passes on generator
+0.3.0, and `decided_by` names panel round 3. Training on the iteration-3 data may start once the
+iteration-3 decision record is committed (spec 007 FR-005).
+

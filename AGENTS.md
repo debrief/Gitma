@@ -200,8 +200,9 @@ site page `/viewer`) is built, and the owner's realism check is recorded (Annex 
 levers are pre-registered one at a time, each with a decision record committed before training
 and a fresh test seed (204 onward). **Iteration 3** (spec 007, decision 22) is lever B.2.1:
 generator 0.3.0 adds a second zig 3–5 min into leg 2, and both turns cross the line of sight
-(`zig_rule: across_los`). Its dataset is seed 204, and G0 must be re-run on 0.3.0 before
-training. The classical forecast is 0.36 kt at zig + 600 s, and the model forecast is 1.1–1.3 kt
+(`zig_rule: across_los`). Its dataset is seed 204. G0 passed on 0.3.0 (panel round 3,
+`experiments/20261017-g0-i3-r3/`). From iteration 3, `tma-g2 --split test` needs the committed
+decision that names its plan and test seed (schema 0.9.1 `ChangeDecision.plan`, `test_seed`). The classical forecast is 0.36 kt at zig + 600 s, and the model forecast is 1.1–1.3 kt
 (spec 007 research R2).
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution
