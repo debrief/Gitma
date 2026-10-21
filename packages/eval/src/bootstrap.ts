@@ -26,14 +26,15 @@ export const BOOTSTRAP_RESAMPLES = 2000;
 export const BOOTSTRAP_SEED = 20261011n;
 
 /**
- * Range errors of two estimators on the scenarios where both have a row `seconds` after the zig
- * (non-converged rows count as +Infinity, as everywhere else).
+ * One error metric of two estimators on the scenarios where both have a row `seconds` after the
+ * zig (non-converged rows count as +Infinity, as everywhere else).
  */
-export function pairedRangeErrors(
+export function pairedErrors(
   truth: Iterable<Scenario>,
   a: PredictionSet,
   b: PredictionSet,
   seconds: number,
+  metric: "range_rel" | "course_deg" | "speed_kt",
 ): { a: Float64Array; b: Float64Array } {
   const ea: number[] = [];
   const eb: number[] = [];
@@ -43,7 +44,7 @@ export function pairedRangeErrors(
       throw new Error(`${set.label}: no prediction for ${String(s.metadata.index)}`);
     for (const row of p.rows) {
       const e = rowError(s, row);
-      if (Math.abs(e.t_since_zig_s - seconds) < 1e-6) return e.range_rel;
+      if (Math.abs(e.t_since_zig_s - seconds) < 1e-6) return e.converged ? e[metric] : Infinity;
     }
     return undefined;
   };
@@ -56,6 +57,14 @@ export function pairedRangeErrors(
   }
   return { a: Float64Array.from(ea), b: Float64Array.from(eb) };
 }
+
+/** Range errors of two estimators (the G1 ratio's inputs). */
+export const pairedRangeErrors = (
+  truth: Iterable<Scenario>,
+  a: PredictionSet,
+  b: PredictionSet,
+  seconds: number,
+): { a: Float64Array; b: Float64Array } => pairedErrors(truth, a, b, seconds, "range_rel");
 
 const sortedMedian = (xs: Float64Array): number => median(ascending(Array.from(xs)));
 

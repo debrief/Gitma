@@ -20,6 +20,13 @@
         "phase_a_experiment": {
           "type": "string"
         },
+        "plan": {
+          "description": "The plan this decision pre-registers (configs/<…>/plan.json). Required from iteration 3 (spec 007): tma-g2 scores a test split only with the decision that names its plan.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "rationale": {
           "description": "Validation evidence cited.",
           "type": "string"
@@ -27,6 +34,13 @@
         "stalled": {
           "description": "Any gated criterion failed or was inconclusive on validation.",
           "type": "boolean"
+        },
+        "test_seed": {
+          "description": "Dataset seed of the test split the decision commits to (the plan's fresh_test seed, or its dataset seed); tma-g2 checks it against the plan.",
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
@@ -1025,6 +1039,17 @@
         "dt_s": {
           "type": "number"
         },
+        "los_offset_rad": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FloatRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Angle off the line of sight, on the other bow, after an across_los turn; required when zig_rule is across_los."
+        },
         "min_range_m": {
           "description": "Geometries closer than this at any sample are redrawn.",
           "type": "number"
@@ -1062,11 +1087,33 @@
         "window_s": {
           "$ref": "#/$defs/FloatRange"
         },
+        "zig2_delay_s": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FloatRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Delay from the start of leg 2 to the second turn; absent means one zig. The second zig follows zig_rule (and uses the same turn rate as the first)."
+        },
         "zig_angle_abs_rad": {
           "$ref": "#/$defs/FloatRange"
         },
         "zig_fraction": {
           "$ref": "#/$defs/FloatRange"
+        },
+        "zig_rule": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ZigRule"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "How each zig is chosen; absent means random (generators 0.1.0–0.2.0). Under across_los zig_angle_abs_rad is still drawn but not used."
         }
       },
       "required": [
@@ -1309,8 +1356,22 @@
           "description": "Scenario seed as a decimal uint64 string.",
           "type": "string"
         },
+        "turn2_start_index": {
+          "description": "First timestep after the second turn starts (absent with one zig or no turn rate).",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "turn_start_index": {
           "description": "First timestep after the turn starts (absent for an instantaneous zig).",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "zig2_index": {
+          "description": "First timestep on leg 3, after the second turn completes (absent with one zig). Gate times still count from zig_index.",
           "type": [
             "integer",
             "null"
@@ -1384,6 +1445,20 @@
         "window_s": {
           "description": "Window length; multiple of dt_s.",
           "type": "number"
+        },
+        "zig2_angle_rad": {
+          "description": "Signed course change at the second zig; positive is clockwise.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "zig2_delay_s": {
+          "description": "Second zig (generator 0.3.0, spec 007): time from the first sample on leg 2 to the start of the second turn. Absent: one zig, two legs.",
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "zig_angle_rad": {
           "description": "Signed course change at the zig; positive is clockwise.",
@@ -1585,6 +1660,15 @@
       ],
       "title": "TrainingConfig",
       "type": "object"
+    },
+    "ZigRule": {
+      "description": "How each zig's direction and size are chosen (generator 0.3.0, spec 007).",
+      "enum": [
+        "random",
+        "across_los"
+      ],
+      "title": "ZigRule",
+      "type": "string"
     }
   },
   "$id": "https://github.com/debrief/gitma/schema/tma",
@@ -1621,5 +1705,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.8.2"
+  "version": "0.9.1"
 }

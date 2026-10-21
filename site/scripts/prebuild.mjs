@@ -131,6 +131,11 @@ const VIEWER_PAIRS = [
   { id: "i2c", label: "Iteration 2c", experiment: "20261016-i2d-g2" },
 ];
 const VIEWER_MODELS = { instantaneous: "lstm-instantaneous", timeLate: "bilstm-time-late" };
+/**
+ * Datasets of plans not yet scored, shown before training so the owner can check the engagements
+ * (Annex A B.2.1). Only the validation split: a test split stays unseen until its gate.
+ */
+const VIEWER_PLANS = [{ plan: "configs/iter3/a/plan.json", label: "Iteration 3" }];
 
 /** The panel's decision where it overrides the machine result (e.g. G1 passed under rule 1). */
 function decision(verdict) {
@@ -210,6 +215,18 @@ function viewer() {
       instantaneous: entry("instantaneous", VIEWER_MODELS.instantaneous),
       timeLate: entry("time_late", VIEWER_MODELS.timeLate),
       naive,
+    });
+  }
+  for (const v of [...VIEWER_PLANS].reverse()) {
+    const d = read(join(root, v.plan)).dataset;
+    sources.unshift({
+      id: `s${d.seed}-validation`,
+      label: `Seed ${d.seed} validation (${v.label}, before training)`,
+      seed: d.seed,
+      start: Math.floor(0.8 * d.count),
+      end: Math.floor(0.9 * d.count),
+      ranges: read(join(root, d.ranges)),
+      note: `The ${v.label.toLowerCase()} dataset (${v.plan}); no model has been trained on it yet.`,
     });
   }
   const sim = readFileSync(join(root, "packages", "sim", "src", "scenario.ts"), "utf8");

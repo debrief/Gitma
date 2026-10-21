@@ -42,7 +42,7 @@ export const RESERVED_SEEDS = {
   203: "iteration 2c G2 (fresh test)",
 };
 /** Dataset seeds owned by one iteration's plans: its test split decided that iteration's gate. */
-export const ITERATION_DATASET_SEEDS = { 201: "2" };
+export const ITERATION_DATASET_SEEDS = { 201: "2", 204: "3" };
 /**
  * Seeds whose test split has already decided a gate: a fresh test split may use one only in the
  * plan that decided it (so the committed plan of record still validates), never in another.
@@ -53,6 +53,7 @@ export const RESERVED_TEST_SEEDS = {
   201: { for: "iteration 2 G2 (the iteration-2 dataset's own test split)" },
   202: { for: "iteration 2b G2", plan: "configs/iter2/c/plan.json" },
   203: { for: "iteration 2c G2", plan: "configs/iter2/d/plan.json" },
+  204: { for: "iteration 3 G2 (the iteration-3 dataset's own test split)" },
 };
 
 class PlanError extends Error {}
@@ -195,8 +196,12 @@ export function loadPlan(path) {
   for (const k of ["decision", "compare_models"]) {
     if (e[k] !== undefined && typeof e[k] !== "string") fail(`evaluate.${k} must be a path`);
   }
-  if (e.split === "validation" && (e.decision !== undefined || e.compare_models !== undefined))
-    fail("a validation evaluation takes no decision or compare_models");
+  // A validation run may score a reference set beside it on the same rows (spec 007 FR-006:
+  // paired.json); a decision is only for test.
+  if (e.split === "validation" && e.decision !== undefined)
+    fail("a validation evaluation takes no decision");
+  if (e.compare_models !== undefined && !existsSync(e.compare_models))
+    fail(`evaluate.compare_models ${e.compare_models} does not exist`);
   // A scan (side experiment, spec 003 R20) reports every model on validation; it never gates.
   if (e.command === "tma-scan" && e.split !== "validation")
     fail("a tma-scan evaluation is validation only");

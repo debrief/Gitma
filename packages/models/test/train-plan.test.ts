@@ -86,6 +86,7 @@ describe("plan resolution", () => {
       "configs/iter2/b/plan.json",
       "configs/iter2/c/plan.json",
       "configs/iter2/s/plan.json",
+      "configs/iter3/a/plan.json",
       "configs/ci/plan.json",
       "configs/ci/derived/plan.json",
     ]) {
@@ -172,6 +173,19 @@ describe("plan validation", () => {
         ),
       ).err,
     ).toMatch(/validation evaluation takes no decision/);
+    // A reference set may be scored beside a validation run (spec 007 FR-006), if it exists.
+    expect(
+      validate(
+        workspace(
+          (p) =>
+            (p.evaluate = {
+              command: "tma-g2",
+              split: "validation",
+              compare_models: "no/such/models",
+            }),
+        ),
+      ).err,
+    ).toMatch(/does not exist/);
     expect(validate(workspace((p) => (p.models = ["no-such-model"]))).err).toMatch(/no config/);
     // A scan never touches the test split.
     expect(
@@ -185,7 +199,7 @@ describe("plan validation", () => {
 
   it("a fresh test split needs its own unreserved seed and a digest (spec 004 decision 17)", () => {
     const fresh = (f: unknown) => workspace((p) => (dataset(p).fresh_test = f));
-    expect(validate(fresh({ seed: "204", digest: "PLACEHOLDER" })).status).toBe(0);
+    expect(validate(fresh({ seed: "205", digest: "PLACEHOLDER" })).status).toBe(0);
     expect(validate(fresh({ seed: "201", digest: "PLACEHOLDER" })).err).toMatch(
       /must differ from dataset.seed/,
     );
@@ -194,7 +208,7 @@ describe("plan validation", () => {
     );
     // The iteration-2 dataset seed is only for configs/iter2/ plans (its test split decided G2).
     const elsewhere = workspace();
-    mkdirSync(join(elsewhere, "configs/iter3"));
+    mkdirSync(join(elsewhere, "configs/iter3"), { recursive: true });
     cpSync(
       join(elsewhere, "configs/iter2/a/plan.json"),
       join(elsewhere, "configs/iter3/plan.json"),
@@ -209,7 +223,11 @@ describe("plan validation", () => {
     expect(validate(fresh({ seed: "203", digest: "PLACEHOLDER" })).err).toMatch(
       /reserved for iteration 2c/,
     );
-    expect(validate(fresh({ seed: "204", digest: "abc" })).err).toMatch(/fresh_test.digest/);
+    // 204 is the iteration-3 dataset (spec 007): its own test split decides iteration 3's G2.
+    expect(validate(fresh({ seed: "204", digest: "PLACEHOLDER" })).err).toMatch(
+      /reserved for iteration 3 G2/,
+    );
+    expect(validate(fresh({ seed: "205", digest: "abc" })).err).toMatch(/fresh_test.digest/);
     expect(validate(fresh({ digest: "PLACEHOLDER" })).err).toMatch(/fresh_test.seed/);
   });
 });
@@ -276,11 +294,11 @@ describe("dataset content digests", () => {
     // With a fresh test split, test.f32pack is checked against the fresh digest, not the plan's.
     plan.dataset.digests["validation.f32pack"] = digests["validation.f32pack"] ?? "";
     const withFresh = plan as unknown as { dataset: Record<string, unknown> };
-    withFresh.dataset.fresh_test = { seed: "204", digest: digests["test.f32pack"] };
+    withFresh.dataset.fresh_test = { seed: "205", digest: digests["test.f32pack"] };
     plan.dataset.digests["test.f32pack"] = "0".repeat(64);
     writeFileSync(p, JSON.stringify(plan));
     expect(check().status).toBe(0);
-    withFresh.dataset.fresh_test = { seed: "204", digest: "1".repeat(64) };
+    withFresh.dataset.fresh_test = { seed: "205", digest: "1".repeat(64) };
     writeFileSync(p, JSON.stringify(plan));
     expect(check().err).toMatch(/BAD test.f32pack .*\(plan: 1{64}\)/);
   });

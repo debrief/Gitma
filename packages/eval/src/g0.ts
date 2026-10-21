@@ -77,7 +77,7 @@ export function runG0(dataDir: string, experiment: string, commandLine: string):
     checkNoiseFreeRecovery(truth.header, scenarios, byIndex(classical)),
     checkPerTimestepRecovery(sub, byIndex(perTimestep)),
     checkBearingResiduals(scenarios),
-    checkIndependentGeometry(scenarios),
+    checkIndependentGeometry(scenarios, truth.header.parameter_ranges),
     checkNaiveReproducible(evA.metrics, evB.metrics),
   ]);
   writeEvaluation(experiment, evA);

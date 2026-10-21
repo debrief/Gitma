@@ -9,10 +9,14 @@ export const ChangeDecision = z.strictObject({
   decided_at: z.string(),
   git_commit: z.string(),
   phase_a_experiment: z.string(),
+  /** The plan this decision pre-registers (configs/<…>/plan.json). Required from iteration 3 (spec 007): tma-g2 scores a test split only with the decision that names its plan. */
+  plan: z.string().nullish(),
   /** Validation evidence cited. */
   rationale: z.string(),
   /** Any gated criterion failed or was inconclusive on validation. */
   stalled: z.boolean(),
+  /** Dataset seed of the test split the decision commits to (the plan's fresh_test seed, or its dataset seed); tma-g2 checks it against the plan. */
+  test_seed: z.string().nullish(),
 });
 export type ChangeDecision = z.infer<typeof ChangeDecision>;
 
@@ -55,10 +59,16 @@ export type FloatRange = z.infer<typeof FloatRange>;
 export const RangeDistribution = z.enum(["uniform", "log_uniform"]);
 export type RangeDistribution = z.infer<typeof RangeDistribution>;
 
+/** How each zig's direction and size are chosen (generator 0.3.0, spec 007). */
+export const ZigRule = z.enum(["random", "across_los"]);
+export type ZigRule = z.infer<typeof ZigRule>;
+
 /** Ranges from which ScenarioParameters are drawn. Initial ownship course, target bearing and target course are always uniform on [0, 2π); zig sign is uniform ±. */
 export const ParameterRanges = z.strictObject({
   dropout_fraction: FloatRange,
   dt_s: z.number(),
+  /** Angle off the line of sight, on the other bow, after an across_los turn; required when zig_rule is across_los. */
+  los_offset_rad: FloatRange.nullish(),
   /** Geometries closer than this at any sample are redrawn. */
   min_range_m: z.number(),
   /** σ drawn uniformly from this set. */
@@ -70,8 +80,12 @@ export const ParameterRanges = z.strictObject({
   target_range0_m: FloatRange,
   target_speed_mps: FloatRange,
   window_s: FloatRange,
+  /** Delay from the start of leg 2 to the second turn; absent means one zig. The second zig follows zig_rule (and uses the same turn rate as the first). */
+  zig2_delay_s: FloatRange.nullish(),
   zig_angle_abs_rad: FloatRange,
   zig_fraction: FloatRange,
+  /** How each zig is chosen; absent means random (generators 0.1.0–0.2.0). Under across_los zig_angle_abs_rad is still drawn but not used. */
+  zig_rule: ZigRule.nullish(),
 });
 export type ParameterRanges = z.infer<typeof ParameterRanges>;
 
@@ -445,6 +459,10 @@ export const ScenarioParameters = z.strictObject({
   target_speed_mps: z.number(),
   /** Window length; multiple of dt_s. */
   window_s: z.number(),
+  /** Signed course change at the second zig; positive is clockwise. */
+  zig2_angle_rad: z.number().nullish(),
+  /** Second zig (generator 0.3.0, spec 007): time from the first sample on leg 2 to the start of the second turn. Absent: one zig, two legs. */
+  zig2_delay_s: z.number().nullish(),
   /** Signed course change at the zig; positive is clockwise. */
   zig_angle_rad: z.number(),
   /** Zig time as a fraction of the window. */
@@ -463,8 +481,12 @@ export const ScenarioMetadata = z.strictObject({
   samples: z.number().int(),
   /** Scenario seed as a decimal uint64 string. */
   seed: z.string(),
+  /** First timestep after the second turn starts (absent with one zig or no turn rate). */
+  turn2_start_index: z.number().int().nullish(),
   /** First timestep after the turn starts (absent for an instantaneous zig). */
   turn_start_index: z.number().int().nullish(),
+  /** First timestep on leg 3, after the second turn completes (absent with one zig). Gate times still count from zig_index. */
+  zig2_index: z.number().int().nullish(),
   /** First timestep on leg 2 (with a rate-limited turn, the first after it completes). */
   zig_index: z.number().int(),
   zig_time_s: z.number(),

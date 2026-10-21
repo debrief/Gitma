@@ -14,6 +14,10 @@ const ZIG_BANDS_DEG: [number, number][] = [
   [30, 50],
   [50, 70],
   [70, 90],
+  // Iteration 3 (spec 007): across-the-line-of-sight turns reach 180°.
+  [90, 120],
+  [120, 150],
+  [150, 180],
 ];
 
 const DROPOUT_BANDS_PCT: [number, number][] = [
@@ -30,10 +34,16 @@ function band(value: number, bands: [number, number][], unit: string): string {
   return "other";
 }
 
-/** Zig angles are drawn in [30°, 90°]; float32 rounding can land exactly on 90°. */
+/**
+ * Zig angles are drawn in [30°, 90°] (random rule) or fall in [30°, 180°] (across-LOS rule);
+ * float32 rounding can land exactly on 90° (kept in 70–90°, as before iteration 3) or just
+ * outside [30°, 180°].
+ */
 function zigBand(deg: number): string {
-  const b = band(deg, ZIG_BANDS_DEG, "deg");
-  return b === "90+deg" && deg < 90.001 ? "70-90deg" : b;
+  if (deg >= 90 && deg < 90.001) return "70-90deg";
+  if (deg >= 180 && deg < 180.001) return "150-180deg";
+  if (deg < 30 && deg > 29.999) return "30-50deg";
+  return band(deg, ZIG_BANDS_DEG, "deg");
 }
 
 /** Dropout fractions are drawn in [0, 0.10]; float32 rounding can land just above 10%. */
