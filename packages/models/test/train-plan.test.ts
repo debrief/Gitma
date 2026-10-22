@@ -80,6 +80,25 @@ describe("plan resolution", () => {
     expect(run(["resolve"], { env: { PLAN: "../etc" } }).status).toBe(2);
   });
 
+  it("iteration-4 configs are iteration 3's plus derived features and velocity outputs (spec 008)", () => {
+    const ranges = JSON.parse(readFileSync(join(ROOT, "configs/iter4-ranges.json"), "utf8")) as {
+      target_speed_mps: { max: number };
+    };
+    expect(readFileSync(join(ROOT, "configs/iter4-ranges.json"), "utf8")).toBe(
+      readFileSync(join(ROOT, "configs/iter3-ranges.json"), "utf8"),
+    );
+    for (const m of MODELS) {
+      const read = (dir: string) =>
+        JSON.parse(readFileSync(join(ROOT, dir, `${m}.json`), "utf8")) as Record<string, unknown>;
+      expect(read("configs/iter4/a"), m).toEqual({
+        ...read("configs/iter3/a"),
+        feature_set: "derived",
+        output_parameterisation: "velocity",
+        velocity_scale_mps: ranges.target_speed_mps.max,
+      });
+    }
+  });
+
   it("every committed plan validates; phase A configs follow decisions 9 and 10", () => {
     for (const p of [
       "configs/iter2/a/plan.json",
@@ -87,6 +106,7 @@ describe("plan resolution", () => {
       "configs/iter2/c/plan.json",
       "configs/iter2/s/plan.json",
       "configs/iter3/a/plan.json",
+      "configs/iter4/a/plan.json",
       "configs/ci/plan.json",
       "configs/ci/derived/plan.json",
     ]) {
@@ -199,7 +219,7 @@ describe("plan validation", () => {
 
   it("a fresh test split needs its own unreserved seed and a digest (spec 004 decision 17)", () => {
     const fresh = (f: unknown) => workspace((p) => (dataset(p).fresh_test = f));
-    expect(validate(fresh({ seed: "205", digest: "PLACEHOLDER" })).status).toBe(0);
+    expect(validate(fresh({ seed: "206", digest: "PLACEHOLDER" })).status).toBe(0);
     expect(validate(fresh({ seed: "201", digest: "PLACEHOLDER" })).err).toMatch(
       /must differ from dataset.seed/,
     );
@@ -227,7 +247,7 @@ describe("plan validation", () => {
     expect(validate(fresh({ seed: "204", digest: "PLACEHOLDER" })).err).toMatch(
       /reserved for iteration 3 G2/,
     );
-    expect(validate(fresh({ seed: "205", digest: "abc" })).err).toMatch(/fresh_test.digest/);
+    expect(validate(fresh({ seed: "206", digest: "abc" })).err).toMatch(/fresh_test.digest/);
     expect(validate(fresh({ digest: "PLACEHOLDER" })).err).toMatch(/fresh_test.seed/);
   });
 });
@@ -294,11 +314,11 @@ describe("dataset content digests", () => {
     // With a fresh test split, test.f32pack is checked against the fresh digest, not the plan's.
     plan.dataset.digests["validation.f32pack"] = digests["validation.f32pack"] ?? "";
     const withFresh = plan as unknown as { dataset: Record<string, unknown> };
-    withFresh.dataset.fresh_test = { seed: "205", digest: digests["test.f32pack"] };
+    withFresh.dataset.fresh_test = { seed: "206", digest: digests["test.f32pack"] };
     plan.dataset.digests["test.f32pack"] = "0".repeat(64);
     writeFileSync(p, JSON.stringify(plan));
     expect(check().status).toBe(0);
-    withFresh.dataset.fresh_test = { seed: "205", digest: "1".repeat(64) };
+    withFresh.dataset.fresh_test = { seed: "206", digest: "1".repeat(64) };
     writeFileSync(p, JSON.stringify(plan));
     expect(check().err).toMatch(/BAD test.f32pack .*\(plan: 1{64}\)/);
   });

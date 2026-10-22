@@ -468,7 +468,6 @@ export async function scoreSplit(
           note = `${m.manifest.id} (${tag}): trained on other data, so scored on inputs built with its own normalisation (${own})`;
         }
         if (note !== undefined) notes.push(note);
-        if (features === undefined) throw new Error(`${m.manifest.id}: no features`);
         const model = await loadModel(m.dir);
         const ps = predictScenarios(
           model,

@@ -285,3 +285,6 @@ Each is a separate, pre-registered experiment (B.3). None is chosen until A.7 is
   can be stepped through the project's history; controls remain selectable by path._
 - **D4** After A.7: the first lever of B.2. _Decided 2026-10-17: B.2.1, a second zig with both
   turns across the line of sight (spec 007)._
+- **D5** After iteration 3 stopped at validation: the next lever. _Decided 2026-10-22: B.2.2 as
+  velocity outputs, combined with B.2.3 (derived features), on iteration 3's problem, seed 205
+  (spec 008, decision 23)._
