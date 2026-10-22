@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="blog-wrapper blog-post-page plugin-blog plugin-id-default" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.10.2">
+<title data-rh="true">Iteration 2b: speed-weighted loss, G2 failed again | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/pr/54/blog/2026/10/15/iteration-2b"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docusaurus_tag" content="default"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docsearch:docusaurus_tag" content="default"><meta data-rh="true" property="og:title" content="Iteration 2b: speed-weighted loss, G2 failed again | TMA via ML"><meta data-rh="true" name="description" content="Iteration 2b asks one question: does weighting speed in the loss get the iteration-2 models to the"><meta data-rh="true" property="og:description" content="Iteration 2b asks one question: does weighting speed in the loss get the iteration-2 models to the"><meta data-rh="true" property="og:type" content="article"><meta data-rh="true" property="article:published_time" content="2026-10-15T00:00:00.000Z"><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/pr/54/blog/2026/10/15/iteration-2b"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/54/blog/2026/10/15/iteration-2b" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/54/blog/2026/10/15/iteration-2b" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","@id":"https://debrief.github.io/Gitma/pr/54/blog/2026/10/15/iteration-2b","mainEntityOfPage":"https://debrief.github.io/Gitma/pr/54/blog/2026/10/15/iteration-2b","url":"https://debrief.github.io/Gitma/pr/54/blog/2026/10/15/iteration-2b","headline":"Iteration 2b: speed-weighted loss, G2 failed again","name":"Iteration 2b: speed-weighted loss, G2 failed again","description":"Iteration 2b asks one question: does weighting speed in the loss get the iteration-2 models to the","datePublished":"2026-10-15T00:00:00.000Z","author":[],"keywords":[],"isPartOf":{"@type":"Blog","@id":"https://debrief.github.io/Gitma/pr/54/blog","name":"Blog"}}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/pr/54/blog/rss.xml" title="TMA via ML RSS Feed">
+<link rel="alternate" type="application/atom+xml" href="/Gitma/pr/54/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/pr/54/assets/css/styles.d219d845.css">
+<script src="/Gitma/pr/54/assets/js/runtime~main.5ec64660.js" defer="defer"></script>
+<script src="/Gitma/pr/54/assets/js/main.76d046b4.js" defer="defer"></script>
+</head>
+<body>
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||"light"),document.documentElement.setAttribute("data-theme-choice",t||"light")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_JWeg" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/Gitma/pr/54/"><b class="navbar__title text--truncate">TMA via ML</b></a><a class="navbar__item navbar__link" href="/Gitma/pr/54/docs/glossary">Glossary</a><a class="navbar__item navbar__link" href="/Gitma/pr/54/docs/data-dictionary">Data dictionary</a><a class="navbar__item navbar__link" href="/Gitma/pr/54/docs/algorithms/generator">Algorithms</a><a class="navbar__item navbar__link" href="/Gitma/pr/54/docs/results/iteration-1">Results</a><a class="navbar__item navbar__link" href="/Gitma/pr/54/viewer">Viewer</a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/Gitma/pr/54/blog">Blog</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://github.com/debrief/Gitma" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_ny9m"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_Lxsn colorModeToggle_wCyq"><button class="clean-btn toggleButton_BEJb toggleButtonDisabled_wzmd" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_Lr3m lightToggleIcon_ViIh"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_Lr3m darkToggleIcon_Xnlu"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_Lr3m systemToggleIcon_LOzk"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_agmU"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_ra6T"><div class="container margin-vert--lg"><div class="row"><aside class="col col--3"><nav class="sidebar_WZvC thin-scrollbar" aria-label="Blog recent posts navigation"><div class="sidebarItemTitle_K1Mb margin-bottom--md">Recent posts</div><div role="group"><h3 class="yearGroupHeading_NsJf">2026</h3><ul class="sidebarItemList_CugS clean-list"><li class="sidebarItem_e6qr"><a class="sidebarItemLink_Klnn" href="/Gitma/pr/54/blog/2026/10/22/iteration-3">Iteration 3: a second zig helps everyone, classical most</a></li><li class="sidebarItem_e6qr"><a class="sidebarItemLink_Klnn" href="/Gitma/pr/54/blog/2026/10/17/engagement-viewer">The engagement viewer: single cases behind the G2 numbers</a></li><li class="sidebarItem_e6qr"><a class="sidebarItemLink_Klnn" href="/Gitma/pr/54/blog/2026/10/17/iteration-2c">Iteration 2c: G2 failed on speed; the project stops at G2</a></li><li class="sidebarItem_e6qr"><a aria-current="page" class="sidebarItemLink_Klnn sidebarItemLinkActive_EfBZ" href="/Gitma/pr/54/blog/2026/10/15/iteration-2b">Iteration 2b: speed-weighted loss, G2 failed again</a></li><li class="sidebarItem_e6qr"><a class="sidebarItemLink_Klnn" href="/Gitma/pr/54/blog/2026/10/14/iteration-2">Iteration 2: G2 failed on speed</a></li></ul></div></nav></aside><main class="col col--7"><article class=""><header><h1 class="title_LyMS">Iteration 2b: speed-weighted loss, G2 failed again</h1><div class="container_oQwR margin-vert--md"><time datetime="2026-10-15T00:00:00.000Z">October 15, 2026</time> · <!-- -->8 min read</div></header><div id="__blog-post-container" class="markdown"><p>Iteration 2b asks one question: does weighting speed in the loss get the iteration-2 models to the
+G2 speed threshold? It changes nothing else, and judges G2 on a fresh test split.</p>
+<p><strong>Verdict: G2 failed</strong> (agent review panel, round 2, no rejections).</p>
+<ul>
+<li class=""><strong>Range passes</strong> for both models: 14.6% [14.1, 15.2] instantaneous and 15.8% [15.2, 16.2]
+time-late at zig + 300 s on the σ = 1° slice, against 20%.</li>
+<li class=""><strong>Course passes for both:</strong> 8.22° [7.88, 8.54] and 8.66° [8.29, 9.03], against 10°. The
+time-late course failure of iteration 2 is gone.</li>
+<li class=""><strong>Speed fails for both, by less:</strong> 1.77 kt [1.68, 1.83] and 1.77 kt [1.67, 1.86] at
+zig + 600 s, against 1 kt. The same weights before 2b, scored on the same scenarios, were at
+2.02 kt and 2.31 kt. Classical reaches 0.60 kt.</li>
+</ul>
+<p>Experiment of record:
+<a href="https://github.com/debrief/Gitma/tree/main/experiments/20261015-i2c-g2" target="_blank" rel="noopener noreferrer" class=""><code>experiments/20261015-i2c-g2/</code></a>.
+Curves and slices: <a class="" href="/Gitma/pr/54/docs/results/iteration-2b">iteration-2b results</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-changed">What changed<a href="#what-changed" class="hash-link" aria-label="Direct link to What changed" title="Direct link to What changed" translate="no">​</a></h2>
+<p>The SRD allows one more round after a stalled G2. Iteration 2 left three leads (research R19):
+derived features, speed in the loss, and the training budget. The user chose the loss (decisions
+15–17 in spec 004):</p>
+<ul>
+<li class=""><strong>Loss weight.</strong> The speed term of the loss is weighted 4× (<code>loss_weight_speed: 4</code>). Speed
+contributed about 15% of the loss before; now it is about 40%.</li>
+<li class=""><strong>Continued, not restarted.</strong> Every model (the two carried ones and the three controls) starts
+from its committed phase-B weights, to 220 epochs at most with patience 6. Because the loss
+changed, <code>tma-train</code> re-scores the best epoch under the new loss before it resumes; otherwise
+the old best, on the old scale, could never be beaten and the old weights would be kept.</li>
+<li class=""><strong>A fresh test split.</strong> The iteration-2 test split (seed 201) decided the first attempt and is
+never scored again. The gate is judged on the test split of seed 202, generated with the same
+count and ranges and pinned by content digest in the training plan. Train and validation are
+unchanged.</li>
+</ul>
+<p>Three tooling checks promised at the end of iteration 2 arrived with 2b and were on for this
+gate: <code>tma-g2</code> checks the plan&#x27;s content digests itself, refuses a phase decision that is not a
+git ancestor of the carried weights, and checks that every estimator was scored on the same rows,
+not just the same number of them. The <a class="" href="/Gitma/pr/54/docs/evaluation">evaluation</a> page describes them.</p>
+<p>The carried set was fixed before training: the 2b models, unconditionally. Phase B is scored
+beside them on the fresh split and reported, never gated.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="results-on-the-fresh-test-split-σ--1">Results on the fresh test split (σ = 1°)<a href="#results-on-the-fresh-test-split-σ--1" class="hash-link" aria-label="Direct link to Results on the fresh test split (σ = 1°)" title="Direct link to Results on the fresh test split (σ = 1°)" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Estimator</th><th>Range, zig+300 s</th><th>Course, zig+300 s</th><th>Speed, zig+600 s</th></tr></thead><tbody><tr><td>G2 threshold</td><td>&lt; 20%</td><td>&lt; 10°</td><td>&lt; 1 kt</td></tr><tr><td>lstm-instantaneous (2b)</td><td><strong>14.6%</strong> [14.1, 15.2]</td><td><strong>8.22°</strong> [7.88, 8.54]</td><td>1.77 kt [1.68, 1.83]</td></tr><tr><td>bilstm-time-late (2b)</td><td><strong>15.8%</strong> [15.2, 16.2]</td><td><strong>8.66°</strong> [8.29, 9.03]</td><td>1.77 kt [1.67, 1.86]</td></tr><tr><td>lstm-instantaneous (B, reported)</td><td>16.5%</td><td>9.20°</td><td>2.02 kt</td></tr><tr><td>bilstm-time-late (B, reported)</td><td>19.2%</td><td>10.36°</td><td>2.31 kt</td></tr><tr><td>classical</td><td>8.5%</td><td>3.31°</td><td>0.60 kt</td></tr><tr><td>naive</td><td>37.9%</td><td>90.4°</td><td>4.22 kt</td></tr></tbody></table>
+<p>n = 4,682 scenarios at zig + 300 s (93% of the slice) and 2,973 at zig + 600 s (59%).</p>
+<p>Phase B&#x27;s numbers here differ from the iteration-2 verdict (2.09 / 2.38 kt) because this is a
+different split; the intervals overlap.</p>
+<h3 class="anchor anchorTargetStickyNavbar_FE5u" id="the-repeated-g1-checks">The repeated G1 checks<a href="#the-repeated-g1-checks" class="hash-link" aria-label="Direct link to The repeated G1 checks" title="Direct link to The repeated G1 checks" translate="no">​</a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Check</th><th>Result</th></tr></thead><tbody><tr><td>instantaneous / naive &lt; 0.5</td><td>pass: 0.418 [0.405, 0.432]</td></tr><tr><td>time-late / naive &lt; 0.5</td><td>pass: 0.430 [0.419, 0.443]</td></tr><tr><td>time-late not worse than instantaneous</td><td>fail: 2 of 19 points (t = 840 and 960 s)</td></tr><tr><td>both models beat their controls</td><td>pass</td></tr><tr><td>shuffled-label model at naive</td><td>pass: 1.000 ×</td></tr></tbody></table>
+<p>The time-late model&#x27;s knife-edge G1 fail from iteration 2 (0.514) is now a clear pass. Its
+deficit since G1 was a training deficit, not an architectural one: given the same budget it
+matches the instantaneous model on every check. The &quot;not worse&quot; check has no interval; the two
+exceedances (ratios 1.055 and 1.056 against 1.05) have paired intervals that contain 1.05, so
+this fail is not distinguishable from a pass. What is real is the G1 caveat persisting: the
+time-late model is slightly worse than the instantaneous one at 17 of 19 points, not better.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-the-speed-weight-did-and-did-not-do">What the speed weight did, and did not do<a href="#what-the-speed-weight-did-and-did-not-do" class="hash-link" aria-label="Direct link to What the speed weight did, and did not do" title="Direct link to What the speed weight did, and did not do" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Speed moved by 12–23%</strong> (2.02 → 1.77 kt; 2.31 → 1.77 kt), and range and course improved with
+it. Nothing got worse.</li>
+<li class=""><strong>It is still 1.8 kt against 1 kt</strong>, with the whole interval above 1.67 kt. The models are
+about three times classical, which is at the Cramér–Rao bound on these bearings: the panel
+recomputed the per-scenario bound on this split (median 1.05 kt for the bearings to
+zig + 600 s) and classical&#x27;s error is 0.62 of it at the median, where an efficient estimator
+gives 0.67.</li>
+<li class=""><strong>The gain is less scatter as much as less shrinkage.</strong> The slope of predicted on true speed
+rose from 0.58 to 0.65 and the residual spread fell from 2.38 to 2.21 kt; correcting the
+shrinkage alone would not help (it would give 2.3 kt). Target speeds above ownship&#x27;s 15 kt map
+to normalised targets above 1, where the shrinkage is worst; the output scaling was not changed.</li>
+<li class=""><strong>The gap is where classical is near-perfect.</strong> By true range at zig + 600 s (all noise):</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>True range</th><th>Instantaneous</th><th>Time-late</th><th>Classical</th></tr></thead><tbody><tr><td>2–5 km (n 731)</td><td>1.44 kt</td><td>1.43 kt</td><td>0.17 kt</td></tr><tr><td>5–10 km (n 2,219)</td><td>1.55 kt</td><td>1.53 kt</td><td>0.57 kt</td></tr><tr><td>10–20 km (n 2,568)</td><td>2.12 kt</td><td>2.01 kt</td><td>1.51 kt</td></tr><tr><td>20–30 km (n 420)</td><td>2.98 kt</td><td>3.08 kt</td><td>3.54 kt</td></tr></tbody></table>
+<p>Classical&#x27;s 0.60 kt median is carried by the short ranges, where a few hundred metres of range
+error fixes speed to a fraction of a knot. The models are 1.4–1.5 kt there, flat across bands
+they resolve well, and only beyond 20 km do they beat classical on speed.</p>
+<ul>
+<li class=""><strong>The range advantage beyond 10 km is narrower than iteration 2 suggested.</strong> At zig + 300 s
+the models are ahead at 10–20 km (14.2% against 18.6%, all noise) and at 20–30 km (24.1%
+against 27.4%), but the gap is carried by classical&#x27;s non-converged tail (117 of 1,806 scenarios
+at 10–20 km on the σ = 1° slice, scored as infinite error). On converged scenarios alone the two
+are level, and at zig + 600 s classical is better in every band.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-the-panel-found">What the panel found<a href="#what-the-panel-found" class="hash-link" aria-label="Direct link to What the panel found" title="Direct link to What the panel found" translate="no">​</a></h2>
+<p>Five reviewers again: TMA geometry, estimation and numerics, evaluation statistics,
+reproducibility, and red team. All five returned approve-with-findings in round 1, and none
+rejected. Every one of them reproduced the speed medians independently, and none found a path
+from a pipeline error to the verdict.</p>
+<p><strong>One latent major, fixed.</strong> When a continuation changes the loss, <code>tma-train</code> re-scores the best
+weights under the new loss before it resumes. It used that value in memory but never wrote it to
+the manifest, so a chained job (resuming with its optimizer state) compared new-loss epochs against
+the old-loss number. Had a continuation&#x27;s first job ended before any epoch beat the re-scored
+value, later jobs would have kept the old weights silently. It did not happen in this run (the
+reviewer checked every job boundary in the CI logs), but it could have. The manifest now records
+the value a later epoch must beat and the source of a continuation, a chained-job test covers the
+case, and <code>tma-train --check</code> verifies that a finished continuation&#x27;s kept weights are explained
+by its record.</p>
+<p><strong>What else the panel established:</strong></p>
+<ul>
+<li class="">The fresh split is fresh: per-scenario seeds derive from the dataset seed and index, a seed-201
+and seed-202 collision would need an index difference of 10¹⁸, and no test scenario shares a
+seed or parameter set with any of the 100,000 seed-201 scenarios.</li>
+<li class="">The fail margin is 16–20 standard errors. Only 30% of scenarios have a speed error under 1 kt;
+for the interval merely to touch the threshold the test set would have to be about 28 scenarios.</li>
+<li class="">The re-scoring worked as specified: the reviewers recomputed the re-scored losses to five
+decimals and confirmed each model&#x27;s best epoch was chosen under the new loss. The shuffled
+control&#x27;s weights are unchanged from phase B because no epoch beat its re-scored loss, which is
+the right outcome for a control.</li>
+<li class="">Classical&#x27;s non-converged scenarios (1.4%) are scored as infinite error and included; its
+0.60 kt is not flattered.</li>
+</ul>
+<p>Nineteen minor findings were answered or fixed in two rounds, mostly record-keeping: the
+manifests of the committed 2b models do not say they are continuations (the facts are in the
+review), gate-deciding seeds are now reserved in the plan checker, and the write-up wording above
+follows the geometry reviewer&#x27;s corrections.</p>
+<p>Record:
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261015-i2c-g2/review.md" target="_blank" rel="noopener noreferrer" class=""><code>review.md</code></a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="next">Next<a href="#next" class="hash-link" aria-label="Direct link to Next" title="Direct link to Next" translate="no">​</a></h2>
+<p>SRD §7 was amended on 2026-10-15 to allow one further round, iteration 2c, and then stop. The
+capacity scan (research R20) showed that a two-layer 128-unit LSTM reaches the 96-unit model&#x27;s
+plateau in half the epochs. Iteration 2c trains that model from scratch with the speed weight, on
+yet another fresh test split (seed 203). The decision record, with the forecast (1.4–1.6 kt) and
+the stopping rule, is committed before training:
+<a href="https://github.com/debrief/Gitma/tree/main/experiments/20261015-i2d-decision" target="_blank" rel="noopener noreferrer" class=""><code>experiments/20261015-i2d-decision/</code></a>.</p></div></article><nav class="pagination-nav docusaurus-mt-lg" aria-label="Blog post page navigation"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/pr/54/blog/2026/10/17/iteration-2c"><div class="pagination-nav__sublabel">Newer post</div><div class="pagination-nav__label">Iteration 2c: G2 failed on speed; the project stops at G2</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/pr/54/blog/2026/10/14/iteration-2"><div class="pagination-nav__sublabel">Older post</div><div class="pagination-nav__label">Iteration 2: G2 failed on speed</div></a></nav></main><div class="col col--2"><div class="tableOfContents_kFBU thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#what-changed" class="table-of-contents__link toc-highlight">What changed</a></li><li><a href="#results-on-the-fresh-test-split-σ--1" class="table-of-contents__link toc-highlight">Results on the fresh test split (σ = 1°)</a><ul><li><a href="#the-repeated-g1-checks" class="table-of-contents__link toc-highlight">The repeated G1 checks</a></li></ul></li><li><a href="#what-the-speed-weight-did-and-did-not-do" class="table-of-contents__link toc-highlight">What the speed weight did, and did not do</a></li><li><a href="#what-the-panel-found" class="table-of-contents__link toc-highlight">What the panel found</a></li><li><a href="#next" class="table-of-contents__link toc-highlight">Next</a></li></ul></div></div></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
+</body>
+</html>
