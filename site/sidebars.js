@@ -24,6 +24,7 @@ const sidebars = {
         "results/iteration-2",
         "results/iteration-2b",
         "results/iteration-2c",
+        "results/iteration-3",
       ],
     },
   ],

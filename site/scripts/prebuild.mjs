@@ -129,13 +129,26 @@ const VIEWER_PAIRS = [
   { id: "i2", label: "Iteration 2", experiment: "20261014-i2-g2" },
   { id: "i2b", label: "Iteration 2b", experiment: "20261015-i2c-g2" },
   { id: "i2c", label: "Iteration 2c", experiment: "20261016-i2d-g2" },
+  // Stopped at validation (spec 007 FR-006): no test split was scored, so no verdict.json.
+  {
+    id: "i3",
+    label: "Iteration 3",
+    experiment: "20261021-i3a-val",
+    gate: "G2 validation: stopped before test",
+  },
 ];
 const VIEWER_MODELS = { instantaneous: "lstm-instantaneous", timeLate: "bilstm-time-late" };
 /**
  * Datasets of plans not yet scored, shown before training so the owner can check the engagements
  * (Annex A B.2.1). Only the validation split: a test split stays unseen until its gate.
  */
-const VIEWER_PLANS = [{ plan: "configs/iter3/a/plan.json", label: "Iteration 3" }];
+const VIEWER_PLANS = [
+  {
+    plan: "configs/iter3/a/plan.json",
+    label: "Iteration 3",
+    trained: "the iteration-3 models were trained on its train split and never saw this one",
+  },
+];
 
 /** The panel's decision where it overrides the machine result (e.g. G1 passed under rule 1). */
 function decision(verdict) {
@@ -153,7 +166,7 @@ function viewer() {
   for (const p of [...VIEWER_PAIRS].reverse()) {
     const base = join(root, "experiments", p.experiment);
     const exp = read(join(base, "manifest.json"));
-    const verdict = read(join(base, "verdict.json"));
+    const verdict = p.gate === undefined ? read(join(base, "verdict.json")) : null;
     const train = exp.datasets.find((d) => d.header.split === "train")?.header;
     for (const split of ["test", "heldout"]) {
       const h = exp.datasets.find((d) => d.header.split === split)?.header;
@@ -173,7 +186,7 @@ function viewer() {
         id,
         label:
           split === "test"
-            ? `Seed ${h.dataset_seed} test (${p.label} ${verdict.gate})`
+            ? `Seed ${h.dataset_seed} test (${p.label} ${verdict?.gate ?? "G2"})`
             : `Seed ${h.dataset_seed} held-out (${km(r0)})`,
         seed: h.dataset_seed,
         start: h.index_start,
@@ -211,7 +224,7 @@ function viewer() {
       id: p.id,
       label: p.label,
       experiment: `experiments/${p.experiment}`,
-      gate: decision(verdict),
+      gate: verdict === null ? (p.gate ?? "") : decision(verdict),
       instantaneous: entry("instantaneous", VIEWER_MODELS.instantaneous),
       timeLate: entry("time_late", VIEWER_MODELS.timeLate),
       naive,
@@ -221,12 +234,12 @@ function viewer() {
     const d = read(join(root, v.plan)).dataset;
     sources.unshift({
       id: `s${d.seed}-validation`,
-      label: `Seed ${d.seed} validation (${v.label}, before training)`,
+      label: `Seed ${d.seed} validation (${v.label}${v.trained === undefined ? ", before training" : ""})`,
       seed: d.seed,
       start: Math.floor(0.8 * d.count),
       end: Math.floor(0.9 * d.count),
       ranges: read(join(root, d.ranges)),
-      note: `The ${v.label.toLowerCase()} dataset (${v.plan}); no model has been trained on it yet.`,
+      note: `The ${v.label.toLowerCase()} dataset (${v.plan}); ${v.trained ?? "no model has been trained on it yet"}.`,
     });
   }
   const sim = readFileSync(join(root, "packages", "sim", "src", "scenario.ts"), "utf8");

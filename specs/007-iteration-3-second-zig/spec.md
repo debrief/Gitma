@@ -4,8 +4,7 @@
 
 **Created**: 2026-10-17
 
-**Status**: Planned. Owner's realism check recorded (SRD Annex A §A.7) and lever chosen (decision
-22, Annex A D4), 2026-10-17.
+**Status**: Stopped at validation (FR-006), 2026-10-22: LSTM speed 1.10 kt [1.06, 1.16]; test split not scored.
 
 **Input**: The owner's realism check in the engagement viewer (spec 006). The engagements look
 right, but with both platforms on steady legs there is not enough information for TMA: the zig

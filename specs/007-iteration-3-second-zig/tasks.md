@@ -22,7 +22,8 @@
 
 ## Run
 
-- [ ] T010 `train/i3a`: five models, chained jobs; validation diagnostic (`tma-g2 --split validation`)
-- [ ] T011 Validation rule (FR-006): carry to test or stop
-- [ ] T012 G2 on the seed-204 test split with 2c beside; agent panel; `review.md`; `decided_by`
-- [ ] T013 Write-up: results page, blog post, AGENTS.md gate status; viewer catalogue adds the pair
+- [x] T010 `train/i3a`: five models, chained jobs; validation diagnostic (`tma-g2 --split validation`)
+- [x] T011 Validation rule (FR-006): carry to test or stop
+- [-] T012 G2 on the seed-204 test split with 2c beside; agent panel; `review.md`; `decided_by`
+  (not run: FR-006 stopped the iteration at validation, `experiments/20261021-i3a-val/validation.md`)
+- [x] T013 Write-up: results page, blog post, AGENTS.md gate status; viewer catalogue adds the pair

@@ -202,8 +202,12 @@ and a fresh test seed (204 onward). **Iteration 3** (spec 007, decision 22) is l
 generator 0.3.0 adds a second zig 3–5 min into leg 2, and both turns cross the line of sight
 (`zig_rule: across_los`). Its dataset is seed 204. G0 passed on 0.3.0 (panel round 3,
 `experiments/20261017-g0-i3-r3/`). From iteration 3, `tma-g2 --split test` needs the committed
-decision that names its plan and test seed (schema 0.9.1 `ChangeDecision.plan`, `test_seed`). The classical forecast is 0.36 kt at zig + 600 s, and the model forecast is 1.1–1.3 kt
-(spec 007 research R2).
+decision that names its plan and test seed (schema 0.9.1 `ChangeDecision.plan`, `test_seed`). **Iteration 3 stopped at validation** (FR-006,
+`experiments/20261021-i3a-val/validation.md`): LSTM speed 1.10 kt [1.06, 1.16], so the rule's lower
+bound under 1 kt fails; BiLSTM 1.02 kt [0.98, 1.05], reported only; classical 0.34 kt (models 3.0–3.3
+× classical, against 2.4 × in 2c). Seed 204's test split is unscored and stays reserved. The next
+Part B lever is the owner's choice, with a fresh seed (205 onward). A model that is not `complete`
+after three chained jobs stops the evaluation job: re-dispatch `train.yml` (it resumes).
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution
 1.2.0). For each gate experiment:
