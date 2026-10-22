@@ -7,10 +7,10 @@
     "ranges": "configs/iter4-ranges.json",
     "heldout_ranges": "configs/iter4-heldout-ranges.json",
     "digests": {
-      "train.f32pack": "PLACEHOLDER",
-      "validation.f32pack": "PLACEHOLDER",
-      "test.f32pack": "PLACEHOLDER",
-      "heldout.f32pack": "PLACEHOLDER"
+      "train.f32pack": "d480f55dc45f3d62703ef1c62fbdff8386599622a8625a7d864ae5222aefca0d",
+      "validation.f32pack": "5ca14359b39d45119a7afc2948d325021acafc38371c433ac9b0bb1ebb55af92",
+      "test.f32pack": "7ad4f5510f46b7037cef2c7171374ad2de6646e767aab905cc08ed22321ceea7",
+      "heldout.f32pack": "f4d7927d520bc8f820ad795ce5de716366b7f754775350d360b192f63ff43a4c"
     }
   },
   "feature_set": "derived",
