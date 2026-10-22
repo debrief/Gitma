@@ -2,7 +2,7 @@ import { renameSync, writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { predictionHeader, predictionLines } from "@tma/classical";
 import { isMain, readDataset, UsageError } from "@tma/data";
-import { openFeatures } from "@tma/features";
+import { openFeatures, outputSpec } from "@tma/features";
 import { runAsyncCli } from "./cli-run.js";
 import { readModelManifest } from "./manifest-io.js";
 import {
@@ -55,6 +55,7 @@ export async function main(argv: string[]): Promise<unknown> {
       ds.scenarios(),
       manifest.normalisation,
       manifest.id,
+      outputSpec(manifest.config),
     );
     const lines = predictionLines(
       predictionHeader(manifest.id, "per_timestep", values.truth),

@@ -929,6 +929,15 @@
       "title": "Observation",
       "type": "object"
     },
+    "OutputParameterisation": {
+      "description": "How the model's four output channels encode the target's course and speed (spec 008).",
+      "enum": [
+        "course_speed",
+        "velocity"
+      ],
+      "title": "OutputParameterisation",
+      "type": "string"
+    },
     "PairedComparison": {
       "additionalProperties": false,
       "description": "A model and a reference estimator compared on rows both answered (converged and finite), with each estimator's coverage reported separately (spec 003 R9).",
@@ -1611,6 +1620,17 @@
         "model_kind": {
           "$ref": "#/$defs/ModelKind"
         },
+        "output_parameterisation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OutputParameterisation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Output encoding; absent means course_speed. With velocity, loss_weight_speed weights each velocity component and loss_weight_course is unused (spec 008)."
+        },
         "patience": {
           "description": "Epochs without validation improvement before stopping.",
           "type": "integer"
@@ -1641,6 +1661,13 @@
         "units": {
           "description": "LSTM units (per direction), conv filters or dense width.",
           "type": "integer"
+        },
+        "velocity_scale_mps": {
+          "description": "Velocity scale in m/s for the velocity parameterisation (required with it): the top of the generator's target speed range, a constant of the problem, never a truth statistic.",
+          "type": [
+            "number",
+            "null"
+          ]
         }
       },
       "required": [
@@ -1705,5 +1732,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.9.1"
+  "version": "0.10.0"
 }

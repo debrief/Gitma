@@ -3,7 +3,13 @@ import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import * as tf from "@tensorflow/tfjs-node";
 import { canonicalJson } from "@tma/data";
-import { type FeatureFile, outputsToPrediction, ROWS } from "@tma/features";
+import {
+  COURSE_SPEED,
+  type FeatureFile,
+  type OutputSpec,
+  outputsToPrediction,
+  ROWS,
+} from "@tma/features";
 import type {
   DatasetHeader,
   FeatureSet,
@@ -110,7 +116,8 @@ export function requireSameFeatureSet(
 
 /**
  * Runs the model over every scenario of `truth` (looked up in `features` by index). Refuses a
- * features file whose input width differs from the model's.
+ * features file whose input width differs from the model's. `spec` is the model's output
+ * parameterisation (`outputSpec(manifest.config)`).
  */
 export function predictScenarios(
   model: tf.LayersModel,
@@ -118,6 +125,7 @@ export function predictScenarios(
   truth: Iterable<Scenario>,
   norm: NormalisationConstants,
   estimator: string,
+  spec: OutputSpec = COURSE_SPEED,
   batchSize = 256,
 ): Prediction[] {
   const ni = features.inputChannels;
@@ -145,7 +153,14 @@ export function predictScenarios(
     });
     pending.forEach((s, j) => {
       out.push(
-        outputsToPrediction(s, y.subarray(j * ROWS * NO, (j + 1) * ROWS * NO), norm, estimator),
+        outputsToPrediction(
+          s,
+          y.subarray(j * ROWS * NO, (j + 1) * ROWS * NO),
+          norm,
+          estimator,
+          undefined,
+          spec,
+        ),
       );
     });
     pending = [];

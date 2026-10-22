@@ -38,7 +38,7 @@ import {
   writeManifest,
   writeVerdict,
 } from "@tma/eval";
-import { openFeatures } from "@tma/features";
+import { openFeatures, outputSpec } from "@tma/features";
 import type { GateVerdict, ModelManifest, Prediction, Scenario } from "@tma/types";
 import { readModelManifest } from "./manifest-io.js";
 import {
@@ -175,6 +175,7 @@ export async function runG1(opts: G1Options): Promise<GateVerdict> {
           scenarios,
           m.manifest.normalisation,
           m.manifest.id,
+          outputSpec(m.manifest.config),
         );
         model.dispose();
         writePredictions(

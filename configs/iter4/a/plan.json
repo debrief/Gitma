@@ -1,0 +1,24 @@
+{
+  "id": "i4a",
+  "description": "Spec 008 (iteration 4, Annex A levers B.2.2 + B.2.3, decision 23): the models change, the problem does not. Velocity outputs (log range, vx, vy scaled by the top of the target speed range, 10.29 m/s; course and speed derived) and the derived feature set (13 channels: bearing rate, its validity flag, bearing-line intercept). Otherwise the iteration-3 configuration from scratch (2 x 128 stacked recurrent layers, loss_weight_speed 4 on each velocity component, max_epochs 150, patience 6, same seeds), on iteration 3's three-leg problem (generator 0.3.0, configs/iter4-ranges.json identical to iter3). Dataset seed 205: its own test split decides G2. Scored on validation first, with the iteration-3 models beside (validation rule FR-006).",
+  "dataset": {
+    "seed": "205",
+    "count": 100000,
+    "ranges": "configs/iter4-ranges.json",
+    "heldout_ranges": "configs/iter4-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "PLACEHOLDER",
+      "validation.f32pack": "PLACEHOLDER",
+      "test.f32pack": "PLACEHOLDER",
+      "heldout.f32pack": "PLACEHOLDER"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/iter4/a",
+  "models": ["instantaneous", "time-late", "causal-cnn", "mlp", "instantaneous-shuffled"],
+  "evaluate": {
+    "command": "tma-g2",
+    "split": "validation",
+    "compare_models": "experiments/20261021-i3a-val/models"
+  }
+}

@@ -259,6 +259,10 @@ export type ModelKind = z.infer<typeof ModelKind>;
 export const StopReason = z.enum(["max_epochs", "early_stopping", "wall_clock", "diverged"]);
 export type StopReason = z.infer<typeof StopReason>;
 
+/** How the model's four output channels encode the target's course and speed (spec 008). */
+export const OutputParameterisation = z.enum(["course_speed", "velocity"]);
+export type OutputParameterisation = z.infer<typeof OutputParameterisation>;
+
 /** Hyperparameters and seeds for one training run (SRD §4; constitution III). */
 export const TrainingConfig = z.strictObject({
   batch_size: z.number().int(),
@@ -282,6 +286,8 @@ export const TrainingConfig = z.strictObject({
   /** Wall-clock cap in seconds. */
   max_wall_s: z.number(),
   model_kind: ModelKind,
+  /** Output encoding; absent means course_speed. With velocity, loss_weight_speed weights each velocity component and loss_weight_course is unused (spec 008). */
+  output_parameterisation: OutputParameterisation.nullish(),
   /** Epochs without validation improvement before stopping. */
   patience: z.number().int(),
   /** Permute targets across scenarios (leakage check). */
@@ -294,6 +300,8 @@ export const TrainingConfig = z.strictObject({
   train_seed: z.string(),
   /** LSTM units (per direction), conv filters or dense width. */
   units: z.number().int(),
+  /** Velocity scale in m/s for the velocity parameterisation (required with it): the top of the generator's target speed range, a constant of the problem, never a truth statistic. */
+  velocity_scale_mps: z.number().nullish(),
 });
 export type TrainingConfig = z.infer<typeof TrainingConfig>;
 

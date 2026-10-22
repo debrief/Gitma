@@ -49,7 +49,7 @@ import {
   writeManifest,
   writeVerdict,
 } from "@tma/eval";
-import { openFeatures, writeFeatures } from "@tma/features";
+import { type FeatureFile, openFeatures, outputSpec, writeFeatures } from "@tma/features";
 import {
   ChangeDecision,
   type FeatureSet,
@@ -433,12 +433,17 @@ export async function scoreSplit(
     for (const m of g.models) {
       const fs = m.manifest.config.feature_set ?? "raw";
       const path = featuresPath(opts.data, split, fs);
-      let features = openFeatures(path);
+      // The other phase may use a feature set the plan did not build (spec 008: raw iteration-3
+      // models beside derived iteration-4 ones); it then gets its own inputs, as below.
+      const missing = tag !== undefined && !existsSync(path);
+      let features: FeatureFile | undefined;
       try {
         log(`${split}: predicting ${m.manifest.id} (${fs}, ${path})`);
-        requireSameFeatureSet(features, m.manifest.config.feature_set, m.manifest.id);
         let note: string | undefined;
         try {
+          if (missing) throw new Error(`${path} not built`);
+          features = openFeatures(path);
+          requireSameFeatureSet(features, m.manifest.config.feature_set, m.manifest.id);
           note = requireSameNormalisation(features, m.manifest.normalisation, m.manifest.id, {
             header: trainHeader,
             modelSchemaVersion: m.manifest.schema_version,
@@ -449,7 +454,7 @@ export async function scoreSplit(
           // iteration 3). Its inputs are then built with its own normalisation, which holds
           // inputs-only constants from its training data; the carried set never takes this path.
           if (tag === undefined) throw e;
-          features.close();
+          features?.close();
           const own = join(predDir, `${split}.${tag}.${m.manifest.id}.features.bin`);
           const truth = readDataset(truthPath);
           writeFeatures(
@@ -463,6 +468,7 @@ export async function scoreSplit(
           note = `${m.manifest.id} (${tag}): trained on other data, so scored on inputs built with its own normalisation (${own})`;
         }
         if (note !== undefined) notes.push(note);
+        if (features === undefined) throw new Error(`${m.manifest.id}: no features`);
         const model = await loadModel(m.dir);
         const ps = predictScenarios(
           model,
@@ -470,6 +476,7 @@ export async function scoreSplit(
           scenarios,
           m.manifest.normalisation,
           m.manifest.id,
+          outputSpec(m.manifest.config),
         );
         model.dispose();
         writePredictions(
@@ -480,7 +487,7 @@ export async function scoreSplit(
         );
         sets.push(predictionSet(m.manifest.id, ps));
       } finally {
-        features.close();
+        features?.close();
       }
     }
   }

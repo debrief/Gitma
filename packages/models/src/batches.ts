@@ -1,5 +1,13 @@
 // Seeded batch assembly from a features file (research R6, R15). Pure apart from file reads.
-import { type FeatureFile, NT, ROWS, type Window, WINDOW_MASK } from "@tma/features";
+import {
+  encodeTargets,
+  type FeatureFile,
+  NT,
+  outputSpec,
+  ROWS,
+  type Window,
+  WINDOW_MASK,
+} from "@tma/features";
 import { createRng, nextU32 } from "@tma/sim";
 import type { TrainingConfig } from "@tma/types";
 import { NO } from "./architectures.js";
@@ -152,6 +160,7 @@ export function makeBatch(
   const x = new Float32Array(b * rows * ni);
   const y = new Float32Array(b * rows * NY);
   const causal = isCausal(config);
+  const spec = outputSpec(config);
   for (let j = 0; j < b; j++) {
     const k = ks[j] ?? 0;
     const w: Window = file.read(k);
@@ -163,7 +172,7 @@ export function makeBatch(
         (w.inputs[r * ni + WINDOW_MASK] ?? 0) * (lw.inputs[r * ni + WINDOW_MASK] ?? 0);
       const weight = causal ? windowMask * (lw.lossMask[r] ?? 0) : windowMask;
       const o = (j * rows + r) * NY;
-      for (let c = 0; c < NO; c++) y[o + c] = lw.targets[r * NT + c] ?? 0;
+      encodeTargets(lw.targets, r * NT, file.norm, spec, y, o);
       y[o + NO] = weight;
     }
   }

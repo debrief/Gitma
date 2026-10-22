@@ -77,7 +77,7 @@ describe("model outputs → predictions", () => {
         (_, i) => generateScenario(3n, i, DEFAULT_RANGES).scenario,
       );
       const model = buildModel(tinyConfig("instantaneous"));
-      const ps = predictScenarios(model, f, [...ss].reverse(), f.norm, "m", 7);
+      const ps = predictScenarios(model, f, [...ss].reverse(), f.norm, "m", undefined, 7);
       expect(ps.map((p) => p.scenario_index)).toEqual(
         [...ss].reverse().map((s) => s.metadata.index),
       );
