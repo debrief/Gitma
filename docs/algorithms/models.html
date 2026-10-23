@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Models (iteration 1) | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/docs/algorithms/models"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Models (iteration 1) | TMA via ML"><meta data-rh="true" name="description" content="Source SRD §4, spec 002 (research R3–R7)."><meta data-rh="true" property="og:description" content="Source SRD §4, spec 002 (research R3–R7)."><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/docs/algorithms/models"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/algorithms/models" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/algorithms/models" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Models (iteration 1)","item":"https://debrief.github.io/Gitma/docs/algorithms/models"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/assets/css/styles.d219d845.css">
-<script src="/Gitma/assets/js/runtime~main.2bf651a7.js" defer="defer"></script>
+<script src="/Gitma/assets/js/runtime~main.204ba9d7.js" defer="defer"></script>
 <script src="/Gitma/assets/js/main.cb40f15b.js" defer="defer"></script>
 </head>
 <body>
@@ -62,6 +62,15 @@ used by the iteration-2 capacity scan (research R20), a validation-only side exp
 <h2 class="anchor anchorTargetStickyNavbar_FE5u" id="loss">Loss<a href="#loss" class="hash-link" aria-label="Direct link to Loss" title="Direct link to Loss" translate="no">​</a></h2>
 <p>Targets and a per-row weight are packed into <code>y_true</code> [240 × 5]. Per row:</p>
 <p><code>w_r·(Δ log r)² + w_c·(Δ sin² + Δ cos²) + w_s·(Δ speed)²</code>, averaged over rows with weight &gt; 0.</p>
+<p>With the <strong>velocity</strong> output parameterisation (<code>output_parameterisation: velocity</code>, iteration 4,
+spec 008) the outputs are <code>log_range_km</code>, <code>vx</code>, <code>vy</code> and an unused fourth channel. The velocity
+components are the target&#x27;s east and north velocity divided by <code>velocity_scale_mps</code> (the top of the
+generator&#x27;s target speed range, a constant of the problem). The training targets are re-encoded
+from the stored course and speed, so the features files do not change. Per row the loss is then</p>
+<p><code>w_r·(Δ log r)² + w_s·(Δ vx² + Δ vy²)</code>,</p>
+<p>with no course term and no loss on the fourth channel. A course error δ on a target at speed v
+costs about <code>w_s·(v·δ / velocity_scale_mps)²</code>, so course on slow targets weighs less than under
+course_speed.</p>
 <p>The weight is the post-zig loss mask for causal models (before the zig, range is unobservable, so
 the instantaneous model is not trained to guess it) and the window mask for non-causal models,
 which see the whole window anyway. Every model is still <strong>scored</strong> only after the zig.</p>
@@ -164,7 +173,8 @@ directly.</li>
 </ul>
 <h2 class="anchor anchorTargetStickyNavbar_FE5u" id="predictions">Predictions<a href="#predictions" class="hash-link" aria-label="Direct link to Predictions" title="Direct link to Predictions" translate="no">​</a></h2>
 <p><code>tma-model-predict</code> writes rows from <code>zig_index + 1</code> to the end (as the classical solver): range
-<code>1000·exp(log_range_km)</code>, course <code>atan2(sin, cos)</code>, speed <code>speed_scaled × speed_scale_mps</code>, and
+<code>1000·exp(log_range_km)</code>, course <code>atan2(sin, cos)</code>, speed <code>speed_scaled × speed_scale_mps</code>
+(velocity: course <code>atan2(vx, vy)</code>, speed <code>‖(vx, vy)‖ × velocity_scale_mps</code>), and
 position from range along the last valid bearing (as the naive baseline). Non-finite outputs give
 <code>converged = false</code>, scored as gross errors.</p>
 <p>A model is only run on features normalised exactly as its training data was. The one tolerated
