@@ -165,6 +165,9 @@ jobs:
           ID: ${{ needs.plan.outputs.id }}
           SPLIT: ${{ needs.plan.outputs.split }}
           CMD: ${{ needs.plan.outputs.command }}
+          # Scoring a carried set beside another phase holds ten prediction sets; Node's default
+          # heap (~2 GB) ran out on iteration 4's validation split (runners have 16 GB).
+          NODE_OPTIONS: --max-old-space-size=8192
         run: |
           case "$CMD" in
             tma-g2) SUFFIX=$([ "$SPLIT" = test ] && echo g2 || echo val) ;;
