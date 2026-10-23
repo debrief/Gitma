@@ -205,8 +205,10 @@ generator 0.3.0 adds a second zig 3–5 min into leg 2, and both turns cross the
 decision that names its plan and test seed (schema 0.9.1 `ChangeDecision.plan`, `test_seed`). **Iteration 3 stopped at validation** (FR-006,
 `experiments/20261021-i3a-val/validation.md`): LSTM speed 1.10 kt [1.06, 1.16], so the rule's lower
 bound under 1 kt fails; BiLSTM 1.02 kt [0.98, 1.05], reported only; classical 0.34 kt (models 3.0–3.3
-× classical, against 2.4 × in 2c). Seed 204's test split is unscored and stays reserved. The next
-Part B lever is the owner's choice, with a fresh seed (205 onward). A model that is not `complete`
+× classical, against 2.4 × in 2c). Seed 204's test split is unscored and stays reserved. **Iteration 4**
+(spec 008, decision 23) combines velocity outputs (`output_parameterisation: velocity`, schema
+0.10.0) with the derived feature set, on iteration 3's problem, seed 205: plan `configs/iter4/a`,
+decision `experiments/20261022-i4-decision/`, compared with the iteration-3 models on the same rows. A model that is not `complete`
 after three chained jobs stops the evaluation job: re-dispatch `train.yml` (it resumes).
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution

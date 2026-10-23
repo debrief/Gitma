@@ -1,11 +1,21 @@
 // Masked weighted loss (research R5). y_true is [B, 240, 5]: four targets plus a per-row weight.
+// With the velocity parameterisation (spec 008) loss_weight_speed weights each velocity component
+// and the fourth output carries no loss.
 import * as tf from "@tensorflow/tfjs-node";
+import { outputSpec } from "@tma/features";
 import type { TrainingConfig } from "@tma/types";
 import { NO } from "./architectures.js";
 
 export const NY = NO + 1;
 
 function termWeights(config: TrainingConfig): tf.Tensor1D {
+  if (outputSpec(config).parameterisation === "velocity")
+    return tf.tensor1d([
+      config.loss_weight_range,
+      config.loss_weight_speed,
+      config.loss_weight_speed,
+      0,
+    ]);
   return tf.tensor1d([
     config.loss_weight_range,
     config.loss_weight_course,

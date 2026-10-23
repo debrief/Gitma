@@ -105,6 +105,11 @@ inputs leak the answer.
 whole window (non-causal). It has strictly more information than the instantaneous variant, so it
 must score at least as well.
 
+**Velocity outputs** — A model output parameterisation (iteration 4): the network predicts the
+target's east and north velocity, scaled by the top of the target speed range, and course and
+speed are derived from them. Earlier models predicted course as sine and cosine and speed on its
+own. See [models](algorithms/models.md).
+
 **Window** — The span of bearings a model sees: 10–40 minutes at one bearing every 10 s, padded to
 240 rows.
 

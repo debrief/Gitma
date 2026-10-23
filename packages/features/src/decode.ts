@@ -3,8 +3,9 @@
 import { bearingOf, f32, f32Angle } from "@tma/sim";
 import type { NormalisationConstants, Prediction, PredictionRow, Scenario } from "@tma/types";
 import { ROWS } from "./layout.js";
+import { COURSE_SPEED, decodeCourseSpeed, type OutputSpec } from "./output.js";
 
-/** Model outputs per row: log_range_km, course_sin, course_cos, speed_scaled. */
+/** Model outputs per row: log_range_km, then three channels whose meaning `OutputSpec` sets. */
 export const NO = 4;
 
 /** Last valid bearing at or before sample i (the derived position uses it, as naive does). */
@@ -21,6 +22,7 @@ function lastBearing(s: Scenario, i: number): number | null {
  * `first` (default zig_index + 1, as scored) to the last sample. Uses only ownship and bearings
  * from `s`, never target truth. Non-finite outputs or no bearing yet → `converged = false`
  * (scored as gross). The viewer passes `first` = 0 to show the pre-zig (unobservable) rows too.
+ * `spec` is the model's output parameterisation (output.ts; default course_speed).
  */
 export function outputsToPrediction(
   s: Scenario,
@@ -28,6 +30,7 @@ export function outputsToPrediction(
   norm: NormalisationConstants,
   estimator: string,
   first: number = s.metadata.zig_index + 1,
+  spec: OutputSpec = COURSE_SPEED,
 ): Prediction {
   const n = s.metadata.samples;
   if (out.length !== ROWS * NO) throw new Error(`expected ${String(ROWS * NO)} outputs`);
@@ -37,11 +40,14 @@ export function outputsToPrediction(
     if (own === undefined) throw new Error(`no sample ${String(i)}`);
     const a = i * NO;
     const logR = out[a] ?? NaN;
-    const sin = out[a + 1] ?? NaN;
-    const cos = out[a + 2] ?? NaN;
-    const spd = out[a + 3] ?? NaN;
+    const { sin, cos, speed } = decodeCourseSpeed(
+      out[a + 1] ?? NaN,
+      out[a + 2] ?? NaN,
+      out[a + 3] ?? NaN,
+      norm,
+      spec,
+    );
     const range = 1000 * Math.exp(logR);
-    const speed = spd * norm.speed_scale_mps;
     const b = lastBearing(s, i);
     const ok =
       b !== null &&

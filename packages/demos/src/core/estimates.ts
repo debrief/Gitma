@@ -34,7 +34,7 @@ export function modelPrediction<T extends TensorLike>(
   tf: TfLike<T>,
   model: ModelLike<T>,
   s: Scenario,
-  entry: Pick<ModelEntry, "id" | "featureSet" | "normalisation">,
+  entry: Pick<ModelEntry, "id" | "featureSet" | "normalisation" | "output">,
 ): Prediction {
   const w = buildWindow(s, entry.normalisation, entry.featureSet);
   const x = tf.tensor3d(w.inputs, [1, ROWS, inputWidth(entry.featureSet)]);
@@ -50,6 +50,7 @@ export function modelPrediction<T extends TensorLike>(
       entry.normalisation,
       entry.id,
       0,
+      entry.output,
     );
   } finally {
     x.dispose();

@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.9.1
+version: 0.10.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -72,6 +72,16 @@ enums:
       early_stopping: {}
       wall_clock: {}
       diverged: {}
+  OutputParameterisation:
+    description: How the model's four output channels encode the target's course and speed (spec 008).
+    permissible_values:
+      course_speed:
+        description: >-
+          log_range_km, course_sin, course_cos, speed / speed_scale_mps (iterations 1–3).
+      velocity:
+        description: >-
+          log_range_km, vx / velocity_scale_mps, vy / velocity_scale_mps, and a fourth channel
+          that carries no loss and is ignored; course and speed are derived from (vx, vy).
   FeatureSet:
     description: Model input channel sets (spec 003 R6).
     permissible_values:
@@ -543,6 +553,16 @@ classes:
       feature_set:
         range: FeatureSet
         description: "Input channel set; absent means raw. Must match the features files."
+      output_parameterisation:
+        range: OutputParameterisation
+        description: >-
+          Output encoding; absent means course_speed. With velocity, loss_weight_speed weights
+          each velocity component and loss_weight_course is unused (spec 008).
+      velocity_scale_mps:
+        range: float
+        description: >-
+          Velocity scale in m/s for the velocity parameterisation (required with it): the top of
+          the generator's target speed range, a constant of the problem, never a truth statistic.
       length_bucketing:
         range: boolean
         description: >-

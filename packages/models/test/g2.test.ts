@@ -305,6 +305,25 @@ describe("tma-g2 end to end (tiny)", () => {
     ).rejects.toThrow();
   });
 
+  it("an other phase on a feature set the plan did not build gets its own inputs (spec 008)", async () => {
+    // Derived carried models beside raw ones (iteration 4 beside iteration 3): the data folder has
+    // no raw validation features, as a derived plan builds none.
+    const d = tempDir();
+    cpSync(data, d, { recursive: true });
+    rmSync(join(d, "validation.features.bin"));
+    rmSync(join(d, "predictions"), { recursive: true, force: true });
+    const exp = join(tempDir(), "val-mixed");
+    await runG2(base({ data: d, models: modelsB, compareModels: modelsA, experiment: exp }));
+    expect(readFileSync(join(exp, "manifest.json"), "utf8")).toMatch(
+      /scored on inputs built with its own normalisation/,
+    );
+    expect(existsSync(join(exp, PAIRED_FILE))).toBe(true);
+    // The carried set never takes this path: raw carried models with no raw features fail.
+    await expect(
+      runG2(base({ data: d, models: modelsA, experiment: join(tempDir(), "y") })),
+    ).rejects.toThrow();
+  });
+
   it("requireSameRows refuses estimators that predict different rows", () => {
     const pred = (idx: number, ts: number[]): Prediction => ({
       record: "prediction",

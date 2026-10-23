@@ -79,18 +79,31 @@ jobs:
           fi
       - name: Train ${{ inputs.model }} (job ${{ inputs.attempt }} of up to 3)
         if: steps.restore.outputs.done != 'true'
-        timeout-minutes: 345 # under the job limit, so the checkpoint sync and log upload still run
+        timeout-minutes: 345 # backstop under the job limit, so the checkpoint sync and log upload still run
         shell: bash # -o pipefail, so a failed run is not hidden by tee
         run: |
           lscpu | grep "Model name" # per-job CPU (recorded in the log; cpu_model in the manifest)
           scripts/train-checkpoint.sh watch "$OUT" "$CKPT" &
           WATCH=$!
           trap 'kill $WATCH 2>/dev/null || true' EXIT
-          pnpm tma-train --config "${{ inputs.configs }}/${{ inputs.model }}.json" \
+          # The job's time budget ends training cleanly (exit 124), before the step timeout would
+          # mark it failed: the next job of the chain resumes from the last epoch's checkpoint, and
+          # only a real failure shows red (on the PR too, when a train branch shares its head).
+          set +e
+          # node directly (built above), so the signal reaches the trainer, not a pnpm wrapper.
+          timeout --kill-after=60s 335m node packages/models/dist/cli-train.js \
+            --config "${{ inputs.configs }}/${{ inputs.model }}.json" \
             --train "$DATA/train.features.bin" --val "$DATA/validation.features.bin" \
             --out "$OUT" 2>&1 | tee "$RUNNER_TEMP/train.log"
+          status=${PIPESTATUS[0]}
+          set -e
           kill $WATCH
           scripts/train-checkpoint.sh sync "$OUT" "$CKPT"
+          if [ "$status" -eq 124 ] || [ "$status" -eq 137 ]; then # 137: killed after the grace
+            echo "::notice::${{ inputs.model }}: job ${{ inputs.attempt }} used its time budget; the next job resumes"
+          elif [ "$status" -ne 0 ]; then
+            exit "$status"
+          fi
       - name: Final checkpoint sync (after a timeout or failure)
         if: always() && steps.restore.outputs.done != 'true'
         run: scripts/train-checkpoint.sh sync "$OUT" "$CKPT" || true

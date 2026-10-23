@@ -2,6 +2,7 @@
 // prebuild writes one catalogue from the committed configs and experiment folders; these types
 // describe that file, which is viewer configuration, not a pipeline record (plan: Constitution I).
 import type { FeatureSet, NaiveMeans, NormalisationConstants, ParameterRanges } from "@tma/types";
+import type { OutputSpec } from "@tma/features/browser";
 
 /** A contiguous index range of one seeded dataset: one split, regenerated on demand. */
 export interface ScenarioSource {
@@ -26,6 +27,8 @@ export interface ModelEntry {
   path: string;
   featureSet: FeatureSet;
   normalisation: NormalisationConstants;
+  /** Output parameterisation (spec 008); absent means course_speed. */
+  output?: OutputSpec;
   parameterCount: number;
   /** One line describing the architecture, e.g. `LSTM 2 × 128`. */
   architecture: string;

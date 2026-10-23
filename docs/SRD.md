@@ -241,6 +241,7 @@ Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; 
 - Decision 21: the effort budget is lifted; failing G2 no longer ends the project. Further work follows Annex A: the engagement and model viewer first (Part A), then pre-registered levers (Part B).
 - Viewer: inference in the browser on the committed weights (D1); bearing-window trimming deferred (D2); every gate's carried pair offered by default (D3).
 - Decision 22 (Annex A D4): the realism check is recorded (Annex A §A.7), and the first Part B lever is observability in the data. Iteration 3 (spec 007) adds a second zig, with both turns across the line of sight, keeps the first zig's timing, and is judged on fresh seed 204.
+- Decision 23 (Annex A D5, 2026-10-22): iteration 3 stopped at validation (LSTM speed 1.10 kt). Iteration 4 (spec 008) combines two Part B levers: velocity outputs (B.2.2) and the derived feature set (B.2.3), on iteration 3's three-leg problem, judged on fresh seed 205. Two levers at once, because removing the speed bias alone is forecast to reach only about 1.0 kt (spec 008 R1).
 
 ## 9. Development practice and public site
 

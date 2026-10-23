@@ -1,0 +1,11 @@
+{
+  "carried_set_rule": "The iteration-4 LSTM and BiLSTM (configs/iter4/a, from scratch on seed 205) are carried unconditionally once the validation rule holds; the iteration-3 models (experiments/20261021-i3a-val/models) are scored beside them on the same seed-205 rows as the other phase, reported and never gated.",
+  "change": "the models: velocity outputs (log range, vx, vy / 10.29 m/s; course and speed derived; loss_weight_speed 4 on each component, no course term) and the derived feature set (13 channels); otherwise the iteration-3 configuration from scratch on iteration 3's problem (generator 0.3.0, configs/iter4-ranges.json); dataset seed 205, whose own test split decides G2 (spec 008, decision 23)",
+  "decided_at": "2026-10-22T17:52:24Z",
+  "git_commit": "13d46c884abdb99bd6b5a6d758ec60aa89e4bd7a",
+  "phase_a_experiment": "20261021-i3a-val",
+  "plan": "configs/iter4/a/plan.json",
+  "rationale": "Iteration 3 stopped at validation: LSTM speed 1.10 kt [1.06, 1.16], BiLSTM 1.02 kt, classical 0.34 kt (experiments/20261021-i3a-val). Spec 008 R1: the LSTM shrinks speed towards the middle of the range (+0.95 kt slow, -1.67 kt fast); an oracle de-bias reaches only 1.01 kt, so the owner combined velocity outputs (B.2.2) with derived features (B.2.3). Forecast recorded before training: LSTM 0.90-1.10 kt, central about 1.0 kt; a pass possible but less likely than not. Validation rule (FR-006): carry to test only if the iteration-4 LSTM G2 speed interval has a lower bound under 1 kt (operative) and its paired speed ratio to the iteration-3 LSTM on the same rows is wholly below 1 (speed moved, like-for-like). stalled is true because iteration 3 did not pass G2.",
+  "stalled": true,
+  "test_seed": "205"
+}

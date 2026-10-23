@@ -27,6 +27,18 @@ Targets and a per-row weight are packed into `y_true` [240 × 5]. Per row:
 
 `w_r·(Δ log r)² + w_c·(Δ sin² + Δ cos²) + w_s·(Δ speed)²`, averaged over rows with weight > 0.
 
+With the **velocity** output parameterisation (`output_parameterisation: velocity`, iteration 4,
+spec 008) the outputs are `log_range_km`, `vx`, `vy` and an unused fourth channel. The velocity
+components are the target's east and north velocity divided by `velocity_scale_mps` (the top of the
+generator's target speed range, a constant of the problem). The training targets are re-encoded
+from the stored course and speed, so the features files do not change. Per row the loss is then
+
+`w_r·(Δ log r)² + w_s·(Δ vx² + Δ vy²)`,
+
+with no course term and no loss on the fourth channel. A course error δ on a target at speed v
+costs about `w_s·(v·δ / velocity_scale_mps)²`, so course on slow targets weighs less than under
+course_speed.
+
 The weight is the post-zig loss mask for causal models (before the zig, range is unobservable, so
 the instantaneous model is not trained to guess it) and the window mask for non-causal models,
 which see the whole window anyway. Every model is still **scored** only after the zig.
@@ -141,7 +153,8 @@ flag and logs a change of commit. Models trained before 0.6.0 have neither field
 ## Predictions
 
 `tma-model-predict` writes rows from `zig_index + 1` to the end (as the classical solver): range
-`1000·exp(log_range_km)`, course `atan2(sin, cos)`, speed `speed_scaled × speed_scale_mps`, and
+`1000·exp(log_range_km)`, course `atan2(sin, cos)`, speed `speed_scaled × speed_scale_mps`
+(velocity: course `atan2(vx, vy)`, speed `‖(vx, vy)‖ × velocity_scale_mps`), and
 position from range along the last valid bearing (as the naive baseline). Non-finite outputs give
 `converged = false`, scored as gross errors.
 

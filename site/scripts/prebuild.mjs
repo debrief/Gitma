@@ -214,6 +214,11 @@ function viewer() {
         path: `${p.experiment}/${id}`,
         featureSet: c.feature_set ?? "raw",
         normalisation: m.normalisation,
+        ...(c.output_parameterisation === "velocity"
+          ? {
+              output: { parameterisation: "velocity", velocityScaleMps: c.velocity_scale_mps },
+            }
+          : {}),
         parameterCount: m.parameter_count,
         architecture: `${kind} ${layers > 1 ? `${String(layers)} × ` : ""}${String(c.units)} units`,
         trainedOnSeed: m.source_dataset_header?.dataset_seed ?? train?.dataset_seed ?? null,
