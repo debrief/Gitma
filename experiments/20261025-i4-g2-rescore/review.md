@@ -79,3 +79,68 @@ Inputs, sha256 (before the repeat):
 
 - `data/i4r/test.features.bin` fed5ed05beaea42aba11cc50637ae3dc8de69f84f112c5206727bf7ad77b6f8d
 - `data/i4r/norm.json` 55fa04196bfd1b1ba68be0cba55ee68467e6d3e494caf91fe9ceb586989b7903
+
+## Attempt 2 (2026-10-24 16:22 UTC, commit db01efe, node pid 974): aborted again
+
+- **What ran.** The marker is commit 9fa98d7.
+  - **Identity check.** Naive, classical and the BiLSTM's first 537,741,633 bytes hash equal to
+    attempt 1's (red team's check passed).
+  - **Carried and control sets.** All five iteration-4 models were predicted, and their
+    `metrics.json`, `curves.csv`, `metrics.csv`, `bootstrap.json` and comparison files were
+    written (19:10–19:19 UTC).
+  - **Other phase.** Two iteration-3 models were predicted before 20:12; the third
+    (`lstm-instantaneous`) was predicting when logging stopped at 20:17.
+- **Why it stopped.** The container was reclaimed again. The waiter had ended at 20:12, then the
+  session's worker restarted, and the machine was rebooted at about 20:50. Peak node RSS was
+  2.73 GB; the lowest free disk was 6.0 GB.
+- **No verdict.** `verdict.json` is written last and does not exist.
+- **The written metrics were not read.** They were hashed (below), copied unread to the session
+  scratchpad, and deleted with the predictions, so attempt 3 starts clean. Attempt 3's files must
+  hash equal.
+- **The owner said "Try again" (2026-10-24 20:50 UTC).** The rule in the panel round above sends
+  a second abort to the panel. The owner's instruction is recorded here, and the retry goes to
+  the panel with the result. The retry cannot fish for a pass: every input is bound by digest, the
+  code is unchanged (`git diff 16f779a HEAD -- packages scripts configs` is empty), the scoring
+  is shown deterministic, and attempt 3's outputs are compared byte for byte with attempt 2's.
+- **The marker** `rescore.json` (9fa98d7) is removed under this note.
+
+Attempt 2's experiment files, sha256:
+
+```
+f38ec8aa4a8ec388429660006d4c7cd903560d9c3b36e60399595487ad790595  bootstrap.json
+a2e8e4a19dbbf0f6f70479f1fc8b352aee091088a1647c771823ddfe548c75b6  comparison.csv
+bd4e8967adfa5924cd72703f66412d529b628a89986bfd7e37244004e23ebb38  comparison.json
+e8e64e162ebed9c0fa162a6f9cd25b63c8738f4e7d90bfe6324017388f9d72fb  curves.csv
+23d6ab0db698764d55b9a1e0465d4c3faec360af04f46cb7952550d20144b71f  metrics.csv
+640ad4ba8c626129179216a2bb12938fb00f37ea07eea4405d0d898feb6cecad  metrics.json
+c55a324a419d4a9380628f8214db492f210b50bd744c0de34fd6b2e608098e46  models/bilstm-time-late/manifest.json
+6a8810cbb1a6482b86466a9bf66731b5c5acfa79040a7e8293f298327321fb3f  models/bilstm-time-late/model.json
+71fcb706872943410355db3c493eab171cbdbfe2fee59472d306937d23f562a8  models/bilstm-time-late/weights.bin
+4b9bb75c181e6421ff9cb1099720f8418d54f995e04cf47f9e725a137b25b75f  models/cnn-causal-control/manifest.json
+a0b6d9c58555482247a884c51926960fa47043bd68018e5350359dac7c32dd43  models/cnn-causal-control/model.json
+b4f4cde209441820b454448a6f5af3fb12305ed2d079d4bdbd368161212afb23  models/cnn-causal-control/weights.bin
+f45ee74cac5b41a1739be52ccc02104851e0f7530894ed186428cdecd87c9428  models/lstm-instantaneous-shuffled/manifest.json
+4224e22bd8f487dd5f30dffcf4cb4f46f19518924ce3cc0ae0753a496eb205b9  models/lstm-instantaneous-shuffled/model.json
+0bfc5e87bf45c5360636c69753a1cb69a580feb6807a8dc1ca2c07d36aff8a5b  models/lstm-instantaneous-shuffled/weights.bin
+4cec98b4e9d95042015aabbd81345027c7ad81e05757fb5cf76ca29ef1a88580  models/lstm-instantaneous/manifest.json
+78b9e12bb7096e65b927b204dc5fe7eeb4483e4a454df86c32fcc0a27101ed61  models/lstm-instantaneous/model.json
+495e250230d4ad69b44317e03c74fd3dbbc75b76758e65147919e2230adbf9f2  models/lstm-instantaneous/weights.bin
+b82fe29de30367cc1fe7b19296c3491f2900522868ab2df763942ce70236ff7e  models/mlp-control/manifest.json
+92ace27bc158594feb9e5213a48b333b7a1d3c8d9dfc6de24399547faa3d4717  models/mlp-control/model.json
+589be566b998a558739258fd780e291d51132f7cb6beadd4cdaedcbbfb58968f  models/mlp-control/weights.bin
+```
+
+Attempt 2's completed prediction files, sha256:
+
+```
+35d332943d630a2f2ec423038f130d0de2e49d9a5a97f5156d491870484c0ad7  test.bilstm-time-late.ndjson
+55c6b2cef1a01c1bfa265f299e1416f67e97b1ecf98c2bc7887ed9caae6b4b23  test.classical.ndjson
+98784f634539843b9231ce41eff4e3ad811b41e25972049386c8f7044dbd4da8  test.cnn-causal-control.ndjson
+701df25a47a9a818aa26c02baf77eac81bdee1618c9c0e3920d297bfe3b93494  test.lstm-instantaneous-shuffled.ndjson
+3049e6032493b8eeb9ce7bfc350d2389b70236cfd68db66a4abace841a420cc2  test.lstm-instantaneous.ndjson
+8aef26dd4d0b0d99daa4b61c1a8f1565f23224bf8074bb6441386149f2078203  test.mlp-control.ndjson
+bf8e1b9a74340ab35a8d2b85a0e18fd6398353eefcae1a5819ff11624d1e69c2  test.naive.ndjson
+97028ed1853832693aedc3e0eff888592fd6717c3d52bd1a77e3f9b4e1b26d3b  test.other-phase.bilstm-time-late.ndjson
+f85572fcb61bd62ba415e03a0ccf208d0a95af59e63b0f241c7568a4b0006569  test.other-phase.cnn-causal-control.ndjson
+bf8e1b9a74340ab35a8d2b85a0e18fd6398353eefcae1a5819ff11624d1e69c2  test.other-phase.naive.ndjson
+```
