@@ -111,3 +111,73 @@ itself.
 14. *(statistics)* The write-up should say the instantaneous median is statistically
     indistinguishable from 1 kt (51% under), and that a re-score passes with probability about
     0.78 if the true median is 0.98 kt. *Response:* accepted.
+
+## Round 2 (2026-10-24)
+
+Brief: are the round-1 responses adequate; is the re-score tooling (branch `iter4/rescore-tooling`,
+3a014eb + 655b8d6) correct, with no guard weakened and streaming provably equivalent; is the
+pre-registration (`../20261024-i4-rescore-decision/`, `configs/iter4/r/plan.json`) complete and
+unambiguous before any seed-206 data exist? ≤ 500 words.
+
+Tooling evidence submitted: a replay of this gate through the streaming path (normal mode, default
+heap, predictions recomputed after moving `data/i4/predictions` aside, then restored) gave every
+output byte-identical except manifest/seeds paths, commit, id, time and `schema_version`; peak RSS
+921 MB.
+
+### Verdicts
+
+| Reviewer | Verdict | Main points |
+| --- | --- | --- |
+| TMA geometry | approve-with-findings | Round 1 answered; problem, gate points and ranges unchanged; seed-206 split from the same distribution; **major**: only `weights.bin` bound, the manifest's `velocity_scale_mps` (and `model.json`, decode code) could change the speed bias unchecked |
+| Estimation and numerics | approve-with-findings | Own equivalence check on the real seed-205 split: evaluation, bootstrap and every LSTM record identical; writer round-trip byte-identical; model digests verified; **major**: bind `manifest.json` and `model.json` |
+| Evaluation statistics | approve-with-findings | Pre-registration matches round-1 recommendations; streaming statistically identical (same error order and PRNG draws); forecast table confirmed; **major**: the plan can change after the decision (count, ranges) |
+| Reproducibility | approve-with-findings | Replay confirmed; streaming `tma-eval` + `tma-gate` on the committed predictions byte-identical (421 MB); `generate-splits.mjs` byte-identical to `tma-generate` at two counts; `packages/{sim,data}/src` unchanged since the G0 commit; no 100k seed-206 split anywhere |
+| Red team | approve-with-findings | No overlap of seed 206 with any used seed; **majors**: bind every model file; bind the re-scored gate (committed, panel-decided, same weights digests); one re-score per gate escapable (scratch folder, aborted run, second decision); plan changeable after the decision |
+
+### Findings and responses
+
+All majors were fixed in eefe748 (schema 0.11.1) before any seed-206 data exist.
+
+1. *(geometry, numerics, red team; major)* **Bind every model file.** *Fixed:* `model_digests`
+   lists the SHA-256 of each model's `weights.bin`, `manifest.json` and `model.json`, and
+   `tma-g2` checks all three. The weights must also equal the model's own manifest digest and the
+   digest recorded in this gate's manifest. The decode code is unchanged since this gate
+   (`git diff f6298ac -- packages/features/src packages/eval/src/errors.ts` is empty); the
+   re-score's review checks it again at the scoring commit.
+2. *(red team; major)* **Bind the re-scored gate.** *Fixed:* its `verdict.json` and
+   `manifest.json` must be committed and unmodified, and `decided_by` must name a panel round. The
+   carried weights must equal those its manifest records.
+3. *(statistics, red team; major)* **Bind the plan.** *Fixed:* the decision carries
+   `fresh_test_count` (1,000,000), which must equal the plan's. The plan may differ from its
+   content at the decision's commit only in `fresh_test.digest`. A dirty test-data header is
+   refused.
+4. *(red team; major)* **One re-score per gate.** *Fixed:*
+   - The experiment folder must sit beside this gate.
+   - `rescore.json` is written, create-exclusive, before any scoring. A folder or sibling holding
+     one, or a manifest note, for this gate is refused, as is any other committed decision naming
+     it.
+   - `--allow-dirty` is refused in re-score mode.
+5. *(statistics, red team; minor)* **The decisive rule is `verdict.json`'s result**, including the
+   time-late consistency check; controls are reported only. *Fixed* in `decision.md`.
+6. *(statistics; minor)* **The interval is asymmetric** (−0.013 / +0.016 kt), so a pass needs a
+   point below about 0.984 kt. Also recorded: outright fail ≈ 0 at true medians ≤ 0.98 kt;
+   P(fail | 1.00 kt) = 0.98; two looks raise the false-pass rate from 1.8% to 3.7%. *Fixed* in
+   `decision.md`.
+7. *(geometry; minor)* **Record the expected bias** (median signed error about −0.4 kt, slope
+   about 0.88) as a check on a changed model. *Fixed* in `decision.md`.
+8. *(red team, numerics; minor)* **`--skip-heldout` weakens a normal gate.** *Fixed:* allowed only
+   in re-score mode.
+9. *(red team, reproducibility; minor)* **State how the re-score is run.** *Fixed* in
+   `decision.md`: locally, once, from a clean tree after the digest pin, log kept, every
+   invocation recorded.
+10. *(reproducibility; minor)* **Tests generated seed-206 data.** *Fixed:* they use seeds
+    207/208.
+11. *(numerics, reproducibility; minor)* **Record the replay's data swap and the prediction-file
+    comparison.** *Answered:* the replay moved `data/i4/predictions` aside and restored it after.
+    The tooling report recorded all 17 regenerated prediction files as identical except the
+    header's `schema_version`, and numerics' writer round-trip confirms it.
+12. *(numerics; minor)* **`FileLookup` opens the file on every read.** *Answered:* this costs
+    performance only, and an open descriptor would leak because lookups are never closed. Not
+    changed.
+13. *(geometry; minor)* **Keep n, excluded counts and phases visible in the write-up.**
+    *Accepted.*
