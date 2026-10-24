@@ -1,0 +1,113 @@
+# G2 agent panel review, iteration 4
+
+Constitution 1.2.0 (Governance): five independent specialist reviewers, read-only, iterated until
+none rejects and no blocker or major finding is open. Carried set: the iteration-4 models
+(`experiments/20261023-i4a-val/models`, trained at d124f3c on `train/i4a`, runs 39827501938 and
+39948611113), declared in `experiments/20261022-i4-decision/` (committed in d124f3c, before
+training); the iteration-3 models beside as `other-phase/`. Scored at f6298ac's parent on branch
+`iter4/gate`, data regenerated locally by `scripts/train-plan.mjs data configs/iter4/a/plan.json`
+(content digests equal the plan's; checked by `tma-g2 --plan` and recorded in `manifest.json`).
+
+**Verdict of record:** `verdict.json` in this folder, as the code wrote it: **G2 INCONCLUSIVE**.
+
+| Check (σ = 1°) | Result | Value [95% CI] | Iteration 3 (beside) | Classical | Naive |
+| --- | --- | --- | --- | --- | --- |
+| instantaneous range, zig+300 s (< 20%) | pass | 7.12% [6.8, 7.4] | 8.8% | 3.38% | 39.1% |
+| instantaneous course, zig+300 s (< 10°) | pass | 4.85° [4.65, 5.06] | 6.4° | 1.37° | 91.7° |
+| instantaneous speed, zig+600 s (< 1 kt) | **inconclusive** | 0.981 kt [0.940, 1.031] | 1.14 kt | 0.314 kt | 4.23 kt |
+| time-late range, zig+300 s | pass | 5.20% [5.0, 5.4] | 7.2% | | |
+| time-late course, zig+300 s | pass | 2.99° [2.86, 3.14] | 4.23° | | |
+| time-late speed, zig+600 s | pass | 0.754 kt [0.722, 0.789] | 1.03 kt | | |
+| g1 ratios, controls, shuffled labels, time-late-not-worse | pass | | | | |
+
+n = 4,977 at zig + 300 s and 3,250 at zig + 600 s. Held-out (20–30 km, reported only):
+LSTM speed 2.79 kt, BiLSTM 2.34 kt, classical 1.51 kt.
+
+**Two invocations.** The first invocation scored the test split and wrote `verdict.json`,
+`paired.json`, the metrics, bootstrap, comparison, curves and `other-phase/`, then stopped at the
+held-out split, whose features had not been built (no manifest written). The data step was rerun
+for test and held-out and the gate re-invoked. Every test-split file of the first run (kept in the
+session scratchpad, `gate-run1/`) is byte-identical to the committed one; only `heldout/`,
+`manifest.json` and `seeds.txt` are new. All five reviewers judged that the split was scored once
+in substance: fixed weights, content-pinned data and deterministic scoring leave no choice between
+runs.
+
+**Order of events.** The decision record and rule were committed in d124f3c (2026-10-22), before
+training. The CI validation result (results branch, 2026-10-23) met FR-006 before any test
+scoring. The first gate invocation started at about 05:34:04 UTC on 2026-10-24, 51 s before the
+commit adding `../20261023-i4a-val/validation.md` (cc6e04a, 05:34:55); no test output existed
+before the classical solver finished, about 8 minutes later.
+
+## Round 1 (2026-10-24)
+
+Brief: is the harness verdict (inconclusive on instantaneous speed; everything else passes) right
+and soundly evidenced; could any pass or the near-pass be an artefact (leakage through the derived
+features or the velocity scale, the decode, the zig + 600 s selection, the other-phase scoring,
+freshness, lineage); does the two-invocation event compromise the record; does SRD §7's re-score
+route apply and what should be pre-registered; is anything misreported? ≤ 600 words;
+`VERDICT: approve | approve-with-findings | reject`; findings tagged blocker / major / minor.
+
+### Verdicts
+
+| Reviewer | Verdict | Independent evidence |
+| --- | --- | --- |
+| TMA geometry | approve-with-findings | Decode (atan2(vx, vy) clockwise from north, ‖v‖ × 10.29 m/s), bearing rate (causal least squares over rows t−17..t) and intercept (x cos b − y sin b) checked against source and by derivation; gate medians recomputed from regenerated truth and predictions (0.981 / 0.754 / 0.314 kt; 4.85°); speed error by true speed, range, bearing rate and phase: models track classical where geometry is weak and keep a 0.6–0.8 kt floor where it is strong, never beating classical in any bin, the opposite of a leak's signature |
+| Estimation and numerics | approve-with-findings | Encoding, loss weights [1, 4, 4, 0] and decode inverse checked; parameter counts by hand (204,804; 540,676); best epochs, patience and chained timing consistent; weights digests and results-branch blobs equal; 400 test scenarios re-predicted byte-identically for both carried models; `bootstrapMedian` on independently computed errors reproduces 0.9808 [0.9405, 1.0312]; classical at the Cramér–Rao bound (median ratio 0.672 vs 0.674 efficient); LSTM 1.62 × the bound |
+| Evaluation statistics | approve-with-findings | Every check recomputed with an independent resampler and an exact order-statistic interval (LSTM speed [0.943, 1.034]); 50.6% of rows under 1 kt (sign test p ≈ 0.24); paired ratios reproduce; validation → test shift 0.043 kt, z = 1.5 (noise plus selection); simulated power for the re-score |
+| Reproducibility | approve-with-findings | Seed 205 regenerated from scratch: all four content digests ok; code at gate equals code at training outside the workflows; decision ancestry and CI head shas checked; weights identical across results branch, validation and gate folders; `tma-eval` + `tma-gate g2` on the committed predictions reproduce every output byte for byte; `paired.json` recomputed deep-equal; two-invocation claim confirmed with `diff -rq` |
+| Red team | approve-with-findings | No truth in any input or normalisation; velocity scale a generator constant; 0 seed collisions between seed-205 test and seeds 1, 7, 42, 101–103, 201–205 (indices 0–120k); decision unchanged since d124f3c; configs equal `configs/iter4/a`; a single results branch, and the first run's evaluate step never scored; iteration-3 models scored on their own normalisation, same rows |
+
+All five reproduced the inconclusive verdict independently; none found a path from a pipeline
+error to it. Three major findings, all about what follows the verdict rather than the verdict
+itself.
+
+### Findings and responses
+
+**Major**
+
+1. *(geometry)* **The LSTM's speed is biased low**: median signed error −0.41 kt at zig + 600 s,
+   −1.50 kt for 18–20 kt targets; slope of predicted on true speed 0.88 (classical 0.985). This is
+   the velocity loss's magnitude shrinkage under course uncertainty (spec 008 research R2), and a
+   large share of the 0.98 kt. *Response: accepted.* Recorded here and in the write-up; no
+   recalibration is admissible for this gate, and the re-score uses the same frozen weights.
+   (Numerics adds that removing the bias entirely would give 0.84–0.90 kt: the rest is scatter.)
+2. *(statistics)* **The SRD §7 re-score applies but must be pre-registered, and current tooling
+   refuses it.** *Response: accepted.* The owner chose the re-score on 2026-10-24: fresh seed 206,
+   100,000 test scenarios, the same five frozen models (weights digests named), the full G2
+   verdict on the new split alone deciding, not pooled with seed 205, inconclusive counting as
+   fail. The decision record and tooling are submitted to round 2 before any seed-206 data exist.
+3. *(red team)* **The re-score cannot run with current tooling** (`fresh_test` is generated at the
+   plan's count; the ancestry guard requires the decision to predate the weights' commit; seed 205
+   is reserved). The change must replace the guard, not drop it. *Response: accepted.* Round 2
+   reviews: a `fresh_test.count` that generates only the fresh test split; a re-score binding that
+   requires a committed decision naming the inconclusive experiment and the exact weights digests,
+   in place of the training-ancestry rule; seed 206 reserved for it; and streaming evaluation so
+   100,000 scenarios fit in memory, proved byte-identical on the seed-205 gate.
+
+**Minor**
+
+4. *(numerics, statistics, red team)* The validation figure (0.94 kt) is optimistic: it chose the
+   best epoch (a one-epoch dip) and the carry. *Response:* stated in `validation.md` and the
+   write-up; the power analysis uses the test estimate.
+5. *(statistics)* `validation.md` labels validation figures "pass". *Response:* relabelled "under
+   threshold on validation".
+6. *(numerics, reproducibility, red team)* Record the two-invocation event and its byte-identity.
+   *Response:* recorded above. The manifest lists the second command only; this file is the record
+   of both.
+7. *(reproducibility)* The gate started 51 s before the "carry" note was committed. *Response:*
+   stated under "Order of events"; the binding rule and the validation result came first.
+8. *(red team)* `runG2` writes `verdict.json` before scoring held-out and writing the manifest.
+   *Response:* the re-score tooling checks that every split's features exist before scoring.
+9. *(geometry)* At zig + 300 s, 65% of rows are in ownship's second turn; speed is judged on leg 3.
+   *Response:* stated in the write-up, as spec 007 already describes.
+10. *(geometry)* Speed predictions are bounded (0.2% / 0.8% above 20 kt; classical 4.8%); none
+    non-converged. *Response:* noted.
+11. *(red team)* The shuffled control's speed error (11.3 kt) is the velocity encoding's mean-zero
+    output, not a fault; the control says nothing about speed. *Response:* stated in the write-up.
+12. *(red team)* Neither spec 008 nor the decision record names the inconclusive route.
+    *Response:* SRD §7 has carried it since 2026-10-11 (730c035); the re-score decision cites it.
+13. *(reproducibility)* `g2.ts` logs the plan's feature path for other-phase models before falling
+    back to their own. *Response:* fixed with the re-score tooling.
+14. *(statistics)* The write-up should say the instantaneous median is statistically
+    indistinguishable from 1 kt (51% under), and that a re-score passes with probability about
+    0.78 if the true median is 0.98 kt. *Response:* accepted.

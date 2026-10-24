@@ -25,16 +25,16 @@ iteration-3 models beside (`../20261024-i4-g2/`).
 
 ## Iteration 4 against iteration 3 on the same rows (σ = 1°)
 
-| Check | Iteration 3 | Iteration 4 | Classical |
+| Check ("under": under the G2 threshold on validation; validation is not the gate) | Iteration 3 | Iteration 4 | Classical |
 | --- | --- | --- | --- |
-| instantaneous range, zig + 300 s (< 20%) | 8.8% | **7.1% [6.9, 7.4]** pass | 3.3% |
-| instantaneous course, zig + 300 s (< 10°) | 6.22° | **4.72° [4.52, 4.89]** pass | 1.39° |
-| instantaneous speed, zig + 600 s (< 1 kt) | 1.16 kt | **0.94 kt [0.91, 0.98]** pass | 0.31 kt |
-| time-late range, zig + 300 s | 7.3% | **5.3% [5.1, 5.4]** pass | 3.3% |
-| time-late course, zig + 300 s | 4.37° | **3.14° [3.02, 3.28]** pass | 1.39° |
-| time-late speed, zig + 600 s | 0.97 kt | **0.77 kt [0.72, 0.80]** pass | 0.31 kt |
-| g1 (model / naive range) | | pass: 0.207 / 0.152 | |
-| time-late-not-worse | | pass, 18/18 points | |
+| instantaneous range, zig + 300 s (< 20%) | 8.8% | **7.1% [6.9, 7.4]** under | 3.3% |
+| instantaneous course, zig + 300 s (< 10°) | 6.22° | **4.72° [4.52, 4.89]** under | 1.39° |
+| instantaneous speed, zig + 600 s (< 1 kt) | 1.16 kt | **0.94 kt [0.91, 0.98]** under | 0.31 kt |
+| time-late range, zig + 300 s | 7.3% | **5.3% [5.1, 5.4]** under | 3.3% |
+| time-late course, zig + 300 s | 4.37° | **3.14° [3.02, 3.28]** under | 1.39° |
+| time-late speed, zig + 600 s | 0.97 kt | **0.77 kt [0.72, 0.80]** under | 0.31 kt |
+| g1 (model / naive range) | | under: 0.207 / 0.152 | |
+| time-late-not-worse | | holds, 18/18 points | |
 
 Naive: 39.9% / 88.5° / 4.27 kt. Controls beaten (CNN 15.5%, MLP 13.4%); shuffled labels 0.985 ×
 naive. n = 4,883 at zig + 300 s.
@@ -67,3 +67,6 @@ loss and do not compare with earlier iterations'.
   features moved speed (research R4).
 - **The validation upper bound is close to the threshold.** The LSTM's interval reaches 0.98 kt;
   a test pass needs the whole interval below 1 kt.
+- **The validation figure is optimistic** (G2 panel round 1): the same split chose the best epoch
+  (epoch 28 is a one-epoch dip in validation loss) and decided the carry. The test split gave
+  0.98 kt [0.94, 1.03] (`../20261024-i4-g2/`).
