@@ -228,7 +228,7 @@ describe("plan validation", () => {
 
   it("a fresh test split needs its own unreserved seed and a digest (spec 004 decision 17)", () => {
     const fresh = (f: unknown) => workspace((p) => (dataset(p).fresh_test = f));
-    expect(validate(fresh({ seed: "207", digest: "PLACEHOLDER" })).status).toBe(0);
+    expect(validate(fresh({ seed: "9207", digest: "PLACEHOLDER" })).status).toBe(0);
     expect(validate(fresh({ seed: "201", digest: "PLACEHOLDER" })).err).toMatch(
       /must differ from dataset.seed/,
     );
@@ -256,21 +256,21 @@ describe("plan validation", () => {
     expect(validate(fresh({ seed: "204", digest: "PLACEHOLDER" })).err).toMatch(
       /reserved for iteration 3 G2/,
     );
-    expect(validate(fresh({ seed: "207", digest: "abc" })).err).toMatch(/fresh_test.digest/);
+    expect(validate(fresh({ seed: "9207", digest: "abc" })).err).toMatch(/fresh_test.digest/);
     expect(validate(fresh({ digest: "PLACEHOLDER" })).err).toMatch(/fresh_test.seed/);
   });
 
   it("fresh_test.count: a positive integer, and no unknown keys (G2 re-score, SRD §7)", () => {
     const fresh = (f: unknown) => workspace((p) => (dataset(p).fresh_test = f));
-    expect(validate(fresh({ seed: "207", digest: "PLACEHOLDER", count: 1_000_000 })).status).toBe(
+    expect(validate(fresh({ seed: "9207", digest: "PLACEHOLDER", count: 1_000_000 })).status).toBe(
       0,
     );
     for (const count of [0, -5, 1.5, "1000"]) {
-      expect(validate(fresh({ seed: "207", digest: "PLACEHOLDER", count })).err).toMatch(
+      expect(validate(fresh({ seed: "9207", digest: "PLACEHOLDER", count })).err).toMatch(
         /fresh_test.count must be a positive integer/,
       );
     }
-    expect(validate(fresh({ seed: "207", digest: "PLACEHOLDER", cuont: 10 })).err).toMatch(
+    expect(validate(fresh({ seed: "9207", digest: "PLACEHOLDER", cuont: 10 })).err).toMatch(
       /fresh_test.cuont: unknown key/,
     );
     // 206 is the iteration-4 re-score's fresh test seed: never a training dataset.
@@ -281,7 +281,7 @@ describe("plan validation", () => {
     const ev = (e: Record<string, unknown>, fresh = true) =>
       workspace((p) => {
         p.evaluate = { command: "tma-g2", ...e };
-        if (fresh) dataset(p).fresh_test = { seed: "207", digest: "PLACEHOLDER", count: 100 };
+        if (fresh) dataset(p).fresh_test = { seed: "9207", digest: "PLACEHOLDER", count: 100 };
       });
     expect(validate(ev({ split: "validation", rescore_of: "configs" })).err).toMatch(
       /rescore_of needs split test and a decision/,
@@ -375,7 +375,7 @@ describe("dataset content digests", () => {
     withFresh.dataset.count = 30;
     const fresh = tempDir();
     generateDataset({
-      seed: 207n,
+      seed: 9207n,
       count: 50,
       outDir: fresh,
       ranges: DEFAULT_RANGES,
@@ -386,24 +386,24 @@ describe("dataset content digests", () => {
     });
     renameSync(join(fresh, "test.f32pack"), join(data, "test.f32pack"));
     const freshDigest = run(["digest", join(data, "test.f32pack")]).out.split(" ")[0] ?? "";
-    withFresh.dataset.fresh_test = { seed: "207", digest: freshDigest, count: 50 };
+    withFresh.dataset.fresh_test = { seed: "9207", digest: freshDigest, count: 50 };
     plan.dataset.digests["test.f32pack"] = "0".repeat(64);
     writeFileSync(p, JSON.stringify(plan));
     const okFresh = check();
     expect(okFresh.status).toBe(0);
-    expect(okFresh.out).toContain("ok  test.f32pack header seed 207 index [45, 50)");
-    withFresh.dataset.fresh_test = { seed: "207", digest: "1".repeat(64), count: 50 };
+    expect(okFresh.out).toContain("ok  test.f32pack header seed 9207 index [45, 50)");
+    withFresh.dataset.fresh_test = { seed: "9207", digest: "1".repeat(64), count: 50 };
     writeFileSync(p, JSON.stringify(plan));
     expect(check().err).toMatch(/BAD test.f32pack .*\(plan: 1{64}\)/);
     // Without the count, the test indices are the plan count's: the header says otherwise.
-    withFresh.dataset.fresh_test = { seed: "207", digest: freshDigest };
+    withFresh.dataset.fresh_test = { seed: "9207", digest: freshDigest };
     writeFileSync(p, JSON.stringify(plan));
     expect(check().err).toMatch(
-      /BAD test.f32pack header seed 207 index \[45, 50\) \(plan: seed 207 index \[27, 30\)\)/,
+      /BAD test.f32pack header seed 9207 index \[45, 50\) \(plan: seed 9207 index \[27, 30\)\)/,
     );
-    withFresh.dataset.fresh_test = { seed: "208", digest: freshDigest, count: 50 };
+    withFresh.dataset.fresh_test = { seed: "9208", digest: freshDigest, count: 50 };
     writeFileSync(p, JSON.stringify(plan));
-    expect(check().err).toMatch(/BAD test.f32pack header seed 207/);
+    expect(check().err).toMatch(/BAD test.f32pack header seed 9207/);
   });
 
   it("data: a fresh_test.count test split is generated alone (none of its seed's other splits)", () => {
@@ -417,7 +417,7 @@ describe("dataset content digests", () => {
     };
     plan.dataset.count = 20;
     for (const k of Object.keys(plan.dataset.digests)) plan.dataset.digests[k] = "PLACEHOLDER";
-    plan.dataset.fresh_test = { seed: "207", digest: "PLACEHOLDER", count: 60 };
+    plan.dataset.fresh_test = { seed: "9207", digest: "PLACEHOLDER", count: 60 };
     writeFileSync(p, JSON.stringify(plan));
     const data = join(dir, "d");
     const env = { TRAIN_PLAN_ALLOW_DIRTY: "1" };
@@ -436,7 +436,7 @@ describe("dataset content digests", () => {
     expect(second.err).toBe("");
     expect(second.status).toBe(0);
     expect(existsSync(join(data, ".fresh-test"))).toBe(false);
-    // Generator summaries: the plan's seed by tma-generate, seed 207's test split alone.
+    // Generator summaries: the plan's seed by tma-generate, seed 9207's test split alone.
     const summaries = second.out
       .split("\n")
       .filter((l) => l.startsWith("{") && l.includes(`"splits":`))
@@ -445,7 +445,7 @@ describe("dataset content digests", () => {
     expect(existsSync(join(data, "test.features.bin"))).toBe(true);
     const test = readDataset(join(data, "test.f32pack")).header;
     expect(test).toMatchObject({
-      dataset_seed: "207",
+      dataset_seed: "9207",
       split: "test",
       index_start: 54,
       index_end: 60,
@@ -456,10 +456,10 @@ describe("dataset content digests", () => {
       dataset_seed: plan.dataset.seed,
       index_end: 16,
     });
-    // The same bytes as the test split of a full seed-207, 60-scenario generation.
+    // The same bytes as the test split of a full seed-9207, 60-scenario generation.
     const full = tempDir();
     generateDataset({
-      seed: 207n,
+      seed: 9207n,
       count: 60,
       outDir: full,
       ranges: JSON.parse(

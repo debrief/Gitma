@@ -182,12 +182,16 @@ and refuses unless all of these hold:
   this re-score (`rescore_of`), the plan, its `fresh_test_count` and a `test_seed` equal to the
   plan's `fresh_test` seed and to the test data's own header, which must record a clean tree;
 - the plan differs from its content at the commit that added the decision only in
-  `dataset.fresh_test.digest` (pinned once the data exist);
+  `dataset.fresh_test.digest` (pinned once the data exist), and the decision's last change
+  precedes or is the plan's (so it cannot be edited after the pin);
+- the test data have the generator version and parameter ranges of the re-scored gate's test
+  split (the same problem);
 - the re-scored experiment holds a committed, panel-decided (`decided_by` names an agent panel
   round), inconclusive G2 `verdict.json` and a committed `manifest.json`, tested another seed,
   and is not itself a re-score;
 - the decision's `model_digests` (schema 0.11.1) name exactly the carried models, each with the
-  SHA-256 of its `weights.bin`, `manifest.json` and `model.json`; the weights digest must also
+  SHA-256 of its `weights.bin`, `manifest.json` and `model.json`, each tracked and unmodified in
+  git; the weights digest must also
   equal the model manifest's `weights_digest` and the one the re-scored gate's manifest recorded.
   This replaces the training-ancestry rule (decision committed before the weights), which still
   applies to every other test run;

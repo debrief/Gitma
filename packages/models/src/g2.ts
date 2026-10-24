@@ -125,6 +125,11 @@ export interface G2RunOptions {
   allowDirty?: boolean;
   /** The plan's text at the commit that added the decision (default: `git show`). */
   planAtDecision?: (decision: string, plan: string) => string | undefined;
+  /**
+   * Whether the commit that last changed `decision` is an ancestor of (or equal to) the one that
+   * last changed `plan` (its digest pin), so the decision was not edited after (default: git).
+   */
+  decisionBeforePlanPin?: (decision: string, plan: string) => boolean;
 }
 
 /** `node scripts/train-plan.mjs check-digests <plan> <data>` (G2 panel R19: content, not headers). */
@@ -742,6 +747,31 @@ function commitAdding(path: string): string | undefined {
   }
 }
 
+/** The commit that last changed `path` (git), or undefined. */
+function lastCommitOf(path: string): string | undefined {
+  try {
+    const c = execFileSync("git", ["log", "-1", "--format=%H", "--", path], {
+      encoding: "utf8",
+    }).trim();
+    return c === "" ? undefined : c;
+  } catch {
+    return undefined;
+  }
+}
+
+/** The last change to `decision` precedes or is the last change to `plan` (git). */
+export function gitDecisionBeforePlanPin(decision: string, plan: string): boolean {
+  const d = lastCommitOf(decision);
+  const p = lastCommitOf(plan);
+  if (d === undefined || p === undefined) return false;
+  try {
+    execFileSync("git", ["merge-base", "--is-ancestor", d, p], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** The plan's text at the commit that added the decision (default: git), or undefined. */
 export function gitPlanAtDecision(decision: string, plan: string): string | undefined {
   const added = commitAdding(decision);
@@ -848,6 +878,11 @@ export function requireRescore(
       "plan",
       `${plan} changed since ${decisionPath} was committed in more than dataset.fresh_test.digest`,
     );
+  if (!(opts.decisionBeforePlanPin ?? gitDecisionBeforePlanPin)(decisionPath, plan))
+    refuse(
+      "decision",
+      `${decisionPath} was last changed after ${plan} (the digest pin), or either is not committed`,
+    );
   const testPath = join(opts.data, "test.f32pack");
   const dataSeed = dataTestSeed(opts.data);
   if (dataSeed !== d.test_seed)
@@ -855,7 +890,8 @@ export function requireRescore(
       "test_seed",
       `the test data are seed ${String(dataSeed)}, the decision commits to ${String(d.test_seed)}`,
     );
-  if (readDataset(testPath).header.generator_git_dirty !== false)
+  const testHeader = readDataset(testPath).header;
+  if (testHeader.generator_git_dirty !== false)
     refuse("test data", `${testPath} was generated from a working tree with changes`);
   const seed = d.test_seed ?? "";
 
@@ -901,6 +937,15 @@ export function requireRescore(
       "test_seed",
       `the re-score's test seed ${seed} is the re-scored gate's: a re-score needs a fresh seed`,
     );
+  // The same problem: the generator and ranges of the re-scored gate's test split.
+  const gateTest = tests[0]?.header;
+  for (const field of ["generator_version", "parameter_ranges"] as const) {
+    if (canonicalJson(testHeader[field]) !== canonicalJson(gateTest?.[field]))
+      refuse(
+        "test data",
+        `${testPath} ${field} differs from the re-scored gate's test split: a re-score scores the same problem`,
+      );
+  }
 
   // The frozen models, by content: exactly the carried set, every file as declared and as scored.
   const digests = d.model_digests ?? [];
@@ -920,6 +965,12 @@ export function requireRescore(
     `re-score (SRD §7): ${of} was G2 inconclusive on test seed ${String(originalSeed)}; this run scores fresh test seed ${seed} alone, with the frozen models below bound by file digests (decision model_digests) in place of training ancestry`,
   ];
   for (const m of carried.models) {
+    // The files of record: tracked and unmodified, not an edited copy or an untracked folder.
+    for (const f of ["weights.bin", "manifest.json", "model.json"]) {
+      const path = join(m.dir, f);
+      if (!committed(path))
+        refuse("models", `${path} is not committed (or has uncommitted changes)`);
+    }
     const want = digests.find((x) => x.model === m.manifest.id);
     const files = [
       ["weights.bin", want?.weights_sha256],

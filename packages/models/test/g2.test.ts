@@ -433,12 +433,17 @@ describe("tma-g2 end to end (tiny)", () => {
         manifest?: boolean;
         decidedBy?: string;
         weights?: Record<string, string>;
+        header?: Record<string, unknown>;
       } = {},
     ): string => {
       const dir = join(tempDir(), "20261024-g2");
       mkdirSync(dir);
       const test = join(data, "test.f32pack");
-      const header = { ...readDataset(test).header, dataset_seed: over.seed ?? "22" };
+      const header = {
+        ...readDataset(test).header,
+        dataset_seed: over.seed ?? "22",
+        ...over.header,
+      };
       if (over.manifest !== false) {
         const m = makeManifest(
           "20261024-g2",
@@ -516,6 +521,7 @@ describe("tma-g2 end to end (tiny)", () => {
           throw new Error("a re-score never asks for training ancestry");
         },
         planAtDecision: asPreRegistered,
+        decisionBeforePlanPin: () => true,
         experiment: join(dirname(orig), `2026102${String(fresh++ % 10)}-rescore-${String(fresh)}`),
         ...over,
       });
@@ -759,6 +765,31 @@ describe("tma-g2 end to end (tiny)", () => {
       await expect(runG2(rescore(orig, { data: dirty }))).rejects.toThrow(
         /generated from a working tree with changes/,
       );
+    });
+
+    it("round 3: model files of record, the decision before the pin, the same problem", async () => {
+      // An edited copy outside the repository, or an untracked folder, is refused.
+      for (const file of ["weights.bin", "manifest.json", "model.json"]) {
+        await expect(
+          runG2(rescore(original(), { isCommitted: (f) => !f.endsWith(join("lstm", file)) })),
+        ).rejects.toThrow(new RegExp(`lstm/${file.replace(".", "\\.")} is not committed`));
+      }
+      await expect(
+        runG2(rescore(original(), { decisionBeforePlanPin: () => false })),
+      ).rejects.toThrow(/was last changed after .* \(the digest pin\)/);
+      const ranges = readDataset(join(data, "test.f32pack")).header.parameter_ranges;
+      await expect(
+        runG2(
+          rescore(
+            original({
+              header: { parameter_ranges: { ...ranges, noise_sigma_rad_values: [0.001] } },
+            }),
+          ),
+        ),
+      ).rejects.toThrow(/parameter_ranges differs from the re-scored gate's test split/);
+      await expect(
+        runG2(rescore(original({ header: { generator_version: "0.2.0" } }))),
+      ).rejects.toThrow(/generator_version differs from the re-scored gate's test split/);
     });
 
     it("one re-score per gate: beside the gate, no marker, no second decision, no --allow-dirty", async () => {
