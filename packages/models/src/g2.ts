@@ -19,6 +19,7 @@ import {
   readdirSync,
   readFileSync,
   realpathSync,
+  rmSync,
   writeFileSync,
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
@@ -556,6 +557,9 @@ export async function scoreSplit(
       // models beside derived iteration-4 ones); it then gets its own inputs, as below.
       const missing = tag !== undefined && !existsSync(path);
       let features: FeatureFile | undefined;
+      // The other phase's own inputs are a cache, removed once its predictions are written: at
+      // 100,000 scenarios each is 1.6 GB (the seed-206 re-score), and nothing reads it again.
+      let ownPath: string | undefined;
       try {
         let note: string | undefined;
         try {
@@ -583,7 +587,8 @@ export async function scoreSplit(
             fs,
           );
           features = openFeatures(own);
-          note = `${m.manifest.id} (${tag}): trained on other data, so scored on inputs built with its own normalisation (${own})`;
+          ownPath = own;
+          note = `${m.manifest.id} (${tag}): trained on other data, so scored on inputs built with its own normalisation (${own}, removed after scoring)`;
         }
         if (note !== undefined) notes.push(note);
         // Logged once the inputs are settled: the file actually scored (G2 panel finding 13).
@@ -614,6 +619,7 @@ export async function scoreSplit(
         sets.push(openPredictionSet(out, truthPath));
       } finally {
         features?.close();
+        if (ownPath !== undefined) rmSync(ownPath, { force: true });
       }
     }
   }

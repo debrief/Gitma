@@ -379,9 +379,14 @@ describe("tma-g2 end to end (tiny)", () => {
     expect(readFileSync(join(exp, "manifest.json"), "utf8")).toMatch(
       /scored on inputs built with its own normalisation/,
     );
-    expect(readdirSync(join(data, "predictions")).some((f) => f.endsWith(".features.bin"))).toBe(
-      true,
-    );
+    // Its own inputs were built and scored, then removed (a cache; 1.6 GB each at 100,000).
+    expect(readFileSync(join(exp, "manifest.json"), "utf8")).toMatch(/removed after scoring/);
+    expect(
+      readdirSync(join(data, "predictions")).some((f) => /other-phase.*\.features\.bin$/.test(f)),
+    ).toBe(false);
+    expect(
+      readdirSync(join(data, "predictions")).some((f) => /other-phase.*\.ndjson$/.test(f)),
+    ).toBe(true);
     expect(existsSync(join(exp, PAIRED_FILE))).toBe(true);
     // The carried set never takes this path: foreign models as the carried set are refused.
     await expect(
