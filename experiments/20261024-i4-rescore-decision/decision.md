@@ -15,6 +15,12 @@ unless all of the following hold.
 - **The experiment folder** sits beside the re-scored gate and holds no earlier re-score marker.
   No sibling folder has re-scored the gate, and no other committed decision names it.
 
+**Amended once, before any seed-206 data existed.** First committed in 655b8d6. Amended in
+eefe748 (G2 panel round 2) to add `fresh_test_count` and the `manifest.json` and `model.json`
+digests. `decided_at` and `git_commit` in `decision.json` describe the first version. From the
+digest-pin commit onward the record is frozen: `tma-g2` refuses a decision changed after the
+plan's last change.
+
 ## Why
 
 G2 on seed 205's test split was **inconclusive** (`../20261024-i4-g2/`, panel round 1: all five
@@ -96,6 +102,15 @@ Node heap, into `experiments/20261025-i4-g2-rescore`. Its log is kept and every 
 recorded in that folder's `review.md`.
 
 It is not run on CI: a `train/i4r` branch would train new models, which the digests would refuse.
+
+**An aborted run** (for example, out of memory or a killed process) stops before writing
+`verdict.json`. It may be repeated once into the same folder, after the panel approves. The
+`rescore.json` marker is removed only under a note recorded in that folder's `review.md`.
+Repeating a deterministic run on frozen, digest-bound inputs is not a second look.
+
+The scoring commit is reviewed: `git diff 648acc5 <scoring commit> -- packages scripts configs`
+must show only the round-3 tooling fixes and the plan's digest pin, recorded in the re-score's
+`review.md`.
 
 `tma-g2` writes `rescore.json` before scoring and refuses any folder that already holds one. A
 scoring run into a scratch folder outside `experiments/` is refused, because the folder must sit

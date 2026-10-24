@@ -91,7 +91,7 @@
       "result": "pass"
     }
   ],
-  "decided_by": "harness (pending agent panel review)",
+  "decided_by": "agent review panel, round 3 (no rejections; no open blocker or major findings): G2 INCONCLUSIVE on instantaneous speed, 0.981 kt [0.940, 1.031] against 1 kt; every other check passes. SRD 7 re-score pre-registered: experiments/20261024-i4-rescore-decision (seed 206, 100,000 test scenarios, frozen models); a fail or inconclusive there is final",
   "gate": "G2",
   "result": "inconclusive"
 }

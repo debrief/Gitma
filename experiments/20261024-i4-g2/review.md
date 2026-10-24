@@ -181,3 +181,53 @@ All majors were fixed in eefe748 (schema 0.11.1) before any seed-206 data exist.
     changed.
 13. *(geometry; minor)* **Keep n, excluded counts and phases visible in the write-up.**
     *Accepted.*
+
+## Round 3 (2026-10-24)
+
+Brief: are the round-2 findings fixed (eefe748, schema 0.11.1) and recorded (648acc5), and must
+anything change before (a) this verdict's `decided_by` names round 3 and (b) seed-206 data are
+generated, the digest pinned and the re-score run once? ≤ 400 words.
+
+### Verdicts
+
+| Reviewer | Verdict | Main points |
+| --- | --- | --- |
+| TMA geometry | approve-with-findings | All 15 model-file digests recomputed and matching; problem code and ranges unchanged since this gate; 26/26 g2 tests pass; minors only |
+| Estimation and numerics | approve-with-findings | All round-2 findings fixed; the scoring and decode code is unchanged since the gate apart from streaming (proved equivalent in round 2); 51/51 tests; minors only |
+| Evaluation statistics | approve-with-findings | Plan binding (content at the decision's adding commit, `fresh_test_count`, dirty data) correct; decisive rule and forecast wording fixed; 49/49 tests; minors only |
+| Reproducibility | approve-with-findings | Digests recomputed in both model folders; clean `git archive` build identical; 44 tests pass in the clean copy; no 100k seed-206 split exists; minors only |
+| Red team | approve-with-findings | All four round-2 majors confirmed fixed, each with a test; minors only |
+
+No rejections and no open blocker or major finding: **the panel approves the verdict of record,
+G2 INCONCLUSIVE, and the re-score pre-registration.** `decided_by` in `verdict.json` names this
+round.
+
+### Findings and responses (all minor)
+
+1. *(numerics, geometry, reproducibility)* **The decision was amended in round 2 without saying
+   so.** *Fixed:* `decision.md` states the amendment (eefe748, before any seed-206 data).
+2. *(red team, reproducibility)* **The decision itself is not frozen.** *Fixed in tooling* (see
+   the re-score's record): `tma-g2` refuses a decision changed after the plan's last change (the
+   digest pin), and requires every carried model file to be tracked and unmodified in git.
+3. *(geometry)* **Bind the problem itself.** *Fixed in tooling:* the seed-206 test header's
+   `parameter_ranges` and `generator_version` must equal this gate's test header.
+4. *(numerics)* **Code drift between round 3 and scoring.** *Fixed in `decision.md`:* the
+   re-score's review records `git diff 648acc5 <scoring commit> -- packages scripts configs`,
+   which must show only the round-3 tooling fixes and the digest pin.
+5. *(statistics)* **No rule for an aborted run.** *Fixed in `decision.md`:* one repeat into the
+   same folder, after panel approval, with the marker removed under a recorded note.
+6. *(reproducibility)* **Test seeds 207/208 are the next in the fresh series.** *Fixed in
+   tooling:* the tests use 9207/9208.
+7. *(red team)* **The second-decision scan reads only sibling `decision.json` files.**
+   *Answered:* a second re-score is already blocked by the folder rule and the marker. Not
+   widened.
+8. *(red team)* **"Once" rests partly on process** (an untracked marker can be deleted, and
+   seed-206 data could be scored off the record with other CLIs). *Answered:* every input is bound
+   by content, so a peek gains no lever. The marker and the full run log are committed with the
+   result.
+9. *(red team)* **Pin the digest from a clean tree and have it reproduced independently.**
+   *Accepted:* the pin commit changes only the plan's digest, and the re-score's panel reproduces
+   the content digest by regenerating seed 206's test split.
+10. *(geometry, numerics)* **The re-score write-up must report the bias** against the forecast
+    (median signed speed error about −0.4 kt, slope about 0.88), with n, excluded counts and the
+    phase split at both gate points. *Accepted.*
