@@ -138,10 +138,10 @@ export async function runScan(opts: ScanOptions): Promise<ScanRow[]> {
   const train = readDataset(trainPath);
   const naive = fitNaive(train.scenarios(), fileDigest(trainPath));
   const scored = await scoreSplit(opts, "validation", naive, train.header, [{ models }], log);
-  const ev = evaluate(scored.scenarios, scored.sets, { points: G2_POINTS, curveStep: 60 });
+  const ev = evaluate(scored.truth, scored.sets, { points: G2_POINTS, curveStep: 60 });
   mkdirSync(opts.experiment, { recursive: true });
   writeEvaluation(opts.experiment, ev);
-  const report = bootstrapEvaluation(scored.scenarios, scored.sets, {
+  const report = bootstrapEvaluation(scored.truth, scored.sets, {
     points: G2_POINTS,
     resamples,
     seed: BOOTSTRAP_SEED,

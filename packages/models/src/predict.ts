@@ -128,6 +128,25 @@ export function predictScenarios(
   spec: OutputSpec = COURSE_SPEED,
   batchSize = 256,
 ): Prediction[] {
+  const out: Prediction[] = [];
+  predictEach(model, features, truth, norm, estimator, spec, batchSize, (p) => out.push(p));
+  return out;
+}
+
+/**
+ * `predictScenarios`, streamed: each prediction is passed to `emit` in truth order as its batch
+ * completes, so a caller can write it out without holding the split's predictions.
+ */
+export function predictEach(
+  model: tf.LayersModel,
+  features: FeatureFile,
+  truth: Iterable<Scenario>,
+  norm: NormalisationConstants,
+  estimator: string,
+  spec: OutputSpec,
+  batchSize: number,
+  emit: (p: Prediction) => void,
+): void {
   const ni = features.inputChannels;
   if (modelInputWidth(model) !== ni) {
     throw new Error(
@@ -136,7 +155,6 @@ export function predictScenarios(
   }
   const where = new Map<number, number>();
   features.indices.forEach((idx, k) => where.set(idx, k));
-  const out: Prediction[] = [];
   let pending: Scenario[] = [];
   const flush = (): void => {
     if (pending.length === 0) return;
@@ -152,7 +170,7 @@ export function predictScenarios(
       return p.dataSync() as Float32Array;
     });
     pending.forEach((s, j) => {
-      out.push(
+      emit(
         outputsToPrediction(
           s,
           y.subarray(j * ROWS * NO, (j + 1) * ROWS * NO),
@@ -170,5 +188,4 @@ export function predictScenarios(
     if (pending.length === batchSize) flush();
   }
   flush();
-  return out;
 }

@@ -12,7 +12,8 @@ import {
   writeManifest,
 } from "./experiment.js";
 import { perTimestep } from "./gate-g1.js";
-import { loadPredictionSet, requireBaselines } from "./load.js";
+import { requireBaselines } from "./load.js";
+import { openPredictionSet } from "./prediction-file.js";
 
 const USAGE =
   "usage: tma-eval --truth <split> --pred <file> [--pred <file>...] --experiment <dir> [--points 300] [--curve-step 60] [--bootstrap <B>] [--bootstrap-seed <u64>] [--compare-to <estimator label>]";
@@ -54,7 +55,7 @@ export function main(argv: string[]): unknown {
       throw new UsageError(`bad --bootstrap-seed: ${e instanceof Error ? e.message : String(e)}`);
     }
   }
-  const sets = preds.map((p) => loadPredictionSet(p, truthPath));
+  const sets = preds.map((p) => openPredictionSet(p, truthPath));
   requireBaselines(sets);
   const compareTo = values["compare-to"];
   if (compareTo !== undefined && !sets.some((s) => s.label === compareTo)) {

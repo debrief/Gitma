@@ -1,10 +1,19 @@
 // T040: scripts/train-plan.mjs, the logic train.yml and the CI plan step run (spawned as in CI).
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { fileSha256, generateDataset } from "@tma/data";
+import { fileSha256, generateDataset, readDataset } from "@tma/data";
 import { DEFAULT_RANGES, HELDOUT_RANGES } from "@tma/sim";
+import type { ParameterRanges } from "@tma/types";
 import { describe, expect, it } from "vitest";
 import { tempDir } from "./helpers.js";
 
@@ -250,6 +259,54 @@ describe("plan validation", () => {
     expect(validate(fresh({ seed: "206", digest: "abc" })).err).toMatch(/fresh_test.digest/);
     expect(validate(fresh({ digest: "PLACEHOLDER" })).err).toMatch(/fresh_test.seed/);
   });
+
+  it("fresh_test.count: a positive integer, and no unknown keys (G2 re-score, SRD §7)", () => {
+    const fresh = (f: unknown) => workspace((p) => (dataset(p).fresh_test = f));
+    expect(validate(fresh({ seed: "206", digest: "PLACEHOLDER", count: 1_000_000 })).status).toBe(
+      0,
+    );
+    for (const count of [0, -5, 1.5, "1000"]) {
+      expect(validate(fresh({ seed: "206", digest: "PLACEHOLDER", count })).err).toMatch(
+        /fresh_test.count must be a positive integer/,
+      );
+    }
+    expect(validate(fresh({ seed: "206", digest: "PLACEHOLDER", cuont: 10 })).err).toMatch(
+      /fresh_test.cuont: unknown key/,
+    );
+    // 206 is the iteration-4 re-score's fresh test seed: never a training dataset.
+    expect(validate(workspace((p) => (dataset(p).seed = "206"))).err).toMatch(/re-score/);
+  });
+
+  it("evaluate.rescore_of needs a test evaluation with a decision and a fresh test split", () => {
+    const ev = (e: Record<string, unknown>, fresh = true) =>
+      workspace((p) => {
+        p.evaluate = { command: "tma-g2", ...e };
+        if (fresh) dataset(p).fresh_test = { seed: "206", digest: "PLACEHOLDER", count: 100 };
+      });
+    expect(validate(ev({ split: "validation", rescore_of: "configs" })).err).toMatch(
+      /rescore_of needs split test and a decision/,
+    );
+    expect(validate(ev({ split: "test", rescore_of: "configs" })).err).toMatch(
+      /rescore_of needs split test and a decision/,
+    );
+    expect(
+      validate(ev({ split: "test", decision: "d.json", rescore_of: "configs" }, false)).err,
+    ).toMatch(/needs a dataset.fresh_test/);
+    expect(
+      validate(ev({ split: "test", decision: "d.json", rescore_of: "no/such/experiment" })).err,
+    ).toMatch(/does not exist/);
+    const ok = ev({ split: "test", decision: "d.json", rescore_of: "configs" });
+    expect(validate(ok).status).toBe(0);
+    const args = run(["evaluate-args", "configs/iter2/a/plan.json", "D", "M", "E"], { cwd: ok });
+    expect(args.out.trim().split("\n").slice(-6)).toEqual([
+      "--decision",
+      "d.json",
+      "--plan",
+      "configs/iter2/a/plan.json",
+      "--rescore-of",
+      "configs",
+    ]);
+  });
 });
 
 describe("dataset content digests", () => {
@@ -311,17 +368,114 @@ describe("dataset content digests", () => {
     writeFileSync(p, JSON.stringify(plan));
     expect(check().err).toMatch(/placeholders/);
 
-    // With a fresh test split, test.f32pack is checked against the fresh digest, not the plan's.
+    // With a fresh test split, test.f32pack is checked against the fresh digest, not the plan's,
+    // and its header must name the fresh seed and the test indices of the fresh count.
     plan.dataset.digests["validation.f32pack"] = digests["validation.f32pack"] ?? "";
     const withFresh = plan as unknown as { dataset: Record<string, unknown> };
-    withFresh.dataset.fresh_test = { seed: "206", digest: digests["test.f32pack"] };
+    withFresh.dataset.count = 30;
+    const fresh = tempDir();
+    generateDataset({
+      seed: 206n,
+      count: 50,
+      outDir: fresh,
+      ranges: DEFAULT_RANGES,
+      heldoutRanges: HELDOUT_RANGES,
+      format: "f32pack",
+      createdBy: "test",
+      provenance: { generator_git_commit: "c".repeat(40), generator_git_dirty: false },
+    });
+    renameSync(join(fresh, "test.f32pack"), join(data, "test.f32pack"));
+    const freshDigest = run(["digest", join(data, "test.f32pack")]).out.split(" ")[0] ?? "";
+    withFresh.dataset.fresh_test = { seed: "206", digest: freshDigest, count: 50 };
     plan.dataset.digests["test.f32pack"] = "0".repeat(64);
     writeFileSync(p, JSON.stringify(plan));
-    expect(check().status).toBe(0);
-    withFresh.dataset.fresh_test = { seed: "206", digest: "1".repeat(64) };
+    const okFresh = check();
+    expect(okFresh.status).toBe(0);
+    expect(okFresh.out).toContain("ok  test.f32pack header seed 206 index [45, 50)");
+    withFresh.dataset.fresh_test = { seed: "206", digest: "1".repeat(64), count: 50 };
     writeFileSync(p, JSON.stringify(plan));
     expect(check().err).toMatch(/BAD test.f32pack .*\(plan: 1{64}\)/);
+    // Without the count, the test indices are the plan count's: the header says otherwise.
+    withFresh.dataset.fresh_test = { seed: "206", digest: freshDigest };
+    writeFileSync(p, JSON.stringify(plan));
+    expect(check().err).toMatch(
+      /BAD test.f32pack header seed 206 index \[45, 50\) \(plan: seed 206 index \[27, 30\)\)/,
+    );
+    withFresh.dataset.fresh_test = { seed: "207", digest: freshDigest, count: 50 };
+    writeFileSync(p, JSON.stringify(plan));
+    expect(check().err).toMatch(/BAD test.f32pack header seed 206/);
   });
+
+  it("data: a fresh_test.count test split is generated alone (none of its seed's other splits)", () => {
+    // A scratch checkout: configs copied, packages linked (the script runs the built CLIs).
+    const dir = tempDir();
+    cpSync(join(ROOT, "configs"), join(dir, "configs"), { recursive: true });
+    symlinkSync(join(ROOT, "packages"), join(dir, "packages"));
+    const p = join(dir, "configs/iter2/a/plan.json");
+    const plan = JSON.parse(readFileSync(p, "utf8")) as {
+      dataset: Record<string, unknown> & { digests: Record<string, string> };
+    };
+    plan.dataset.count = 20;
+    for (const k of Object.keys(plan.dataset.digests)) plan.dataset.digests[k] = "PLACEHOLDER";
+    plan.dataset.fresh_test = { seed: "206", digest: "PLACEHOLDER", count: 60 };
+    writeFileSync(p, JSON.stringify(plan));
+    const data = join(dir, "d");
+    const env = { TRAIN_PLAN_ALLOW_DIRTY: "1" };
+    const step = () => run(["data", "configs/iter2/a/plan.json", data, "test"], { cwd: dir, env });
+    const first = step();
+    expect(first.status).toBe(2);
+    expect(first.err).toMatch(/placeholders/);
+    for (const s of ["train", "validation", "test", "heldout"]) {
+      const f = `${s}.f32pack`;
+      const digest = run(["digest", join(data, f)]).out.split(" ")[0] ?? "";
+      if (s === "test") (plan.dataset.fresh_test as Record<string, unknown>).digest = digest;
+      else plan.dataset.digests[f] = digest;
+    }
+    writeFileSync(p, JSON.stringify(plan));
+    const second = step();
+    expect(second.err).toBe("");
+    expect(second.status).toBe(0);
+    expect(existsSync(join(data, ".fresh-test"))).toBe(false);
+    // Generator summaries: the plan's seed by tma-generate, seed 206's test split alone.
+    const summaries = second.out
+      .split("\n")
+      .filter((l) => l.startsWith("{") && l.includes(`"splits":`))
+      .map((l) => (JSON.parse(l) as { splits: { split: string }[] }).splits.map((x) => x.split));
+    expect(summaries).toEqual([["train", "validation", "test", "heldout"], ["test"]]);
+    expect(existsSync(join(data, "test.features.bin"))).toBe(true);
+    const test = readDataset(join(data, "test.f32pack")).header;
+    expect(test).toMatchObject({
+      dataset_seed: "206",
+      split: "test",
+      index_start: 54,
+      index_end: 60,
+      scenario_count: 6,
+    });
+    expect(test.created_by).toContain("--count 60");
+    expect(readDataset(join(data, "train.f32pack")).header).toMatchObject({
+      dataset_seed: plan.dataset.seed,
+      index_end: 16,
+    });
+    // The same bytes as the test split of a full seed-206, 60-scenario generation.
+    const full = tempDir();
+    generateDataset({
+      seed: 206n,
+      count: 60,
+      outDir: full,
+      ranges: JSON.parse(
+        readFileSync(join(dir, plan.dataset.ranges as string), "utf8"),
+      ) as ParameterRanges,
+      heldoutRanges: JSON.parse(
+        readFileSync(join(dir, plan.dataset.heldout_ranges as string), "utf8"),
+      ) as ParameterRanges,
+      format: "f32pack",
+      createdBy: "test",
+      provenance: { generator_git_commit: "c".repeat(40), generator_git_dirty: false },
+    });
+    expect(run(["digest", join(full, "test.f32pack")]).out.split(" ")[0]).toBe(
+      (plan.dataset.fresh_test as Record<string, unknown>).digest,
+    );
+  }, 120_000);
 });
 
 describe("model completion and evaluation arguments", () => {

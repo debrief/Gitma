@@ -4,11 +4,22 @@ import { type RowError, rowError } from "./errors.js";
 import { sliceKeys } from "./slices.js";
 import { ascending, mean, median, percentile } from "./stats.js";
 
+/**
+ * Predictions by scenario index: an in-memory Map, or a prediction file read on demand
+ * (`openPredictionSet`), so evaluation need not hold a split's predictions in memory. Iteration
+ * yields [index, prediction] in file (insertion) order.
+ */
+export interface PredictionLookup {
+  readonly size: number;
+  get(index: number): Prediction | undefined;
+  [Symbol.iterator](): Iterator<[number, Prediction]>;
+}
+
 export interface PredictionSet {
   /** Label used in reports: estimator name, suffixed ":per_timestep" for per-timestep files. */
   label: string;
   estimator: string;
-  byIndex: Map<number, Prediction>;
+  byIndex: PredictionLookup;
 }
 
 export interface EvaluateOptions {

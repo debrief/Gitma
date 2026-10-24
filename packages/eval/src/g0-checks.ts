@@ -3,14 +3,9 @@
 // geometry checks that do not go through the solver.
 import { bearingData, solveBatch } from "@tma/classical";
 import { angleDiff, createRng, degToRad, observe, simulateTruth } from "@tma/sim";
-import type {
-  GateCheck,
-  ParameterRanges,
-  Prediction,
-  Scenario,
-  ScenarioParameters,
-} from "@tma/types";
+import type { GateCheck, ParameterRanges, Scenario, ScenarioParameters } from "@tma/types";
 import { rowError } from "./errors.js";
+import type { PredictionLookup } from "./evaluate.js";
 import { G0_TOLERANCE } from "./gate.js";
 
 const check = (name: string, pass: boolean, detail: string): GateCheck => ({
@@ -28,7 +23,7 @@ export const PER_TIMESTEP_SETTLE_S = 60;
  */
 export function checkPerTimestepRecovery(
   truth: Scenario[],
-  perTimestep: Map<number, Prediction>,
+  perTimestep: Pick<PredictionLookup, "get">,
 ): GateCheck {
   let rows = 0;
   let gated = 0;

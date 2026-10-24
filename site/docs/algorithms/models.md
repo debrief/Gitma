@@ -163,6 +163,38 @@ difference is a train-split header that differs only in `schema_version` (a sche
 training, same data and constants); `tma-g1` logs it and records it in the experiment manifest, and
 `tma-model-predict` accepts it when given `--train <train.f32pack>`.
 
+## Gate scoring and the re-score (iteration 4)
+
+`tma-g2 --split test` scores the carried models, naive and classical on the test split (and the
+held-out split, FR-019), with the other phase beside. Scoring **streams**: each estimator's
+predictions are written to `predictions/<split>.<estimator>.ndjson` batch by batch, and the
+evaluation reads them back by scenario index from the files (`openPredictionSet`), with truth
+re-read from the `.f32pack` on every pass, so memory no longer grows with estimators × scenarios ×
+rows. Outputs are byte-identical to the in-memory path (checked on the seed-205 gate). Before
+anything is scored, every truth and features file the run needs must exist (a run never stops after
+writing `verdict.json`), and `verdict.json` is written last.
+
+SRD §7 allows **one re-score** of an inconclusive G2 on a larger fresh-seed test set, then a fail.
+`tma-g2 --rescore-of <experiment>` (or a decision whose `rescore_of` is set; schema 0.11.0) runs it
+and refuses unless all of these hold:
+
+- the split is test, with a committed decision that names this re-score (`rescore_of`), the plan
+  and a `test_seed` equal to the plan's `fresh_test` seed and to the test data's own header;
+- the re-scored experiment holds an inconclusive G2 `verdict.json` and a `manifest.json`, tested
+  another seed, and is not itself a re-score;
+- the decision's `model_digests` name exactly the carried models, each with the SHA-256 of its
+  `weights.bin` (equal to its manifest's `weights_digest`). This replaces the training-ancestry
+  rule (decision committed before the weights), which still applies to every other test run;
+- the experiment folder has no `verdict.json` yet (one scoring).
+
+A re-score does not score the held-out split (it is the re-scored gate's, already reported) and
+records `# rescore_of: <experiment>`, each model's digest and the skipped held-out split in its
+manifest notes; a later re-score of it is refused. The plan's `dataset.fresh_test.count` makes the
+fresh test split the test split of a `count`-scenario dataset (indices 0.9·count to count):
+100,000 test scenarios are those of a 1,000,000-scenario seed, generated alone by
+`scripts/generate-splits.mjs`, byte-identical to `tma-generate`'s test split and outside the
+generator source the G0 guard pins.
+
 ## Shuffled-label test
 
 `lstm-instantaneous-shuffled` is the instantaneous model trained with each scenario's targets

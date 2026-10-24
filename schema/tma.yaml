@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.10.0
+version: 0.11.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -766,3 +766,27 @@ classes:
         description: >-
           Dataset seed of the test split the decision commits to (the plan's fresh_test seed, or
           its dataset seed); tma-g2 checks it against the plan.
+      rescore_of:
+        range: string
+        description: >-
+          The experiment directory of the inconclusive gate this decision re-scores (SRD §7: one
+          re-score on a larger fresh-seed test set; e.g. experiments/20261024-i4-g2). When present,
+          tma-g2 runs in re-score mode (--rescore-of): the frozen carried models are bound by
+          model_digests instead of by training ancestry, the re-scored gate must be inconclusive
+          and not itself a re-score, and the fresh test seed must differ from its test seed.
+      model_digests:
+        range: ModelDigest
+        multivalued: true
+        inlined_as_list: true
+        description: >-
+          The frozen carried models a re-score scores, by manifest id, with the SHA-256 of each
+          one's weights.bin; tma-g2 refuses a re-score whose carried set differs.
+
+  ModelDigest:
+    description: "A trained model named by its manifest id and the SHA-256 of its weights.bin (schema 0.11.0)."
+    attributes:
+      model: { range: string, required: true, description: "The model's manifest id." }
+      weights_sha256:
+        range: string
+        required: true
+        description: "SHA-256 (hex) of the model's weights.bin; equals its manifest weights_digest."

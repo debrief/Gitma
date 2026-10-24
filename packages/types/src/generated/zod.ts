@@ -1,6 +1,15 @@
 // GENERATED from schema/tma.yaml by packages/types/scripts/generate.ts. Do not edit.
 import { z } from "zod";
 
+/** A trained model named by its manifest id and the SHA-256 of its weights.bin (schema 0.11.0). */
+export const ModelDigest = z.strictObject({
+  /** The model's manifest id. */
+  model: z.string(),
+  /** SHA-256 (hex) of the model's weights.bin; equals its manifest weights_digest. */
+  weights_sha256: z.string(),
+});
+export type ModelDigest = z.infer<typeof ModelDigest>;
+
 /** The single change of the iteration's change round, fixed from validation evidence and committed before phase B trains (spec 003 R5). */
 export const ChangeDecision = z.strictObject({
   carried_set_rule: z.string(),
@@ -8,11 +17,15 @@ export const ChangeDecision = z.strictObject({
   change: z.string(),
   decided_at: z.string(),
   git_commit: z.string(),
+  /** The frozen carried models a re-score scores, by manifest id, with the SHA-256 of each one's weights.bin; tma-g2 refuses a re-score whose carried set differs. */
+  model_digests: z.array(ModelDigest).nullish(),
   phase_a_experiment: z.string(),
   /** The plan this decision pre-registers (configs/<…>/plan.json). Required from iteration 3 (spec 007): tma-g2 scores a test split only with the decision that names its plan. */
   plan: z.string().nullish(),
   /** Validation evidence cited. */
   rationale: z.string(),
+  /** The experiment directory of the inconclusive gate this decision re-scores (SRD §7: one re-score on a larger fresh-seed test set; e.g. experiments/20261024-i4-g2). When present, tma-g2 runs in re-score mode (--rescore-of): the frozen carried models are bound by model_digests instead of by training ancestry, the re-scored gate must be inconclusive and not itself a re-score, and the fresh test seed must differ from its test seed. */
+  rescore_of: z.string().nullish(),
   /** Any gated criterion failed or was inconclusive on validation. */
   stalled: z.boolean(),
   /** Dataset seed of the test split the decision commits to (the plan's fresh_test seed, or its dataset seed); tma-g2 checks it against the plan. */
