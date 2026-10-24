@@ -409,9 +409,31 @@ describe("tma-g2 end to end (tiny)", () => {
   });
 
   describe("re-score of an inconclusive gate (SRD §7, --rescore-of)", () => {
-    /** An inconclusive G2 experiment whose test data were another seed (22; the data are 23). */
+    const PANEL = "agent review panel, round 1 (no rejections; test fixture)";
+    /** The weights digest each raw model's manifest records (its estimator settings). */
+    const recorded = (dir: string, over: Record<string, string> = {}) =>
+      readdirSync(dir)
+        .sort()
+        .map((d) => {
+          const id = readModelManifest(join(dir, d)).id;
+          return {
+            name: id,
+            settings: { weights_digest: over[id] ?? fileSha256(join(dir, d, "weights.bin")) },
+          };
+        });
+    /**
+     * A committed, panel-decided, inconclusive G2 experiment whose test data were another seed
+     * (22; the data are 23), recording the raw models' weights digests.
+     */
     const original = (
-      over: { result?: string; seed?: string; notes?: string[]; manifest?: boolean } = {},
+      over: {
+        result?: string;
+        seed?: string;
+        notes?: string[];
+        manifest?: boolean;
+        decidedBy?: string;
+        weights?: Record<string, string>;
+      } = {},
     ): string => {
       const dir = join(tempDir(), "20261024-g2");
       mkdirSync(dir);
@@ -421,7 +443,7 @@ describe("tma-g2 end to end (tiny)", () => {
         const m = makeManifest(
           "20261024-g2",
           [{ path: test, header }],
-          [],
+          recorded(modelsA, over.weights),
           ["tma-g2 …", ...(over.notes ?? [])],
         );
         writeFileSync(join(dir, "manifest.json"), JSON.stringify(m));
@@ -432,15 +454,18 @@ describe("tma-g2 end to end (tiny)", () => {
           gate: "G2",
           result: over.result ?? "inconclusive",
           checks: [],
-          decided_by: "panel round 1",
+          decided_by: over.decidedBy ?? PANEL,
         }),
       );
       return dir;
     };
-    /** A plan whose fresh test split is the data's own seed (23). */
-    const freshPlan = (seed = "23"): string => {
+    /** A plan whose fresh test split is the data's own seed (23), count 1,000. */
+    const freshPlan = (seed = "23", digest = "PLACEHOLDER"): string => {
       const p = join(tempDir(), "plan.json");
-      writeFileSync(p, JSON.stringify({ dataset: { seed: "205", fresh_test: { seed } } }));
+      writeFileSync(
+        p,
+        JSON.stringify({ dataset: { seed: "205", fresh_test: { seed, count: 1000, digest } } }),
+      );
       return p;
     };
     const digests = (dir: string) =>
@@ -449,11 +474,25 @@ describe("tma-g2 end to end (tiny)", () => {
         .map((d) => ({
           model: readModelManifest(join(dir, d)).id,
           weights_sha256: fileSha256(join(dir, d, "weights.bin")),
+          manifest_sha256: fileSha256(join(dir, d, "manifest.json")),
+          model_json_sha256: fileSha256(join(dir, d, "model.json")),
         }));
     const decision = (over: Record<string, unknown>): string => {
       const d = join(tempDir(), "decision.json");
-      writeFileSync(d, JSON.stringify({ ...DECISION, test_seed: "23", ...over }));
+      writeFileSync(
+        d,
+        JSON.stringify({ ...DECISION, test_seed: "23", fresh_test_count: 1000, ...over }),
+      );
       return d;
+    };
+    let fresh = 0;
+    /** As committed with the decision: the same plan, its fresh-test digest still a placeholder. */
+    const asPreRegistered = (_: string, plan: string): string => {
+      const p = JSON.parse(readFileSync(plan, "utf8")) as {
+        dataset: { fresh_test: { digest: string } };
+      };
+      p.dataset.fresh_test.digest = "PLACEHOLDER";
+      return JSON.stringify(p);
     };
     /** Options for a valid re-score of `orig` with the raw models; `over` breaks one thing. */
     const rescore = (
@@ -476,14 +515,25 @@ describe("tma-g2 end to end (tiny)", () => {
         decisionPrecedes: () => {
           throw new Error("a re-score never asks for training ancestry");
         },
+        planAtDecision: asPreRegistered,
+        experiment: join(dirname(orig), `2026102${String(fresh++ % 10)}-rescore-${String(fresh)}`),
         ...over,
       });
     };
 
-    it("scores the fresh test split only, bound by weights digests, and says so", async () => {
+    it("scores the fresh test split only, bound by file digests, and says so", async () => {
       const orig = original();
-      const exp = join(tempDir(), "rescore");
-      const v = await runG2(rescore(orig, { experiment: exp, compareModels: modelsB }));
+      const exp = join(dirname(orig), "20261025-rescore");
+      // The fresh digest was pinned after the decision: the plan's only allowed change.
+      const plan = freshPlan("23", "a".repeat(64));
+      const o = rescore(orig, { experiment: exp, compareModels: modelsB, plan }, { plan });
+      const v = await runG2(o);
+      const marker = JSON.parse(readFileSync(join(exp, "rescore.json"), "utf8")) as Record<
+        string,
+        string
+      >;
+      expect(Object.keys(marker)).toEqual(["decision", "git_commit", "rescore_of", "started_at"]);
+      expect(marker.rescore_of).toBe(orig);
       expect(JSON.parse(readFileSync(join(exp, "verdict.json"), "utf8"))).toMatchObject({
         gate: "G2",
         result: v.result,
@@ -499,7 +549,7 @@ describe("tma-g2 end to end (tiny)", () => {
       expect(manifest.command_lines).toContain(`# rescore_of: ${orig}`);
       expect(manifest.command_lines.join("\n")).toMatch(/held-out split not scored: a re-score/);
       expect(manifest.command_lines.join("\n")).toMatch(
-        /re-score model lstm: weights.bin sha256 [0-9a-f]{64}/,
+        /re-score model lstm: weights.bin sha256 [0-9a-f]{64}, manifest.json [0-9a-f]{64}, model.json [0-9a-f]{64}/,
       );
       expect(manifest.datasets.map((d) => d.header.split)).toEqual(["train", "test"]);
       expect(readFileSync(join(exp, "seeds.txt"), "utf8")).not.toContain("heldout");
@@ -507,13 +557,15 @@ describe("tma-g2 end to end (tiny)", () => {
       await expect(runG2(rescore(orig, { experiment: exp }))).rejects.toThrow(
         /verdict.json exists: a re-score is scored once/,
       );
+      // Nor into another folder beside it: its marker records the re-score.
+      await expect(runG2(rescore(orig))).rejects.toThrow(/20261025-rescore already re-scored/);
       // A re-score is never re-scored, even if its verdict were inconclusive.
       const again = join(tempDir(), "again");
       mkdirSync(again);
       cpSync(join(exp, "manifest.json"), join(again, "manifest.json"));
       writeFileSync(
         join(again, "verdict.json"),
-        JSON.stringify({ gate: "G2", result: "inconclusive", checks: [], decided_by: "x" }),
+        JSON.stringify({ gate: "G2", result: "inconclusive", checks: [], decided_by: PANEL }),
       );
       await expect(runG2(rescore(again))).rejects.toThrow(/itself a re-score/);
     });
@@ -582,9 +634,7 @@ describe("tma-g2 end to end (tiny)", () => {
         new RegExp(`must name exactly the carried models .*; missing ${first.model}`),
       );
       await expect(
-        runG2(
-          rescore(orig, {}, { model_digests: [...good, { model: "extra", weights_sha256: "1" }] }),
-        ),
+        runG2(rescore(orig, {}, { model_digests: [...good, { ...first, model: "extra" }] })),
       ).rejects.toThrow(/not carried extra/);
       await expect(runG2(rescore(orig, {}, { model_digests: [first, ...good] }))).rejects.toThrow(
         /names a model twice/,
@@ -592,7 +642,7 @@ describe("tma-g2 end to end (tiny)", () => {
       await expect(runG2(rescore(orig, {}, { model_digests: null }))).rejects.toThrow(
         /must name exactly the carried models/,
       );
-      // weights.bin as the decision names, but not as its own manifest records.
+      // Every file as the decision names, but weights.bin not as its own manifest records.
       const copy = tempDir();
       cpSync(modelsA, copy, { recursive: true });
       const id = readdirSync(copy).sort()[0] ?? "";
@@ -600,9 +650,9 @@ describe("tma-g2 end to end (tiny)", () => {
       const m = JSON.parse(readFileSync(mp, "utf8")) as { weights_digest: string };
       m.weights_digest = "2".repeat(64);
       writeFileSync(mp, JSON.stringify(m));
-      await expect(runG2(rescore(orig, { models: copy }))).rejects.toThrow(
-        /its manifest says 2{64}/,
-      );
+      await expect(
+        runG2(rescore(orig, { models: copy }, { model_digests: digests(copy) })),
+      ).rejects.toThrow(/its manifest says 2{64}/);
     });
 
     it("refuses a decision that does not name this re-score, plan or seed", async () => {
@@ -630,6 +680,114 @@ describe("tma-g2 end to end (tiny)", () => {
       ).rejects.toThrow(/test data are seed 23/);
     });
 
+    it("binds the re-scored gate: committed, panel-decided, and the weights it scored", async () => {
+      await expect(
+        runG2(rescore(original(), { isCommitted: (f) => !f.endsWith("verdict.json") })),
+      ).rejects.toThrow(/verdict.json is not committed/);
+      await expect(
+        runG2(rescore(original(), { isCommitted: (f) => !f.endsWith("manifest.json") })),
+      ).rejects.toThrow(/manifest.json is not committed/);
+      await expect(
+        runG2(rescore(original({ decidedBy: "harness (pending agent panel review)" }))),
+      ).rejects.toThrow(/not an agent panel round/);
+      const id = readModelManifest(join(modelsA, readdirSync(modelsA).sort()[0] ?? "")).id;
+      await expect(runG2(rescore(original({ weights: { [id]: "3".repeat(64) } })))).rejects.toThrow(
+        new RegExp(`${id}: weights.bin is sha256 [0-9a-f]{64}, .* recorded 3{64}`),
+      );
+    });
+
+    it("binds every model file: manifest.json and model.json digests", async () => {
+      const orig = original();
+      const [first, ...rest] = digests(modelsA);
+      if (first === undefined) throw new Error("no models");
+      for (const [key, file] of [
+        ["manifest_sha256", "manifest.json"],
+        ["model_json_sha256", "model.json"],
+      ] as const) {
+        await expect(
+          runG2(
+            rescore(orig, {}, { model_digests: [{ ...first, [key]: "4".repeat(64) }, ...rest] }),
+          ),
+        ).rejects.toThrow(
+          new RegExp(`${first.model}: ${file} is sha256 [0-9a-f]{64}, the decision names 4{64}`),
+        );
+      }
+      // A decision of schema 0.11.0 (weights only) no longer parses.
+      await expect(
+        runG2(
+          rescore(
+            orig,
+            {},
+            { model_digests: [{ model: first.model, weights_sha256: first.weights_sha256 }] },
+          ),
+        ),
+      ).rejects.toThrow();
+    });
+
+    it("binds the plan: fresh_test_count, content as pre-registered, clean test data", async () => {
+      const orig = original();
+      await expect(runG2(rescore(orig, {}, { fresh_test_count: 999 }))).rejects.toThrow(
+        /fresh_test_count 999, the plan's dataset.fresh_test.count is 1000/,
+      );
+      await expect(runG2(rescore(orig, {}, { fresh_test_count: null }))).rejects.toThrow(
+        /fresh_test_count/,
+      );
+      await expect(runG2(rescore(orig, { planAtDecision: () => undefined }))).rejects.toThrow(
+        /did not exist at the commit that added/,
+      );
+      // Any change but the fresh digest since the decision was committed is refused.
+      const changed = (_: string, plan: string): string => {
+        const p = JSON.parse(asPreRegistered(_, plan)) as { dataset: { seed: string } };
+        p.dataset.seed = "201";
+        return JSON.stringify(p);
+      };
+      await expect(runG2(rescore(orig, { planAtDecision: changed }))).rejects.toThrow(
+        /changed since .* in more than dataset.fresh_test.digest/,
+      );
+      // Test data generated from a dirty tree.
+      const dirty = tempDir();
+      generateDataset({
+        seed: 23n,
+        count: 120,
+        outDir: dirty,
+        ranges: NOISY,
+        heldoutRanges: NOISY,
+        format: "f32pack",
+        createdBy: "test",
+        provenance: { generator_git_commit: "0".repeat(40), generator_git_dirty: true },
+      });
+      await expect(runG2(rescore(orig, { data: dirty }))).rejects.toThrow(
+        /generated from a working tree with changes/,
+      );
+    });
+
+    it("one re-score per gate: beside the gate, no marker, no second decision, no --allow-dirty", async () => {
+      const orig = original();
+      await expect(
+        runG2(rescore(orig, { experiment: join(tempDir(), "elsewhere") })),
+      ).rejects.toThrow(/is not beside/);
+      // A folder holding only a marker (a re-score that stopped) is not scored again.
+      const stopped = join(dirname(orig), "20261025-stopped");
+      mkdirSync(stopped);
+      writeFileSync(join(stopped, "rescore.json"), JSON.stringify({ rescore_of: orig }));
+      await expect(runG2(rescore(orig, { experiment: stopped }))).rejects.toThrow(
+        /already holds a re-score/,
+      );
+      await expect(runG2(rescore(orig))).rejects.toThrow(/20261025-stopped already re-scored/);
+      // Another committed decision beside the gate naming the same re-score.
+      const orig2 = original();
+      const otherDecision = join(dirname(orig2), "20261024-another-decision");
+      mkdirSync(otherDecision);
+      writeFileSync(
+        join(otherDecision, "decision.json"),
+        JSON.stringify({ ...DECISION, rescore_of: orig2 }),
+      );
+      await expect(runG2(rescore(orig2))).rejects.toThrow(/also names the re-score of/);
+      await expect(runG2(rescore(original(), { allowDirty: true }))).rejects.toThrow(
+        /clean, committed tree only/,
+      );
+    });
+
     it("refuses outside a committed test run with a decision", async () => {
       const orig = original();
       await expect(runG2(rescore(orig, { split: "validation" }))).rejects.toThrow(
@@ -655,14 +813,11 @@ describe("tma-g2 end to end (tiny)", () => {
     );
     expect(existsSync(exp)).toBe(false);
     expect(existsSync(join(d, "predictions"))).toBe(false);
-    // Held-out scoring can be skipped; the manifest says so.
-    const v = await runG2(base({ data: d, split: "test", experiment: exp, heldout: false }));
-    expect(existsSync(join(exp, "verdict.json"))).toBe(true);
-    expect(existsSync(join(exp, "heldout"))).toBe(false);
-    expect(v.gate).toBe("G2");
-    expect(readFileSync(join(exp, "manifest.json"), "utf8")).toContain(
-      "held-out split not scored (--skip-heldout)",
-    );
+    // Only a re-score skips the held-out split (FR-019).
+    await expect(
+      runG2(base({ data: d, split: "test", experiment: exp, heldout: false })),
+    ).rejects.toThrow(/only a re-score skips it/);
+    expect(existsSync(exp)).toBe(false);
   });
 
   it("requireSameRows refuses estimators that predict different rows", () => {

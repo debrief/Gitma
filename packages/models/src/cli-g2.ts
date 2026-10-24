@@ -43,6 +43,7 @@ export async function main(argv: string[]): Promise<unknown> {
     ...(values.plan === undefined ? {} : { plan: values.plan }),
     ...(values["rescore-of"] === undefined ? {} : { rescoreOf: values["rescore-of"] }),
     ...(values["skip-heldout"] ? { heldout: false } : {}),
+    ...(values["allow-dirty"] ? { allowDirty: true } : {}),
     commandLine: ["tma-g2", ...argv].join(" "),
   });
   if (verdict.result !== "pass") process.exitCode = EXIT_GATE_FAILED;

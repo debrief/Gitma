@@ -21,7 +21,7 @@ import {
   realpathSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import {
   CLASSICAL,
   classicalPredict,
@@ -30,7 +30,7 @@ import {
   NAIVE,
   naivePredict,
 } from "@tma/classical";
-import { fileSha256, readDataset } from "@tma/data";
+import { canonicalJson, fileSha256, readDataset } from "@tma/data";
 import {
   BOOTSTRAP_RESAMPLES,
   BOOTSTRAP_SEED,
@@ -41,6 +41,7 @@ import {
   type G1Ids,
   g2Checks,
   g2Verdict,
+  gitCommit,
   makeManifest,
   openPredictionSet,
   openPredictionWriter,
@@ -115,8 +116,15 @@ export interface G2RunOptions {
    * `rescore_of` is set also selects re-score mode; both must then name the same directory.
    */
   rescoreOf?: string;
-  /** Score the held-out split with the test split (FR-019; default true, never in a re-score). */
+  /**
+   * Score the held-out split with the test split (FR-019; default true). Never scored in a
+   * re-score; `false` (`--skip-heldout`) is accepted only in re-score mode.
+   */
   heldout?: boolean;
+  /** `--allow-dirty` was given (refused in re-score mode). */
+  allowDirty?: boolean;
+  /** The plan's text at the commit that added the decision (default: `git show`). */
+  planAtDecision?: (decision: string, plan: string) => string | undefined;
 }
 
 /** `node scripts/train-plan.mjs check-digests <plan> <data>` (G2 panel R19: content, not headers). */
@@ -678,18 +686,119 @@ function freshTestSeedOf(plan: string): string | undefined {
   }
 }
 
+/** The marker a re-score writes into its experiment folder before scoring anything. */
+export const RESCORE_MARKER = "rescore.json";
+
+/** The re-score a folder records: its marker's rescore_of, else its manifest's note; or undefined. */
+function rescoreRecordedIn(dir: string): string | undefined {
+  const marker = join(dir, RESCORE_MARKER);
+  if (existsSync(marker)) {
+    try {
+      const m = JSON.parse(readFileSync(marker, "utf8")) as { rescore_of?: unknown };
+      return typeof m.rescore_of === "string" ? m.rescore_of : "(unreadable marker)";
+    } catch {
+      return "(unreadable marker)";
+    }
+  }
+  const mp = join(dir, "manifest.json");
+  if (!existsSync(mp)) return undefined;
+  try {
+    const lines = (JSON.parse(readFileSync(mp, "utf8")) as { command_lines?: unknown })
+      .command_lines;
+    if (!Array.isArray(lines)) return undefined;
+    const note = lines.find(
+      (l): l is string => typeof l === "string" && l.startsWith(`# ${RESCORE_NOTE}`),
+    );
+    return note?.slice(`# ${RESCORE_NOTE}`.length);
+  } catch {
+    return undefined;
+  }
+}
+
+/** The weights digest a gate's manifest recorded for a model (its estimator's settings_json). */
+function recordedWeightsDigest(manifest: ExperimentManifest, model: string): string | undefined {
+  const e = manifest.estimators.find((x) => x.name === model);
+  if (e === undefined) return undefined;
+  try {
+    const v = (JSON.parse(e.settings_json) as { weights_digest?: unknown }).weights_digest;
+    return typeof v === "string" ? v : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** The commit that first added `path` (git), or undefined. */
+function commitAdding(path: string): string | undefined {
+  try {
+    const added = execFileSync("git", ["log", "--diff-filter=A", "--format=%H", "--", path], {
+      encoding: "utf8",
+    })
+      .trim()
+      .split("\n")
+      .at(-1);
+    return added === undefined || added === "" ? undefined : added;
+  } catch {
+    return undefined;
+  }
+}
+
+/** The plan's text at the commit that added the decision (default: git), or undefined. */
+export function gitPlanAtDecision(decision: string, plan: string): string | undefined {
+  const added = commitAdding(decision);
+  if (added === undefined) return undefined;
+  const rel = relative(process.cwd(), resolve(plan)).replace(/\\/g, "/");
+  try {
+    return execFileSync("git", ["show", `${added}:./${rel}`], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+  } catch {
+    return undefined;
+  }
+}
+
+/** A plan's JSON with `dataset.fresh_test.digest` dropped, canonical (the one field pinned later). */
+function planWithoutFreshDigest(text: string): string | undefined {
+  try {
+    const p = JSON.parse(text) as { dataset?: { fresh_test?: Record<string, unknown> } };
+    const fresh = p.dataset?.fresh_test;
+    if (fresh !== undefined && typeof fresh === "object") delete fresh.digest;
+    return canonicalJson(p);
+  } catch {
+    return undefined;
+  }
+}
+
+/** The plan's `dataset.fresh_test.count`; undefined when it has none. */
+function freshTestCountOf(plan: string): number | undefined {
+  try {
+    const p = JSON.parse(readFileSync(plan, "utf8")) as {
+      dataset?: { fresh_test?: { count?: unknown } };
+    };
+    const count = p.dataset?.fresh_test?.count;
+    return typeof count === "number" ? count : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * SRD §7's one re-score of an inconclusive gate, on a larger fresh-seed test split, bound by
- * content (G2 iteration-4 panel round 1): returns undefined for an ordinary run (no
+ * content (G2 iteration-4 panel rounds 1 and 2): returns undefined for an ordinary run (no
  * `--rescore-of` and no `rescore_of` in the decision), else checks, refusing with a RecordError,
- *  - the split is test, and the committed decision (checked by `requireDecision`) names this
- *    re-score (`rescore_of`, same path as --rescore-of), this plan, and a test seed equal to the
- *    plan's fresh-test seed and to the test data's own seed;
- *  - the re-scored experiment holds an inconclusive G2 `verdict.json` and a `manifest.json`, is
- *    not itself a re-score (no `# rescore_of:` note), and tested another seed than this one;
- *  - the decision's `model_digests` name exactly the carried models, each with the SHA-256 of
- *    its weights.bin, equal to its manifest's weights_digest (in place of training ancestry);
- *  - the experiment folder holds no verdict.json yet (one scoring).
+ *  - the split is test, --allow-dirty is not in force, and the committed decision (checked by
+ *    `requireDecision`) names this re-score (`rescore_of`), this plan, its fresh-test count and a
+ *    test seed equal to the plan's fresh-test seed and to the test data's own (clean) header;
+ *  - the plan differs from its content at the commit that added the decision only in
+ *    `dataset.fresh_test.digest` (pinned once the data exist);
+ *  - the re-scored experiment holds a committed, panel-decided, inconclusive G2 `verdict.json`
+ *    and a committed `manifest.json`, is not itself a re-score, and tested another seed;
+ *  - the decision's `model_digests` name exactly the carried models, each with the SHA-256 of its
+ *    weights.bin (equal to its manifest's weights_digest and to the digest the re-scored gate
+ *    recorded), manifest.json and model.json (in place of training ancestry);
+ *  - one re-score per gate: the experiment is a new folder beside the re-scored one (no
+ *    verdict.json or re-score marker yet); no sibling re-scored the same gate (marker or manifest
+ *    note); no other committed decision beside it names the same re-score.
  */
 export function requireRescore(
   opts: G2RunOptions,
@@ -701,10 +810,14 @@ export function requireRescore(
   const refuse = (what: string, msg: string): never => {
     throw new RecordError(opts.decision ?? "--rescore-of", what, `re-score of ${of}: ${msg}`);
   };
+  const committed = opts.isCommitted ?? gitCommitted;
   if (opts.split !== "test") refuse("split", "a re-score scores the test split only");
+  if (opts.allowDirty === true)
+    refuse("--allow-dirty", "a re-score runs from a clean, committed tree only");
   if (opts.decision === undefined || decision === undefined)
     refuse("--decision", "a re-score needs --decision <the committed decision that names it>");
   const d = decision as ChangeDecision;
+  const decisionPath = opts.decision ?? "";
   if (d.rescore_of == null) refuse("rescore_of", "the decision names no re-score (rescore_of)");
   if (opts.rescoreOf !== undefined && !samePath(d.rescore_of ?? "", opts.rescoreOf))
     refuse("rescore_of", `the decision re-scores ${String(d.rescore_of)}, not ${opts.rescoreOf}`);
@@ -719,18 +832,41 @@ export function requireRescore(
       "test_seed",
       `the decision commits to test seed ${String(d.test_seed)}, the plan's fresh test is seed ${String(fresh)}`,
     );
+  const freshCount = freshTestCountOf(plan);
+  if (d.fresh_test_count == null || d.fresh_test_count !== freshCount)
+    refuse(
+      "fresh_test_count",
+      `the decision commits to fresh_test_count ${String(d.fresh_test_count)}, the plan's dataset.fresh_test.count is ${String(freshCount)}`,
+    );
+  // The plan as pre-registered: only the fresh test digest may have been pinned since.
+  const then = (opts.planAtDecision ?? gitPlanAtDecision)(decisionPath, plan);
+  if (then === undefined)
+    refuse("plan", `${plan} did not exist at the commit that added ${decisionPath}`);
+  const was = planWithoutFreshDigest(then ?? "");
+  if (was === undefined || was !== planWithoutFreshDigest(readFileSync(plan, "utf8")))
+    refuse(
+      "plan",
+      `${plan} changed since ${decisionPath} was committed in more than dataset.fresh_test.digest`,
+    );
+  const testPath = join(opts.data, "test.f32pack");
   const dataSeed = dataTestSeed(opts.data);
   if (dataSeed !== d.test_seed)
     refuse(
       "test_seed",
       `the test data are seed ${String(dataSeed)}, the decision commits to ${String(d.test_seed)}`,
     );
+  if (readDataset(testPath).header.generator_git_dirty !== false)
+    refuse("test data", `${testPath} was generated from a working tree with changes`);
   const seed = d.test_seed ?? "";
 
-  // The re-scored gate: inconclusive, scored, not itself a re-score, another test seed.
+  // The re-scored gate: committed, panel-decided, inconclusive, not itself a re-score, another seed.
   const verdictPath = join(of, "verdict.json");
   const manifestPath = join(of, "manifest.json");
   if (!existsSync(verdictPath)) refuse("verdict", `${verdictPath} does not exist`);
+  if (!existsSync(manifestPath)) refuse("manifest", `${manifestPath} does not exist`);
+  for (const f of [verdictPath, manifestPath]) {
+    if (!committed(f)) refuse("verdict", `${f} is not committed (or has uncommitted changes)`);
+  }
   const verdict = parseRecord(
     GateVerdict,
     JSON.parse(readFileSync(verdictPath, "utf8")),
@@ -743,7 +879,11 @@ export function requireRescore(
       "verdict",
       `${verdictPath} is ${verdict.result}: only an inconclusive gate is re-scored (SRD §7)`,
     );
-  if (!existsSync(manifestPath)) refuse("manifest", `${manifestPath} does not exist`);
+  if (!/panel,? round \d+/i.test(verdict.decided_by))
+    refuse(
+      "verdict",
+      `${verdictPath} is decided by "${verdict.decided_by}", not an agent panel round: re-score a gate only once the panel has decided it`,
+    );
   const manifest = parseRecord(
     ExperimentManifest,
     JSON.parse(readFileSync(manifestPath, "utf8")),
@@ -762,7 +902,7 @@ export function requireRescore(
       `the re-score's test seed ${seed} is the re-scored gate's: a re-score needs a fresh seed`,
     );
 
-  // The frozen models, by content: exactly the carried set, each weights.bin as declared.
+  // The frozen models, by content: exactly the carried set, every file as declared and as scored.
   const digests = d.model_digests ?? [];
   const named = digests.map((x) => x.model);
   const ids = carried.models.map((m) => m.manifest.id);
@@ -777,52 +917,99 @@ export function requireRescore(
     );
   const notes = [
     `${RESCORE_NOTE}${of}`,
-    `re-score (SRD §7): ${of} was G2 inconclusive on test seed ${String(originalSeed)}; this run scores fresh test seed ${seed} alone, with the frozen models below bound by weights digest (decision model_digests) in place of training ancestry`,
+    `re-score (SRD §7): ${of} was G2 inconclusive on test seed ${String(originalSeed)}; this run scores fresh test seed ${seed} alone, with the frozen models below bound by file digests (decision model_digests) in place of training ancestry`,
   ];
   for (const m of carried.models) {
-    const want = digests.find((x) => x.model === m.manifest.id)?.weights_sha256;
-    const got = fileSha256(join(m.dir, "weights.bin"));
-    if (got !== want)
+    const want = digests.find((x) => x.model === m.manifest.id);
+    const files = [
+      ["weights.bin", want?.weights_sha256],
+      ["manifest.json", want?.manifest_sha256],
+      ["model.json", want?.model_json_sha256],
+    ] as const;
+    const got: string[] = [];
+    for (const [file, digest] of files) {
+      const sha = fileSha256(join(m.dir, file));
+      got.push(sha);
+      if (sha !== digest)
+        refuse(
+          "model_digests",
+          `${m.manifest.id}: ${file} is sha256 ${sha}, the decision names ${String(digest)}`,
+        );
+    }
+    const weights = got[0] ?? "";
+    if (m.manifest.weights_digest !== weights)
       refuse(
         "model_digests",
-        `${m.manifest.id}: weights.bin is sha256 ${got}, the decision names ${String(want)}`,
+        `${m.manifest.id}: weights.bin is sha256 ${weights}, its manifest says ${m.manifest.weights_digest}`,
       );
-    if (m.manifest.weights_digest !== got)
+    const recorded = recordedWeightsDigest(manifest, m.manifest.id);
+    if (recorded !== weights)
       refuse(
         "model_digests",
-        `${m.manifest.id}: weights.bin is sha256 ${got}, its manifest says ${m.manifest.weights_digest}`,
+        `${m.manifest.id}: weights.bin is sha256 ${weights}, ${manifestPath} recorded ${String(recorded)}`,
       );
     notes.push(
-      `re-score model ${m.manifest.id}: weights.bin sha256 ${got} (as the decision names)`,
+      `re-score model ${m.manifest.id}: weights.bin sha256 ${got[0] ?? ""}, manifest.json ${got[1] ?? ""}, model.json ${got[2] ?? ""} (as the decision names)`,
     );
   }
-  if (existsSync(join(opts.experiment, "verdict.json")))
+
+  // One re-score per gate (SRD §7).
+  const parent = dirname(resolve(of));
+  const target = resolve(opts.experiment);
+  if (dirname(target) !== parent)
+    refuse(
+      "experiment",
+      `${opts.experiment} is not beside ${of}: a re-score is a new folder in ${parent}`,
+    );
+  if (existsSync(join(target, "verdict.json")))
     refuse(
       "experiment",
       `${join(opts.experiment, "verdict.json")} exists: a re-score is scored once, into a new folder`,
     );
-  // One re-score per gate (SRD §7): no sibling experiment already re-scored this one.
-  const parent = dirname(resolve(of));
   for (const sib of readdirSync(parent)) {
-    const mp = join(parent, sib, "manifest.json");
-    if (resolve(join(parent, sib)) === resolve(opts.experiment) || !existsSync(mp)) continue;
-    const lines = (JSON.parse(readFileSync(mp, "utf8")) as { command_lines?: unknown })
-      .command_lines;
+    const dir = join(parent, sib);
+    if (resolve(dir) === resolve(of)) continue;
+    const recordedOf = rescoreRecordedIn(dir);
     if (
-      Array.isArray(lines) &&
-      lines.some(
-        (l) =>
-          typeof l === "string" &&
-          l.startsWith(`# ${RESCORE_NOTE}`) &&
-          samePath(l.slice(`# ${RESCORE_NOTE}`.length), of),
-      )
+      recordedOf !== undefined &&
+      (resolve(dir) === target || recordedOf.startsWith("(") || samePath(recordedOf, of))
     )
       refuse(
         "rescore_of",
-        `${join(parent, sib)} already re-scored ${of}: SRD §7 allows one re-score`,
+        resolve(dir) === target
+          ? `${opts.experiment} already holds a re-score (${RESCORE_MARKER} or manifest note): a re-score is scored once`
+          : `${dir} already re-scored ${of}: SRD §7 allows one re-score`,
       );
+    const other = join(dir, "decision.json");
+    if (existsSync(other) && !samePath(other, decisionPath) && committed(other)) {
+      try {
+        const r = (JSON.parse(readFileSync(other, "utf8")) as { rescore_of?: unknown }).rescore_of;
+        if (typeof r === "string" && samePath(r, of))
+          refuse(
+            "rescore_of",
+            `${other} also names the re-score of ${of}: one decision, one re-score`,
+          );
+      } catch (e) {
+        if (e instanceof RecordError) throw e;
+      }
+    }
   }
   return { of, originalSeed: originalSeed ?? "", seed, notes };
+}
+
+/** Writes `<experiment>/rescore.json` before anything is scored (one re-score per gate). */
+function writeRescoreMarker(opts: G2RunOptions, r: Rescore): void {
+  mkdirSync(opts.experiment, { recursive: true });
+  writeFileSync(
+    join(opts.experiment, RESCORE_MARKER),
+    `${canonicalJson({
+      decision: opts.decision ?? "",
+      git_commit: gitCommit(),
+      rescore_of: r.of,
+      started_at: new Date().toISOString(),
+    })}\n`,
+    { flag: "wx" },
+  );
 }
 
 /**
@@ -887,8 +1074,15 @@ export async function runG2(opts: G2RunOptions): Promise<GateVerdict> {
   }
   // FR-019: the held-out geometry split is scored with the gate run only (never for validation),
   // and not in a re-score: its held-out split is the re-scored gate's, already reported there.
-  const scoreHeldout = opts.split === "test" && rescore === undefined && opts.heldout !== false;
+  if (opts.heldout === false && rescore === undefined)
+    throw new RecordError(
+      "--skip-heldout",
+      "FR-019",
+      "the held-out split is scored with every gate run; only a re-score skips it",
+    );
+  const scoreHeldout = opts.split === "test" && rescore === undefined;
   preflight(opts.data, scoreHeldout ? [opts.split, "heldout"] : [opts.split], carried);
+  if (rescore !== undefined) writeRescoreMarker(opts, rescore);
   const other: ModelSet | undefined =
     opts.compareModels === undefined ? undefined : findModels(opts.compareModels);
   const trainPath = join(opts.data, "train.f32pack");
@@ -940,9 +1134,7 @@ export async function runG2(opts: G2RunOptions): Promise<GateVerdict> {
     for (const n of h.notes) notes.add(n);
   } else if (opts.split === "test") {
     notes.add(
-      rescore === undefined
-        ? "held-out split not scored (--skip-heldout)"
-        : `held-out split not scored: a re-score scores only its fresh test split (the held-out split was reported with ${rescore.of})`,
+      `held-out split not scored: a re-score scores only its fresh test split (the held-out split was reported with ${rescore?.of ?? ""})`,
     );
   }
 

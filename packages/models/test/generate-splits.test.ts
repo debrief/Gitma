@@ -35,7 +35,7 @@ const args = (seed: string, count: number, out: string): string[] => [
 describe("generate selected splits only (scripts/generate-splits.mjs)", () => {
   it("a split generated alone equals tma-generate's, byte for byte", () => {
     for (const [seed, count] of [
-      ["206", 40],
+      ["207", 40],
       ["18446744073709551615", 23],
     ] as const) {
       const full = tempDir();

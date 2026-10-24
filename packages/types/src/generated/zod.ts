@@ -1,10 +1,14 @@
 // GENERATED from schema/tma.yaml by packages/types/scripts/generate.ts. Do not edit.
 import { z } from "zod";
 
-/** A trained model named by its manifest id and the SHA-256 of its weights.bin (schema 0.11.0). */
+/** A trained model named by its manifest id and the SHA-256 of its files (schema 0.11.0; manifest and model.json digests from 0.11.1). */
 export const ModelDigest = z.strictObject({
+  /** SHA-256 (hex) of the model's manifest.json (schema 0.11.1). */
+  manifest_sha256: z.string(),
   /** The model's manifest id. */
   model: z.string(),
+  /** SHA-256 (hex) of the model's model.json, its topology (schema 0.11.1). */
+  model_json_sha256: z.string(),
   /** SHA-256 (hex) of the model's weights.bin; equals its manifest weights_digest. */
   weights_sha256: z.string(),
 });
@@ -16,8 +20,10 @@ export const ChangeDecision = z.strictObject({
   /** e.g. feature_set: derived */
   change: z.string(),
   decided_at: z.string(),
+  /** The dataset count whose test split a re-score scores (the plan's dataset.fresh_test.count; schema 0.11.1); tma-g2 refuses a plan with another count. */
+  fresh_test_count: z.number().int().nullish(),
   git_commit: z.string(),
-  /** The frozen carried models a re-score scores, by manifest id, with the SHA-256 of each one's weights.bin; tma-g2 refuses a re-score whose carried set differs. */
+  /** The frozen carried models a re-score scores, by manifest id, with the SHA-256 of each one's weights.bin, manifest.json and model.json; tma-g2 refuses a re-score whose carried set or any of those files differs. */
   model_digests: z.array(ModelDigest).nullish(),
   phase_a_experiment: z.string(),
   /** The plan this decision pre-registers (configs/<…>/plan.json). Required from iteration 3 (spec 007): tma-g2 scores a test split only with the decision that names its plan. */

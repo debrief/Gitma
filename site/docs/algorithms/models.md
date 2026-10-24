@@ -178,16 +178,27 @@ SRD §7 allows **one re-score** of an inconclusive G2 on a larger fresh-seed tes
 `tma-g2 --rescore-of <experiment>` (or a decision whose `rescore_of` is set; schema 0.11.0) runs it
 and refuses unless all of these hold:
 
-- the split is test, with a committed decision that names this re-score (`rescore_of`), the plan
-  and a `test_seed` equal to the plan's `fresh_test` seed and to the test data's own header;
-- the re-scored experiment holds an inconclusive G2 `verdict.json` and a `manifest.json`, tested
-  another seed, and is not itself a re-score;
-- the decision's `model_digests` name exactly the carried models, each with the SHA-256 of its
-  `weights.bin` (equal to its manifest's `weights_digest`). This replaces the training-ancestry
-  rule (decision committed before the weights), which still applies to every other test run;
-- the experiment folder has no `verdict.json` yet (one scoring).
+- the split is test, from a clean tree (no `--allow-dirty`), with a committed decision that names
+  this re-score (`rescore_of`), the plan, its `fresh_test_count` and a `test_seed` equal to the
+  plan's `fresh_test` seed and to the test data's own header, which must record a clean tree;
+- the plan differs from its content at the commit that added the decision only in
+  `dataset.fresh_test.digest` (pinned once the data exist);
+- the re-scored experiment holds a committed, panel-decided (`decided_by` names an agent panel
+  round), inconclusive G2 `verdict.json` and a committed `manifest.json`, tested another seed,
+  and is not itself a re-score;
+- the decision's `model_digests` (schema 0.11.1) name exactly the carried models, each with the
+  SHA-256 of its `weights.bin`, `manifest.json` and `model.json`; the weights digest must also
+  equal the model manifest's `weights_digest` and the one the re-scored gate's manifest recorded.
+  This replaces the training-ancestry rule (decision committed before the weights), which still
+  applies to every other test run;
+- one re-score per gate: the experiment is a new folder beside the re-scored one, with no
+  `verdict.json` or `rescore.json` marker; no sibling holds a marker or manifest note naming the
+  same gate; no other committed sibling `decision.json` names it.
 
-A re-score does not score the held-out split (it is the re-scored gate's, already reported) and
+The run writes `rescore.json` (rescore_of, decision, start time, commit) before it scores
+anything, so a re-score that stops part-way still counts as the one re-score.
+
+A re-score does not score the held-out split (`--skip-heldout` is accepted only there) (it is the re-scored gate's, already reported) and
 records `# rescore_of: <experiment>`, each model's digest and the skipped held-out split in its
 manifest notes; a later re-score of it is refused. The plan's `dataset.fresh_test.count` makes the
 fresh test split the test split of a `count`-scenario dataset (indices 0.9·count to count):

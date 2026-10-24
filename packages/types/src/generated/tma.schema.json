@@ -14,11 +14,18 @@
         "decided_at": {
           "type": "string"
         },
+        "fresh_test_count": {
+          "description": "The dataset count whose test split a re-score scores (the plan's dataset.fresh_test.count; schema 0.11.1); tma-g2 refuses a plan with another count.",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "git_commit": {
           "type": "string"
         },
         "model_digests": {
-          "description": "The frozen carried models a re-score scores, by manifest id, with the SHA-256 of each one's weights.bin; tma-g2 refuses a re-score whose carried set differs.",
+          "description": "The frozen carried models a re-score scores, by manifest id, with the SHA-256 of each one's weights.bin, manifest.json and model.json; tma-g2 refuses a re-score whose carried set or any of those files differs.",
           "items": {
             "$ref": "#/$defs/ModelDigest"
           },
@@ -664,10 +671,18 @@
     },
     "ModelDigest": {
       "additionalProperties": false,
-      "description": "A trained model named by its manifest id and the SHA-256 of its weights.bin (schema 0.11.0).",
+      "description": "A trained model named by its manifest id and the SHA-256 of its files (schema 0.11.0; manifest and model.json digests from 0.11.1).",
       "properties": {
+        "manifest_sha256": {
+          "description": "SHA-256 (hex) of the model's manifest.json (schema 0.11.1).",
+          "type": "string"
+        },
         "model": {
           "description": "The model's manifest id.",
+          "type": "string"
+        },
+        "model_json_sha256": {
+          "description": "SHA-256 (hex) of the model's model.json, its topology (schema 0.11.1).",
           "type": "string"
         },
         "weights_sha256": {
@@ -677,7 +692,9 @@
       },
       "required": [
         "model",
-        "weights_sha256"
+        "weights_sha256",
+        "manifest_sha256",
+        "model_json_sha256"
       ],
       "title": "ModelDigest",
       "type": "object"
@@ -1769,5 +1786,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.11.0"
+  "version": "0.11.1"
 }
