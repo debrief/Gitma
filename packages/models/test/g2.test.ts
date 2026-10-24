@@ -9,7 +9,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { fileSha256, generateDataset, readDataset } from "@tma/data";
 import { computeNormalisation, writeFeatures } from "@tma/features";
 import { DEFAULT_RANGES } from "@tma/sim";
@@ -516,6 +516,19 @@ describe("tma-g2 end to end (tiny)", () => {
         JSON.stringify({ gate: "G2", result: "inconclusive", checks: [], decided_by: "x" }),
       );
       await expect(runG2(rescore(again))).rejects.toThrow(/itself a re-score/);
+    });
+
+    it("allows one re-score per gate: a sibling that already re-scored it is refused", async () => {
+      const orig = original();
+      const sibling = join(dirname(orig), "20261025-rescore");
+      mkdirSync(sibling);
+      writeFileSync(
+        join(sibling, "manifest.json"),
+        JSON.stringify({ command_lines: [`# rescore_of: ${orig}`] }),
+      );
+      await expect(
+        runG2(rescore(orig, { experiment: join(dirname(orig), "20261026-second") })),
+      ).rejects.toThrow(/already re-scored/);
     });
 
     it("the decision's rescore_of alone selects re-score mode", async () => {

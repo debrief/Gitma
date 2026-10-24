@@ -57,6 +57,7 @@ export const RESERVED_TEST_SEEDS = {
   203: { for: "iteration 2c G2", plan: "configs/iter2/d/plan.json" },
   204: { for: "iteration 3 G2 (the iteration-3 dataset's own test split)" },
   205: { for: "iteration 4 G2 (the iteration-4 dataset's own test split)" },
+  206: { for: "iteration 4 G2 re-score (SRD §7)", plan: "configs/iter4/r/plan.json" },
 };
 
 class PlanError extends Error {}

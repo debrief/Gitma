@@ -16,11 +16,12 @@ import {
   copyFileSync,
   existsSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   realpathSync,
   writeFileSync,
 } from "node:fs";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import {
   CLASSICAL,
   classicalPredict,
@@ -800,6 +801,27 @@ export function requireRescore(
       "experiment",
       `${join(opts.experiment, "verdict.json")} exists: a re-score is scored once, into a new folder`,
     );
+  // One re-score per gate (SRD §7): no sibling experiment already re-scored this one.
+  const parent = dirname(resolve(of));
+  for (const sib of readdirSync(parent)) {
+    const mp = join(parent, sib, "manifest.json");
+    if (resolve(join(parent, sib)) === resolve(opts.experiment) || !existsSync(mp)) continue;
+    const lines = (JSON.parse(readFileSync(mp, "utf8")) as { command_lines?: unknown })
+      .command_lines;
+    if (
+      Array.isArray(lines) &&
+      lines.some(
+        (l) =>
+          typeof l === "string" &&
+          l.startsWith(`# ${RESCORE_NOTE}`) &&
+          samePath(l.slice(`# ${RESCORE_NOTE}`.length), of),
+      )
+    )
+      refuse(
+        "rescore_of",
+        `${join(parent, sib)} already re-scored ${of}: SRD §7 allows one re-score`,
+      );
+  }
   return { of, originalSeed: originalSeed ?? "", seed, notes };
 }
 
