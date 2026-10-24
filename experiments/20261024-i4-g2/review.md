@@ -231,3 +231,32 @@ round.
 10. *(geometry, numerics)* **The re-score write-up must report the bias** against the forecast
     (median signed speed error about −0.4 kt, slope about 0.88), with n, excluded counts and the
     phase split at both gate points. *Accepted.*
+
+## Round 4 (2026-10-24, short)
+
+Brief: since round 3, check 3a9cce1 (round-3 minors in tooling), 129799b (the digest pin) and
+526ef33 (`tma-g2` removes each other-phase model's own-normalisation features cache after its
+predictions are written: five such files are 8 GB at 100,000 scenarios against about 22 GB free).
+Each reviewer independently regenerated seed 206's test split.
+
+| Reviewer | Verdict | Main points |
+| --- | --- | --- |
+| TMA geometry | approve | Digest reproduced, generated at 526ef33, so it does not depend on the generating commit; ranges identical to seed 205's test split |
+| Estimation and numerics | approve | Digest reproduced; no scoring or decode code changed; 526ef33 cannot change a scored output |
+| Evaluation statistics | approve | Digest reproduced (925,610,440 bytes); the guards touch no statistic; minor: record that the deleted caches can be rebuilt |
+| Reproducibility | approve-with-findings | Digest reproduced; headers differ only in the commit field; minors: the manifest note's text changes ("removed after scoring"); the freeze check compares last-change commits, so the commit range is reviewed by hand |
+| Red team | approve-with-findings | Digest reproduced; 129799b is one line; 526ef33 deletes only the other phase's cache; minor: confirm that no commit after 129799b touches the plan or the decision |
+
+**All five approve; no blocker or major finding.** The re-score may run once as pre-registered.
+
+Minor findings, answered:
+
+1. *(statistics)* **The deleted other-phase caches are reproducible.** Each is rebuilt
+   deterministically from seed 206's test split and that model's committed normalisation, by the
+   same `tma-g2` path.
+2. *(reproducibility)* **"Outputs unchanged" overstates it.** One manifest note's wording changes;
+   no scored output does.
+3. *(reproducibility, red team)* **Review the commit range by hand.** After 129799b, only 526ef33
+   (`packages/models` only) and this record (`experiments/20261024-i4-g2/review.md`) are
+   committed. Neither touches `configs/iter4/r/plan.json` or the decision. The re-score's
+   `review.md` repeats this check at the scoring commit.
