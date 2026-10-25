@@ -22,7 +22,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import {
   CLASSICAL,
   classicalPredict,
@@ -124,6 +124,13 @@ export interface G2RunOptions {
   heldout?: boolean;
   /** `--allow-dirty` was given (refused in re-score mode). */
   allowDirty?: boolean;
+  /**
+   * A committed JSON file mapping prediction file names (in `<data>/predictions`) to the sha256
+   * of an earlier attempt's complete file (`--reuse-predictions`; re-score mode only). Each listed
+   * file is reused, not predicted again, once its sha256 is verified; a listed file that is missing
+   * or differs is refused. For a re-score cut off by its container (decision.md, aborted runs).
+   */
+  reusePredictions?: string;
   /** The plan's text at the commit that added the decision (default: `git show`). */
   planAtDecision?: (decision: string, plan: string) => string | undefined;
   /**
@@ -512,7 +519,7 @@ function* mapIter<T, U>(xs: Iterable<T>, f: (x: T) => U): Generator<U> {
  * set's (same model ids). Nothing of the split is held in memory but one batch.
  */
 export async function scoreSplit(
-  opts: Pick<G2RunOptions, "data">,
+  opts: Pick<G2RunOptions, "data"> & { reuse?: Reuse },
   split: string,
   naive: NaiveModel,
   trainHeader: ReturnType<typeof readDataset>["header"],
@@ -525,27 +532,44 @@ export async function scoreSplit(
   const predDir = join(opts.data, "predictions");
   mkdirSync(predDir, { recursive: true });
   const prefix = `${split}.${tag === undefined ? "" : `${tag}.`}`;
+  /** Whether `path` is listed for reuse; then it must exist with the listed sha256. */
+  const reused = (path: string): boolean => {
+    const want = opts.reuse?.files.get(basename(path));
+    if (want === undefined) return false;
+    opts.reuse?.used.add(basename(path));
+    if (!existsSync(path) || fileSha256(path) !== want)
+      throw new RecordError(
+        path,
+        "--reuse-predictions",
+        `listed for reuse with sha256 ${want}, but ${existsSync(path) ? "its sha256 differs" : "it does not exist"}`,
+      );
+    log(`${split}: reusing ${path} (sha256 verified)`);
+    return true;
+  };
   const naivePath = join(predDir, `${prefix}${NAIVE}.ndjson`);
-  writePredictionStream(
-    naivePath,
-    NAIVE,
-    truthPath,
-    mapIter(truth, (s) => naivePredict(s, naive, "per_timestep")),
-  );
+  if (!reused(naivePath))
+    writePredictionStream(
+      naivePath,
+      NAIVE,
+      truthPath,
+      mapIter(truth, (s) => naivePredict(s, naive, "per_timestep")),
+    );
   const sets: PredictionSet[] = [openPredictionSet(naivePath, truthPath)];
   const classicalPath = join(predDir, `${split}.classical.ndjson`);
-  if (existsSync(classicalPath)) {
-    log(`${split}: reusing ${classicalPath}`);
-  } else {
-    log(
-      `${split}: classical per-timestep on ${String(readDataset(truthPath).header.scenario_count)} scenarios`,
-    );
-    writePredictionStream(
-      classicalPath,
-      CLASSICAL,
-      truthPath,
-      mapIter(truth, (s) => classicalPredict(s, "per_timestep")),
-    );
+  if (!reused(classicalPath)) {
+    if (existsSync(classicalPath)) {
+      log(`${split}: reusing ${classicalPath}`);
+    } else {
+      log(
+        `${split}: classical per-timestep on ${String(readDataset(truthPath).header.scenario_count)} scenarios`,
+      );
+      writePredictionStream(
+        classicalPath,
+        CLASSICAL,
+        truthPath,
+        mapIter(truth, (s) => classicalPredict(s, "per_timestep")),
+      );
+    }
   }
   sets.push(openPredictionSet(classicalPath, truthPath));
   const notes: string[] = [];
@@ -556,6 +580,8 @@ export async function scoreSplit(
       // The other phase may use a feature set the plan did not build (spec 008: raw iteration-3
       // models beside derived iteration-4 ones); it then gets its own inputs, as below.
       const missing = tag !== undefined && !existsSync(path);
+      const out = join(predDir, `${prefix}${m.manifest.id}.ndjson`);
+      const reuse = reused(out);
       let features: FeatureFile | undefined;
       // The other phase's own inputs are a cache, removed once its predictions are written: at
       // 100,000 scenarios each is 1.6 GB (the seed-206 re-score), and nothing reads it again.
@@ -577,24 +603,31 @@ export async function scoreSplit(
           // inputs-only constants from its training data; the carried set never takes this path.
           if (tag === undefined) throw e;
           features?.close();
+          features = undefined;
           const own = join(predDir, `${split}.${tag}.${m.manifest.id}.features.bin`);
-          const header = readDataset(truthPath).header;
-          writeFeatures(
-            own,
-            () => readDataset(truthPath).scenarios(),
-            m.manifest.normalisation,
-            { header, digest: fileSha256(truthPath) },
-            fs,
-          );
-          features = openFeatures(own);
-          ownPath = own;
+          // A reused prediction needs no inputs: the note is the one its own run recorded.
+          if (!reuse) {
+            const header = readDataset(truthPath).header;
+            writeFeatures(
+              own,
+              () => readDataset(truthPath).scenarios(),
+              m.manifest.normalisation,
+              { header, digest: fileSha256(truthPath) },
+              fs,
+            );
+            features = openFeatures(own);
+            ownPath = own;
+          }
           note = `${m.manifest.id} (${tag}): trained on other data, so scored on inputs built with its own normalisation (${own}, removed after scoring)`;
         }
         if (note !== undefined) notes.push(note);
+        if (reuse || features === undefined) {
+          sets.push(openPredictionSet(out, truthPath));
+          continue;
+        }
         // Logged once the inputs are settled: the file actually scored (G2 panel finding 13).
         log(`${split}: predicting ${m.manifest.id} (${fs}, ${features.path})`);
         const model = await loadModel(m.dir);
-        const out = join(predDir, `${prefix}${m.manifest.id}.ndjson`);
         const w = openPredictionWriter(out, m.manifest.id, "per_timestep", truthPath);
         try {
           predictEach(
@@ -1054,6 +1087,55 @@ export function requireRescore(
   return { of, originalSeed: originalSeed ?? "", seed, notes };
 }
 
+/** Prediction files to reuse (name to sha256), and those the run has used. */
+export interface Reuse {
+  files: ReadonlyMap<string, string>;
+  used: Set<string>;
+}
+
+/**
+ * `--reuse-predictions`: a committed `{ "<prediction file>": "<sha256>" }` map, in re-score mode
+ * only (an aborted re-score's complete files, decision.md). Empty when not given.
+ */
+export function readReuse(opts: G2RunOptions, rescore: Rescore | undefined): Reuse {
+  const file = opts.reusePredictions;
+  if (file === undefined) return { files: new Map(), used: new Set() };
+  const refuse = (msg: string): never => {
+    throw new RecordError(file, "--reuse-predictions", msg);
+  };
+  if (rescore === undefined) refuse("predictions are reused only to finish an aborted re-score");
+  if (!(opts.isCommitted ?? gitCommitted)(file))
+    refuse("the list of reused predictions must be committed before the run");
+  let raw: unknown;
+  try {
+    raw = JSON.parse(readFileSync(file, "utf8"));
+  } catch {
+    refuse("not a JSON object of file name to sha256");
+  }
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw))
+    refuse("not a JSON object of file name to sha256");
+  const out = new Map<string, string>();
+  for (const [name, sha] of Object.entries(raw as Record<string, unknown>)) {
+    if (name !== basename(name) || !name.endsWith(".ndjson"))
+      refuse(`${name}: a prediction file name (*.ndjson) in <data>/predictions`);
+    if (typeof sha !== "string" || !/^[0-9a-f]{64}$/.test(sha))
+      refuse(`${name}: not a sha256 (64 lower-case hex digits)`);
+    out.set(name, sha as string);
+  }
+  return { files: out, used: new Set() };
+}
+
+/** Every listed prediction file was used: a stale or mistyped list is refused, not ignored. */
+function requireReuseUsed(file: string | undefined, reuse: Reuse): void {
+  const unused = [...reuse.files.keys()].filter((f) => !reuse.used.has(f));
+  if (file !== undefined && unused.length > 0)
+    throw new RecordError(
+      file,
+      "--reuse-predictions",
+      `listed but not part of this run: ${unused.sort().join(", ")}`,
+    );
+}
+
 /** Writes `<experiment>/rescore.json` before anything is scored (one re-score per gate). */
 function writeRescoreMarker(opts: G2RunOptions, r: Rescore): void {
   mkdirSync(opts.experiment, { recursive: true });
@@ -1137,6 +1219,7 @@ export async function runG2(opts: G2RunOptions): Promise<GateVerdict> {
       "FR-019",
       "the held-out split is scored with every gate run; only a re-score skips it",
     );
+  const reuse = readReuse(opts, rescore);
   const scoreHeldout = opts.split === "test" && rescore === undefined;
   preflight(opts.data, scoreHeldout ? [opts.split, "heldout"] : [opts.split], carried);
   if (rescore !== undefined) writeRescoreMarker(opts, rescore);
@@ -1148,7 +1231,14 @@ export async function runG2(opts: G2RunOptions): Promise<GateVerdict> {
   const verdictFile = opts.split === "test" ? "verdict.json" : DIAGNOSTIC_FILE;
   const decidedBy = opts.split === "test" ? undefined : VALIDATION_DECIDED_BY;
 
-  const scored = await scoreSplit(opts, opts.split, naive, train.header, [carried], log);
+  const scored = await scoreSplit(
+    { data: opts.data, reuse },
+    opts.split,
+    naive,
+    train.header,
+    [carried],
+    log,
+  );
   requireSameRows(scored.sets, opts.split);
   const gate = evaluateInto(
     opts.experiment,
@@ -1160,10 +1250,22 @@ export async function runG2(opts: G2RunOptions): Promise<GateVerdict> {
   );
   copyModels(opts.experiment, carried);
   const notes = new Set(scored.notes);
+  if (reuse.files.size > 0)
+    notes.add(
+      `predictions reused from an earlier attempt, each sha256-verified against ${opts.reusePredictions ?? ""}: ${[...reuse.files.keys()].sort().join(", ")}`,
+    );
 
   if (other !== undefined) {
     const dir = join(opts.experiment, "other-phase");
-    const o = await scoreSplit(opts, opts.split, naive, train.header, [other], log, "other-phase");
+    const o = await scoreSplit(
+      { data: opts.data, reuse },
+      opts.split,
+      naive,
+      train.header,
+      [other],
+      log,
+      "other-phase",
+    );
     // Reported beside the carried set, never gated (research R5).
     evaluateInto(
       dir,
@@ -1181,6 +1283,7 @@ export async function runG2(opts: G2RunOptions): Promise<GateVerdict> {
       prettyJson(pairedComparison(scored, carried.ids, o, other.ids, resamples)),
     );
   }
+  requireReuseUsed(opts.reusePredictions, reuse);
   if (scoreHeldout) {
     const h = await scoreSplit(opts, "heldout", naive, train.header, [carried], log);
     requireSameRows(h.sets, "heldout");

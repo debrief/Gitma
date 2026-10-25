@@ -144,3 +144,50 @@ bf8e1b9a74340ab35a8d2b85a0e18fd6398353eefcae1a5819ff11624d1e69c2  test.naive.ndj
 f85572fcb61bd62ba415e03a0ccf208d0a95af59e63b0f241c7568a4b0006569  test.other-phase.cnn-causal-control.ndjson
 bf8e1b9a74340ab35a8d2b85a0e18fd6398353eefcae1a5819ff11624d1e69c2  test.other-phase.naive.ndjson
 ```
+
+## Attempt 3 (2026-10-24 20:58 UTC, commit 0defa26, node pid 461): aborted again
+
+- **What ran.** The marker is commit e4f9d6a.
+  - **Carried and control sets.** All five iteration-4 models were predicted, and their
+    evaluation files were written. Each of those files hashes identical to attempt 2's.
+  - **Other phase.** Three iteration-3 models were predicted. The fourth
+    (`lstm-instantaneous-shuffled`) had a 403 MB temporary file when logging stopped at 01:28.
+  - **Identity.** All ten prediction files that both attempts completed hash identical.
+- **Why it stopped.** The container was reclaimed with a waiter running. The machine was
+  rebooted at about 01:29. Peak node RSS was 2.19 GB; the lowest free disk was 4.7 GB.
+- **No verdict.** Neither attempt has written `verdict.json`.
+- **Container lifetime is the cause.** Containers lived about 4.1–4.6 hours (16:11–20:17 and
+  20:50–01:28), and a full run takes about 4.5–5.3 hours. Repeating it unchanged is likely to
+  abort again.
+- **The owner's choice (2026-10-25).** The owner chose "resume tooling". Attempt 4 reuses the
+  completed prediction files rather than predicting them a third time.
+
+### Attempt 4: resume from verified predictions (tooling change, for the panel)
+
+`tma-g2 --reuse-predictions <file>` works as follows.
+
+- **Mode and file.** It is accepted only in re-score mode, from a committed file, `reuse.json`
+  in this folder.
+- **What the file holds.** It maps each prediction file name in `data/i4r/predictions` to its
+  SHA-256.
+- **What is reused.** A listed file is reused only after its SHA-256 is verified.
+- **What is refused.** A listed file that is missing, differs or goes unused.
+- **The record.** The manifest notes name every reused file.
+- **Everything else** is unchanged and predicted as usual.
+
+`reuse.json` lists the ten files that attempts 2 and 3 both completed with identical SHA-256.
+
+- **Predicted again** (three files):
+  - `test.other-phase.lstm-instantaneous.ndjson`, which attempt 3 alone completed (sha256
+    c3b78da89db867808fc68787fe72e5796abc9b571157b0c9e6c8180d39b10970). It is re-predicted and
+    must hash equal to that value.
+  - `test.other-phase.lstm-instantaneous-shuffled.ndjson`.
+  - `test.other-phase.mlp-control.ndjson`.
+- **Deleted before the run:** attempt 3's partial and cache files and the evaluation files in
+  this folder. The evaluation files must hash equal to attempt 2's.
+- **Expected run time:** about 2.5 hours, inside one container's life.
+- **Code diff.** `git diff 16f779a <attempt-4 commit> -- packages scripts configs` shows only
+  `packages/models/src/{g2,cli-g2}.ts` and the test.
+- **Gate checks unchanged.** No check or threshold changes, and nothing in the verdict's
+  computation changes.
+- **The marker** `rescore.json` (e4f9d6a) is removed under this note.

@@ -215,7 +215,9 @@ scenarios, the same frozen models (plan `configs/iter4/r`, decision
 `experiments/20261024-i4-rescore-decision/`, schema 0.11.0 `rescore_of`, `model_digests`); a fail or
 inconclusive there is final. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
-refuses a run whose features are not built. A model that is not `complete`
+refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
+re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file
+is reused only if its SHA-256 matches. A model that is not `complete`
 after three chained jobs stops the evaluation job: re-dispatch `train.yml` (it resumes).
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution

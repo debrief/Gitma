@@ -202,6 +202,14 @@ and refuses unless all of these hold:
 The run writes `rescore.json` (rescore_of, decision, start time, commit) before it scores
 anything, so a re-score that stops part-way still counts as the one re-score.
 
+An aborted re-score (the cloud container that ran it was reclaimed) can be finished with
+`--reuse-predictions <reuse.json>`, in re-score mode only. The file is committed before the run and
+maps prediction file names in `<data>/predictions` to the SHA-256 of an earlier attempt's complete
+file. Each listed file is reused once its SHA-256 matches. A listed file that is missing or
+differs is refused, and so is a listed file the run never uses. The manifest notes name every
+reused file. Unlisted files are predicted as usual. Scoring is deterministic, so a reused file is
+the file a fresh prediction would write; the seed-206 attempts showed this byte for byte.
+
 A re-score does not score the held-out split (`--skip-heldout` is accepted only there) (it is the re-scored gate's, already reported) and
 records `# rescore_of: <experiment>`, each model's digest and the skipped held-out split in its
 manifest notes; a later re-score of it is refused. The plan's `dataset.fresh_test.count` makes the

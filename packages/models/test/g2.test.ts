@@ -41,6 +41,8 @@ import {
   type G2RunOptions,
   PAIRED_FILE,
   type PairedRecord,
+  type Rescore,
+  readReuse,
   requireDecision,
   requireSameRows,
   runG2,
@@ -579,6 +581,107 @@ describe("tma-g2 end to end (tiny)", () => {
         JSON.stringify({ gate: "G2", result: "inconclusive", checks: [], decided_by: PANEL }),
       );
       await expect(runG2(rescore(again))).rejects.toThrow(/itself a re-score/);
+    });
+
+    it("finishes an aborted re-score from committed, sha256-verified predictions (--reuse-predictions)", async () => {
+      const orig = original();
+      const exp = join(dirname(orig), "20261025-rescore");
+      // The other phase is trained on other data, so its inputs are its own (spec 007).
+      const foreign = tempDir();
+      cpSync(modelsA, foreign, { recursive: true });
+      for (const id of readdirSync(foreign)) {
+        const mp = join(foreign, id, "manifest.json");
+        const m = JSON.parse(readFileSync(mp, "utf8")) as {
+          normalisation: Record<string, unknown>;
+        };
+        m.normalisation = { ...m.normalisation, train_header_digest: "f".repeat(64) };
+        writeFileSync(mp, JSON.stringify(m));
+      }
+      const first = await runG2(rescore(orig, { experiment: exp, compareModels: foreign }));
+      const outputs = ["metrics.json", "bootstrap.json", "curves.csv", PAIRED_FILE];
+      const hashes = outputs.map((f) => fileSha256(join(exp, f)));
+      const pred = join(data, "predictions");
+      // This run's files: naive, classical and each model, for both sets.
+      const ids = readdirSync(modelsA).map((d) => readModelManifest(join(modelsA, d)).id);
+      const files = [
+        "test.naive.ndjson",
+        "test.classical.ndjson",
+        "test.other-phase.naive.ndjson",
+        ...ids.flatMap((id) => [`test.${id}.ndjson`, `test.other-phase.${id}.ndjson`]),
+      ];
+      expect(files.every((f) => existsSync(join(pred, f)))).toBe(true);
+      const relisted = files.find((f) => f.startsWith("test.other-phase.") && !f.includes("naive"));
+      expect(relisted).toBeDefined();
+      // Aborted before its verdict: the folder and its marker go under a note, as in decision.md.
+      rmSync(exp, { recursive: true });
+      const list = (over: Record<string, string> = {}): string => {
+        const f = join(tempDir(), "reuse.json");
+        const m = Object.fromEntries(
+          files.filter((x) => x !== relisted).map((x) => [x, fileSha256(join(pred, x))]),
+        );
+        writeFileSync(f, JSON.stringify({ ...m, ...over }));
+        return f;
+      };
+      const lines: string[] = [];
+      const reuse = list();
+      const again = await runG2(
+        rescore(orig, {
+          experiment: exp,
+          compareModels: foreign,
+          reusePredictions: reuse,
+          log: (l) => lines.push(l),
+        }),
+      );
+      expect(again.result).toBe(first.result);
+      expect(outputs.map((f) => fileSha256(join(exp, f)))).toEqual(hashes);
+      // Every listed file once, and classical (shared by both sets) twice.
+      expect(lines.filter((l) => l.includes("(sha256 verified)"))).toHaveLength(files.length);
+      // The unlisted file is predicted again, on inputs it builds and removes.
+      expect(lines.some((l) => l.includes("predicting") && l.includes("other-phase"))).toBe(true);
+      expect(readdirSync(pred).some((f) => f.endsWith(".features.bin"))).toBe(false);
+      expect(readFileSync(join(exp, "manifest.json"), "utf8")).toMatch(
+        /predictions reused from an earlier attempt, each sha256-verified against/,
+      );
+      // A listed file that differs, or is missing, is refused, never predicted over.
+      rmSync(exp, { recursive: true });
+      await expect(
+        runG2(
+          rescore(orig, {
+            experiment: exp,
+            compareModels: foreign,
+            reusePredictions: list({ "test.classical.ndjson": "0".repeat(64) }),
+          }),
+        ),
+      ).rejects.toThrow(/its sha256 differs/);
+      // A listed file the run never uses is refused: a stale or mistyped list.
+      rmSync(exp, { recursive: true, force: true });
+      await expect(
+        runG2(
+          rescore(orig, {
+            experiment: exp,
+            compareModels: foreign,
+            reusePredictions: list({ "test.absent.ndjson": "0".repeat(64) }),
+          }),
+        ),
+      ).rejects.toThrow(/listed but not part of this run: test.absent.ndjson/);
+      // A listed file that is missing is refused (here, in a copy of the data).
+      const d = tempDir();
+      cpSync(data, d, { recursive: true });
+      rmSync(join(d, "predictions", "test.classical.ndjson"));
+      rmSync(exp, { recursive: true, force: true });
+      await expect(
+        runG2(rescore(orig, { data: d, experiment: exp, reusePredictions: reuse })),
+      ).rejects.toThrow(/does not exist/);
+      // Only in re-score mode, from a committed list of file names and sha256s.
+      const o = rescore(orig, { experiment: join(tempDir(), "x"), reusePredictions: reuse });
+      expect(() => readReuse(o, undefined)).toThrow(/only to finish an aborted re-score/);
+      const r = { of: orig } as Rescore;
+      expect(() => readReuse({ ...o, isCommitted: () => false }, r)).toThrow(/must be committed/);
+      for (const bad of [{ "../x.ndjson": "0".repeat(64) }, { "x.ndjson": "abc" }, ["x"]]) {
+        const f = join(tempDir(), "bad.json");
+        writeFileSync(f, JSON.stringify(bad));
+        expect(() => readReuse({ ...o, reusePredictions: f }, r)).toThrow(/--reuse-predictions/);
+      }
     });
 
     it("allows one re-score per gate: a sibling that already re-scored it is refused", async () => {

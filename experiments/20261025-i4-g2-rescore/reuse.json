@@ -1,0 +1,12 @@
+{
+  "test.bilstm-time-late.ndjson": "35d332943d630a2f2ec423038f130d0de2e49d9a5a97f5156d491870484c0ad7",
+  "test.classical.ndjson": "55c6b2cef1a01c1bfa265f299e1416f67e97b1ecf98c2bc7887ed9caae6b4b23",
+  "test.cnn-causal-control.ndjson": "98784f634539843b9231ce41eff4e3ad811b41e25972049386c8f7044dbd4da8",
+  "test.lstm-instantaneous-shuffled.ndjson": "701df25a47a9a818aa26c02baf77eac81bdee1618c9c0e3920d297bfe3b93494",
+  "test.lstm-instantaneous.ndjson": "3049e6032493b8eeb9ce7bfc350d2389b70236cfd68db66a4abace841a420cc2",
+  "test.mlp-control.ndjson": "8aef26dd4d0b0d99daa4b61c1a8f1565f23224bf8074bb6441386149f2078203",
+  "test.naive.ndjson": "bf8e1b9a74340ab35a8d2b85a0e18fd6398353eefcae1a5819ff11624d1e69c2",
+  "test.other-phase.bilstm-time-late.ndjson": "97028ed1853832693aedc3e0eff888592fd6717c3d52bd1a77e3f9b4e1b26d3b",
+  "test.other-phase.cnn-causal-control.ndjson": "f85572fcb61bd62ba415e03a0ccf208d0a95af59e63b0f241c7568a4b0006569",
+  "test.other-phase.naive.ndjson": "bf8e1b9a74340ab35a8d2b85a0e18fd6398353eefcae1a5819ff11624d1e69c2"
+}
