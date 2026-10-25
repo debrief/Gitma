@@ -191,3 +191,19 @@ bf8e1b9a74340ab35a8d2b85a0e18fd6398353eefcae1a5819ff11624d1e69c2  test.other-pha
 - **Gate checks unchanged.** No check or threshold changes, and nothing in the verdict's
   computation changes.
 - **The marker** `rescore.json` (e4f9d6a) is removed under this note.
+
+### Panel on attempt 4 (2026-10-25): all five approve with findings, none rejects
+
+| Finding | Severity | Response |
+| --- | --- | --- |
+| **Red team.** The post-review edits (estimator check) were uncommitted. Commit them and record the scoring commit's diff. | major | **Fixed.** The changes are committed with this note. `git diff 16f779a <scoring commit> -- packages scripts configs` touches only `packages/models/src/{g2,cli-g2}.ts` and `packages/models/test/g2.test.ts`. The run starts from a clean tree. |
+| **Geometry.** Check a reused file's header estimator against the model id. | minor | **Fixed.** A mismatch is refused (tested by copying one model's predictions under another's name). |
+| **Numerics.** The fallback `features === undefined` would open an unverified file. | minor | **Fixed.** Only a verified reuse skips prediction; missing inputs throw. |
+| **Reproducibility.** The reused other-phase note said its inputs were built. | minor | **Fixed.** It now reads "reused prediction; its inputs were not rebuilt". |
+| **Statistics, geometry, numerics, reproducibility.** Say whether anyone read attempt 2's `metrics.json` and `bootstrap.json`. | minor | **Answered.** Nobody read them. They were copied to the scratchpad only so they could be hashed. Those copies are now deleted, and their hashes stay above. No model figure from any attempt has been seen. The result will be reported and finished, whatever it is. |
+| **Statistics.** Pre-register what happens on a mismatch. | minor | **Pre-registered.** If attempt 4's evaluation files do not hash equal to attempt 2's, or the re-predicted `test.other-phase.lstm-instantaneous.ndjson` is not c3b78da8…, the verdict is void and the run returns to the panel. |
+| **Statistics.** Attempt 3 was a second repeat, directed by the owner. | minor | **Recorded** as a deviation from the decision's one-repeat rule. This panel ratifies it: the outputs are deterministic and unread, and attempt 3 reproduced attempt 2 byte for byte. |
+| **Reproducibility.** The recompute checks are manual. | minor | Both comparisons are recorded here after the run. |
+| **Numerics.** Record the CPU of each attempt. | minor | **Recorded.** Attempt 1 ran on an Intel Xeon Processor @ 2.30GHz; attempt 4 runs on one @ 2.80GHz, 4 CPUs. The CPUs of attempts 2 and 3 were not logged; TensorFlow logged the same oneDNN flags in every attempt. All agree byte for byte. |
+| **Red team.** Naive and classical are bound by hash only. | minor | Accepted, since the hashes come from two identical attempts. |
+| **Red team.** An unused list entry is reported only at the end of the run. | minor | Accepted. Every entry is used in this run, as the panel's hash checks confirm. |

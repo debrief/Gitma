@@ -618,13 +618,24 @@ export async function scoreSplit(
             features = openFeatures(own);
             ownPath = own;
           }
-          note = `${m.manifest.id} (${tag}): trained on other data, so scored on inputs built with its own normalisation (${own}, removed after scoring)`;
+          note = reuse
+            ? `${m.manifest.id} (${tag}): trained on other data, so scored on inputs built with its own normalisation (reused prediction; its inputs were not rebuilt)`
+            : `${m.manifest.id} (${tag}): trained on other data, so scored on inputs built with its own normalisation (${own}, removed after scoring)`;
         }
         if (note !== undefined) notes.push(note);
-        if (reuse || features === undefined) {
-          sets.push(openPredictionSet(out, truthPath));
+        if (reuse) {
+          const set = openPredictionSet(out, truthPath);
+          // The gate picks results by estimator: a reused file must be this model's.
+          if (set.estimator !== m.manifest.id)
+            throw new RecordError(
+              out,
+              "--reuse-predictions",
+              `holds estimator ${set.estimator}, not ${m.manifest.id}`,
+            );
+          sets.push(set);
           continue;
         }
+        if (features === undefined) throw new Error(`${m.manifest.id}: no inputs to predict from`);
         // Logged once the inputs are settled: the file actually scored (G2 panel finding 13).
         log(`${split}: predicting ${m.manifest.id} (${fs}, ${features.path})`);
         const model = await loadModel(m.dir);

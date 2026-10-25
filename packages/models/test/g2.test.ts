@@ -672,6 +672,26 @@ describe("tma-g2 end to end (tiny)", () => {
       await expect(
         runG2(rescore(orig, { data: d, experiment: exp, reusePredictions: reuse })),
       ).rejects.toThrow(/does not exist/);
+      // A reused file must be its model's, whatever its name: here another model's predictions.
+      const [a, b] = ids;
+      if (a !== undefined && b !== undefined) {
+        cpSync(join(pred, `test.${a}.ndjson`), join(d, "predictions", `test.${b}.ndjson`));
+        cpSync(
+          join(pred, "test.classical.ndjson"),
+          join(d, "predictions", "test.classical.ndjson"),
+        );
+        const swapped = join(tempDir(), "swapped.json");
+        writeFileSync(
+          swapped,
+          JSON.stringify({
+            [`test.${b}.ndjson`]: fileSha256(join(d, "predictions", `test.${b}.ndjson`)),
+          }),
+        );
+        rmSync(exp, { recursive: true, force: true });
+        await expect(
+          runG2(rescore(orig, { data: d, experiment: exp, reusePredictions: swapped })),
+        ).rejects.toThrow(new RegExp(`holds estimator ${a}, not ${b}`));
+      }
       // Only in re-score mode, from a committed list of file names and sha256s.
       const o = rescore(orig, { experiment: join(tempDir(), "x"), reusePredictions: reuse });
       expect(() => readReuse(o, undefined)).toThrow(/only to finish an aborted re-score/);
