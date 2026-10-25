@@ -5,8 +5,8 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Models (iteration 1) | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/pr/56/docs/algorithms/models"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Models (iteration 1) | TMA via ML"><meta data-rh="true" name="description" content="Source SRD §4, spec 002 (research R3–R7)."><meta data-rh="true" property="og:description" content="Source SRD §4, spec 002 (research R3–R7)."><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/pr/56/docs/algorithms/models"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/56/docs/algorithms/models" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/56/docs/algorithms/models" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Models (iteration 1)","item":"https://debrief.github.io/Gitma/pr/56/docs/algorithms/models"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/pr/56/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/pr/56/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/pr/56/assets/css/styles.d219d845.css">
-<script src="/Gitma/pr/56/assets/js/runtime~main.adb54a27.js" defer="defer"></script>
-<script src="/Gitma/pr/56/assets/js/main.3d33c049.js" defer="defer"></script>
+<script src="/Gitma/pr/56/assets/js/runtime~main.d04a9640.js" defer="defer"></script>
+<script src="/Gitma/pr/56/assets/js/main.3518ce3e.js" defer="defer"></script>
 </head>
 <body>
 <svg style="display: none;"><defs>
@@ -70,7 +70,8 @@ from the stored course and speed, so the features files do not change. Per row t
 <p><code>w_r·(Δ log r)² + w_s·(Δ vx² + Δ vy²)</code>,</p>
 <p>with no course term and no loss on the fourth channel. A course error δ on a target at speed v
 costs about <code>w_s·(v·δ / velocity_scale_mps)²</code>, so course on slow targets weighs less than under
-course_speed.</p>
+course_speed. The fourth channel is never read when decoding. Untrained, it drifts freely (up to
+about ±0.8 on the iteration-4 LSTM); this has no effect on any estimate.</p>
 <p>The weight is the post-zig loss mask for causal models (before the zig, range is unobservable, so
 the instantaneous model is not trained to guess it) and the window mask for non-causal models,
 which see the whole window anyway. Every model is still <strong>scored</strong> only after the zig.</p>

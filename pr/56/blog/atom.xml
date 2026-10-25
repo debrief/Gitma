@@ -2,10 +2,140 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://debrief.github.io/Gitma/pr/56/blog</id>
     <title>TMA via ML Blog</title>
-    <updated>2026-10-22T00:00:00.000Z</updated>
+    <updated>2026-10-25T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://debrief.github.io/Gitma/pr/56/blog"/>
     <subtitle>TMA via ML Blog</subtitle>
+    <entry>
+        <title type="html"><![CDATA[Iteration 4: velocity outputs pass G2, still 3 × classical]]></title>
+        <id>https://debrief.github.io/Gitma/pr/56/blog/2026/10/25/iteration-4</id>
+        <link href="https://debrief.github.io/Gitma/pr/56/blog/2026/10/25/iteration-4"/>
+        <updated>2026-10-25T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Iteration 4 changed the models, not the problem. It kept iteration 3's three-leg engagements, made]]></summary>
+        <content type="html"><![CDATA[<p>Iteration 4 changed the models, not the problem. It kept iteration 3's three-leg engagements, made
+the models output a velocity (vx, vy) instead of a course and a speed, and added the derived
+features (bearing rate, its validity flag, the bearing-line intercept).</p>
+<p><strong>G2 passes.</strong> The seed-205 test split was inconclusive at 0.981 kt [0.940, 1.031]. The rules
+allow one re-score on a larger fresh-seed test set, and on seed 206, with 100,000 scenarios and the
+same frozen models, every check passes.</p>
+<ul>
+<li class=""><strong>Speed passes.</strong> The instantaneous LSTM reaches 0.939 kt [0.926, 0.951] at zig + 600 s on the
+σ = 1° slice, against 1 kt. The BiLSTM reaches 0.740 kt.</li>
+<li class=""><strong>Range and course pass easily:</strong> 7.3% and 4.7° for the LSTM, 5.3% and 3.1° for the BiLSTM.</li>
+<li class=""><strong>Better than iteration 3 on the same rows.</strong> Range, course and speed are 16–27% better.</li>
+<li class=""><strong>Still about 3 × classical.</strong> Classical reaches 0.32 kt on the same rows. The LSTM is
+2.1 × classical on range, 3.5 × on course and 2.9 × on speed.</li>
+</ul>
+<p>Records: <a href="https://github.com/debrief/Gitma/tree/main/experiments/20261025-i4-g2-rescore" target="_blank" rel="noopener noreferrer" class=""><code>experiments/20261025-i4-g2-rescore/</code></a>
+and <a href="https://github.com/debrief/Gitma/tree/main/experiments/20261024-i4-g2" target="_blank" rel="noopener noreferrer" class=""><code>experiments/20261024-i4-g2/</code></a>.
+Figures: <a class="" href="https://debrief.github.io/Gitma/pr/56/docs/results/iteration-4">iteration-4 results</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-changed">What changed<a href="https://debrief.github.io/Gitma/pr/56/blog/2026/10/25/iteration-4#what-changed" class="hash-link" aria-label="Direct link to What changed" title="Direct link to What changed" translate="no">​</a></h2>
+<p>Iteration 3 stopped at 1.10 kt. Its LSTM shrank speed estimates towards the middle of the range:
+slow targets were overestimated and fast ones underestimated, while classical was unbiased.</p>
+<ul>
+<li class="">
+<p><strong>Velocity components.</strong> They give one smooth target for course and speed, with no wrap-around
+and no out-of-range values. Course and speed are derived from the vector.</p>
+</li>
+<li class="">
+<p><strong>Not enough on its own.</strong> Research R1 showed that removing the bias alone would only reach
+about 1.01 kt.</p>
+</li>
+<li class="">
+<p><strong>Derived features.</strong> The owner therefore added them, to target the remaining scatter.</p>
+</li>
+<li class="">
+<p><strong>Models.</strong> The iteration-3 configuration (two stacked 128-unit recurrent layers), from scratch
+on seed 205.</p>
+</li>
+<li class="">
+<p><strong>Outputs.</strong> Log range plus vx and vy divided by the top of the target speed range. The loss
+weights each component 4×.</p>
+</li>
+<li class="">
+<p><strong>Pre-registered.</strong> The decision record, forecast and validation rule were committed before
+training. Validation gave 0.94 kt [0.91, 0.98] and carried the pair to test.</p>
+</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="seed-206-test-split-σ--1">Seed-206 test split (σ = 1°)<a href="https://debrief.github.io/Gitma/pr/56/blog/2026/10/25/iteration-4#seed-206-test-split-%CF%83--1" class="hash-link" aria-label="Direct link to Seed-206 test split (σ = 1°)" title="Direct link to Seed-206 test split (σ = 1°)" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Estimator</th><th>Range, zig+300 s</th><th>Course, zig+300 s</th><th>Speed, zig+600 s</th></tr></thead><tbody><tr><td>G2 threshold</td><td>&lt; 20%</td><td>&lt; 10°</td><td>&lt; 1 kt</td></tr><tr><td>lstm-instantaneous</td><td><strong>7.26%</strong></td><td><strong>4.70°</strong></td><td><strong>0.939 kt</strong> [0.926, 0.951]</td></tr><tr><td>bilstm-time-late</td><td><strong>5.30%</strong></td><td><strong>3.13°</strong></td><td><strong>0.740 kt</strong></td></tr><tr><td>iteration-3 models (reported)</td><td>8.7% / 7.2%</td><td>6.24° / 4.31°</td><td>1.12 / 1.00 kt</td></tr><tr><td>classical</td><td>3.40%</td><td>1.36°</td><td>0.319 kt</td></tr><tr><td>naive</td><td>39.9%</td><td>89.8°</td><td>4.23 kt</td></tr></tbody></table>
+<p>n = 49,574 at zig + 300 s and 32,266 at zig + 600 s.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reading-it-critically">Reading it critically<a href="https://debrief.github.io/Gitma/pr/56/blog/2026/10/25/iteration-4#reading-it-critically" class="hash-link" aria-label="Direct link to Reading it critically" title="Direct link to Reading it critically" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>A narrow pass.</strong> 52.6% of the LSTM's speed estimates are within 1 kt, and the P90 is 2.9 kt
+(classical 1.9 kt). The interval's upper bound is well below the threshold, so the pass is not
+in statistical doubt. The margin itself is small.</li>
+<li class=""><strong>The bias is still there.</strong> The LSTM's median signed speed error is −0.33 kt, and −1.5 kt for
+18–20 kt targets: fast targets are called slow. The re-score's forecast predicted this. Removing
+the bias would leave 0.86 kt; most of the error is scatter.</li>
+<li class=""><strong>Short range is hardest.</strong> Under 2 km the LSTM is 0.97 kt against 0.72–0.78 kt at 2–8 km, and
+about 20 × classical. Near closest approach the bearing rate changes fast, and the 3-minute
+trailing rate lags it.</li>
+<li class=""><strong>It took two looks.</strong> Seed 205 was inconclusive and seed 206 passed. The rule allowed exactly
+this. Allowing two looks roughly doubles the false-pass rate at a true median of exactly 1 kt,
+from about 1.8% to about 3.7%. The two points differ by 0.04 kt, about 1.8 standard errors. Most
+of the difference is chance: seed 205's validation split also gave 0.94.</li>
+<li class=""><strong>Two levers at once.</strong> The record cannot say whether velocity outputs or derived features moved
+speed.</li>
+<li class=""><strong>The re-score needed four attempts.</strong> Cloud containers were reclaimed mid-run three times, on a
+run of about 4.5–5.3 hours against containers that live about 4–4.6 hours. The scoring is
+deterministic and every input is bound by digest. Every attempt produced byte-identical files,
+and the result was fixed before anyone saw it. The last attempt reused the verified prediction
+files (<code>tma-g2 --reuse-predictions</code>).</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/pr/56/blog/2026/10/25/iteration-4#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>G2 is passed: the models give usable range, course and speed on the problem as posed. G3 asks for
+parity with classical, which is about 3 × better on speed and course. That is a much larger step
+than any lever so far has given. Under SRD §7, the plan moves to G3, and the owner chooses whether
+and how to pursue it.</p>]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Iteration 3: a second zig helps everyone, classical most]]></title>
         <id>https://debrief.github.io/Gitma/pr/56/blog/2026/10/22/iteration-3</id>
