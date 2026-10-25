@@ -30,6 +30,7 @@ import {
   rmSync,
 } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 export const SPLITS = ["train", "validation", "test", "heldout"];
 const FEATURE_SETS = ["raw", "derived"];
@@ -40,6 +41,7 @@ export const RESERVED_SEEDS = {
   101: "iteration 1",
   202: "iteration 2b G2 (fresh test)",
   203: "iteration 2c G2 (fresh test)",
+  206: "the iteration-4 G2 re-score (fresh test only; SRD §7)",
 };
 /** Dataset seeds owned by one iteration's plans: its test split decided that iteration's gate. */
 export const ITERATION_DATASET_SEEDS = { 201: "2", 204: "3", 205: "4" };
@@ -55,6 +57,7 @@ export const RESERVED_TEST_SEEDS = {
   203: { for: "iteration 2c G2", plan: "configs/iter2/d/plan.json" },
   204: { for: "iteration 3 G2 (the iteration-3 dataset's own test split)" },
   205: { for: "iteration 4 G2 (the iteration-4 dataset's own test split)" },
+  206: { for: "iteration 4 G2 re-score (SRD §7)", plan: "configs/iter4/r/plan.json" },
 };
 
 class PlanError extends Error {}
@@ -153,7 +156,9 @@ export function loadPlan(path) {
       fail(`dataset.digests["${s}.f32pack"] must be a SHA-256 (hex) or a PLACEHOLDER`);
   }
   // A fresh test split (spec 004 decision 17): the test split of another seed's dataset, same
-  // ranges and count, so a test split that already decided a gate is never reused.
+  // ranges, so a test split that already decided a gate is never reused. Its dataset has the
+  // plan's count unless fresh_test.count names another (a larger re-score test set, SRD §7: the
+  // test split of a count-scenario dataset, indices 0.9·count to count).
   if (d.fresh_test !== undefined) {
     const f = d.fresh_test;
     if (!isObject(f) || typeof f.seed !== "string" || !/^\d+$/.test(f.seed))
@@ -168,6 +173,11 @@ export function loadPlan(path) {
       !(/^[0-9a-f]{64}$/.test(f.digest) || PLACEHOLDER.test(f.digest))
     )
       fail("dataset.fresh_test.digest must be a SHA-256 (hex) or a PLACEHOLDER");
+    if (f.count !== undefined && (!Number.isInteger(f.count) || f.count < 1))
+      fail("dataset.fresh_test.count must be a positive integer");
+    const known = ["seed", "digest", "count"];
+    for (const k of Object.keys(f))
+      if (!known.includes(k)) fail(`dataset.fresh_test.${k}: unknown key`);
   }
   if (!FEATURE_SETS.includes(p.feature_set)) fail("feature_set must be raw or derived");
   if (typeof p.configs !== "string") fail("configs must name a folder");
@@ -194,7 +204,7 @@ export function loadPlan(path) {
   if (!isObject(e) || !["tma-g2", "tma-scan"].includes(e.command))
     fail('evaluate.command must be "tma-g2" or "tma-scan"');
   if (!["validation", "test"].includes(e.split)) fail("evaluate.split must be validation or test");
-  for (const k of ["decision", "compare_models"]) {
+  for (const k of ["decision", "compare_models", "rescore_of"]) {
     if (e[k] !== undefined && typeof e[k] !== "string") fail(`evaluate.${k} must be a path`);
   }
   // A validation run may score a reference set beside it on the same rows (spec 007 FR-006:
@@ -203,6 +213,13 @@ export function loadPlan(path) {
     fail("a validation evaluation takes no decision");
   if (e.compare_models !== undefined && !existsSync(e.compare_models))
     fail(`evaluate.compare_models ${e.compare_models} does not exist`);
+  // A re-score (SRD §7) scores the test split with the committed decision that names it.
+  if (e.rescore_of !== undefined) {
+    if (e.split !== "test" || e.decision === undefined)
+      fail("evaluate.rescore_of needs split test and a decision");
+    if (d.fresh_test === undefined) fail("evaluate.rescore_of needs a dataset.fresh_test");
+    if (!existsSync(e.rescore_of)) fail(`evaluate.rescore_of ${e.rescore_of} does not exist`);
+  }
   // A scan (side experiment, spec 003 R20) reports every model on validation; it never gates.
   if (e.command === "tma-scan" && e.split !== "validation")
     fail("a tma-scan evaluation is validation only");
@@ -226,10 +243,42 @@ export function resolve(input, ref) {
   };
 }
 
+/** The JSON header of a .f32pack (bytes 16 to 16 + H). */
+export function packHeader(path) {
+  const fd = openSync(path, "r");
+  try {
+    const fixed = readAt(fd, 0, 16);
+    if (fixed.toString("latin1", 0, 8) !== "TMAPACK\0")
+      throw new PlanError(`${path}: not a .f32pack`);
+    return JSON.parse(readAt(fd, 16, fixed.readUInt32LE(12)).toString("utf8"));
+  } finally {
+    closeSync(fd);
+  }
+}
+
+/** Index range [start, end) of the test split of a `count`-scenario dataset (planSplits). */
+export const testIndices = (count) => [Math.floor(0.9 * count), count];
+
 /** Compares regenerated data with the plan; returns printable lines, throws on any mismatch. */
 export function checkDigests(plan, dir) {
   const lines = [];
   const bad = [];
+  // The fresh test split's header names its seed and index range: the test split of a
+  // fresh_test.count (else dataset.count) dataset of fresh_test.seed.
+  const fresh = plan.dataset.fresh_test;
+  if (fresh !== undefined) {
+    const h = packHeader(join(dir, "test.f32pack"));
+    const [start, end] = testIndices(fresh.count ?? plan.dataset.count);
+    const ok =
+      h.dataset_seed === fresh.seed &&
+      h.split === "test" &&
+      h.index_start === start &&
+      h.index_end === end;
+    lines.push(
+      `${ok ? "ok " : "BAD"} test.f32pack header seed ${String(h.dataset_seed)} index [${String(h.index_start)}, ${String(h.index_end)})${ok ? "" : ` (plan: seed ${fresh.seed} index [${String(start)}, ${String(end)}))`}`,
+    );
+    if (!ok) bad.push("test.f32pack header");
+  }
   for (const s of SPLITS) {
     const f = `${s}.f32pack`;
     const fresh = s === "test" ? plan.dataset.fresh_test : undefined;
@@ -244,7 +293,7 @@ export function checkDigests(plan, dir) {
       f === "test.f32pack" && plan.dataset.fresh_test !== undefined
         ? plan.dataset.fresh_test.digest
         : plan.dataset.digests[f];
-    const placeholder = bad.every((f) => PLACEHOLDER.test(wanted(f)));
+    const placeholder = bad.every((f) => PLACEHOLDER.test(wanted(f) ?? ""));
     throw new PlanError(
       `${lines.join("\n")}\n${placeholder ? "the plan's digests are placeholders: record the ones printed above" : "regenerated data differ from the plan: the generator changed since the plan was pinned"}`,
     );
@@ -252,34 +301,43 @@ export function checkDigests(plan, dir) {
   return lines;
 }
 
+/** scripts/generate-splits.mjs, beside this script (not resolved against the working directory). */
+const GENERATE_SPLITS = fileURLToPath(new URL("./generate-splits.mjs", import.meta.url));
+
 const run = (script, args) =>
   execFileSync(process.execPath, [script, ...args], { stdio: ["ignore", "inherit", "inherit"] });
 
 /**
  * Generate the plan's dataset, check its digests, and build features for `splits`. With a
- * `fresh_test`, test.f32pack is replaced by the test split of that seed's dataset (same count and
- * ranges); the plan's own test split is discarded, never scored.
+ * `fresh_test`, test.f32pack is replaced by the test split of that seed's dataset (same ranges;
+ * count `fresh_test.count`, else the plan's), generated alone by scripts/generate-splits.mjs
+ * (byte-identical to tma-generate's: a split's bytes do not depend on the others), so a large
+ * fresh count never generates its train split; the plan's own test split is discarded, never
+ * scored.
  */
 export function data(plan, dir, splits) {
   const d = plan.dataset;
-  const generate = (seed, out) =>
-    run("packages/data/dist/cli-generate.js", [
-      "--seed",
-      seed,
-      "--count",
-      String(d.count),
-      "--ranges",
-      d.ranges,
-      "--heldout-ranges",
-      d.heldout_ranges,
-      "--out",
-      out,
-    ]);
-  generate(d.seed, dir);
-  if (d.fresh_test !== undefined) {
+  // Tests only: generate from a working tree with changes; headers then record it.
+  const dirty = process.env.TRAIN_PLAN_ALLOW_DIRTY === "1" ? ["--allow-dirty"] : [];
+  const args = (seed, out, count) => [
+    "--seed",
+    seed,
+    "--count",
+    String(count),
+    "--ranges",
+    d.ranges,
+    "--heldout-ranges",
+    d.heldout_ranges,
+    "--out",
+    out,
+    ...dirty,
+  ];
+  run("packages/data/dist/cli-generate.js", args(d.seed, dir, d.count));
+  const fresh = d.fresh_test;
+  if (fresh !== undefined) {
     const tmp = join(dir, ".fresh-test");
     rmSync(tmp, { recursive: true, force: true });
-    generate(d.fresh_test.seed, tmp);
+    run(GENERATE_SPLITS, [...args(fresh.seed, tmp, fresh.count ?? d.count), "--splits", "test"]);
     renameSync(join(tmp, "test.f32pack"), join(dir, "test.f32pack"));
     rmSync(tmp, { recursive: true, force: true });
   }
@@ -331,6 +389,7 @@ export function evaluateArgs(plan, dataDir, models, experiment, planFile) {
     ...(e.decision === undefined ? [] : ["--decision", e.decision]),
     ...(e.compare_models === undefined ? [] : ["--compare-models", e.compare_models]),
     ...(e.split === "test" && planFile !== undefined ? ["--plan", planFile] : []),
+    ...(e.rescore_of === undefined ? [] : ["--rescore-of", e.rescore_of]),
   ];
 }
 

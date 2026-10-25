@@ -1,0 +1,31 @@
+{
+  "id": "i4r",
+  "description": "SRD §7 re-score of the inconclusive iteration-4 G2 (experiments/20261024-i4-g2): the same five frozen models (experiments/20261023-i4a-val/models, bound by weights digests in experiments/20261024-i4-rescore-decision/decision.json), scored once on the test split of fresh seed 206 at 100,000 scenarios (indices 900,000-999,999 of a 1,000,000-scenario dataset, generated alone), with seed 205 training data for the normalisation. The full G2 verdict on this split alone decides; inconclusive counts as fail; not pooled with seed 205; held-out not re-scored; the iteration-3 models beside, reported only.",
+  "dataset": {
+    "seed": "205",
+    "count": 100000,
+    "ranges": "configs/iter4-ranges.json",
+    "heldout_ranges": "configs/iter4-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "d480f55dc45f3d62703ef1c62fbdff8386599622a8625a7d864ae5222aefca0d",
+      "validation.f32pack": "5ca14359b39d45119a7afc2948d325021acafc38371c433ac9b0bb1ebb55af92",
+      "test.f32pack": "7ad4f5510f46b7037cef2c7171374ad2de6646e767aab905cc08ed22321ceea7",
+      "heldout.f32pack": "f4d7927d520bc8f820ad795ce5de716366b7f754775350d360b192f63ff43a4c"
+    },
+    "fresh_test": {
+      "seed": "206",
+      "count": 1000000,
+      "digest": "d2f05cb137bf0ec9568e6a49cf81fc70a8dd7ed1c3d9c74154fad0af3d319897"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/iter4/a",
+  "models": ["instantaneous", "time-late", "causal-cnn", "mlp", "instantaneous-shuffled"],
+  "evaluate": {
+    "command": "tma-g2",
+    "split": "test",
+    "decision": "experiments/20261024-i4-rescore-decision/decision.json",
+    "compare_models": "experiments/20261021-i3a-val/models",
+    "rescore_of": "experiments/20261024-i4-g2"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "carried_set_rule": "The five iteration-4 models of record (experiments/20261023-i4a-val/models, trained at d124f3c), frozen and bound by the weights digests in model_digests; no retraining, recalibration or other change. The iteration-3 models (experiments/20261021-i3a-val/models) are scored beside them as the other phase, reported and never gated.",
+  "change": "none to the models: an SRD §7 re-score of the inconclusive iteration-4 G2 (experiments/20261024-i4-g2) on the test split of fresh seed 206 at 100,000 scenarios (indices 900,000-999,999 of a 1,000,000-scenario dataset under configs/iter4-ranges.json, generator 0.3.0), normalised with seed 205 training inputs as before",
+  "decided_at": "2026-10-24T10:12:46Z",
+  "fresh_test_count": 1000000,
+  "git_commit": "3a014eb71ef25e13d3cd8c2c08246250cc86aa02",
+  "model_digests": [
+    {
+      "manifest_sha256": "c55a324a419d4a9380628f8214db492f210b50bd744c0de34fd6b2e608098e46",
+      "model": "bilstm-time-late",
+      "model_json_sha256": "6a8810cbb1a6482b86466a9bf66731b5c5acfa79040a7e8293f298327321fb3f",
+      "weights_sha256": "71fcb706872943410355db3c493eab171cbdbfe2fee59472d306937d23f562a8"
+    },
+    {
+      "manifest_sha256": "4b9bb75c181e6421ff9cb1099720f8418d54f995e04cf47f9e725a137b25b75f",
+      "model": "cnn-causal-control",
+      "model_json_sha256": "a0b6d9c58555482247a884c51926960fa47043bd68018e5350359dac7c32dd43",
+      "weights_sha256": "b4f4cde209441820b454448a6f5af3fb12305ed2d079d4bdbd368161212afb23"
+    },
+    {
+      "manifest_sha256": "4cec98b4e9d95042015aabbd81345027c7ad81e05757fb5cf76ca29ef1a88580",
+      "model": "lstm-instantaneous",
+      "model_json_sha256": "78b9e12bb7096e65b927b204dc5fe7eeb4483e4a454df86c32fcc0a27101ed61",
+      "weights_sha256": "495e250230d4ad69b44317e03c74fd3dbbc75b76758e65147919e2230adbf9f2"
+    },
+    {
+      "manifest_sha256": "f45ee74cac5b41a1739be52ccc02104851e0f7530894ed186428cdecd87c9428",
+      "model": "lstm-instantaneous-shuffled",
+      "model_json_sha256": "4224e22bd8f487dd5f30dffcf4cb4f46f19518924ce3cc0ae0753a496eb205b9",
+      "weights_sha256": "0bfc5e87bf45c5360636c69753a1cb69a580feb6807a8dc1ca2c07d36aff8a5b"
+    },
+    {
+      "manifest_sha256": "b82fe29de30367cc1fe7b19296c3491f2900522868ab2df763942ce70236ff7e",
+      "model": "mlp-control",
+      "model_json_sha256": "92ace27bc158594feb9e5213a48b333b7a1d3c8d9dfc6de24399547faa3d4717",
+      "weights_sha256": "589be566b998a558739258fd780e291d51132f7cb6beadd4cdaedcbbfb58968f"
+    }
+  ],
+  "phase_a_experiment": "20261024-i4-g2",
+  "plan": "configs/iter4/r/plan.json",
+  "rationale": "G2 on seed 205 was inconclusive: instantaneous speed 0.981 kt [0.940, 1.031], every other check passing (experiments/20261024-i4-g2; panel round 1, all five approve-with-findings). SRD §7 (since 2026-10-11, 730c035): an inconclusive interval allows one re-score on a larger fresh-seed test set, then fails. Owner chose 100,000 scenarios on 2026-10-24. Simulated power (panel statistics): P(pass) 0.78 if the true median is 0.98 kt, 0.98 at 0.97 kt, about 0.02 at 1.00 kt. Rule: the full G2 verdict on seed 206 alone decides (all six G2 checks, the G1 ratio checks, the shuffled-label check; the same sigma = 1 deg slice, gate points, 2,000 resamples, seed 20261011, FR-015); pass is pass, fail or inconclusive is a G2 fail, final; not pooled with seed 205; held-out not re-scored. stalled is true because the iteration-3 models are scored beside (a phase B).",
+  "rescore_of": "experiments/20261024-i4-g2",
+  "stalled": true,
+  "test_seed": "206"
+}

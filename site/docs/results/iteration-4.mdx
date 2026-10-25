@@ -1,0 +1,93 @@
+---
+title: "Results: iteration 4 (velocity outputs and derived features, G2 passed)"
+description: Iteration 4 changed the models — velocity outputs and derived features — and passed G2 on a fresh 100,000-scenario re-score, beside the naive and classical baselines and the iteration-3 models.
+---
+
+# Results: iteration 4 (velocity outputs and derived features, G2 passed)
+
+**Question:** do velocity outputs (vx, vy) and the derived feature set together bring the models
+within the [G2](iteration-2.mdx) speed threshold on [iteration 3](iteration-3.mdx)'s three-leg problem?
+These are Annex A levers B.2.2 and B.2.3, chosen by the owner (decision 23, spec 008).
+
+:::tip G2 passed on the re-score
+**On seed 205's test split, G2 was inconclusive.** Instantaneous speed was 0.981 kt
+[0.940, 1.031]; every other check passed.
+
+**SRD §7 allows one re-score** on a larger fresh-seed test set, where a second inconclusive fails.
+It was pre-registered as seed 206 with 100,000 scenarios and the same frozen models. **The re-score
+passes every check.**
+
+- The instantaneous LSTM reaches **0.939 kt [0.926, 0.951]** at zig + 600 s, against 1 kt.
+- The BiLSTM reaches 0.740 kt.
+- Range and course pass for both models with wide margins.
+
+**The models are still about 3 × classical on speed** (0.319 kt on the same rows). G2 ("useful") is
+passed; G3 (classical parity) is far off.
+
+Records: the
+[re-score](https://github.com/debrief/Gitma/tree/main/experiments/20261025-i4-g2-rescore) (its
+`review.md` holds the run history and the panel), the
+[seed-205 gate](https://github.com/debrief/Gitma/tree/main/experiments/20261024-i4-g2), the
+[re-score decision](https://github.com/debrief/Gitma/blob/main/experiments/20261024-i4-rescore-decision/decision.md),
+and the [write-up](/blog/2026/10/25/iteration-4).
+:::
+
+## Seed-206 test split (the gate), σ = 1°
+
+Medians with 95% bootstrap intervals, 2,000 resamples. P90 in brackets after the medians.
+
+| Estimator | Range, zig + 300 s | Course, zig + 300 s | Speed, zig + 600 s |
+| --- | --- | --- | --- |
+| G2 threshold | < 20% | < 10° | < 1 kt |
+| lstm-instantaneous | **7.26%** [7.19, 7.34] (P90 20.5%) | **4.70°** [4.64, 4.77] (23.1°) | **0.939 kt** [0.926, 0.951] (2.91) |
+| bilstm-time-late | **5.30%** [5.24, 5.36] (14.5%) | **3.13°** [3.09, 3.17] (14.5°) | **0.740 kt** [0.731, 0.751] (2.34) |
+| iteration-3 LSTM / BiLSTM (reported) | 8.7% / 7.2% | 6.24° / 4.31° | 1.124 / 1.004 kt |
+| classical | 3.40% (14.8%) | 1.36° (17.8°) | 0.319 kt (1.89) |
+| naive | 39.9% (156%) | 89.8° (162°) | 4.23 kt (7.65) |
+
+**Rows used:**
+- **At zig + 300 s:** n = 49,574 scenarios (500 excluded; 99% of the slice). At this point the
+  rows are mostly in the second turn.
+- **At zig + 600 s:** n = 32,266 (17,808 excluded; 64% of the slice). Of these rows, 32,228 are
+  on leg 3.
+
+**Other checks:**
+- **G1 ratios** (model over naive range error) are 0.207 and 0.152, both passing.
+- **Time-late not worse** than instantaneous holds at all 21 curve points.
+- **Shuffled labels** score at naive (0.984 ×).
+- **Both controls** are beaten.
+
+## Paired ratios (seed 206)
+
+| Model | Against | Range | Course | Speed |
+| --- | --- | --- | --- | --- |
+| LSTM | classical | 2.14 [2.10, 2.17] | 3.45 [3.39, 3.52] | 2.95 [2.89, 3.02] |
+| LSTM | iteration-3 LSTM | 0.83 [0.82, 0.84] | 0.75 [0.74, 0.77] | 0.84 [0.82, 0.85] |
+| BiLSTM | classical | 1.56 [1.53, 1.59] | 2.30 [2.25, 2.34] | 2.32 [2.28, 2.38] |
+| BiLSTM | iteration-3 BiLSTM | 0.74 [0.73, 0.75] | 0.73 [0.72, 0.74] | 0.74 [0.73, 0.75] |
+
+## Seed 205 and seed 206
+
+The two results are not pooled, as pre-registered.
+
+| Split | n at zig + 600 s | LSTM speed | BiLSTM speed | Classical |
+| --- | --- | --- | --- | --- |
+| seed-205 validation | 3,147 | 0.94 kt [0.91, 0.98] | 0.77 kt | 0.31 kt |
+| seed-205 test (G2 inconclusive) | 3,250 | 0.981 kt [0.940, 1.031] | 0.754 kt | 0.314 kt |
+| **seed-206 test (G2 pass)** | 32,266 | **0.939 kt [0.926, 0.951]** | 0.740 kt | 0.319 kt |
+
+**Why the two test points differ.** Seed 206's point lies just below seed 205's interval: a gap of
+0.042 kt, z ≈ 1.8, two-sided p ≈ 0.07.
+
+- **Mix.** Reweighting seed 206 to seed 205's mix of target speeds and ranges explains about
+  0.006 kt.
+- **Chance.** The rest is chance: seed 205's test draw was high, and its own validation split gave
+  0.94.
+
+**The speed bias is the frozen model's.** It was forecast before the re-score.
+
+| Bias of the LSTM | Seed 206 | Seed 205 |
+| --- | --- | --- |
+| Median signed speed error | −0.33 kt | −0.41 kt |
+| Slope of predicted on true speed | 0.883 | 0.878 |
+| Median signed error, 18–20 kt targets | −1.51 kt | −1.50 kt |

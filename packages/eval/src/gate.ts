@@ -1,14 +1,8 @@
 // G0 (SRD §5): classical solver recovers noise-free truth; naive baseline numbers reproduce.
 import { canonicalJson } from "@tma/data";
-import type {
-  DatasetHeader,
-  GateCheck,
-  GateVerdict,
-  MetricsRecord,
-  Prediction,
-  Scenario,
-} from "@tma/types";
+import type { DatasetHeader, GateCheck, GateVerdict, MetricsRecord, Scenario } from "@tma/types";
 import { rowError } from "./errors.js";
+import type { PredictionLookup } from "./evaluate.js";
 
 /** SC-001 tolerances. */
 export const G0_TOLERANCE = { range_rel: 1e-3, course_deg: 0.1, speed_kt: 0.01 };
@@ -27,7 +21,7 @@ export function isNoiseFree(h: DatasetHeader): boolean {
 export function checkNoiseFreeRecovery(
   header: DatasetHeader,
   truth: Iterable<Scenario>,
-  classical: Map<number, Prediction>,
+  classical: Pick<PredictionLookup, "get">,
 ): GateCheck {
   const name = "classical-recovers-noise-free-truth";
   if (!isNoiseFree(header)) return check(name, false, "truth dataset is not noise-free");

@@ -1,0 +1,1402 @@
+{
+  "level": 0.95,
+  "medians": [
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 0.4005507459154442,
+      "lo": 0.38520394786448736,
+      "median": 0.3923437468980837,
+      "metric": "range_rel",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 93.5236870793751,
+      "lo": 89.95042216129305,
+      "median": 91.68139723002048,
+      "metric": "course_deg",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 4.338748717668504,
+      "lo": 4.179284845521074,
+      "median": 4.261110874283133,
+      "metric": "speed_kt",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 0.40340316603811927,
+      "lo": 0.3800460470023302,
+      "median": 0.3909606860676239,
+      "metric": "range_rel",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 94.60218760969845,
+      "lo": 89.64017129090007,
+      "median": 91.71456121353549,
+      "metric": "course_deg",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 4.380484121664554,
+      "lo": 4.172092586047706,
+      "median": 4.268514929785842,
+      "metric": "speed_kt",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 0.4027836955870945,
+      "lo": 0.3847480696718086,
+      "median": 0.39314126589065274,
+      "metric": "range_rel",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 93.95173822238328,
+      "lo": 88.73930007522665,
+      "median": 91.62721675442936,
+      "metric": "course_deg",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 4.368601298486697,
+      "lo": 4.140699501943897,
+      "median": 4.249784189475535,
+      "metric": "speed_kt",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 0.4151575430327124,
+      "lo": 0.39773611506149903,
+      "median": 0.4073076319756703,
+      "metric": "range_rel",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 93.86926733062107,
+      "lo": 89.86011704255282,
+      "median": 91.66357043628675,
+      "metric": "course_deg",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 4.33940032645899,
+      "lo": 4.162555739895057,
+      "median": 4.247316788906155,
+      "metric": "speed_kt",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 0.41823421774187297,
+      "lo": 0.396102521735075,
+      "median": 0.4071506975465898,
+      "metric": "range_rel",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 95.95252283879914,
+      "lo": 89.87648559089875,
+      "median": 92.78928464924782,
+      "metric": "course_deg",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 4.347264586463088,
+      "lo": 4.099143452572256,
+      "median": 4.230460234903619,
+      "metric": "speed_kt",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 0.4186689362505354,
+      "lo": 0.3929774642441482,
+      "median": 0.40745822288207284,
+      "metric": "range_rel",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 93.36827637009522,
+      "lo": 87.46726590739989,
+      "median": 90.744390671172,
+      "metric": "course_deg",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "naive:per_timestep",
+      "hi": 4.408973700026971,
+      "lo": 4.134442945278488,
+      "median": 4.271803561348637,
+      "metric": "speed_kt",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.0485567020563656,
+      "lo": 0.04583761257958989,
+      "median": 0.04695495918598022,
+      "metric": "range_rel",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 2.0596589121429774,
+      "lo": 1.8725919836073759,
+      "median": 1.9634369146631308,
+      "metric": "course_deg",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.7646082286958302,
+      "lo": 0.7058211588190132,
+      "median": 0.7346059539663096,
+      "metric": "speed_kt",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.035187373518751563,
+      "lo": 0.03241346696377055,
+      "median": 0.0337845339249427,
+      "metric": "range_rel",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 1.458026821744282,
+      "lo": 1.299457149973266,
+      "median": 1.3747599855726564,
+      "metric": "course_deg",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.5588041268466101,
+      "lo": 0.5028051639993556,
+      "median": 0.5281414378024074,
+      "metric": "speed_kt",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.06948239219772738,
+      "lo": 0.0634208240335951,
+      "median": 0.06652642170960085,
+      "metric": "range_rel",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 2.7882334833609455,
+      "lo": 2.5050948215072366,
+      "median": 2.6464063127929225,
+      "metric": "course_deg",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 1.0711410390635545,
+      "lo": 0.9652226326532548,
+      "median": 1.014494638463591,
+      "metric": "speed_kt",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.036069144209603256,
+      "lo": 0.03313507010479302,
+      "median": 0.03455593721214511,
+      "metric": "range_rel",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.9879458823073244,
+      "lo": 0.9005399514986712,
+      "median": 0.9371634258282795,
+      "metric": "course_deg",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.46450345099101054,
+      "lo": 0.42242046051354953,
+      "median": 0.44557667190518796,
+      "metric": "speed_kt",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.025185061570664656,
+      "lo": 0.02307293713281111,
+      "median": 0.024076602999188738,
+      "metric": "range_rel",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.7291909957905612,
+      "lo": 0.6400843478785748,
+      "median": 0.686720879531422,
+      "metric": "course_deg",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.3362468200419943,
+      "lo": 0.2930988245854882,
+      "median": 0.3135563745354473,
+      "metric": "speed_kt",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.052381104091164116,
+      "lo": 0.04762335327294496,
+      "median": 0.05014554662913466,
+      "metric": "range_rel",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 1.397347421157889,
+      "lo": 1.2109105775732205,
+      "median": 1.2858514131466003,
+      "metric": "course_deg",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.6638271504807935,
+      "lo": 0.5868353545022061,
+      "median": 0.6259133439857038,
+      "metric": "speed_kt",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 0.06145201631239972,
+      "lo": 0.05842313314856306,
+      "median": 0.06005455305231817,
+      "metric": "range_rel",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 3.4254764725447946,
+      "lo": 3.2385478553398857,
+      "median": 3.318624993169115,
+      "metric": "course_deg",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 0.9530571058038501,
+      "lo": 0.899741047144451,
+      "median": 0.9268945030723225,
+      "metric": "speed_kt",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 0.053530678795101184,
+      "lo": 0.04997804276037096,
+      "median": 0.05202554852326915,
+      "metric": "range_rel",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 3.143034489986428,
+      "lo": 2.8579970355434554,
+      "median": 2.994737422727111,
+      "metric": "course_deg",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 0.8592509296491387,
+      "lo": 0.8050501475323868,
+      "median": 0.8317262513591197,
+      "metric": "speed_kt",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 0.07114471825645075,
+      "lo": 0.06650203080321651,
+      "median": 0.06885264013010536,
+      "metric": "range_rel",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 3.8103986134100336,
+      "lo": 3.4975759494234495,
+      "median": 3.640818676696956,
+      "metric": "course_deg",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 1.067051568247587,
+      "lo": 0.991654035597074,
+      "median": 1.0326664597117874,
+      "metric": "speed_kt",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 0.061290417967828574,
+      "lo": 0.05776024759799894,
+      "median": 0.059393926925088575,
+      "metric": "range_rel",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 3.015330443074699,
+      "lo": 2.8326706941010484,
+      "median": 2.928867078371508,
+      "metric": "course_deg",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 0.8620293042572219,
+      "lo": 0.8072552361704618,
+      "median": 0.8311070839735653,
+      "metric": "speed_kt",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 0.0552097295949115,
+      "lo": 0.05074502549869102,
+      "median": 0.05251186876988488,
+      "metric": "range_rel",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 2.7984924274943044,
+      "lo": 2.5398195032475814,
+      "median": 2.661553964824719,
+      "metric": "course_deg",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 0.7887821733050417,
+      "lo": 0.7215784126430042,
+      "median": 0.7541477293999097,
+      "metric": "speed_kt",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 0.0701814970851726,
+      "lo": 0.06412944811552869,
+      "median": 0.06737708541383389,
+      "metric": "range_rel",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 3.3444123723804986,
+      "lo": 3.051154785271416,
+      "median": 3.178168983076973,
+      "metric": "course_deg",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 0.9698524845856569,
+      "lo": 0.8910328471634866,
+      "median": 0.9330574431120705,
+      "metric": "speed_kt",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 0.15942996341529853,
+      "lo": 0.1526825717771498,
+      "median": 0.1562852240148648,
+      "metric": "range_rel",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 13.962983041013747,
+      "lo": 13.344359147507351,
+      "median": 13.654504377339292,
+      "metric": "course_deg",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 2.9561618491846335,
+      "lo": 2.8270969638041747,
+      "median": 2.886752999884521,
+      "metric": "speed_kt",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 0.15237959774028456,
+      "lo": 0.14322880624639175,
+      "median": 0.14822929336889826,
+      "metric": "range_rel",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 13.629096073626844,
+      "lo": 12.735281524510798,
+      "median": 13.189204570321342,
+      "metric": "course_deg",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 2.8862459870703017,
+      "lo": 2.6868879923810196,
+      "median": 2.7863802199229823,
+      "metric": "speed_kt",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 0.17190765761877677,
+      "lo": 0.1605292997330407,
+      "median": 0.16561740133861244,
+      "metric": "range_rel",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 14.777551401429466,
+      "lo": 13.689584228916477,
+      "median": 14.16355837618034,
+      "metric": "course_deg",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 3.118773001059085,
+      "lo": 2.8888598374105166,
+      "median": 3.0116436033475473,
+      "metric": "speed_kt",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 0.1529263486461657,
+      "lo": 0.14536434944365353,
+      "median": 0.14876252564088543,
+      "metric": "range_rel",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 11.185691520703163,
+      "lo": 10.417759691940287,
+      "median": 10.771017075813347,
+      "metric": "course_deg",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 3.20019165846493,
+      "lo": 3.038105130453089,
+      "median": 3.116944232718218,
+      "metric": "speed_kt",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 0.14102180327173697,
+      "lo": 0.1300053555955918,
+      "median": 0.1350159730653326,
+      "metric": "range_rel",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 11.219127004237667,
+      "lo": 10.246076056962846,
+      "median": 10.771017075813347,
+      "metric": "course_deg",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 3.2033329133596067,
+      "lo": 2.9921245368973994,
+      "median": 3.097446021456955,
+      "metric": "speed_kt",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 0.16986649655210145,
+      "lo": 0.15743007534065037,
+      "median": 0.1634926486189117,
+      "metric": "range_rel",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 11.412945574767827,
+      "lo": 10.29681582475958,
+      "median": 10.755712129914917,
+      "metric": "course_deg",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 3.2370395330836907,
+      "lo": 3.0225476229937493,
+      "median": 3.134168764942408,
+      "metric": "speed_kt",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 0.08427051428925252,
+      "lo": 0.08044105441056412,
+      "median": 0.08234657647899597,
+      "metric": "range_rel",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 5.45311375031146,
+      "lo": 5.122805802049643,
+      "median": 5.288465210179132,
+      "metric": "course_deg",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 1.3747332677985369,
+      "lo": 1.3074395980999742,
+      "median": 1.3373922838248133,
+      "metric": "speed_kt",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 0.07381341625506202,
+      "lo": 0.06845960935091752,
+      "median": 0.07122887528508555,
+      "metric": "range_rel",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 5.058690816310734,
+      "lo": 4.652407913074204,
+      "median": 4.84790434833497,
+      "metric": "course_deg",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 1.2755061328797308,
+      "lo": 1.186693615841299,
+      "median": 1.2343268672539398,
+      "metric": "speed_kt",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 0.09911982923967315,
+      "lo": 0.09209101080198469,
+      "median": 0.09564195549250393,
+      "metric": "range_rel",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 6.066188115117219,
+      "lo": 5.6052630442626645,
+      "median": 5.856627666097474,
+      "metric": "course_deg",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 1.5342096530592981,
+      "lo": 1.411364711901539,
+      "median": 1.4795625699004138,
+      "metric": "speed_kt",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 0.0781301814763501,
+      "lo": 0.07381967542173469,
+      "median": 0.07594912702215496,
+      "metric": "range_rel",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 3.879820656134043,
+      "lo": 3.6053119382966456,
+      "median": 3.7498831373637214,
+      "metric": "course_deg",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 1.1025160486703298,
+      "lo": 1.0337356357286094,
+      "median": 1.065023516990711,
+      "metric": "speed_kt",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 0.06786612155870242,
+      "lo": 0.062057648737407343,
+      "median": 0.06451992016716139,
+      "metric": "range_rel",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 3.6192899204330766,
+      "lo": 3.2598034040369654,
+      "median": 3.410792419602913,
+      "metric": "course_deg",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 1.0312075233871427,
+      "lo": 0.9404540834365086,
+      "median": 0.980782457355804,
+      "metric": "speed_kt",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 0.09133310378451721,
+      "lo": 0.08527412041212093,
+      "median": 0.08833813653635192,
+      "metric": "range_rel",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 4.3408311043532235,
+      "lo": 3.8714331838332674,
+      "median": 4.0404462148452325,
+      "metric": "course_deg",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 1.2224143833630028,
+      "lo": 1.1163319161334768,
+      "median": 1.1628844053132488,
+      "metric": "speed_kt",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 0.39452768314422726,
+      "lo": 0.3792435075865769,
+      "median": 0.3870316547137267,
+      "metric": "range_rel",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 87.07551357736463,
+      "lo": 83.51264231406402,
+      "median": 85.30182273293904,
+      "metric": "course_deg",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 11.322441819419613,
+      "lo": 10.988349456251568,
+      "median": 11.1753433363484,
+      "metric": "speed_kt",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 0.3971070166396844,
+      "lo": 0.37644538656714943,
+      "median": 0.38734114842263595,
+      "metric": "range_rel",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 89.0738137124699,
+      "lo": 83.98947018581279,
+      "median": 86.71119128703616,
+      "metric": "course_deg",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 11.42055853139247,
+      "lo": 10.913258900395222,
+      "median": 11.200209847021823,
+      "metric": "speed_kt",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 0.39668094784437724,
+      "lo": 0.37550528575721015,
+      "median": 0.38665084553974416,
+      "metric": "range_rel",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 86.70086768347679,
+      "lo": 81.92615199982198,
+      "median": 83.87315206424748,
+      "metric": "course_deg",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 11.367824274571873,
+      "lo": 10.911654383265946,
+      "median": 11.120188950719895,
+      "metric": "speed_kt",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 0.3920694231398467,
+      "lo": 0.37436275579584816,
+      "median": 0.38486601304538726,
+      "metric": "range_rel",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 86.6159035452964,
+      "lo": 82.7097659429192,
+      "median": 84.7092218601704,
+      "metric": "course_deg",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 11.42535313931706,
+      "lo": 10.991699639587113,
+      "median": 11.203372941933749,
+      "metric": "speed_kt",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 0.3997088247679432,
+      "lo": 0.3718063499832114,
+      "median": 0.3865197299923692,
+      "metric": "range_rel",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 89.73516191941093,
+      "lo": 83.01461094595521,
+      "median": 86.03355455910085,
+      "metric": "course_deg",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 11.571523914069386,
+      "lo": 10.930006775691236,
+      "median": 11.25243691723496,
+      "metric": "speed_kt",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 0.3920694231398467,
+      "lo": 0.36888165786733396,
+      "median": 0.3820623617958513,
+      "metric": "range_rel",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 86.32007951460669,
+      "lo": 80.42837347710822,
+      "median": 83.47955558313632,
+      "metric": "course_deg",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 11.449735288228638,
+      "lo": 10.873079496248751,
+      "median": 11.109088863332637,
+      "metric": "speed_kt",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 0.13782428395034588,
+      "lo": 0.13092798809782177,
+      "median": 0.13424283015320837,
+      "metric": "range_rel",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 7.494739255498311,
+      "lo": 7.083097414599983,
+      "median": 7.3147774312468155,
+      "metric": "course_deg",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 1.9395993028809646,
+      "lo": 1.843793809285174,
+      "median": 1.887307465720125,
+      "metric": "speed_kt",
+      "n": 9915,
+      "point": "zig+300s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 0.1372788643240995,
+      "lo": 0.12841250571335514,
+      "median": 0.1326648118404655,
+      "metric": "range_rel",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 7.442010195105813,
+      "lo": 6.89405143875237,
+      "median": 7.184553044531352,
+      "metric": "course_deg",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 1.9384925875241503,
+      "lo": 1.8089406176210736,
+      "median": 1.8678593069121852,
+      "metric": "speed_kt",
+      "n": 4977,
+      "point": "zig+300s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 0.14077123426429958,
+      "lo": 0.1308120816447052,
+      "median": 0.13611739308659845,
+      "metric": "range_rel",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 7.6769140610408915,
+      "lo": 7.115895982994385,
+      "median": 7.418254797172509,
+      "metric": "course_deg",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 1.9978960440946705,
+      "lo": 1.8379701136512838,
+      "median": 1.9025502915516268,
+      "metric": "speed_kt",
+      "n": 4938,
+      "point": "zig+300s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 0.13949694106085367,
+      "lo": 0.1310714478716553,
+      "median": 0.1356002918467696,
+      "metric": "range_rel",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 6.880240796250605,
+      "lo": 6.454494614716199,
+      "median": 6.679706442219029,
+      "metric": "course_deg",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 1.7680463729100402,
+      "lo": 1.6473791769204849,
+      "median": 1.6989137390004891,
+      "metric": "speed_kt",
+      "n": 6439,
+      "point": "zig+600s",
+      "slice": "overall"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 0.1381289748988976,
+      "lo": 0.12809263003554863,
+      "median": 0.13355056510814658,
+      "metric": "range_rel",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 6.909146156818098,
+      "lo": 6.266930789918479,
+      "median": 6.594055870027071,
+      "metric": "course_deg",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 1.74089569767402,
+      "lo": 1.5735156592746016,
+      "median": 1.662180336196273,
+      "metric": "speed_kt",
+      "n": 3250,
+      "point": "zig+600s",
+      "slice": "sigma=1deg"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 0.14483432030329685,
+      "lo": 0.1314029218403188,
+      "median": 0.13864241905669908,
+      "metric": "range_rel",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 6.989195973890648,
+      "lo": 6.443450198828289,
+      "median": 6.739607201240042,
+      "metric": "course_deg",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 1.8458784012763596,
+      "lo": 1.6600137137954745,
+      "median": 1.7609806349159058,
+      "metric": "speed_kt",
+      "n": 3189,
+      "point": "zig+600s",
+      "slice": "sigma=2deg"
+    }
+  ],
+  "method": "percentile bootstrap over scenarios; nearest-rank 2.5th and 97.5th percentiles",
+  "ratios": [
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.12429151732505489,
+      "lo": 0.1157345189932416,
+      "metric": "range_rel",
+      "n": 9915,
+      "point": "zig+300s",
+      "ratio": 0.11967811277027278,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    },
+    {
+      "estimator": "classical:per_timestep",
+      "hi": 0.08897339220046871,
+      "lo": 0.08062406766691364,
+      "metric": "range_rel",
+      "n": 6439,
+      "point": "zig+600s",
+      "ratio": 0.08483989618492893,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 0.15766858614198456,
+      "lo": 0.14796800762529191,
+      "metric": "range_rel",
+      "n": 9915,
+      "point": "zig+300s",
+      "ratio": 0.15306616589946087,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    },
+    {
+      "estimator": "bilstm-time-late:per_timestep",
+      "hi": 0.15091648575360542,
+      "lo": 0.14119358985022265,
+      "metric": "range_rel",
+      "n": 6439,
+      "point": "zig+600s",
+      "ratio": 0.14582080536275427,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 0.40871227574839797,
+      "lo": 0.38722348080484165,
+      "metric": "range_rel",
+      "n": 9915,
+      "point": "zig+300s",
+      "ratio": 0.3983374916778319,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    },
+    {
+      "estimator": "cnn-causal-control:per_timestep",
+      "hi": 0.3782931650277662,
+      "lo": 0.35424536194144224,
+      "metric": "range_rel",
+      "n": 6439,
+      "point": "zig+600s",
+      "ratio": 0.36523382810016053,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 0.21607837797157906,
+      "lo": 0.20323584500786654,
+      "metric": "range_rel",
+      "n": 9915,
+      "point": "zig+300s",
+      "ratio": 0.20988374895748382,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous:per_timestep",
+      "hi": 0.1926887211561089,
+      "lo": 0.17998321637027542,
+      "metric": "range_rel",
+      "n": 6439,
+      "point": "zig+600s",
+      "ratio": 0.18646625071511458,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 0.9980653338686686,
+      "lo": 0.9751909944901318,
+      "metric": "range_rel",
+      "n": 9915,
+      "point": "zig+300s",
+      "ratio": 0.9864606171849174,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    },
+    {
+      "estimator": "lstm-instantaneous-shuffled:per_timestep",
+      "hi": 0.9573228728411574,
+      "lo": 0.9293220933249322,
+      "metric": "range_rel",
+      "n": 6439,
+      "point": "zig+600s",
+      "ratio": 0.9449025327086835,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 0.35299933081300583,
+      "lo": 0.3321760801777916,
+      "metric": "range_rel",
+      "n": 9915,
+      "point": "zig+300s",
+      "ratio": 0.3421561608017157,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    },
+    {
+      "estimator": "mlp-control:per_timestep",
+      "hi": 0.3446455132678006,
+      "lo": 0.3198956399282467,
+      "metric": "range_rel",
+      "n": 6439,
+      "point": "zig+600s",
+      "ratio": 0.33291861286524926,
+      "reference": "naive:per_timestep",
+      "slice": "overall"
+    }
+  ],
+  "resamples": 2000,
+  "seed": "20261011"
+}

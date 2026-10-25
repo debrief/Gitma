@@ -136,6 +136,8 @@ const VIEWER_PAIRS = [
     experiment: "20261021-i3a-val",
     gate: "G2 validation: stopped before test",
   },
+  // The seed-206 re-score (SRD §7) decided G2; seed 205's inconclusive test split is not shown.
+  { id: "i4", label: "Iteration 4", experiment: "20261025-i4-g2-rescore" },
 ];
 const VIEWER_MODELS = { instantaneous: "lstm-instantaneous", timeLate: "bilstm-time-late" };
 /**

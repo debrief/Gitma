@@ -8,7 +8,7 @@ import { type G2Split, runG2 } from "./g2.js";
 const EXIT_GATE_FAILED = 3;
 
 const USAGE =
-  "usage: tma-g2 --data <dir> --models <dir> --experiment <experiments/id> [--split test|validation] [--compare-models <dir>] [--decision <decision.json>] [--plan <plan.json>] [--allow-dirty]";
+  "usage: tma-g2 --data <dir> --models <dir> --experiment <experiments/id> [--split test|validation] [--compare-models <dir>] [--decision <decision.json>] [--plan <plan.json>] [--rescore-of <experiments/id>] [--reuse-predictions <reuse.json>] [--skip-heldout] [--allow-dirty]";
 
 export async function main(argv: string[]): Promise<unknown> {
   const { values } = parseArgs({
@@ -22,6 +22,9 @@ export async function main(argv: string[]): Promise<unknown> {
       "compare-models": { type: "string" },
       decision: { type: "string" },
       plan: { type: "string" },
+      "rescore-of": { type: "string" },
+      "reuse-predictions": { type: "string" },
+      "skip-heldout": { type: "boolean", default: false },
       "allow-dirty": { type: "boolean", default: false },
     },
   });
@@ -39,6 +42,12 @@ export async function main(argv: string[]): Promise<unknown> {
     ...(values["compare-models"] === undefined ? {} : { compareModels: values["compare-models"] }),
     ...(values.decision === undefined ? {} : { decision: values.decision }),
     ...(values.plan === undefined ? {} : { plan: values.plan }),
+    ...(values["rescore-of"] === undefined ? {} : { rescoreOf: values["rescore-of"] }),
+    ...(values["reuse-predictions"] === undefined
+      ? {}
+      : { reusePredictions: values["reuse-predictions"] }),
+    ...(values["skip-heldout"] ? { heldout: false } : {}),
+    ...(values["allow-dirty"] ? { allowDirty: true } : {}),
     commandLine: ["tma-g2", ...argv].join(" "),
   });
   if (verdict.result !== "pass") process.exitCode = EXIT_GATE_FAILED;

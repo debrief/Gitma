@@ -1,0 +1,187 @@
+{
+  "command_lines": [
+    "tma-g2 --data /home/runner/work/Gitma/Gitma/../plan-data --models /home/runner/work/_temp/models --experiment experiments/20261023-i4a-val --split validation --compare-models experiments/20261021-i3a-val/models",
+    "# equivalent: tma-eval --truth /home/runner/work/Gitma/plan-data/validation.f32pack --pred <naive, classical, models> --experiment experiments/20261023-i4a-val --points 300,600 --bootstrap 2000 --compare-to classical:per_timestep",
+    "# equivalent: tma-gate g2 --experiment experiments/20261023-i4a-val --instantaneous lstm-instantaneous --time-late bilstm-time-late --causal-control cnn-causal-control --mlp-control mlp-control --shuffled lstm-instantaneous-shuffled (written to diagnostic.json)",
+    "# bilstm-time-late (other-phase): trained on other data, so scored on inputs built with its own normalisation (/home/runner/work/Gitma/plan-data/predictions/validation.other-phase.bilstm-time-late.features.bin)",
+    "# cnn-causal-control (other-phase): trained on other data, so scored on inputs built with its own normalisation (/home/runner/work/Gitma/plan-data/predictions/validation.other-phase.cnn-causal-control.features.bin)",
+    "# lstm-instantaneous (other-phase): trained on other data, so scored on inputs built with its own normalisation (/home/runner/work/Gitma/plan-data/predictions/validation.other-phase.lstm-instantaneous.features.bin)",
+    "# lstm-instantaneous-shuffled (other-phase): trained on other data, so scored on inputs built with its own normalisation (/home/runner/work/Gitma/plan-data/predictions/validation.other-phase.lstm-instantaneous-shuffled.features.bin)",
+    "# mlp-control (other-phase): trained on other data, so scored on inputs built with its own normalisation (/home/runner/work/Gitma/plan-data/predictions/validation.other-phase.mlp-control.features.bin)"
+  ],
+  "created": "2026-10-23T14:15:01.833Z",
+  "datasets": [
+    {
+      "digest": "f9f1f3f260e1285525fefa03f60b51d5a40d1b1980a99d6c61a243a3f9759879",
+      "header": {
+        "created_by": "tma-generate --seed 205 --count 100000 --ranges sha256:bdf46080f66c24c867245c482121a2f1b82d3f13e59ef8c0cabccde08d1172be --heldout-ranges sha256:7d9e444c99d8ac6f759d0226c1724a7ea19cb34237465730f4d1aed51de1aca1",
+        "dataset_seed": "205",
+        "generator_git_commit": "d124f3cf1d5f8d5dfb03906d1b44137fb2f34790",
+        "generator_git_dirty": false,
+        "generator_version": "0.3.0",
+        "index_end": 80000,
+        "index_start": 0,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0.1,
+            "min": 0
+          },
+          "dt_s": 10,
+          "los_offset_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0.017453292519943295,
+            0.03490658503988659
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "ownship_turn_rate_rad_s": {
+            "max": 0.05235987755982989,
+            "min": 0.008726646259971648
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig2_delay_s": {
+            "max": 300,
+            "min": 180
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          },
+          "zig_rule": "across_los"
+        },
+        "record": "header",
+        "redraw_count": 17201,
+        "scenario_count": 80000,
+        "schema_version": "0.10.0",
+        "split": "train"
+      },
+      "path": "/home/runner/work/Gitma/plan-data/train.f32pack"
+    },
+    {
+      "digest": "2dac0c32c6712f16b7c59a036a523239a61ae21f6d0bf269e02ed401b179ffad",
+      "header": {
+        "created_by": "tma-generate --seed 205 --count 100000 --ranges sha256:bdf46080f66c24c867245c482121a2f1b82d3f13e59ef8c0cabccde08d1172be --heldout-ranges sha256:7d9e444c99d8ac6f759d0226c1724a7ea19cb34237465730f4d1aed51de1aca1",
+        "dataset_seed": "205",
+        "generator_git_commit": "d124f3cf1d5f8d5dfb03906d1b44137fb2f34790",
+        "generator_git_dirty": false,
+        "generator_version": "0.3.0",
+        "index_end": 90000,
+        "index_start": 80000,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0.1,
+            "min": 0
+          },
+          "dt_s": 10,
+          "los_offset_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0.017453292519943295,
+            0.03490658503988659
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "ownship_turn_rate_rad_s": {
+            "max": 0.05235987755982989,
+            "min": 0.008726646259971648
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig2_delay_s": {
+            "max": 300,
+            "min": 180
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          },
+          "zig_rule": "across_los"
+        },
+        "record": "header",
+        "redraw_count": 2152,
+        "scenario_count": 10000,
+        "schema_version": "0.10.0",
+        "split": "validation"
+      },
+      "path": "/home/runner/work/Gitma/plan-data/validation.f32pack"
+    }
+  ],
+  "estimators": [
+    {
+      "name": "naive",
+      "settings_json": "{\"fitted_on\":\"train\",\"means\":{\"course_cos\":0.0022373649115589285,\"course_sin\":-0.0032627185191770854,\"log_range_km\":2.244038702810558,\"n\":5709409,\"speed_mps\":5.914191880350308},\"mode\":\"per_timestep\"}"
+    },
+    {
+      "name": "classical",
+      "settings_json": "{\"grid_every\":6,\"method\":\"levenberg-marquardt\",\"mode\":\"per_timestep\"}"
+    },
+    {
+      "name": "bilstm-time-late",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"derived\",\"id\":\"bilstm-time-late\",\"layers\":2,\"learning_rate\":0.001,\"length_bucketing\":true,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":4,\"max_epochs\":150,\"max_wall_s\":172800,\"model_kind\":\"time_late\",\"output_parameterisation\":\"velocity\",\"patience\":6,\"shuffle_labels\":false,\"tfjs_threads\":1,\"train_seed\":\"1002\",\"units\":128,\"velocity_scale_mps\":10.28888888888889},\"manifest\":\"models/bilstm-time-late/manifest.json\",\"weights_digest\":\"71fcb706872943410355db3c493eab171cbdbfe2fee59472d306937d23f562a8\"}"
+    },
+    {
+      "name": "cnn-causal-control",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"derived\",\"id\":\"cnn-causal-control\",\"kernel_size\":15,\"layers\":3,\"learning_rate\":0.001,\"length_bucketing\":true,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":4,\"max_epochs\":150,\"max_wall_s\":172800,\"model_kind\":\"causal_cnn\",\"output_parameterisation\":\"velocity\",\"patience\":6,\"shuffle_labels\":false,\"tfjs_threads\":1,\"train_seed\":\"1003\",\"units\":64,\"velocity_scale_mps\":10.28888888888889},\"manifest\":\"models/cnn-causal-control/manifest.json\",\"weights_digest\":\"b4f4cde209441820b454448a6f5af3fb12305ed2d079d4bdbd368161212afb23\"}"
+    },
+    {
+      "name": "lstm-instantaneous",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"derived\",\"id\":\"lstm-instantaneous\",\"layers\":2,\"learning_rate\":0.001,\"length_bucketing\":true,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":4,\"max_epochs\":150,\"max_wall_s\":172800,\"model_kind\":\"instantaneous\",\"output_parameterisation\":\"velocity\",\"patience\":6,\"shuffle_labels\":false,\"tfjs_threads\":1,\"train_seed\":\"1001\",\"units\":128,\"velocity_scale_mps\":10.28888888888889},\"manifest\":\"models/lstm-instantaneous/manifest.json\",\"weights_digest\":\"495e250230d4ad69b44317e03c74fd3dbbc75b76758e65147919e2230adbf9f2\"}"
+    },
+    {
+      "name": "lstm-instantaneous-shuffled",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"derived\",\"id\":\"lstm-instantaneous-shuffled\",\"layers\":2,\"learning_rate\":0.001,\"length_bucketing\":true,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":4,\"max_epochs\":150,\"max_wall_s\":172800,\"model_kind\":\"instantaneous\",\"output_parameterisation\":\"velocity\",\"patience\":6,\"shuffle_labels\":true,\"tfjs_threads\":1,\"train_seed\":\"1005\",\"units\":128,\"velocity_scale_mps\":10.28888888888889},\"manifest\":\"models/lstm-instantaneous-shuffled/manifest.json\",\"weights_digest\":\"0bfc5e87bf45c5360636c69753a1cb69a580feb6807a8dc1ca2c07d36aff8a5b\"}"
+    },
+    {
+      "name": "mlp-control",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"derived\",\"id\":\"mlp-control\",\"learning_rate\":0.001,\"length_bucketing\":false,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":4,\"max_epochs\":150,\"max_wall_s\":172800,\"model_kind\":\"mlp\",\"output_parameterisation\":\"velocity\",\"patience\":6,\"shuffle_labels\":false,\"tfjs_threads\":1,\"train_seed\":\"1004\",\"units\":256,\"velocity_scale_mps\":10.28888888888889},\"manifest\":\"models/mlp-control/manifest.json\",\"weights_digest\":\"589be566b998a558739258fd780e291d51132f7cb6beadd4cdaedcbbfb58968f\"}"
+    }
+  ],
+  "generator_version": "0.3.0",
+  "git_commit": "d124f3cf1d5f8d5dfb03906d1b44137fb2f34790",
+  "git_dirty": false,
+  "id": "20261023-i4a-val",
+  "node_version": "v22.22.0",
+  "schema_version": "0.10.0"
+}

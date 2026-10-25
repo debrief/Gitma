@@ -1,0 +1,207 @@
+{
+  "best_epoch": 8,
+  "best_val_loss": 2.0133559654039472,
+  "complete": true,
+  "config": {
+    "batch_size": 256,
+    "feature_set": "derived",
+    "id": "lstm-instantaneous-shuffled",
+    "layers": 2,
+    "learning_rate": 0.001,
+    "length_bucketing": true,
+    "loss_weight_course": 1,
+    "loss_weight_range": 1,
+    "loss_weight_speed": 4,
+    "max_epochs": 150,
+    "max_wall_s": 172800,
+    "model_kind": "instantaneous",
+    "output_parameterisation": "velocity",
+    "patience": 6,
+    "shuffle_labels": true,
+    "tfjs_threads": 1,
+    "train_seed": "1005",
+    "units": 128,
+    "velocity_scale_mps": 10.28888888888889
+  },
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+  "epochs": [
+    {
+      "epoch": 0,
+      "seconds": 699.837747629,
+      "train_loss": 2.147983021629504,
+      "val_loss": 2.029029656677472
+    },
+    {
+      "epoch": 1,
+      "seconds": 1401.198271445,
+      "train_loss": 2.0359210141550617,
+      "val_loss": 2.0390046427722615
+    },
+    {
+      "epoch": 2,
+      "seconds": 2099.818816466,
+      "train_loss": 2.0344178863226796,
+      "val_loss": 2.0204653902618968
+    },
+    {
+      "epoch": 3,
+      "seconds": 2806.6030677539998,
+      "train_loss": 2.0312379065413064,
+      "val_loss": 2.031844286127689
+    },
+    {
+      "epoch": 4,
+      "seconds": 3512.122116214,
+      "train_loss": 2.0311227473207176,
+      "val_loss": 2.038289427735269
+    },
+    {
+      "epoch": 5,
+      "seconds": 4223.711998627,
+      "train_loss": 2.030172010580191,
+      "val_loss": 2.0209683589761362
+    },
+    {
+      "epoch": 6,
+      "seconds": 4927.585439205,
+      "train_loss": 2.0289811105392994,
+      "val_loss": 2.023292432278463
+    },
+    {
+      "epoch": 7,
+      "seconds": 5631.701964575999,
+      "train_loss": 2.0292519548068793,
+      "val_loss": 2.0240587238620558
+    },
+    {
+      "epoch": 8,
+      "seconds": 6332.040625979,
+      "train_loss": 2.029146616832136,
+      "val_loss": 2.0133559654039472
+    },
+    {
+      "epoch": 9,
+      "seconds": 7039.415568445999,
+      "train_loss": 2.029960332587123,
+      "val_loss": 2.034014832361757
+    },
+    {
+      "epoch": 10,
+      "seconds": 7739.073631136999,
+      "train_loss": 2.027462376192355,
+      "val_loss": 2.021909049541059
+    },
+    {
+      "epoch": 11,
+      "seconds": 8439.157316376999,
+      "train_loss": 2.0282672533211996,
+      "val_loss": 2.0235286743727112
+    },
+    {
+      "epoch": 12,
+      "seconds": 9141.927580451,
+      "train_loss": 2.027228787303352,
+      "val_loss": 2.025966840199839
+    },
+    {
+      "epoch": 13,
+      "seconds": 9836.640951976,
+      "train_loss": 2.0272425024654157,
+      "val_loss": 2.037623901130792
+    },
+    {
+      "epoch": 14,
+      "seconds": 10528.434063335,
+      "train_loss": 2.029404992874438,
+      "val_loss": 2.0213622127081794
+    }
+  ],
+  "g0_experiment": "20261017-g0-i3-r3",
+  "generator_version": "0.3.0",
+  "git_commit": "d124f3cf1d5f8d5dfb03906d1b44137fb2f34790",
+  "git_dirty": false,
+  "id": "lstm-instantaneous-shuffled",
+  "node_version": "v22.22.0",
+  "normalisation": {
+    "bearing_rate_scale_rad_s": 0.0017213666578754783,
+    "computed_from": "inputs_only",
+    "position_scale_km": 16.108537673950195,
+    "speed_scale_mps": 7.716647624969482,
+    "time_scale_s": 2390,
+    "train_header_digest": "aaeca6abfbb8e8096a47f338dfb4114942413e6bb280d219ffe655bf63f4a697"
+  },
+  "parameter_count": 204804,
+  "schema_version": "0.10.0",
+  "source_dataset_header": {
+    "created_by": "tma-generate --seed 205 --count 100000 --ranges sha256:bdf46080f66c24c867245c482121a2f1b82d3f13e59ef8c0cabccde08d1172be --heldout-ranges sha256:7d9e444c99d8ac6f759d0226c1724a7ea19cb34237465730f4d1aed51de1aca1",
+    "dataset_seed": "205",
+    "generator_git_commit": "d124f3cf1d5f8d5dfb03906d1b44137fb2f34790",
+    "generator_git_dirty": false,
+    "generator_version": "0.3.0",
+    "index_end": 80000,
+    "index_start": 0,
+    "parameter_ranges": {
+      "dropout_fraction": {
+        "max": 0.1,
+        "min": 0
+      },
+      "dt_s": 10,
+      "los_offset_rad": {
+        "max": 1.5707963267948966,
+        "min": 0.5235987755982988
+      },
+      "min_range_m": 100,
+      "noise_sigma_rad_values": [
+        0.017453292519943295,
+        0.03490658503988659
+      ],
+      "ownship_speed_mps": {
+        "max": 7.716666666666667,
+        "min": 2.5722222222222224
+      },
+      "ownship_turn_rate_rad_s": {
+        "max": 0.05235987755982989,
+        "min": 0.008726646259971648
+      },
+      "range_distribution": "log_uniform",
+      "target_range0_m": {
+        "max": 20000,
+        "min": 2000
+      },
+      "target_speed_mps": {
+        "max": 10.28888888888889,
+        "min": 1.5433333333333334
+      },
+      "window_s": {
+        "max": 2400,
+        "min": 600
+      },
+      "zig2_delay_s": {
+        "max": 300,
+        "min": 180
+      },
+      "zig_angle_abs_rad": {
+        "max": 1.5707963267948966,
+        "min": 0.5235987755982988
+      },
+      "zig_fraction": {
+        "max": 0.6,
+        "min": 0.4
+      },
+      "zig_rule": "across_los"
+    },
+    "record": "header",
+    "redraw_count": 17201,
+    "scenario_count": 80000,
+    "schema_version": "0.10.0",
+    "split": "train"
+  },
+  "stop_reason": "early_stopping",
+  "tf_interop_threads": 1,
+  "tf_intraop_threads": 1,
+  "tfjs_node_version": "4.22.0",
+  "train_features_digest": "20f701193c008a32110caa63c285d4917f820b14f07f4d72ef8b6920a75778c2",
+  "val_features_digest": "2561b0a1574c28276dd8b4d1cd57574b01ab1224e1312be19fdb96151b8feaf3",
+  "wall_s": 10528.468009818,
+  "weights_digest": "0bfc5e87bf45c5360636c69753a1cb69a580feb6807a8dc1ca2c07d36aff8a5b"
+}

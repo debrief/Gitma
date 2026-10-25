@@ -37,7 +37,8 @@ from the stored course and speed, so the features files do not change. Per row t
 
 with no course term and no loss on the fourth channel. A course error δ on a target at speed v
 costs about `w_s·(v·δ / velocity_scale_mps)²`, so course on slow targets weighs less than under
-course_speed.
+course_speed. The fourth channel is never read when decoding. Untrained, it drifts freely (up to
+about ±0.8 on the iteration-4 LSTM); this has no effect on any estimate.
 
 The weight is the post-zig loss mask for causal models (before the zig, range is unobservable, so
 the instantaneous model is not trained to guess it) and the window mask for non-causal models,
@@ -162,6 +163,61 @@ A model is only run on features normalised exactly as its training data was. The
 difference is a train-split header that differs only in `schema_version` (a schema bump after
 training, same data and constants); `tma-g1` logs it and records it in the experiment manifest, and
 `tma-model-predict` accepts it when given `--train <train.f32pack>`.
+
+## Gate scoring and the re-score (iteration 4)
+
+`tma-g2 --split test` scores the carried models, naive and classical on the test split (and the
+held-out split, FR-019), with the other phase beside. Scoring **streams**: each estimator's
+predictions are written to `predictions/<split>.<estimator>.ndjson` batch by batch, and the
+evaluation reads them back by scenario index from the files (`openPredictionSet`), with truth
+re-read from the `.f32pack` on every pass, so memory no longer grows with estimators × scenarios ×
+rows. Outputs are byte-identical to the in-memory path (checked on the seed-205 gate). Before
+anything is scored, every truth and features file the run needs must exist (a run never stops after
+writing `verdict.json`), and `verdict.json` is written last.
+
+SRD §7 allows **one re-score** of an inconclusive G2 on a larger fresh-seed test set, then a fail.
+`tma-g2 --rescore-of <experiment>` (or a decision whose `rescore_of` is set; schema 0.11.0) runs it
+and refuses unless all of these hold:
+
+- the split is test, from a clean tree (no `--allow-dirty`), with a committed decision that names
+  this re-score (`rescore_of`), the plan, its `fresh_test_count` and a `test_seed` equal to the
+  plan's `fresh_test` seed and to the test data's own header, which must record a clean tree;
+- the plan differs from its content at the commit that added the decision only in
+  `dataset.fresh_test.digest` (pinned once the data exist), and the decision's last change
+  precedes or is the plan's (so it cannot be edited after the pin);
+- the test data have the generator version and parameter ranges of the re-scored gate's test
+  split (the same problem);
+- the re-scored experiment holds a committed, panel-decided (`decided_by` names an agent panel
+  round), inconclusive G2 `verdict.json` and a committed `manifest.json`, tested another seed,
+  and is not itself a re-score;
+- the decision's `model_digests` (schema 0.11.1) name exactly the carried models, each with the
+  SHA-256 of its `weights.bin`, `manifest.json` and `model.json`, each tracked and unmodified in
+  git; the weights digest must also
+  equal the model manifest's `weights_digest` and the one the re-scored gate's manifest recorded.
+  This replaces the training-ancestry rule (decision committed before the weights), which still
+  applies to every other test run;
+- one re-score per gate: the experiment is a new folder beside the re-scored one, with no
+  `verdict.json` or `rescore.json` marker; no sibling holds a marker or manifest note naming the
+  same gate; no other committed sibling `decision.json` names it.
+
+The run writes `rescore.json` (rescore_of, decision, start time, commit) before it scores
+anything, so a re-score that stops part-way still counts as the one re-score.
+
+An aborted re-score (the cloud container that ran it was reclaimed) can be finished with
+`--reuse-predictions <reuse.json>`, in re-score mode only. The file is committed before the run and
+maps prediction file names in `<data>/predictions` to the SHA-256 of an earlier attempt's complete
+file. Each listed file is reused once its SHA-256 matches. A listed file that is missing or
+differs is refused, and so is a listed file the run never uses. The manifest notes name every
+reused file. Unlisted files are predicted as usual. Scoring is deterministic, so a reused file is
+the file a fresh prediction would write; the seed-206 attempts showed this byte for byte.
+
+A re-score does not score the held-out split (`--skip-heldout` is accepted only there) (it is the re-scored gate's, already reported) and
+records `# rescore_of: <experiment>`, each model's digest and the skipped held-out split in its
+manifest notes; a later re-score of it is refused. The plan's `dataset.fresh_test.count` makes the
+fresh test split the test split of a `count`-scenario dataset (indices 0.9·count to count):
+100,000 test scenarios are those of a 1,000,000-scenario seed, generated alone by
+`scripts/generate-splits.mjs`, byte-identical to `tma-generate`'s test split and outside the
+generator source the G0 guard pins.
 
 ## Shuffled-label test
 

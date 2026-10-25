@@ -18,9 +18,17 @@
 
 ## Run
 
-- [ ] T008 `train/i4a`: five models, chained jobs; validation diagnostic with the iteration-3 models
+- [x] T008 `train/i4a`: five models, chained jobs; validation diagnostic with the iteration-3 models
   beside
-- [ ] T009 Validation rule (FR-006): carry to test or stop
-- [ ] T010 G2 on the seed-205 test split with iteration 3 beside; agent panel; `review.md`;
+- [x] T009 Validation rule (FR-006): carry to test or stop
+- [x] T010 G2 on the seed-205 test split with iteration 3 beside; agent panel; `review.md`;
   `decided_by`
-- [ ] T011 Write-up: results page, blog post, AGENTS.md gate status; viewer catalogue adds the pair
+- [x] T011 Write-up: results page, blog post, AGENTS.md gate status; viewer catalogue adds the pair
+
+## Re-score (SRD §7)
+
+- [x] T012 Re-score decision `experiments/20261024-i4-rescore-decision/` (seed 206, 100,000 test
+  scenarios, frozen models bound by digest); schema 0.11.x `rescore_of`, `model_digests`,
+  `fresh_test_count`; streaming scoring; preflight
+- [x] T013 Re-score `experiments/20261025-i4-g2-rescore/`: four attempts (containers reclaimed);
+  `tma-g2 --reuse-predictions`; byte-identity across attempts; G2 **pass**; agent panel; `decided_by`

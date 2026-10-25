@@ -208,7 +208,20 @@ bound under 1 kt fails; BiLSTM 1.02 kt [0.98, 1.05], reported only; classical 0.
 × classical, against 2.4 × in 2c). Seed 204's test split is unscored and stays reserved. **Iteration 4**
 (spec 008, decision 23) combines velocity outputs (`output_parameterisation: velocity`, schema
 0.10.0) with the derived feature set, on iteration 3's problem, seed 205: plan `configs/iter4/a`,
-decision `experiments/20261022-i4-decision/`, compared with the iteration-3 models on the same rows. A model that is not `complete`
+decision `experiments/20261022-i4-decision/`, compared with the iteration-3 models on the same rows.
+G2 on seed 205 was **inconclusive** (panel round 1, `experiments/20261024-i4-g2/`): instantaneous speed
+0.981 kt [0.940, 1.031], everything else passes. SRD §7 allows one re-score: seed 206, 100,000 test
+scenarios, the same frozen models (plan `configs/iter4/r`, decision
+`experiments/20261024-i4-rescore-decision/`, schema 0.11.0 `rescore_of`, `model_digests`); a fail or
+inconclusive there is final. **G2 passed** on the re-score (panel round 1,
+`experiments/20261025-i4-g2-rescore/`): instantaneous speed 0.939 kt [0.926, 0.951], time-late
+0.740 kt, range and course pass; classical 0.319 kt, so the models are still about 3 × classical on
+speed (write-up: `site/blog/2026-10-25-iteration-4.md`). Seeds 205–206 are reserved. Next is G3
+(classical parity, stretch), at the owner's choice. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+of training ancestry; scoring streams from files (predictions written as made), and a preflight
+refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
+re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file
+is reused only if its SHA-256 matches. A model that is not `complete`
 after three chained jobs stops the evaluation job: re-dispatch `train.yml` (it resumes).
 
 Gate decisions come from an **agent review panel**, never from waiting on humans (constitution
