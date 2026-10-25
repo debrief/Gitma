@@ -5,8 +5,8 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Models (iteration 1) | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/docs/algorithms/models"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Models (iteration 1) | TMA via ML"><meta data-rh="true" name="description" content="Source SRD §4, spec 002 (research R3–R7)."><meta data-rh="true" property="og:description" content="Source SRD §4, spec 002 (research R3–R7)."><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/docs/algorithms/models"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/algorithms/models" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/algorithms/models" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Models (iteration 1)","item":"https://debrief.github.io/Gitma/docs/algorithms/models"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/assets/css/styles.d219d845.css">
-<script src="/Gitma/assets/js/runtime~main.204ba9d7.js" defer="defer"></script>
-<script src="/Gitma/assets/js/main.cb40f15b.js" defer="defer"></script>
+<script src="/Gitma/assets/js/runtime~main.869c8442.js" defer="defer"></script>
+<script src="/Gitma/assets/js/main.070d84f1.js" defer="defer"></script>
 </head>
 <body>
 <svg style="display: none;"><defs>
@@ -70,7 +70,8 @@ from the stored course and speed, so the features files do not change. Per row t
 <p><code>w_r·(Δ log r)² + w_s·(Δ vx² + Δ vy²)</code>,</p>
 <p>with no course term and no loss on the fourth channel. A course error δ on a target at speed v
 costs about <code>w_s·(v·δ / velocity_scale_mps)²</code>, so course on slow targets weighs less than under
-course_speed.</p>
+course_speed. The fourth channel is never read when decoding. Untrained, it drifts freely (up to
+about ±0.8 on the iteration-4 LSTM); this has no effect on any estimate.</p>
 <p>The weight is the post-zig loss mask for causal models (before the zig, range is unobservable, so
 the instantaneous model is not trained to guess it) and the window mask for non-causal models,
 which see the whole window anyway. Every model is still <strong>scored</strong> only after the zig.</p>
@@ -181,6 +182,56 @@ position from range along the last valid bearing (as the naive baseline). Non-fi
 difference is a train-split header that differs only in <code>schema_version</code> (a schema bump after
 training, same data and constants); <code>tma-g1</code> logs it and records it in the experiment manifest, and
 <code>tma-model-predict</code> accepts it when given <code>--train &lt;train.f32pack&gt;</code>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="gate-scoring-and-the-re-score-iteration-4">Gate scoring and the re-score (iteration 4)<a href="#gate-scoring-and-the-re-score-iteration-4" class="hash-link" aria-label="Direct link to Gate scoring and the re-score (iteration 4)" title="Direct link to Gate scoring and the re-score (iteration 4)" translate="no">​</a></h2>
+<p><code>tma-g2 --split test</code> scores the carried models, naive and classical on the test split (and the
+held-out split, FR-019), with the other phase beside. Scoring <strong>streams</strong>: each estimator&#x27;s
+predictions are written to <code>predictions/&lt;split&gt;.&lt;estimator&gt;.ndjson</code> batch by batch, and the
+evaluation reads them back by scenario index from the files (<code>openPredictionSet</code>), with truth
+re-read from the <code>.f32pack</code> on every pass, so memory no longer grows with estimators × scenarios ×
+rows. Outputs are byte-identical to the in-memory path (checked on the seed-205 gate). Before
+anything is scored, every truth and features file the run needs must exist (a run never stops after
+writing <code>verdict.json</code>), and <code>verdict.json</code> is written last.</p>
+<p>SRD §7 allows <strong>one re-score</strong> of an inconclusive G2 on a larger fresh-seed test set, then a fail.
+<code>tma-g2 --rescore-of &lt;experiment&gt;</code> (or a decision whose <code>rescore_of</code> is set; schema 0.11.0) runs it
+and refuses unless all of these hold:</p>
+<ul>
+<li class="">the split is test, from a clean tree (no <code>--allow-dirty</code>), with a committed decision that names
+this re-score (<code>rescore_of</code>), the plan, its <code>fresh_test_count</code> and a <code>test_seed</code> equal to the
+plan&#x27;s <code>fresh_test</code> seed and to the test data&#x27;s own header, which must record a clean tree;</li>
+<li class="">the plan differs from its content at the commit that added the decision only in
+<code>dataset.fresh_test.digest</code> (pinned once the data exist), and the decision&#x27;s last change
+precedes or is the plan&#x27;s (so it cannot be edited after the pin);</li>
+<li class="">the test data have the generator version and parameter ranges of the re-scored gate&#x27;s test
+split (the same problem);</li>
+<li class="">the re-scored experiment holds a committed, panel-decided (<code>decided_by</code> names an agent panel
+round), inconclusive G2 <code>verdict.json</code> and a committed <code>manifest.json</code>, tested another seed,
+and is not itself a re-score;</li>
+<li class="">the decision&#x27;s <code>model_digests</code> (schema 0.11.1) name exactly the carried models, each with the
+SHA-256 of its <code>weights.bin</code>, <code>manifest.json</code> and <code>model.json</code>, each tracked and unmodified in
+git; the weights digest must also
+equal the model manifest&#x27;s <code>weights_digest</code> and the one the re-scored gate&#x27;s manifest recorded.
+This replaces the training-ancestry rule (decision committed before the weights), which still
+applies to every other test run;</li>
+<li class="">one re-score per gate: the experiment is a new folder beside the re-scored one, with no
+<code>verdict.json</code> or <code>rescore.json</code> marker; no sibling holds a marker or manifest note naming the
+same gate; no other committed sibling <code>decision.json</code> names it.</li>
+</ul>
+<p>The run writes <code>rescore.json</code> (rescore_of, decision, start time, commit) before it scores
+anything, so a re-score that stops part-way still counts as the one re-score.</p>
+<p>An aborted re-score (the cloud container that ran it was reclaimed) can be finished with
+<code>--reuse-predictions &lt;reuse.json&gt;</code>, in re-score mode only. The file is committed before the run and
+maps prediction file names in <code>&lt;data&gt;/predictions</code> to the SHA-256 of an earlier attempt&#x27;s complete
+file. Each listed file is reused once its SHA-256 matches. A listed file that is missing or
+differs is refused, and so is a listed file the run never uses. The manifest notes name every
+reused file. Unlisted files are predicted as usual. Scoring is deterministic, so a reused file is
+the file a fresh prediction would write; the seed-206 attempts showed this byte for byte.</p>
+<p>A re-score does not score the held-out split (<code>--skip-heldout</code> is accepted only there) (it is the re-scored gate&#x27;s, already reported) and
+records <code># rescore_of: &lt;experiment&gt;</code>, each model&#x27;s digest and the skipped held-out split in its
+manifest notes; a later re-score of it is refused. The plan&#x27;s <code>dataset.fresh_test.count</code> makes the
+fresh test split the test split of a <code>count</code>-scenario dataset (indices 0.9·count to count):
+100,000 test scenarios are those of a 1,000,000-scenario seed, generated alone by
+<code>scripts/generate-splits.mjs</code>, byte-identical to <code>tma-generate</code>&#x27;s test split and outside the
+generator source the G0 guard pins.</p>
 <h2 class="anchor anchorTargetStickyNavbar_FE5u" id="shuffled-label-test">Shuffled-label test<a href="#shuffled-label-test" class="hash-link" aria-label="Direct link to Shuffled-label test" title="Direct link to Shuffled-label test" translate="no">​</a></h2>
 <p><code>lstm-instantaneous-shuffled</code> is the instantaneous model trained with each scenario&#x27;s targets
 swapped for another scenario&#x27;s (seeded permutation; inputs untouched). With no relation between
@@ -188,6 +239,6 @@ bearings and labels left, it should learn the mean and score like the naive base
 much better would mean the inputs leak the answer. The check decides on range error only, as
 pre-registered; its detail also reports the shuffled model&#x27;s median course error beside naive&#x27;s,
 where a weak bearing-as-course prior shows up (iteration 1: 82.9° against a permutation null of
-89.7°).</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/algorithms/models.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/docs/algorithms/least-squares-solver"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Least-squares bearings-only solver</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/docs/algorithms/viewer"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Engagement viewer</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_kFBU thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#loss" class="table-of-contents__link toc-highlight">Loss</a></li><li><a href="#training" class="table-of-contents__link toc-highlight">Training</a><ul><li><a href="#training-plans-iteration-2" class="table-of-contents__link toc-highlight">Training plans (iteration 2)</a></li></ul></li><li><a href="#training-speed-options-iteration-2" class="table-of-contents__link toc-highlight">Training speed options (iteration 2)</a></li><li><a href="#determinism" class="table-of-contents__link toc-highlight">Determinism</a></li><li><a href="#tfjs-workarounds" class="table-of-contents__link toc-highlight">tfjs workarounds</a></li><li><a href="#predictions" class="table-of-contents__link toc-highlight">Predictions</a></li><li><a href="#shuffled-label-test" class="table-of-contents__link toc-highlight">Shuffled-label test</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
+89.7°).</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/algorithms/models.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/docs/algorithms/least-squares-solver"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Least-squares bearings-only solver</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/docs/algorithms/viewer"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Engagement viewer</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_kFBU thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#loss" class="table-of-contents__link toc-highlight">Loss</a></li><li><a href="#training" class="table-of-contents__link toc-highlight">Training</a><ul><li><a href="#training-plans-iteration-2" class="table-of-contents__link toc-highlight">Training plans (iteration 2)</a></li></ul></li><li><a href="#training-speed-options-iteration-2" class="table-of-contents__link toc-highlight">Training speed options (iteration 2)</a></li><li><a href="#determinism" class="table-of-contents__link toc-highlight">Determinism</a></li><li><a href="#tfjs-workarounds" class="table-of-contents__link toc-highlight">tfjs workarounds</a></li><li><a href="#predictions" class="table-of-contents__link toc-highlight">Predictions</a></li><li><a href="#gate-scoring-and-the-re-score-iteration-4" class="table-of-contents__link toc-highlight">Gate scoring and the re-score (iteration 4)</a></li><li><a href="#shuffled-label-test" class="table-of-contents__link toc-highlight">Shuffled-label test</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
 </body>
 </html>
