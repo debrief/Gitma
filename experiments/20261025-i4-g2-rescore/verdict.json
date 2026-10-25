@@ -91,7 +91,7 @@
       "result": "pass"
     }
   ],
-  "decided_by": "harness (pending agent panel review)",
+  "decided_by": "agent review panel, round 1 on the result (no rejections; no open blocker or major findings): G2 PASS on the SRD 7 re-score, seed 206, 100,000 test scenarios, frozen models. Instantaneous speed 0.939 kt [0.926, 0.951] against 1 kt (classical 0.319, naive 4.23); time-late 0.740 kt; range and course pass for both. Seed 205 (inconclusive, 0.981 kt) is reported, not pooled",
   "gate": "G2",
   "result": "pass"
 }

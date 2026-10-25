@@ -258,8 +258,8 @@ has a 95% bootstrap interval (2,000 resamples, seed 20261011).
 - course 6.24° / 4.31°;
 - speed 1.124 / 1.004 kt.
 
-**Bias against the forecast.** Computed with `scripts/research/spec008-rescore-bias.mjs` at
-zig + 600 s, σ = 1°:
+**Bias against the forecast.** Computed after the run (post hoc, reported only) with
+`scripts/research/spec008-rescore-bias.mjs` at zig + 600 s, σ = 1°:
 
 | Model | Median signed error | Slope of predicted on true speed | Forecast |
 | --- | --- | --- | --- |
@@ -275,7 +275,45 @@ zig + 600 s, σ = 1°:
 seed 205's validation was 0.94 [0.91, 0.98].
 
 - The seed-206 point, 0.939, lies 1.9 seed-205 standard errors below the seed-205 test point.
-- It is inside that test interval, and it equals the validation point.
-- The forecast's prior (0.981 ± 0.022) gave P(pass) about 0.55. The result points to a true
-  median near 0.94, where the simulated P(pass) is 1.00.
+- It is just below that test interval (lower bound 0.9405), and it equals the validation point.
+- The pre-registered chance of a pass, from a prior centred on the seed-205 test figure
+  (0.981 ± 0.022), was about 0.55.
 - **Not pooled.** Both results are reported, as pre-registered.
+
+## Panel on the result (round 1, 2026-10-25): all five approve, none rejects
+
+| Reviewer | Verdict | Independent check |
+| --- | --- | --- |
+| TMA geometry | **approve** | Recomputed every gate figure from truth and predictions. The bias by band matches the frozen model (18–20 kt: −1.51 kt against −1.50 on seed 205). The models never beat classical in any bin. |
+| Estimation and numerics | approve-with-findings | Recomputed 0.9394 kt, n 32,266, and the interval [0.9255, 0.9512] with the repo's bootstrap. Hand-decoded 21,712 rows: differences are float32 rounding only. Classical is at the Cramér–Rao bound. |
+| Evaluation statistics | approve-with-findings | Recomputed with 4,000 resamples and an exact order-statistic interval: [0.9257, 0.9514]. The upper bound is 7 SE below the threshold. Two looks raise the false-pass rate at the threshold to about 3.7%, as pre-registered; the aborts add no look. |
+| Reproducibility | approve-with-findings | Re-ran `tma-eval` and `tma-gate g2` on the prediction files. `metrics.json`, `metrics.csv`, `curves.csv`, `bootstrap.json` and `verdict.json` are byte-identical. It also checked the model and plan digests and all identity claims. |
+| Red team | approve-with-findings | Own recompute matches. The data, seeds and models are right. The reused files are genuine. The abort history caused no selection: attempt 2's hashes were committed before "Try again", and the result equals them. |
+
+No blocker or major findings. Responses to the minors:
+
+| Finding | Response |
+| --- | --- |
+| **Red team.** 0.939 is not inside the seed-205 interval. | **Fixed.** The text now says it is just below it (lower bound 0.9405). |
+| **Red team.** P(pass) 1.00 at the observed median is circular. | **Fixed.** Removed; the pre-registered 0.55 stays. |
+| **Red team, statistics.** Explain the seed-205 to seed-206 difference. | **Answered.** The difference is 0.042 kt, z ≈ 1.8, two-sided p ≈ 0.07. Weighting seed 206 to seed 205's mix of speed and range gives 0.945, so the mix explains about 0.006 kt (geometry). The rest is chance: seed 205's test draw was high, and its validation was 0.94. The results are not pooled; pooling would give about 0.943. |
+| **Statistics.** Report P90. | **Added** (below). |
+| **Numerics, statistics, red team.** Keep the context: a narrow pass, about 3 × classical. | **Agreed.** 52.6% of the LSTM's speed rows are under 1 kt. Removing the bias by speed and range would still leave 0.86 kt; the rest is scatter. The models are 2.3–3.0 × classical on speed and up to 13 × at short range. G2 is useful; G3 (classical parity) is far off. |
+| **Geometry.** Accuracy at short range. | **Added.** The LSTM is 0.97 kt under 2 km (n 816), against 0.72–0.78 kt at 2–8 km. Near closest approach the bearing rate changes fast and the 3-minute trailing rate lags it. |
+| **Geometry.** Phase split. | **Added.** At zig + 600 s, 32,228 of the 32,266 speed rows are in leg 3 and 38 are in the second turn. At zig + 300 s the rows are mostly in the second turn. |
+| **Numerics.** The fourth output is not zero. | It reaches about |0.82|. It carries no loss and decoding never reads it, so it has no effect. This goes in the algorithm note with the write-up. |
+| **Reproducibility.** The bias script came after the run. | **Labelled** post hoc and reported only. |
+| **Reproducibility.** `comparison.*` not re-run. | They equal attempt 2's (among the 21 files), and the verdict does not read them. |
+| **Reproducibility.** "Unread" cannot be verified. | Agreed. The outcome is fixed by deterministic, digest-bound inputs either way. |
+
+**P90 at the gate points** (σ = 1°; range and course at zig + 300 s, speed at zig + 600 s):
+
+| Estimator | Range P50 / P90 | Course P50 / P90 | Speed P50 / P90 |
+| --- | --- | --- | --- |
+| LSTM (instantaneous) | 7.26% / 20.5% | 4.70° / 23.1° | 0.939 / 2.91 kt |
+| BiLSTM (time-late) | 5.30% / 14.5% | 3.13° / 14.5° | 0.740 / 2.34 kt |
+| classical | 3.40% / 14.8% | 1.36° / 17.8° | 0.319 / 1.89 kt |
+| naive | 39.9% / 156% | 89.8° / 162° | 4.23 / 7.65 kt |
+
+**Decision: G2 PASS** on the seed-206 re-score (SRD §7). It is decided by the agent review panel,
+round 1 on the result: no rejections, no open blocker or major findings.
