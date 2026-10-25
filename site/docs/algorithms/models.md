@@ -37,7 +37,8 @@ from the stored course and speed, so the features files do not change. Per row t
 
 with no course term and no loss on the fourth channel. A course error δ on a target at speed v
 costs about `w_s·(v·δ / velocity_scale_mps)²`, so course on slow targets weighs less than under
-course_speed.
+course_speed. The fourth channel is never read when decoding. Untrained, it drifts freely (up to
+about ±0.8 on the iteration-4 LSTM); this has no effect on any estimate.
 
 The weight is the post-zig loss mask for causal models (before the zig, range is unobservable, so
 the instantaneous model is not trained to guess it) and the window mask for non-causal models,

@@ -4,7 +4,9 @@
 
 **Created**: 2026-10-22
 
-**Status**: Planned. Levers chosen by the owner (decision 23), 2026-10-22.
+**Status**: Complete. Levers chosen by the owner (decision 23), 2026-10-22. G2 inconclusive on
+seed 205 (`experiments/20261024-i4-g2/`); **G2 passed** on the SRD §7 re-score, seed 206
+(`experiments/20261025-i4-g2-rescore/`, panel round 1, 2026-10-25).
 
 **Input**: Iteration 3 stopped at validation (`experiments/20261021-i3a-val/validation.md`): the
 LSTM reached 1.10 kt [1.06, 1.16] against 1 kt, and classical 0.34 kt. The owner chose the speed
