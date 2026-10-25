@@ -1,0 +1,210 @@
+{
+  "command_lines": [
+    "tma-g2 --split test --plan configs/iter4/r/plan.json --decision experiments/20261024-i4-rescore-decision/decision.json --rescore-of experiments/20261024-i4-g2 --compare-models experiments/20261021-i3a-val/models --models experiments/20261023-i4a-val/models --reuse-predictions experiments/20261025-i4-g2-rescore/reuse.json --data data/i4r --experiment experiments/20261025-i4-g2-rescore",
+    "# equivalent: tma-eval --truth data/i4r/test.f32pack --pred <naive, classical, models> --experiment experiments/20261025-i4-g2-rescore --points 300,600 --bootstrap 2000 --compare-to classical:per_timestep",
+    "# equivalent: tma-gate g2 --experiment experiments/20261025-i4-g2-rescore --instantaneous lstm-instantaneous --time-late bilstm-time-late --causal-control cnn-causal-control --mlp-control mlp-control --shuffled lstm-instantaneous-shuffled",
+    "# rescore_of: experiments/20261024-i4-g2",
+    "# re-score (SRD §7): experiments/20261024-i4-g2 was G2 inconclusive on test seed 205; this run scores fresh test seed 206 alone, with the frozen models below bound by file digests (decision model_digests) in place of training ancestry",
+    "# re-score model bilstm-time-late: weights.bin sha256 71fcb706872943410355db3c493eab171cbdbfe2fee59472d306937d23f562a8, manifest.json c55a324a419d4a9380628f8214db492f210b50bd744c0de34fd6b2e608098e46, model.json 6a8810cbb1a6482b86466a9bf66731b5c5acfa79040a7e8293f298327321fb3f (as the decision names)",
+    "# re-score model cnn-causal-control: weights.bin sha256 b4f4cde209441820b454448a6f5af3fb12305ed2d079d4bdbd368161212afb23, manifest.json 4b9bb75c181e6421ff9cb1099720f8418d54f995e04cf47f9e725a137b25b75f, model.json a0b6d9c58555482247a884c51926960fa47043bd68018e5350359dac7c32dd43 (as the decision names)",
+    "# re-score model lstm-instantaneous: weights.bin sha256 495e250230d4ad69b44317e03c74fd3dbbc75b76758e65147919e2230adbf9f2, manifest.json 4cec98b4e9d95042015aabbd81345027c7ad81e05757fb5cf76ca29ef1a88580, model.json 78b9e12bb7096e65b927b204dc5fe7eeb4483e4a454df86c32fcc0a27101ed61 (as the decision names)",
+    "# re-score model lstm-instantaneous-shuffled: weights.bin sha256 0bfc5e87bf45c5360636c69753a1cb69a580feb6807a8dc1ca2c07d36aff8a5b, manifest.json f45ee74cac5b41a1739be52ccc02104851e0f7530894ed186428cdecd87c9428, model.json 4224e22bd8f487dd5f30dffcf4cb4f46f19518924ce3cc0ae0753a496eb205b9 (as the decision names)",
+    "# re-score model mlp-control: weights.bin sha256 589be566b998a558739258fd780e291d51132f7cb6beadd4cdaedcbbfb58968f, manifest.json b82fe29de30367cc1fe7b19296c3491f2900522868ab2df763942ce70236ff7e, model.json 92ace27bc158594feb9e5213a48b333b7a1d3c8d9dfc6de24399547faa3d4717 (as the decision names)",
+    "# bilstm-time-late: train data regenerated at 526ef332128a65c8192c8d1bd90b9c20df539a68 (model trained on data from d124f3cf1d5f8d5dfb03906d1b44137fb2f34790); headers identical apart from provenance, normalisation constants identical",
+    "# cnn-causal-control: train data regenerated at 526ef332128a65c8192c8d1bd90b9c20df539a68 (model trained on data from d124f3cf1d5f8d5dfb03906d1b44137fb2f34790); headers identical apart from provenance, normalisation constants identical",
+    "# lstm-instantaneous: train data regenerated at 526ef332128a65c8192c8d1bd90b9c20df539a68 (model trained on data from d124f3cf1d5f8d5dfb03906d1b44137fb2f34790); headers identical apart from provenance, normalisation constants identical",
+    "# lstm-instantaneous-shuffled: train data regenerated at 526ef332128a65c8192c8d1bd90b9c20df539a68 (model trained on data from d124f3cf1d5f8d5dfb03906d1b44137fb2f34790); headers identical apart from provenance, normalisation constants identical",
+    "# mlp-control: train data regenerated at 526ef332128a65c8192c8d1bd90b9c20df539a68 (model trained on data from d124f3cf1d5f8d5dfb03906d1b44137fb2f34790); headers identical apart from provenance, normalisation constants identical",
+    "# predictions reused from an earlier attempt, each sha256-verified against experiments/20261025-i4-g2-rescore/reuse.json: test.bilstm-time-late.ndjson, test.classical.ndjson, test.cnn-causal-control.ndjson, test.lstm-instantaneous-shuffled.ndjson, test.lstm-instantaneous.ndjson, test.mlp-control.ndjson, test.naive.ndjson, test.other-phase.bilstm-time-late.ndjson, test.other-phase.cnn-causal-control.ndjson, test.other-phase.naive.ndjson",
+    "# bilstm-time-late (other-phase): trained on other data, so scored on inputs built with its own normalisation (reused prediction; its inputs were not rebuilt)",
+    "# cnn-causal-control (other-phase): trained on other data, so scored on inputs built with its own normalisation (reused prediction; its inputs were not rebuilt)",
+    "# lstm-instantaneous (other-phase): trained on other data, so scored on inputs built with its own normalisation (data/i4r/predictions/test.other-phase.lstm-instantaneous.features.bin, removed after scoring)",
+    "# lstm-instantaneous-shuffled (other-phase): trained on other data, so scored on inputs built with its own normalisation (data/i4r/predictions/test.other-phase.lstm-instantaneous-shuffled.features.bin, removed after scoring)",
+    "# mlp-control (other-phase): trained on other data, so scored on inputs built with its own normalisation (data/i4r/predictions/test.other-phase.mlp-control.features.bin, removed after scoring)",
+    "# held-out split not scored: a re-score scores only its fresh test split (the held-out split was reported with experiments/20261024-i4-g2)",
+    "# plan configs/iter4/r/plan.json: ok  test.f32pack header seed 206 index [900000, 1000000)",
+    "# plan configs/iter4/r/plan.json: ok  train.f32pack content d480f55dc45f3d62703ef1c62fbdff8386599622a8625a7d864ae5222aefca0d",
+    "# plan configs/iter4/r/plan.json: ok  validation.f32pack content 5ca14359b39d45119a7afc2948d325021acafc38371c433ac9b0bb1ebb55af92",
+    "# plan configs/iter4/r/plan.json: ok  test.f32pack content d2f05cb137bf0ec9568e6a49cf81fc70a8dd7ed1c3d9c74154fad0af3d319897",
+    "# plan configs/iter4/r/plan.json: ok  heldout.f32pack content f4d7927d520bc8f820ad795ce5de716366b7f754775350d360b192f63ff43a4c"
+  ],
+  "created": "2026-10-25T12:11:27.473Z",
+  "datasets": [
+    {
+      "digest": "c656d685a0cde3cc2fa80f450eb2ee94b7456b9c6f4496b4fb5377403c9b951d",
+      "header": {
+        "created_by": "tma-generate --seed 205 --count 100000 --ranges sha256:bdf46080f66c24c867245c482121a2f1b82d3f13e59ef8c0cabccde08d1172be --heldout-ranges sha256:7d9e444c99d8ac6f759d0226c1724a7ea19cb34237465730f4d1aed51de1aca1",
+        "dataset_seed": "205",
+        "generator_git_commit": "526ef332128a65c8192c8d1bd90b9c20df539a68",
+        "generator_git_dirty": false,
+        "generator_version": "0.3.0",
+        "index_end": 80000,
+        "index_start": 0,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0.1,
+            "min": 0
+          },
+          "dt_s": 10,
+          "los_offset_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0.017453292519943295,
+            0.03490658503988659
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "ownship_turn_rate_rad_s": {
+            "max": 0.05235987755982989,
+            "min": 0.008726646259971648
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig2_delay_s": {
+            "max": 300,
+            "min": 180
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          },
+          "zig_rule": "across_los"
+        },
+        "record": "header",
+        "redraw_count": 17201,
+        "scenario_count": 80000,
+        "schema_version": "0.11.1",
+        "split": "train"
+      },
+      "path": "data/i4r/train.f32pack"
+    },
+    {
+      "digest": "66890d82ffa5e7bfbebef9b91ff50279d1804bcbe1e1cd5b238ce517d5cff79a",
+      "header": {
+        "created_by": "tma-generate --seed 206 --count 1000000 --ranges sha256:bdf46080f66c24c867245c482121a2f1b82d3f13e59ef8c0cabccde08d1172be --heldout-ranges sha256:7d9e444c99d8ac6f759d0226c1724a7ea19cb34237465730f4d1aed51de1aca1",
+        "dataset_seed": "206",
+        "generator_git_commit": "526ef332128a65c8192c8d1bd90b9c20df539a68",
+        "generator_git_dirty": false,
+        "generator_version": "0.3.0",
+        "index_end": 1000000,
+        "index_start": 900000,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0.1,
+            "min": 0
+          },
+          "dt_s": 10,
+          "los_offset_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0.017453292519943295,
+            0.03490658503988659
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "ownship_turn_rate_rad_s": {
+            "max": 0.05235987755982989,
+            "min": 0.008726646259971648
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig2_delay_s": {
+            "max": 300,
+            "min": 180
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          },
+          "zig_rule": "across_los"
+        },
+        "record": "header",
+        "redraw_count": 21478,
+        "scenario_count": 100000,
+        "schema_version": "0.11.1",
+        "split": "test"
+      },
+      "path": "data/i4r/test.f32pack"
+    }
+  ],
+  "estimators": [
+    {
+      "name": "naive",
+      "settings_json": "{\"fitted_on\":\"train\",\"means\":{\"course_cos\":0.0022373649115589285,\"course_sin\":-0.0032627185191770854,\"log_range_km\":2.244038702810558,\"n\":5709409,\"speed_mps\":5.914191880350308},\"mode\":\"per_timestep\"}"
+    },
+    {
+      "name": "classical",
+      "settings_json": "{\"grid_every\":6,\"method\":\"levenberg-marquardt\",\"mode\":\"per_timestep\"}"
+    },
+    {
+      "name": "bilstm-time-late",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"derived\",\"id\":\"bilstm-time-late\",\"layers\":2,\"learning_rate\":0.001,\"length_bucketing\":true,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":4,\"max_epochs\":150,\"max_wall_s\":172800,\"model_kind\":\"time_late\",\"output_parameterisation\":\"velocity\",\"patience\":6,\"shuffle_labels\":false,\"tfjs_threads\":1,\"train_seed\":\"1002\",\"units\":128,\"velocity_scale_mps\":10.28888888888889},\"manifest\":\"models/bilstm-time-late/manifest.json\",\"weights_digest\":\"71fcb706872943410355db3c493eab171cbdbfe2fee59472d306937d23f562a8\"}"
+    },
+    {
+      "name": "cnn-causal-control",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"derived\",\"id\":\"cnn-causal-control\",\"kernel_size\":15,\"layers\":3,\"learning_rate\":0.001,\"length_bucketing\":true,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":4,\"max_epochs\":150,\"max_wall_s\":172800,\"model_kind\":\"causal_cnn\",\"output_parameterisation\":\"velocity\",\"patience\":6,\"shuffle_labels\":false,\"tfjs_threads\":1,\"train_seed\":\"1003\",\"units\":64,\"velocity_scale_mps\":10.28888888888889},\"manifest\":\"models/cnn-causal-control/manifest.json\",\"weights_digest\":\"b4f4cde209441820b454448a6f5af3fb12305ed2d079d4bdbd368161212afb23\"}"
+    },
+    {
+      "name": "lstm-instantaneous",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"derived\",\"id\":\"lstm-instantaneous\",\"layers\":2,\"learning_rate\":0.001,\"length_bucketing\":true,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":4,\"max_epochs\":150,\"max_wall_s\":172800,\"model_kind\":\"instantaneous\",\"output_parameterisation\":\"velocity\",\"patience\":6,\"shuffle_labels\":false,\"tfjs_threads\":1,\"train_seed\":\"1001\",\"units\":128,\"velocity_scale_mps\":10.28888888888889},\"manifest\":\"models/lstm-instantaneous/manifest.json\",\"weights_digest\":\"495e250230d4ad69b44317e03c74fd3dbbc75b76758e65147919e2230adbf9f2\"}"
+    },
+    {
+      "name": "lstm-instantaneous-shuffled",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"derived\",\"id\":\"lstm-instantaneous-shuffled\",\"layers\":2,\"learning_rate\":0.001,\"length_bucketing\":true,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":4,\"max_epochs\":150,\"max_wall_s\":172800,\"model_kind\":\"instantaneous\",\"output_parameterisation\":\"velocity\",\"patience\":6,\"shuffle_labels\":true,\"tfjs_threads\":1,\"train_seed\":\"1005\",\"units\":128,\"velocity_scale_mps\":10.28888888888889},\"manifest\":\"models/lstm-instantaneous-shuffled/manifest.json\",\"weights_digest\":\"0bfc5e87bf45c5360636c69753a1cb69a580feb6807a8dc1ca2c07d36aff8a5b\"}"
+    },
+    {
+      "name": "mlp-control",
+      "settings_json": "{\"config\":{\"batch_size\":256,\"feature_set\":\"derived\",\"id\":\"mlp-control\",\"learning_rate\":0.001,\"length_bucketing\":false,\"loss_weight_course\":1,\"loss_weight_range\":1,\"loss_weight_speed\":4,\"max_epochs\":150,\"max_wall_s\":172800,\"model_kind\":\"mlp\",\"output_parameterisation\":\"velocity\",\"patience\":6,\"shuffle_labels\":false,\"tfjs_threads\":1,\"train_seed\":\"1004\",\"units\":256,\"velocity_scale_mps\":10.28888888888889},\"manifest\":\"models/mlp-control/manifest.json\",\"weights_digest\":\"589be566b998a558739258fd780e291d51132f7cb6beadd4cdaedcbbfb58968f\"}"
+    },
+    {
+      "name": "decision",
+      "settings_json": "{\"path\":\"experiments/20261024-i4-rescore-decision/decision.json\",\"record\":{\"carried_set_rule\":\"The five iteration-4 models of record (experiments/20261023-i4a-val/models, trained at d124f3c), frozen and bound by the weights digests in model_digests; no retraining, recalibration or other change. The iteration-3 models (experiments/20261021-i3a-val/models) are scored beside them as the other phase, reported and never gated.\",\"change\":\"none to the models: an SRD §7 re-score of the inconclusive iteration-4 G2 (experiments/20261024-i4-g2) on the test split of fresh seed 206 at 100,000 scenarios (indices 900,000-999,999 of a 1,000,000-scenario dataset under configs/iter4-ranges.json, generator 0.3.0), normalised with seed 205 training inputs as before\",\"decided_at\":\"2026-10-24T10:12:46Z\",\"fresh_test_count\":1000000,\"git_commit\":\"3a014eb71ef25e13d3cd8c2c08246250cc86aa02\",\"model_digests\":[{\"manifest_sha256\":\"c55a324a419d4a9380628f8214db492f210b50bd744c0de34fd6b2e608098e46\",\"model\":\"bilstm-time-late\",\"model_json_sha256\":\"6a8810cbb1a6482b86466a9bf66731b5c5acfa79040a7e8293f298327321fb3f\",\"weights_sha256\":\"71fcb706872943410355db3c493eab171cbdbfe2fee59472d306937d23f562a8\"},{\"manifest_sha256\":\"4b9bb75c181e6421ff9cb1099720f8418d54f995e04cf47f9e725a137b25b75f\",\"model\":\"cnn-causal-control\",\"model_json_sha256\":\"a0b6d9c58555482247a884c51926960fa47043bd68018e5350359dac7c32dd43\",\"weights_sha256\":\"b4f4cde209441820b454448a6f5af3fb12305ed2d079d4bdbd368161212afb23\"},{\"manifest_sha256\":\"4cec98b4e9d95042015aabbd81345027c7ad81e05757fb5cf76ca29ef1a88580\",\"model\":\"lstm-instantaneous\",\"model_json_sha256\":\"78b9e12bb7096e65b927b204dc5fe7eeb4483e4a454df86c32fcc0a27101ed61\",\"weights_sha256\":\"495e250230d4ad69b44317e03c74fd3dbbc75b76758e65147919e2230adbf9f2\"},{\"manifest_sha256\":\"f45ee74cac5b41a1739be52ccc02104851e0f7530894ed186428cdecd87c9428\",\"model\":\"lstm-instantaneous-shuffled\",\"model_json_sha256\":\"4224e22bd8f487dd5f30dffcf4cb4f46f19518924ce3cc0ae0753a496eb205b9\",\"weights_sha256\":\"0bfc5e87bf45c5360636c69753a1cb69a580feb6807a8dc1ca2c07d36aff8a5b\"},{\"manifest_sha256\":\"b82fe29de30367cc1fe7b19296c3491f2900522868ab2df763942ce70236ff7e\",\"model\":\"mlp-control\",\"model_json_sha256\":\"92ace27bc158594feb9e5213a48b333b7a1d3c8d9dfc6de24399547faa3d4717\",\"weights_sha256\":\"589be566b998a558739258fd780e291d51132f7cb6beadd4cdaedcbbfb58968f\"}],\"phase_a_experiment\":\"20261024-i4-g2\",\"plan\":\"configs/iter4/r/plan.json\",\"rationale\":\"G2 on seed 205 was inconclusive: instantaneous speed 0.981 kt [0.940, 1.031], every other check passing (experiments/20261024-i4-g2; panel round 1, all five approve-with-findings). SRD §7 (since 2026-10-11, 730c035): an inconclusive interval allows one re-score on a larger fresh-seed test set, then fails. Owner chose 100,000 scenarios on 2026-10-24. Simulated power (panel statistics): P(pass) 0.78 if the true median is 0.98 kt, 0.98 at 0.97 kt, about 0.02 at 1.00 kt. Rule: the full G2 verdict on seed 206 alone decides (all six G2 checks, the G1 ratio checks, the shuffled-label check; the same sigma = 1 deg slice, gate points, 2,000 resamples, seed 20261011, FR-015); pass is pass, fail or inconclusive is a G2 fail, final; not pooled with seed 205; held-out not re-scored. stalled is true because the iteration-3 models are scored beside (a phase B).\",\"rescore_of\":\"experiments/20261024-i4-g2\",\"stalled\":true,\"test_seed\":\"206\"},\"sha256\":\"dd8102ce7f72468bc3d064a8b05a9f3773271223a4925e33382c59486af6ffb9\"}"
+    }
+  ],
+  "generator_version": "0.3.0",
+  "git_commit": "9c2344dda15998713cbe27357b3bebc7dc4aee65",
+  "git_dirty": false,
+  "id": "20261025-i4-g2-rescore",
+  "node_version": "v22.22.0",
+  "schema_version": "0.11.1"
+}

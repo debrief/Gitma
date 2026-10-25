@@ -207,3 +207,75 @@ bf8e1b9a74340ab35a8d2b85a0e18fd6398353eefcae1a5819ff11624d1e69c2  test.other-pha
 | **Numerics.** Record the CPU of each attempt. | minor | **Recorded.** Attempt 1 ran on an Intel Xeon Processor @ 2.30GHz; attempt 4 runs on one @ 2.80GHz, 4 CPUs. The CPUs of attempts 2 and 3 were not logged; TensorFlow logged the same oneDNN flags in every attempt. All agree byte for byte. |
 | **Red team.** Naive and classical are bound by hash only. | minor | Accepted, since the hashes come from two identical attempts. |
 | **Red team.** An unused list entry is reported only at the end of the run. | minor | Accepted. Every entry is used in this run, as the panel's hash checks confirm. |
+
+## Attempt 4 (2026-10-25 08:33–12:12 UTC, commit 9c2344d, marker c91b283): complete
+
+- **Run.** Exit 0, and `verdict.json` was written last. Peak node RSS was 2.90 GB; the lowest free
+  disk was 2.4 GB. The log is in `run-log.txt`.
+- **Reuse.** The ten files in `reuse.json` were reused with their sha256 verified. The manifest
+  notes name each one. The other three were predicted:
+  - `test.other-phase.lstm-instantaneous.ndjson` is c3b78da8…, equal to attempt 3's, as
+    pre-registered.
+  - `test.other-phase.lstm-instantaneous-shuffled.ndjson` is 6295d4fd3c3d616b224c9758a3cc04e622ed579e6c9b806b53558767a6c9bc38
+    (single attempt).
+  - `test.other-phase.mlp-control.ndjson` is 6c608c27d55e664030b4ab5bd7bfe320bc4dc24b5eab4ff1ac274a31b32e0d96
+    (single attempt).
+- **Identity.** All 21 carried-set evaluation files (`metrics.json`, `bootstrap.json`, curves,
+  comparison and `models/`) hash identical to attempt 2's, as pre-registered. The result is
+  attempt 2's, unread until now.
+
+### Result: G2 **pass** (`tma-g2`), pending the panel
+
+σ = 1° slice. Range and course are taken at zig + 300 s (n 49,574, 500 excluded, 99.0% reach that
+point). Speed is taken at zig + 600 s (n 32,266, 17,808 excluded, 64.4% reach). Each model figure
+has a 95% bootstrap interval (2,000 resamples, seed 20261011).
+
+| Check (threshold) | Model | Naive | Classical | |
+| --- | --- | --- | --- | --- |
+| instantaneous range (< 20%) | 7.26% [7.19, 7.34] | 39.9% | 3.40% | pass |
+| instantaneous course (< 10°) | 4.70° [4.64, 4.77] | 89.8° | 1.36° | pass |
+| **instantaneous speed (< 1 kt)** | **0.939 kt [0.926, 0.951]** | 4.23 kt | 0.319 kt | **pass** |
+| time-late range | 5.30% [5.24, 5.36] | 39.9% | 3.40% | pass |
+| time-late course | 3.13° [3.09, 3.17] | 89.8° | 1.36° | pass |
+| time-late speed | 0.740 kt [0.731, 0.751] | 4.23 kt | 0.319 kt | pass |
+| G1 model / naive range | 0.207 [0.205, 0.209] and 0.152 [0.150, 0.153] | | | pass |
+| time-late not worse | all 21 curve points | | | pass |
+| shuffled labels at naive | 0.984 × naive | | | pass |
+| controls beaten (reported) | CNN 0.158, MLP 0.134 against 0.083 / 0.061 | | | pass |
+
+**Paired ratios** (95% intervals):
+
+| Model | vs | Range | Course | Speed |
+| --- | --- | --- | --- | --- |
+| LSTM | classical | 2.14 [2.10, 2.17] | 3.45 [3.39, 3.52] | 2.95 [2.89, 3.02] |
+| LSTM | iteration-3 LSTM | 0.83 [0.82, 0.84] | 0.75 [0.74, 0.77] | 0.84 [0.82, 0.85] |
+| BiLSTM | classical | 1.56 [1.53, 1.59] | 2.30 [2.25, 2.34] | 2.32 [2.28, 2.38] |
+| BiLSTM | iteration-3 BiLSTM | 0.74 [0.73, 0.75] | 0.73 [0.72, 0.74] | 0.74 [0.73, 0.75] |
+
+**The iteration-3 models beside them** (reported only):
+
+- range 8.7% / 7.2%;
+- course 6.24° / 4.31°;
+- speed 1.124 / 1.004 kt.
+
+**Bias against the forecast.** Computed with `scripts/research/spec008-rescore-bias.mjs` at
+zig + 600 s, σ = 1°:
+
+| Model | Median signed error | Slope of predicted on true speed | Forecast |
+| --- | --- | --- | --- |
+| LSTM | −0.334 kt | 0.883 | about −0.4 kt and 0.88 |
+| BiLSTM | +0.083 kt | 0.926 | — |
+| classical | +0.004 kt | 0.986 | — |
+
+- **By speed band.** The LSTM's median signed error is −1.42 kt for 17.5–20 kt targets and
+  −0.53 kt at 15–17.5 kt.
+- **Reading.** The bias reappeared as forecast, so the scored model is the gate's model.
+
+**Against the forecast and seed 205.** The seed-205 test figure was 0.981 kt [0.940, 1.031], and
+seed 205's validation was 0.94 [0.91, 0.98].
+
+- The seed-206 point, 0.939, lies 1.9 seed-205 standard errors below the seed-205 test point.
+- It is inside that test interval, and it equals the validation point.
+- The forecast's prior (0.981 ± 0.022) gave P(pass) about 0.55. The result points to a true
+  median near 0.94, where the simulated P(pass) is 1.00.
+- **Not pooled.** Both results are reported, as pre-registered.

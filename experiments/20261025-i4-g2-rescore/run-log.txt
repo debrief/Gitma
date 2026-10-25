@@ -1,0 +1,17 @@
+test: reusing data/i4r/predictions/test.naive.ndjson (sha256 verified)
+test: reusing data/i4r/predictions/test.classical.ndjson (sha256 verified)
+test: reusing data/i4r/predictions/test.bilstm-time-late.ndjson (sha256 verified)
+test: reusing data/i4r/predictions/test.cnn-causal-control.ndjson (sha256 verified)
+test: reusing data/i4r/predictions/test.lstm-instantaneous.ndjson (sha256 verified)
+test: reusing data/i4r/predictions/test.lstm-instantaneous-shuffled.ndjson (sha256 verified)
+test: reusing data/i4r/predictions/test.mlp-control.ndjson (sha256 verified)
+test: reusing data/i4r/predictions/test.other-phase.naive.ndjson (sha256 verified)
+test: reusing data/i4r/predictions/test.classical.ndjson (sha256 verified)
+test: reusing data/i4r/predictions/test.other-phase.bilstm-time-late.ndjson (sha256 verified)
+test: reusing data/i4r/predictions/test.other-phase.cnn-causal-control.ndjson (sha256 verified)
+test: predicting lstm-instantaneous (raw, data/i4r/predictions/test.other-phase.lstm-instantaneous.features.bin)
+test: predicting lstm-instantaneous-shuffled (raw, data/i4r/predictions/test.other-phase.lstm-instantaneous-shuffled.features.bin)
+test: predicting mlp-control (raw, data/i4r/predictions/test.other-phase.mlp-control.features.bin)
+{"experiment":"experiments/20261025-i4-g2-rescore","split":"test","gate":"G2","result":"pass","decided_by":"harness (pending agent panel review)","checks":["g2-instantaneous-range: pass","g2-instantaneous-course: pass","g2-instantaneous-speed: pass","g2-time-late-range: pass","g2-time-late-course: pass","g2-time-late-speed: pass","g1-instantaneous: pass","g1-time-late: pass","time-late-not-worse: pass","instantaneous-beats-control: pass","time-late-beats-control: pass","shuffled-labels-at-naive: pass"]}
+
+started 2026-10-25T08:33:21Z, finished 2026-10-25T12:12:26Z, exit 0, commit 9c2344dda15998713cbe27357b3bebc7dc4aee65, peak node RSS 2898528 kB, lowest free disk 2402336 kB

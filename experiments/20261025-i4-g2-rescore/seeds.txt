@@ -1,0 +1,2 @@
+train	seed=205	index=[0, 80000)	data/i4r/train.f32pack
+test	seed=206	index=[900000, 1000000)	data/i4r/test.f32pack
