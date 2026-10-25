@@ -12,7 +12,10 @@ for (const s of readPack(pack).scenarios()) {
   if (Math.abs(s.metadata.parameters.noise_sigma_rad - Math.PI / 180) > 1e-6) continue;
   const k = s.metadata.zig_index + 60;
   if (k >= s.metadata.samples) continue;
-  truth.set(s.metadata.index, { row: k - (s.metadata.zig_index + 1), v: s.target.states[k].speed_mps });
+  truth.set(s.metadata.index, {
+    row: k - (s.metadata.zig_index + 1),
+    v: s.target.states[k].speed_mps,
+  });
 }
 const bands = [
   [0, 5],
@@ -30,7 +33,10 @@ for (const file of preds) {
   const acc = bands.map(() => ({ abs: [], signed: [] }));
   const abs = [];
   const signed = [];
-  let sx = 0, sy = 0, sxx = 0, sxy = 0;
+  let sx = 0,
+    sy = 0,
+    sxx = 0,
+    sxy = 0;
   const lines = createInterface({ input: createReadStream(file), crlfDelay: Infinity });
   for await (const line of lines) {
     if (!line) continue;
