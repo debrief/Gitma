@@ -1,0 +1,19 @@
+{
+  "carried_set_rule": "The hybrid of classical (tma-solve --per-timestep, default options) and the frozen iteration-4 lstm-instantaneous (experiments/20261023-i4a-val/models/lstm-instantaneous, bound by model_digests), by hybridSwitch (SWITCH_RANGE_REL 0.5). Nothing is trained or tuned. Reported as a hybrid (Annex A B.2.6), not a network alone.",
+  "change": "G3 (SRD section 5) for the disagreement-switch hybrid: classical row unless classical did not converge (or is implausible) or |r_classical - r_network| / r_network > 0.5, then the network row. Test split of fresh seed 207: 20,000 scenarios, indices 180,000-199,999 of a 200,000-scenario dataset under configs/iter4-ranges.json (generator 0.3.0), generated alone by scripts/generate-splits.mjs from a clean tree.",
+  "decided_at": "2026-10-27T20:54:08Z",
+  "fresh_test_count": 200000,
+  "git_commit": "4080a6bbce40e74bc680f6052624d4f64e5cc9ae",
+  "model_digests": [
+    {
+      "model": "lstm-instantaneous",
+      "weights_sha256": "495e250230d4ad69b44317e03c74fd3dbbc75b76758e65147919e2230adbf9f2",
+      "manifest_sha256": "4cec98b4e9d95042015aabbd81345027c7ad81e05757fb5cf76ca29ef1a88580",
+      "model_json_sha256": "78b9e12bb7096e65b927b204dc5fe7eeb4483e4a454df86c32fcc0a27101ed61"
+    }
+  ],
+  "phase_a_experiment": "20261025-i4-g2-rescore",
+  "rationale": "G2 passed on the iteration-4 re-score (seed 206). Spec 009 research (seed 205 validation, sigma = 1 deg): R1 the per-leg fit carries no usable range rate on young legs; R2 a network-initialised solver reproduces classical (0.13% of rows differ; the least-squares optimum is far from the truth in classical gross rows, the LSTM within 50% in 91% of them); R3 validation diagnostic of the switch: every median and P90 ratio 0.956-1.025, all intervals below 1.2; gross-error rate at zig+300s 0.553% vs 1.249%, difference -0.696 pp [-1.003, -0.410]: rule FR-006 holds. G3 rule (spec 009 FR-007): tma-g3 on sigma = 1 deg, paired bootstrap 95% intervals (2,000 resamples, seed 20261011), FR-015; six ratio checks (median and P90 of range and course at zig+300s, speed at zig+600s) against 1.2, gross-error-rate difference at zig+300s against 0; pass needs all seven. Forecast: ratios 0.99-1.03; gross 1.2% to 0.5-0.6%; P(G3 pass) about 0.9.",
+  "stalled": false,
+  "test_seed": "207"
+}
