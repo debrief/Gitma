@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_tma_site=self.webpackChunk_tma_site||[]).push([[1534],{1641(t){t.exports=JSON.parse('{"metadata":{"permalink":"/Gitma/pr/57/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":8,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);
