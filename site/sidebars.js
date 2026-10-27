@@ -13,6 +13,7 @@ const sidebars = {
         "algorithms/naive-baseline",
         "algorithms/least-squares-solver",
         "algorithms/models",
+        "algorithms/hybrid",
         "algorithms/viewer",
       ],
     },

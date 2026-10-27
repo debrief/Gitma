@@ -76,6 +76,9 @@ pnpm tma-scan --data data/i2 --models <any models> --experiment <dir>   # side e
 pnpm tma-g2 --data data/i2 --models <carried> --compare-models <other phase> \
   --decision <committed decision.json> --plan <plan.json> --split test \
   --experiment experiments/<id>   # the gate: checks plan digests, decision ancestry, same rows; exit 3: not passed
+pnpm tma-hybrid --truth <test.f32pack> --classical <classical.ndjson> --network <lstm.ndjson> --out <hybrid.ndjson>
+pnpm tma-g3 --truth <test.f32pack> --hybrid <hybrid.ndjson> --classical <classical.ndjson> \
+  --decision <committed decision.json> --experiment experiments/<id>   # G3 (spec 009); validation: diagnostic only
 ```
 
 Full walkthroughs: `specs/001-iteration-0-pipeline/quickstart.md`, `specs/002-iteration-1-signal/quickstart.md`,
@@ -216,8 +219,12 @@ scenarios, the same frozen models (plan `configs/iter4/r`, decision
 inconclusive there is final. **G2 passed** on the re-score (panel round 1,
 `experiments/20261025-i4-g2-rescore/`): instantaneous speed 0.939 kt [0.926, 0.951], time-late
 0.740 kt, range and course pass; classical 0.319 kt, so the models are still about 3 × classical on
-speed (write-up: `site/blog/2026-10-25-iteration-4.md`). Seeds 205–206 are reserved. Next is G3
-(classical parity, stretch), at the owner's choice. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+speed (write-up: `site/blog/2026-10-25-iteration-4.md`). Seeds 205–206 are reserved. **Iteration 5**
+(spec 009, decision 24) judges G3 for a **hybrid**, reported as such and not as a network alone.
+It is classical's estimate, replaced by the frozen iteration-4 LSTM's where classical fails or the
+two ranges differ by more than 50% (`hybridSwitch`). Research showed that a per-leg fit carries no
+range rate on young legs (R1), and that a network-initialised solver reproduces classical (R2).
+Fresh seed 207, 20,000 test scenarios; decision `experiments/20261027-i5-decision/`. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

@@ -16,7 +16,9 @@
   "bin": {
     "tma-eval": "./dist/cli-eval.js",
     "tma-gate": "./dist/cli-gate.js",
-    "tma-g0": "./dist/cli-g0.js"
+    "tma-g0": "./dist/cli-g0.js",
+    "tma-hybrid": "./dist/cli-hybrid.js",
+    "tma-g3": "./dist/cli-g3.js"
   },
   "scripts": {},
   "dependencies": {
