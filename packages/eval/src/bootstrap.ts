@@ -110,9 +110,14 @@ export function bootstrapMedianRatio(
  * reordered. NaN must already be mapped to +Infinity. O(n) on average, versus a sort per resample.
  */
 export function selectMedian(buf: Float64Array): number {
+  return selectQuantile(buf, 0.5);
+}
+
+/** Nearest-rank quantile q ∈ (0, 1] (rank max(1, ⌈q·n⌉), as `percentile`), by in-place selection. */
+export function selectQuantile(buf: Float64Array, q: number): number {
   const n = buf.length;
   if (n === 0) return NaN;
-  const k = Math.ceil(0.5 * n) - 1;
+  const k = Math.max(1, Math.ceil(q * n)) - 1;
   let lo = 0;
   let hi = n - 1;
   while (lo < hi) {
@@ -361,5 +366,87 @@ export function bootstrapEvaluation(
     method: "percentile bootstrap over scenarios; nearest-rank 2.5th and 97.5th percentiles",
     medians,
     ratios,
+  };
+}
+
+/**
+ * Seeded paired bootstrap of quantile_q(a) / quantile_q(b) (spec 009, G3: the median and the
+ * 90th percentile of the hybrid against classical). q = 0.5 is `bootstrapMedianRatio`.
+ */
+export function bootstrapQuantileRatio(
+  a: Float64Array,
+  b: Float64Array,
+  q: number,
+  resamples = BOOTSTRAP_RESAMPLES,
+  seed = BOOTSTRAP_SEED,
+): RatioInterval {
+  const n = a.length;
+  if (n === 0 || b.length !== n) throw new Error("bootstrap needs two equal, non-empty samples");
+  const rng = createRng(seed);
+  const ratios: number[] = [];
+  const ra = new Float64Array(n);
+  const rb = new Float64Array(n);
+  for (let r = 0; r < resamples; r++) {
+    for (let i = 0; i < n; i++) {
+      const k = uniformInt(rng, n);
+      ra[i] = nanToInf(a[k]);
+      rb[i] = nanToInf(b[k]);
+    }
+    ratios.push(selectQuantile(ra, q) / selectQuantile(rb, q));
+  }
+  const sorted = ascending(ratios);
+  return {
+    ratio: percentile(ascending(Array.from(a)), q) / percentile(ascending(Array.from(b)), q),
+    lo: percentile(sorted, 0.025),
+    hi: percentile(sorted, 0.975),
+    n,
+    resamples,
+    seed: seed.toString(),
+  };
+}
+
+export interface DifferenceInterval {
+  /** mean(a) − mean(b) on the full sample. */
+  difference: number;
+  /** 2.5th and 97.5th percentiles of the bootstrap differences (nearest rank). */
+  lo: number;
+  hi: number;
+  n: number;
+  resamples: number;
+  seed: string;
+}
+
+/**
+ * Seeded paired bootstrap of rate(a) − rate(b) for two 0/1 indicators on the same scenarios
+ * (spec 009, G3: the hybrid's gross-error rate against classical's).
+ */
+export function bootstrapRateDifference(
+  a: Uint8Array,
+  b: Uint8Array,
+  resamples = BOOTSTRAP_RESAMPLES,
+  seed = BOOTSTRAP_SEED,
+): DifferenceInterval {
+  const n = a.length;
+  if (n === 0 || b.length !== n) throw new Error("bootstrap needs two equal, non-empty samples");
+  const rng = createRng(seed);
+  const diffs: number[] = [];
+  for (let r = 0; r < resamples; r++) {
+    let d = 0;
+    for (let i = 0; i < n; i++) {
+      const k = uniformInt(rng, n);
+      d += (a[k] ?? 0) - (b[k] ?? 0);
+    }
+    diffs.push(d / n);
+  }
+  let full = 0;
+  for (let i = 0; i < n; i++) full += (a[i] ?? 0) - (b[i] ?? 0);
+  const sorted = ascending(diffs);
+  return {
+    difference: full / n,
+    lo: percentile(sorted, 0.025),
+    hi: percentile(sorted, 0.975),
+    n,
+    resamples,
+    seed: seed.toString(),
   };
 }

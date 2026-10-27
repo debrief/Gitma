@@ -59,6 +59,10 @@ Reported as a rate because TMA failures are heavy-tailed.
 **Held-out geometry** — A test set drawn from parameter ranges outside training (for example
 20–30 km initial range), used to measure extrapolation.
 
+**Hybrid estimator** — Classical's least-squares estimate, replaced by a network's where classical
+fails or the two ranges differ by more than 50% (spec 009, [note](algorithms/hybrid.md)). Its
+accuracy is classical's; it is judged at G3 as a hybrid, not as a network alone.
+
 **Inconclusive** — A gate check whose 95% interval contains its threshold: the data cannot say
 which side the true value is on. A gate with an inconclusive check, and no failing one, is
 inconclusive; the agent review panel decides it under a pre-registered rule.

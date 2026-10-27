@@ -288,3 +288,7 @@ Each is a separate, pre-registered experiment (B.3). None is chosen until A.7 is
 - **D5** After iteration 3 stopped at validation: the next lever. _Decided 2026-10-22: B.2.2 as
   velocity outputs, combined with B.2.3 (derived features), on iteration 3's problem, seed 205
   (spec 008, decision 23)._
+- **D6** After G2 passed: G3. _Decided 2026-10-27: G3 through B.2.6, the hybrid. Classical's
+  estimate is replaced by the iteration-4 LSTM's where the two disagree, judged on fresh seed 207
+  (spec 009, decision 24). The per-leg fit of B.2.3 was tried first in research and set aside
+  (spec 009 R1)._
