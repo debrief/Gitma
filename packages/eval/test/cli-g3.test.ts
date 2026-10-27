@@ -2,7 +2,7 @@
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runCli } from "@tma/data";
+import { readDataset, runCli } from "@tma/data";
 import { describe, expect, it, vi } from "vitest";
 import { main as solve } from "../../classical/src/cli-solve.js";
 import { main as generate } from "../../data/src/cli-generate.js";
@@ -136,8 +136,11 @@ describe("tma-hybrid and tma-g3", () => {
     expect(() => requireG3Decision(decision, test, () => false)).toThrow(/must be committed/);
     writeFileSync(decision, JSON.stringify({ ...record, test_seed: "4" }));
     expect(() => requireG3Decision(decision, test, () => true)).toThrow(/test seed 4/);
-    // The tiny dataset was generated with --allow-dirty: refused even with the right seed.
+    // With the right seed it is accepted, unless the test data came from a dirty tree (as they
+    // do locally with uncommitted changes; CI's checkout is clean).
     writeFileSync(decision, JSON.stringify(record));
-    expect(() => requireG3Decision(decision, test, () => true)).toThrow(/dirty tree/);
+    if (readDataset(test).header.generator_git_dirty === false)
+      expect(requireG3Decision(decision, test, () => true).test_seed).toBe("3");
+    else expect(() => requireG3Decision(decision, test, () => true)).toThrow(/dirty tree/);
   });
 });
