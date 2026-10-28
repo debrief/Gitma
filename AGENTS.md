@@ -247,7 +247,13 @@ for each outcome is fixed in advance (Annex B §B.5). Status (PR 2): generator 0
 after a turn even noise-free (Aidala), so the owner re-decided D3: the gated reference is the
 tuned-turn **IMM** (CV + coordinated turn), the EKF reported. G0 checks batch least squares on each
 scenario up to the target's turn (`beforeManoeuvre`); zigs are planned on the target's straight
-track. Seed 900 is the viewer's phase-3 preview only. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+track. Seed 900 is the viewer's phase-3 preview only. PR 3: research and tuning
+(`experiments/20261028-p3-research/`), decision 26 (`experiments/20261028-p3-decision/`): the
+frozen reference is `imm-cv0.003-ct0.1-w0.001-s0.001-r2` (13.6% median range error at manoeuvre +
+300 s on validation; EKF 15.3%); the carried model is the iteration-4 LSTM configuration from
+scratch on seed 208 (`configs/phase3/a`, push `train/p3a`; the job only commits the model); G4 on
+fresh seed 209 (400,000, its 40,000-scenario test split) with `tma-g4 --decision --plan --model`.
+Seeds 207–209 are reserved. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

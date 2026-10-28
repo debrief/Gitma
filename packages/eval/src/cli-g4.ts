@@ -134,6 +134,28 @@ interface Summary {
   non_converged: number;
 }
 
+/** Pre-registered timing slice (spec 010 FR-011): the target's turn against ownship's second zig. */
+export const TIMINGS = [
+  "turn before zig 2",
+  "turn overlaps zig 2",
+  "zig 2 before turn (no ownship manoeuvre after it)",
+] as const;
+
+/**
+ * Where the target's turn falls against ownship's second zig: wholly before the zig starts, wholly
+ * after the zig ends (so ownship makes no manoeuvre after the turn), or overlapping it.
+ */
+export function turnTiming(s: Scenario): (typeof TIMINGS)[number] {
+  const m = s.metadata;
+  const turnStart = (m.manoeuvre_start_index ?? 0) - 1;
+  const turnEnd = m.manoeuvre_index ?? 0;
+  const zig2End = m.zig2_index ?? Infinity;
+  const zig2Start = m.turn2_start_index != null ? m.turn2_start_index - 1 : zig2End;
+  if (turnEnd <= zig2Start) return TIMINGS[0];
+  if (turnStart >= zig2End) return TIMINGS[2];
+  return TIMINGS[1];
+}
+
 /** Medians and P90s of every set on the G4 rows and the control rows (FR-010). */
 export function g4Report(truth: Scenario[], sets: PredictionSet[]): Summary[] {
   const out: Summary[] = [];
@@ -175,6 +197,14 @@ export function g4Report(truth: Scenario[], sets: PredictionSet[]): Summary[] {
   for (const set of sets) {
     for (const m of ["range_rel", "course_deg", "speed_kt"] as const)
       summarise(set, g4, "turning, manoeuvre+300s", m);
+    for (const t of TIMINGS)
+      for (const m of ["range_rel", "course_deg"] as const)
+        summarise(
+          set,
+          g4.filter(({ s }) => turnTiming(s) === t),
+          `turning, manoeuvre+300s, ${t}`,
+          m,
+        );
     for (const c of G2_CRITERIA) {
       const rows = sigma1Held
         .map((s) => ({
