@@ -4,7 +4,8 @@
 
 **Created**: 2026-10-27
 
-**Status**: Planned. The owner chose G3 through model levers, starting with the per-leg fit
+**Status**: Complete: **G3 passed for the hybrid** on seed 207 (`experiments/20261028-i5-g3/`,
+panel round 1, 2026-10-28). Planned 2026-10-27. The owner chose G3 through model levers, starting with the per-leg fit
 (B.2.3), on 2026-10-27. Research R1 showed that fit carries no usable range rate at the gate
 points. The owner then switched to the hybrid (B.2.6): first network-initialised, then the
 disagreement switch, after research R2 (decision 24).

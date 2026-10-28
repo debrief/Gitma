@@ -224,7 +224,15 @@ speed (write-up: `site/blog/2026-10-25-iteration-4.md`). Seeds 205–206 are res
 It is classical's estimate, replaced by the frozen iteration-4 LSTM's where classical fails or the
 two ranges differ by more than 50% (`hybridSwitch`). Research showed that a per-leg fit carries no
 range rate on young legs (R1), and that a network-initialised solver reproduces classical (R2).
-Fresh seed 207, 20,000 test scenarios; decision `experiments/20261027-i5-decision/`. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+Fresh seed 207, 20,000 test scenarios; decision `experiments/20261027-i5-decision/`. **G3 passed
+for the hybrid** (panel round 1, `experiments/20261028-i5-g3/`):
+- **Ratios.** Every median and P90 is within 0.97–1.02 × classical.
+- **Gross errors.** At zig + 300 s they fall from 1.19% to 0.57%; at zig + 600 s the difference
+  is not significant (0.17% against 0.14%).
+- **The LSTM alone** is still about 3 × classical on speed.
+
+Write-up: `site/blog/2026-10-28-iteration-5.md`. Seeds 205–207 are reserved. `tma-g3` binds the
+decision and the seed, but not the data or model digests (a follow-up). `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

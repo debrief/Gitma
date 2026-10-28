@@ -17,8 +17,8 @@
 
 ## Run
 
-- [ ] T007 Generate seed 207's test split (20,000), record its digest; features; LSTM, classical
+- [x] T007 Generate seed 207's test split (20,000), record its digest; features; LSTM, classical
   and naive predictions; hybrid; `tma-eval`
-- [ ] T008 `tma-g3 --decision` into `experiments/<date>-i5-g3`; agent panel; `review.md`;
+- [x] T008 `tma-g3 --decision` into `experiments/<date>-i5-g3`; agent panel; `review.md`;
   `decided_by`
-- [ ] T009 Write-up: results page, blog post, AGENTS.md gate status
+- [x] T009 Write-up: results page, blog post, AGENTS.md gate status

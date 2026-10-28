@@ -1,0 +1,71 @@
+---
+title: "Results: iteration 5 (hybrid estimator, G3 passed)"
+description: Iteration 5 judged G3 (classical parity) for a hybrid, classical least squares with the iteration-4 LSTM as a fallback, and passed on fresh seed 207, beside naive, classical and the LSTM alone.
+---
+
+# Results: iteration 5 (hybrid estimator, G3 passed)
+
+**Question:** can a network help reach [G3](iteration-4.mdx), "within 1.2× classical on every
+metric, and lower gross-error rate" (SRD §5)? The models alone are 2.1–3.5 × classical. Spec 009
+judged a **hybrid** (Annex A B.2.6, decision 24).
+
+- **The estimator.** Classical's least-squares estimate, replaced by the frozen iteration-4 LSTM's
+  where classical fails or the two ranges differ by more than 50%. See the
+  [algorithm note](../algorithms/hybrid.md).
+- **Training.** None.
+
+:::tip G3 passed, for a hybrid
+**All seven checks pass** on seed 207's test split (20,000 scenarios, σ = 1°):
+
+- **Ratios.** Every median and P90 of range, course and speed is within 0.97–1.02 × classical,
+  against 1.2.
+- **Gross errors, five minutes after the zig.** They fall from 1.19% to 0.57%: −0.62 pp
+  [−0.82, −0.42].
+
+**What it is not.** It is not a network matching classical. The LSTM alone is still about 3 ×
+classical on speed. The hybrid's accuracy is classical's (its medians are about 1% worse).
+What the network adds is robustness where least squares lands far from the truth.
+
+Records:
+- the [experiment](https://github.com/debrief/Gitma/tree/main/experiments/20261028-i5-g3), whose
+  `review.md` holds the panel;
+- the [decision](https://github.com/debrief/Gitma/blob/main/experiments/20261027-i5-decision/decision.md);
+- the [research](https://github.com/debrief/Gitma/blob/main/specs/009-iteration-5-hybrid/research.md);
+- the [write-up](/blog/2026/10/28/iteration-5).
+:::
+
+## Seed-207 test split, σ = 1° (median / P90)
+
+| Estimator | Range, zig + 300 s | Course, zig + 300 s | Speed, zig + 600 s | Gross, zig + 300 s |
+| --- | --- | --- | --- | --- |
+| **hybrid** | **3.36% / 14.6%** | **1.38° / 17.5°** | **0.310 / 1.95 kt** | **0.57%** |
+| classical | 3.35% / 14.8% | 1.37° / 18.1° | 0.307 / 1.92 kt | 1.19% |
+| lstm-instantaneous alone | 7.16% / 20.8% | 4.75° / 23.5° | 0.956 / 2.99 kt | 0.99% |
+| naive | 40.7% / 162% | 91.0° / 162° | 4.22 / 7.68 kt | 38.1% |
+
+n = 9,834 at zig + 300 s, 6,483 at zig + 600 s.
+
+## G3 checks (paired bootstrap 95% intervals, 2,000 resamples)
+
+| Check | Hybrid / classical, or difference | 95% CI | Limit |
+| --- | --- | --- | --- |
+| range median / P90 | 1.003 / 0.989 | [1.000, 1.009] / [0.976, 0.999] | 1.2 |
+| course median / P90 | 1.011 / 0.966 | [1.003, 1.018] / [0.932, 0.983] | 1.2 |
+| speed median / P90 | 1.010 / 1.015 | [1.002, 1.016] / [1.001, 1.030] | 1.2 |
+| gross-error rate | −0.620 pp | [−0.824, −0.417] | 0 |
+
+## Where the switch helps and hurts
+
+At zig + 300 s, 140 σ = 1° rows switch (1.4%):
+
+- **Helps (82 rows).** A classical gross error is fixed. These cluster at long range (beyond
+  12 km, gross errors fall 95 → 23), at low bearing rate and after shallow ownship turns.
+- **Hurts (21 rows).** A good classical row becomes gross. These are mostly at short range (under
+  4 km, gross errors rise 2 → 20), where classical is sharp and the network's relative range
+  error is large.
+
+At zig + 600 s, which is reported and not gated, the gross rates are 0.17% for the hybrid against
+0.14% for classical: 11 against 9 rows, no evidence of a difference.
+
+**At σ = 2°**, also reported and not gated, the benefit is larger: gross errors fall from 4.63% to
+1.80% at zig + 300 s.
