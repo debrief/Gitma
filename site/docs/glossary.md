@@ -47,6 +47,11 @@ beat its control, its result says little about learning the geometry. See
 
 **Dropout** — A missing bearing sample (`valid = false`). Drawn independently per sample.
 
+**EKF (extended Kalman filter)** — A recursive estimator that predicts the target state under a
+constant-velocity model and corrects it with each bearing; its process noise σ_a sets how fast it
+can follow a turn. Phase 3's reference (SRD Annex B §B.3), with two tunings chosen on validation
+and frozen: tuned-straight and tuned-turn.
+
 **Early stopping** — Ending training when validation loss has not improved for `patience` epochs;
 the best epoch's weights are kept.
 
@@ -55,6 +60,10 @@ the best epoch's weights are kept.
 
 **Gross error** — A scenario whose range error exceeds 50%, or whose estimator did not converge.
 Reported as a rate because TMA failures are heavy-tailed.
+
+**G4** — Phase 3's gate (SRD Annex B §B.4): on manoeuvring scenarios five minutes after the
+target's turn, the network alone must beat the tuned-turn EKF on median range and course error,
+not exceed its gross-error rate, and not regress from G2 on held-course scenarios.
 
 **Held-out geometry** — A test set drawn from parameter ranges outside training (for example
 20–30 km initial range), used to measure extrapolation.
@@ -72,6 +81,10 @@ range, course and speed from bearings so far. Scored as a curve of error against
 
 **Leg** — A period of constant ownship course and speed. Scenarios have two legs (joined by a
 rate-limited turn from iteration 2), or three from iteration 3 (a second zig).
+
+**Manoeuvre (target)** — From phase 3 (generator 0.4.0), one rate-limited target course change
+of 30–120° in 80% of scenarios; `manoeuvre_index` is the first sample after it completes, and
+gate G4 counts time from there, as earlier gates count from `zig_index`.
 
 **Naive baseline** — Predicts training-set means and ignores the bearings. Anything that cannot
 beat it has learned nothing. See [naive baseline](algorithms/naive-baseline.md).
