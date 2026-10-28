@@ -70,9 +70,12 @@ be the comparator for a manoeuvre.
 
 **Why not the single EKF first written here.** Spec 010's first tests found that a
 constant-velocity EKF in Cartesian coordinates drifts after a target turn even on noise-free
-bearings: its range error grows to about 50% and a later ownship zig does not correct it, for
-every process-noise setting, while a batch fit on the post-turn bearings alone recovers the truth
-exactly (Aidala's instability, 1979). Gating against it would make G4 a weak bar. The owner
+bearings: in the first hand-built case its range error grows to about 50% and a later ownship zig
+does not correct it, at every setting tried, while a batch fit on the post-turn bearings alone
+recovers the truth exactly. It is not hopeless everywhere (the G0 panel found the mirror-image
+case ends at 0.33% with σ_a/σ = 0.32). The mechanism is a constant-velocity model carried through
+the turn, then covariance collapse along the family of scaled tracks that fit the bearings while
+ownship holds course; it is related to, and looser than, Aidala's Cartesian instability (1979). Gating against it would make G4 a weak bar. The owner
 re-decided D3 on 2026-10-28: the gated reference is an interacting-multiple-model tracker.
 
 - **Model.** IMM (Blom and Bar-Shalom) of two EKFs on (x, y, vx, vy, ω): constant velocity with

@@ -107,10 +107,15 @@ split, the agent panel, `review.md`, `decided_by`, a results page and a blog pos
   - **Reference.** Whether G4 gates against the tuned IMM alone or against the better of the
     tuned IMM and the tuned single EKF at the gate point (at σ = 1° the best EKF tried so far is
     level with or better than the best IMM); the IMM grid includes a scale on the initial
-    covariance.
+    covariance and a scale on the measurement variance R (G0 panel round 2: turn-ready settings
+    are 1.7–1.8 × batch least squares on straight legs at the true σ, about 1.1 × with R × 100).
+    The gated tracker's straight-leg ratio to batch least squares is reported beside G4.
   - **Control baseline.** G2's checks re-run on phase-3 held-course data (the window
     distribution differs from iterations 2–4), and the test seed sized so the control's interval
     can exclude regression (about 1,760 held σ = 1° rows at zig + 10 min per 20,000 scenarios).
+  - **Rows scored.** G4 scores only rows at or after `manoeuvre_index` + the gate offset; the
+    manoeuvre slice alone labels the scenario ("would turn"), not whether a row is post-turn
+    (G0 panel round 2, statistics). A unit test pins this.
   - **Pre-registered slices.** Turn before / after ownship's second zig, and ownship manoeuvre
     after the target's turn yes / no: turn timing is predictable (2–8 min after the zig), a prior
     the IMM's constant switch rate lacks.

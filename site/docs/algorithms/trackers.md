@@ -81,10 +81,13 @@ the decision record, and then used unchanged at G4 (spec 010 FR-004).
 - **At σ = 1°, before the turn.** With no CV process noise and rare switching (σ_cv 0,
   switch 10⁻⁵/s) its median range error at the last sample before the turn is about that of
   per-timestep batch least squares (3.1% against 3.4% on 120 scenarios). G0 gates the ratio at
-  1.25 (check `tracker-noisy-sanity`), so a mis-scaled measurement variance cannot hide behind
-  noise-free data. With G0's noise-free settings (switch 10⁻³/s) it is 1.8 × batch least squares:
+  1.25 (check `tracker-noisy-sanity`). The check is one-sided: it catches an under-stated
+  measurement variance (σ × 0.1 gives 2.1 ×), not an over-stated one (σ × 10 gives 1.002 ×), because
+  with no CV process noise the filter is close to recursive least squares whatever R is. With G0's noise-free settings (switch 10⁻³/s) it is 1.8 × batch least squares:
   frequent switching leaks the turn model's noise into straight legs, so the tuning grid must
-  include low switch rates.
+  include low switch rates. Turn-ready settings are about 1.7–1.8 × batch least squares on straight
+  legs at the true σ, and telling them σ × 10 brings that to about 1.1 ×: a scale on R is a
+  tuning lever too (G0 panel round 2).
 - **Noise-free, before the turn.** Every row from zig + 60 s to the turn is within G0's
   tolerances (0.1% range, 0.1° course, 0.01 kt).
 - **At σ = 1°, five minutes after the turn.** On 150 validation-like scenarios with untuned
