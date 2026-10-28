@@ -2,10 +2,79 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://debrief.github.io/Gitma/blog</id>
     <title>TMA via ML Blog</title>
-    <updated>2026-10-25T00:00:00.000Z</updated>
+    <updated>2026-10-28T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://debrief.github.io/Gitma/blog"/>
     <subtitle>TMA via ML Blog</subtitle>
+    <entry>
+        <title type="html"><![CDATA[Iteration 5: a hybrid passes G3; the network adds robustness, not accuracy]]></title>
+        <id>https://debrief.github.io/Gitma/blog/2026/10/28/iteration-5</id>
+        <link href="https://debrief.github.io/Gitma/blog/2026/10/28/iteration-5"/>
+        <updated>2026-10-28T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[G2 left the models usable but about 3 × worse than the classical least-squares solver. G3]]></summary>
+        <content type="html"><![CDATA[<p>G2 left the models usable but about 3 × worse than the classical least-squares solver. G3
+asks for parity: within 1.2 × classical on every metric, and a lower gross-error rate.</p>
+<p>Iteration 5 trained nothing. It combined the two estimators: classical's estimate, except where
+classical fails or the network disagrees by more than 50% on range, where the network's is used.</p>
+<p><strong>G3 passes for that hybrid</strong> on a fresh test set of 20,000 scenarios (seed 207):</p>
+<ul>
+<li class=""><strong>Parity.</strong> Every median and 90th percentile of range, course and speed is within 0.97–1.02 ×
+classical.</li>
+<li class=""><strong>Gross errors.</strong> Five minutes after the zig they fall from 1.19% to 0.57% (−0.62 pp
+[−0.82, −0.42]).</li>
+<li class=""><strong>Validation agreed.</strong> It forecast 1.25% → 0.55% on seed 205.</li>
+</ul>
+<p>Records: <a href="https://github.com/debrief/Gitma/tree/main/experiments/20261028-i5-g3" target="_blank" rel="noopener noreferrer" class=""><code>experiments/20261028-i5-g3/</code></a>.
+Figures: <a class="" href="https://debrief.github.io/Gitma/docs/results/iteration-5">iteration-5 results</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="how-we-got-here">How we got here<a href="https://debrief.github.io/Gitma/blog/2026/10/28/iteration-5#how-we-got-here" class="hash-link" aria-label="Direct link to How we got here" title="Direct link to How we got here" translate="no">​</a></h2>
+<p>The owner first chose a model lever for G3: a per-leg steady-track fit as an extra input (Annex A
+B.2.3). Three pieces of research reshaped the plan before anything was trained:</p>
+<ol>
+<li class=""><strong>The per-leg fit doesn't help where it matters.</strong> On a long first leg it measures the
+range-rate ratio well, about 28% error. At the gate points the current leg is only about four
+minutes old, and the same quantity is pure noise: 37–64 /h of error against a true value near
+1 /h. Classical does better because it fits all the legs together.</li>
+<li class=""><strong>Starting the solver from the network changes nothing.</strong> It gave classical's answer in 99.9%
+of rows. Classical's gross errors are not bad starting points. They are cases where the
+least-squares optimum itself is far from the truth: near-unobservable geometry, where any start
+converges to the same wrong answer. In 91% of those rows the network was still within 50% of
+the true range.</li>
+<li class=""><strong>So the hybrid has to sometimes overrule least squares.</strong> The disagreement switch does,
+without a tuned parameter. Its 50% threshold is the gross-error bound itself.</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reading-it-critically">Reading it critically<a href="https://debrief.github.io/Gitma/blog/2026/10/28/iteration-5#reading-it-critically" class="hash-link" aria-label="Direct link to Reading it critically" title="Direct link to Reading it critically" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>It is a hybrid result.</strong> The network alone is still 0.956 kt on speed against classical's
+0.307 kt. Nothing here says a network matches classical.</li>
+<li class=""><strong>No accuracy gain.</strong> The hybrid's medians are about 1% <em>worse</em> than classical's on course and
+speed: measurable, and immaterial against 1.2. What it adds is fewer gross errors: the 1.4% of
+rows where it switches.</li>
+<li class=""><strong>The switch aims at the metric that is gated.</strong> The threshold equals the gross-error
+definition. That was fixed in the decision record before seed 207 existed, but it means the
+lower gross rate is partly by design.</li>
+<li class=""><strong>It costs something at short range.</strong> At zig + 300 s the switch fixes 82 classical gross
+errors and causes 21. Those 21 are mostly under 4 km, where classical is sharp and the network's
+relative range error is large.</li>
+<li class=""><strong>The gain is early only.</strong> Ten minutes after the zig the gross rates are 0.17% against 0.14%:
+no evidence of a difference. The "lower gross-error rate" is shown at the pre-registered
+five-minute point only.</li>
+<li class=""><strong>It grows with noise.</strong> At σ = 2° gross errors fall from 4.63% to 1.80%. That is the case SRD
+§5 calls interesting for ML over classical methods.</li>
+<li class=""><strong>Still simulation.</strong> The target holds course and speed (SRD §3), and the data are mock.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/blog/2026/10/28/iteration-5#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>All four gates are passed: G0, G1, G2, and G3 for the hybrid. The proof of concept has its
+answer.</p>
+<ul>
+<li class=""><strong>The network alone</strong> extracts usable range, course and speed, but is about 3 × worse than
+classical.</li>
+<li class=""><strong>As a fallback</strong> it makes least squares more robust in near-unobservable geometry, without
+costing accuracy.</li>
+</ul>
+<p>SRD §5 says G3 defines the bar for the next phase. Natural next steps are target manoeuvres
+(where classical's constant-velocity model breaks) and an EKF reference. Both are the owner's
+choice.</p>]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Iteration 4: velocity outputs pass G2, still 3 × classical]]></title>
         <id>https://debrief.github.io/Gitma/blog/2026/10/25/iteration-4</id>
