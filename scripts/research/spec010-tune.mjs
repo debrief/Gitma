@@ -114,10 +114,11 @@ if (!isMainThread) {
                 params: { sigmaCv, sigmaCt, sigmaOmega, switchPerS, p0Scale, rScale },
               });
   const result = { grid: gridPath, pack, n_turn: turn.length, n_held: held.length };
+  const kinds = grid.only ?? ["turn", "straight"];
   for (const [name, picks] of [
     ["turn", turn],
     ["straight", held],
-  ]) {
+  ].filter(([n]) => kinds.includes(n))) {
     const t0 = Date.now();
     const lsq = (await run(picks, [{ kind: "lsq" }]))[0];
     console.error(`${name}: least squares done, ${String((Date.now() - t0) / 1000)} s`);
@@ -142,7 +143,7 @@ if (!isMainThread) {
     writeFileSync(outPath, `${JSON.stringify(result, null, 1)}\n`);
   }
   writeFileSync(outPath, `${JSON.stringify(result, null, 1)}\n`);
-  for (const k of ["turn", "straight"])
+  for (const k of kinds)
     console.log(
       k,
       JSON.stringify({

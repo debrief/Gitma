@@ -1,0 +1,17 @@
+{
+  "description": "Spec 010 FR-004: extension of configs/phase3/tracker-grid.json for the tuned-turn IMM only, because its best setting there sat on the grid's edge (sigma_ct 0.1 and switch 0.001, both maxima). The grid is widened along those axes and around the other best values; same objective, rows and two-stage method. The EKF's best (sigma_a 0.1) was inside its grid.",
+  "only": ["turn"],
+  "sigma_deg": 1,
+  "gate_offset_samples": 30,
+  "ekf": { "sigma_a": [0.1], "p0_scale": [4], "r_scale": [4] },
+  "imm": {
+    "sigma_cv": [0.003, 0.01, 0.03],
+    "sigma_ct": [0.1, 0.3, 1],
+    "sigma_omega": [0.001, 0.003, 0.01],
+    "switch": [0.001, 0.003, 0.01],
+    "p0_scale": [1],
+    "r_scale": [2, 4, 8]
+  },
+  "stage1_scenarios": 400,
+  "stage2_top": 10
+}
