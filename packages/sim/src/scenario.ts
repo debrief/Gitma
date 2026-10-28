@@ -1,7 +1,9 @@
 // Scenario generation (SRD §2–3): two- or three-leg ownship, constant-velocity target, noisy
 // bearings. The zig is instantaneous, or a constant-rate turn when the ranges give a turn rate
 // (spec 003 US6). Generator 0.3.0 (spec 007) adds an optional second zig and the across-the-line-
-// of-sight rule; ranges without them reproduce 0.2.0's scenarios byte for byte.
+// of-sight rule; ranges without them reproduce 0.2.0's scenarios byte for byte. Generator 0.4.0
+// (spec 010, SRD Annex B §B.2) adds an optional target course change, drawn last; ranges without
+// it reproduce 0.3.0's scenarios byte for byte.
 // Pure functions: every output is determined by (datasetSeed, index, ranges).
 import type {
   FloatRange,
@@ -23,13 +25,25 @@ import {
   uniformInt,
 } from "./prng.js";
 
-export const GENERATOR_VERSION = "0.3.0";
+export const GENERATOR_VERSION = "0.4.0";
 const MAX_REDRAWS = 1000;
 
 const draw = (s: RngState, r: FloatRange): number => uniform(s, r.min, r.max);
 
 /** Draw one parameter set; every value float32-rounded so metadata describes the data exactly. */
 export function drawParameters(s: RngState, ranges: ParameterRanges): ScenarioParameters {
+  return drawScenario(s, ranges).parameters;
+}
+
+/**
+ * A parameter set and whether its window fits a target turn (always true when the ranges have no
+ * target manoeuvre). A set that does not fit is redrawn, whether or not its target turns, so the
+ * window distribution is the same for turning and held-course targets.
+ */
+function drawScenario(
+  s: RngState,
+  ranges: ParameterRanges,
+): { parameters: ScenarioParameters; fits: boolean } {
   const dt = ranges.dt_s;
   const minSamples = Math.ceil(ranges.window_s.min / dt);
   const maxSamples = Math.floor(ranges.window_s.max / dt);
@@ -67,7 +81,62 @@ export function drawParameters(s: RngState, ranges: ParameterRanges): ScenarioPa
     dropout_fraction: f32(dropout),
     ...turn,
   };
-  return planManoeuvres(s, ranges, base);
+  return planTargetManoeuvre(s, ranges, planManoeuvres(s, ranges, base));
+}
+
+/**
+ * Generator 0.4.0 draws, after every 0.3.0 draw so older ranges consume the PRNG unchanged: whether
+ * the target turns, its signed course change, its turn rate and the turn's start sample. All four
+ * are drawn for every scenario when the ranges have a manoeuvre fraction. The turn starts at a
+ * whole sample, uniformly between `target_manoeuvre_after_zig_s` after the first sample on leg 2
+ * and the last start that ends the turn `target_manoeuvre_margin_s` before the window ends. The
+ * ownship's zigs are planned on the target's straight track, as an operator plans on the current
+ * solution.
+ */
+function planTargetManoeuvre(
+  s: RngState,
+  ranges: ParameterRanges,
+  p: ScenarioParameters,
+): { parameters: ScenarioParameters; fits: boolean } {
+  const fraction = ranges.target_manoeuvre_fraction;
+  if (fraction == null) return { parameters: p, fits: true };
+  const angleRange = ranges.target_manoeuvre_angle_abs_rad;
+  const rateRange = ranges.target_turn_rate_rad_s;
+  const after = ranges.target_manoeuvre_after_zig_s;
+  const margin = ranges.target_manoeuvre_margin_s;
+  if (angleRange == null || rateRange == null || after == null || margin == null)
+    throw new Error(
+      "target_manoeuvre_fraction needs target_manoeuvre_angle_abs_rad, target_turn_rate_rad_s, " +
+        "target_manoeuvre_after_zig_s and target_manoeuvre_margin_s",
+    );
+  const turns = uniform01(s) < fraction;
+  const angle = f32((uniform01(s) < 0.5 ? -1 : 1) * draw(s, angleRange));
+  const rate = f32(draw(s, rateRange));
+  const where = uniform01(s);
+  const dt = p.dt_s;
+  const samples = Math.round(p.window_s / dt);
+  const zigIndex = simulateTruth(p).zigIndex;
+  const lo = zigIndex + Math.ceil(after / dt);
+  const hi = samples - 1 - Math.ceil(margin / dt) - turnRows(Math.abs(angle) / rate, dt);
+  if (hi < lo) return { parameters: p, fits: false };
+  const start = lo + Math.min(hi - lo, Math.floor(where * (hi - lo + 1)));
+  if (!turns) return { parameters: p, fits: true };
+  return {
+    parameters: {
+      ...p,
+      target_manoeuvre_time_s: f32(start * dt),
+      target_manoeuvre_angle_rad: angle,
+      target_turn_rate_rad_s: rate,
+    },
+    fits: true,
+  };
+}
+
+/** Samples from a turn's start sample to the first sample after it ends (as the ownship's legs). */
+function turnRows(turnS: number, dt: number): number {
+  let k = 1;
+  while (k * dt < turnS) k++;
+  return k;
 }
 
 /** Angle in (−π, π]. */
@@ -174,11 +243,16 @@ export interface Truth {
   zig2Index: number | null;
   /** First sample after the second turn starts; null with one zig or an instantaneous zig. */
   turn2StartIndex: number | null;
+  /** First sample after the target's turn starts; null when the target holds course. */
+  manoeuvreStartIndex: number | null;
+  /** First sample after the target's turn ends; null when the target holds course. */
+  manoeuvreIndex: number | null;
   ownX: Float64Array;
   ownY: Float64Array;
   ownCourse: Float64Array;
   tgtX: Float64Array;
   tgtY: Float64Array;
+  tgtCourse: Float64Array;
 }
 
 /**
@@ -232,11 +306,14 @@ function simulateTwoLegs(p: ScenarioParameters): Truth {
     turnStartIndex: null,
     zig2Index: null,
     turn2StartIndex: null,
+    manoeuvreStartIndex: null,
+    manoeuvreIndex: null,
     ownX: new Float64Array(samples),
     ownY: new Float64Array(samples),
     ownCourse: new Float64Array(samples),
     tgtX: new Float64Array(samples),
     tgtY: new Float64Array(samples),
+    tgtCourse: new Float64Array(samples).fill(p.target_course_rad),
   };
   for (let i = 0; i < samples; i++) {
     const t = i * p.dt_s;
@@ -330,7 +407,51 @@ export function observe(s: RngState, p: ScenarioParameters, truth: Truth): Obser
  * gives zig2Index ≥ samples (the caller redraws).
  */
 export function simulateTruth(p: ScenarioParameters): Truth {
-  const truth = simulateTwoLegs(p);
+  return targetManoeuvre(p, ownshipZig2(p, simulateTwoLegs(p)));
+}
+
+/**
+ * The target's course change (generator 0.4.0): straight up to sample k = time / dt, then a
+ * constant-rate arc at the target's speed (`arcPosition`, as the ownship's turns) of
+ * |angle| / rate seconds, then straight on the new course from the first sample after the arc.
+ */
+function targetManoeuvre(p: ScenarioParameters, truth: Truth): Truth {
+  const time = p.target_manoeuvre_time_s;
+  const angle = p.target_manoeuvre_angle_rad;
+  const rate = p.target_turn_rate_rad_s;
+  if (time == null || angle == null || rate == null || !(rate > 0)) return truth;
+  const dt = p.dt_s;
+  const k = Math.round(time / dt);
+  if (k >= truth.samples) return truth;
+  const v = p.target_speed_mps;
+  const c0 = p.target_course_rad;
+  const c1 = wrap2pi(c0 + angle);
+  const omega = (angle < 0 ? -1 : 1) * rate;
+  const turnS = Math.abs(angle) / rate;
+  const x0 = truth.tgtX[k] ?? 0;
+  const y0 = truth.tgtY[k] ?? 0;
+  const end = arcPosition(x0, y0, c0, v, omega, turnS);
+  const leg = k + turnRows(turnS, dt);
+  truth.manoeuvreStartIndex = k + 1;
+  truth.manoeuvreIndex = leg;
+  for (let i = k + 1; i < truth.samples; i++) {
+    const tau = (i - k) * dt;
+    if (i < leg) {
+      const a = arcPosition(x0, y0, c0, v, omega, tau);
+      truth.tgtX[i] = a.x;
+      truth.tgtY[i] = a.y;
+      truth.tgtCourse[i] = a.course;
+    } else {
+      truth.tgtX[i] = end.x + v * Math.sin(c1) * (tau - turnS);
+      truth.tgtY[i] = end.y + v * Math.cos(c1) * (tau - turnS);
+      truth.tgtCourse[i] = c1;
+    }
+  }
+  return truth;
+}
+
+/** The second zig (generator 0.3.0) on a two-leg truth; unchanged when there is none. */
+function ownshipZig2(p: ScenarioParameters, truth: Truth): Truth {
   const zig2 = p.zig2_angle_rad;
   const delay = p.zig2_delay_s;
   if (zig2 == null || delay == null) return truth;
@@ -394,7 +515,8 @@ export function generateScenario(
   const seed = deriveSeed(datasetSeed, index);
   const s = createRng(seed);
   for (let redraws = 0; redraws <= MAX_REDRAWS; redraws++) {
-    const p = drawParameters(s, r);
+    const { parameters: p, fits } = drawScenario(s, r);
+    if (!fits) continue;
     const truth = simulateTruth(p);
     if (truth.turnStartIndex !== null && truth.zigIndex >= truth.samples) continue;
     if (truth.zig2Index !== null && truth.zig2Index >= truth.samples) continue;
@@ -416,7 +538,7 @@ export function generateScenario(
         timestamp_s: t,
         x_m: f32(truth.tgtX[i] ?? 0),
         y_m: f32(truth.tgtY[i] ?? 0),
-        course_rad: p.target_course_rad,
+        course_rad: f32Angle(truth.tgtCourse[i] ?? p.target_course_rad),
         speed_mps: p.target_speed_mps,
       });
     }
@@ -431,6 +553,12 @@ export function generateScenario(
         ...(truth.turnStartIndex === null ? {} : { turn_start_index: truth.turnStartIndex }),
         ...(truth.zig2Index === null ? {} : { zig2_index: truth.zig2Index }),
         ...(truth.turn2StartIndex === null ? {} : { turn2_start_index: truth.turn2StartIndex }),
+        ...(truth.manoeuvreIndex === null
+          ? {}
+          : {
+              manoeuvre_start_index: truth.manoeuvreStartIndex ?? truth.manoeuvreIndex,
+              manoeuvre_index: truth.manoeuvreIndex,
+            }),
         zig_time_s: f32(truth.zigIndex * p.dt_s),
         mean_range_m: f32(rg.mean),
         min_range_m: f32(rg.min),

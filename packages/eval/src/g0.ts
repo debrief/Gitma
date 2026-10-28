@@ -1,5 +1,7 @@
 // End-to-end G0 run (quickstart §3) in one process: naive fitted twice, classical final mode,
-// evaluation, gate, experiment folder.
+// evaluation, gate, experiment folder. From generator 0.4.0 the classical checks and the
+// evaluation use each test scenario up to the target's turn (`beforeManoeuvre`); the geometry
+// and tracker checks use the whole scenario.
 import { join } from "node:path";
 import { renameSync, writeFileSync } from "node:fs";
 import {
@@ -18,7 +20,12 @@ import { evaluate } from "./evaluate.js";
 import { makeManifest, writeEvaluation, writeManifest, writeVerdict } from "./experiment.js";
 import { checkNaiveReproducible, checkNoiseFreeRecovery, g0Verdict } from "./gate.js";
 import {
+  beforeManoeuvre,
   checkBearingResiduals,
+  checkTrackerNoiseFree,
+  checkTrackerNoisy,
+  G0_IMM,
+  G0_IMM_STRAIGHT,
   checkIndependentGeometry,
   checkPerTimestepRecovery,
 } from "./g0-checks.js";
@@ -55,7 +62,10 @@ export function runG0(dataDir: string, experiment: string, commandLine: string):
   writeFileSync(join(dataDir, "naive.json"), `${canonicalJson(naiveA)}\n`);
 
   const truth = readDataset(test);
-  const scenarios = [...truth.scenarios()];
+  const full = [...truth.scenarios()];
+  // Batch least squares assumes constant velocity: from generator 0.4.0 its checks run on each
+  // scenario up to the target's turn (unchanged when the target holds course).
+  const scenarios = full.map(beforeManoeuvre);
   const classical = scenarios.map((s) => classicalPredict(s, "final"));
   const predA = scenarios.map((s) => naivePredict(s, naiveA, "final"));
   const predB = scenarios.map((s) => naivePredict(s, naiveB, "final"));
@@ -77,7 +87,9 @@ export function runG0(dataDir: string, experiment: string, commandLine: string):
     checkNoiseFreeRecovery(truth.header, scenarios, byIndex(classical)),
     checkPerTimestepRecovery(sub, byIndex(perTimestep)),
     checkBearingResiduals(scenarios),
-    checkIndependentGeometry(scenarios, truth.header.parameter_ranges),
+    checkIndependentGeometry(full, truth.header.parameter_ranges),
+    checkTrackerNoiseFree(full.slice(0, G0_PER_TIMESTEP_SCENARIOS), truth.header.parameter_ranges),
+    checkTrackerNoisy(truth.header.parameter_ranges),
     checkNaiveReproducible(evA.metrics, evB.metrics),
   ]);
   writeEvaluation(experiment, evA);
@@ -106,6 +118,21 @@ export function runG0(dataDir: string, experiment: string, commandLine: string):
             mode: "per_timestep",
             scenarios: sub.length,
             note: "first scenarios of the test split, for check classical-per-timestep-recovers",
+          },
+        },
+        {
+          name: "imm",
+          settings: {
+            ...G0_IMM,
+            scenarios: Math.min(full.length, G0_PER_TIMESTEP_SCENARIOS),
+            note: "first scenarios of the test split, for check tracker-noise-free",
+          },
+        },
+        {
+          name: "imm:noisy-sanity",
+          settings: {
+            ...G0_IMM_STRAIGHT,
+            note: "σ = 1° scenarios regenerated from the test split's ranges, for check tracker-noisy-sanity",
           },
         },
       ],

@@ -13,6 +13,7 @@ export const C = {
   trueBearing: "#8250df",
   model: "#8250df",
   classical: "#1a7f37",
+  tracker: "#0a7c86",
   naive: "#9a6700",
   cursor: "#24292f",
   gate: "#bc4c00",

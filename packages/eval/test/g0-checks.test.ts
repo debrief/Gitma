@@ -3,11 +3,14 @@ import { DEFAULT_RANGES, degToRad, noiseFree, simulateTruth } from "@tma/sim";
 import type { ParameterRanges } from "@tma/types";
 import { describe, expect, it } from "vitest";
 import {
+  beforeManoeuvre,
   checkBearingResiduals,
   checkIndependentGeometry,
+  checkTrackerNoiseFree,
   inTurnBearings,
   kinematicFailure,
   secondTurnBearings,
+  targetTurnBearings,
 } from "../src/g0-checks.js";
 import { scenarios } from "./helpers.js";
 
@@ -136,5 +139,98 @@ describe("G0 kinematic consistency (red team round 1 mutations)", () => {
     // The same final course reached the other way round: stored angle replaced by 2π − |zig|.
     s.metadata.parameters.zig_angle_rad = zig - Math.sign(zig) * 2 * Math.PI;
     expect(kinematicFailure(s)).toMatch(/course changed .* stored/);
+  });
+});
+
+describe("G0 on generator 0.4.0 (spec 010): the target's course change", () => {
+  const MANOEUVRE: ParameterRanges = {
+    ...ACROSS,
+    target_manoeuvre_fraction: 0.8,
+    target_manoeuvre_angle_abs_rad: { min: degToRad(30), max: degToRad(120) },
+    target_turn_rate_rad_s: { min: degToRad(0.5), max: degToRad(3) },
+    target_manoeuvre_after_zig_s: 120,
+    target_manoeuvre_margin_s: 360,
+  };
+  const scen = scenarios(10n, 60, MANOEUVRE);
+  const turned = scen.find((s) => s.metadata.manoeuvre_index != null);
+  const held = scen.find((s) => s.metadata.manoeuvre_index == null);
+  if (turned === undefined || held === undefined) throw new Error("need both kinds");
+
+  it("independent geometry passes, with the hand-computed target-turn bearings", () => {
+    const c = checkIndependentGeometry(scen, MANOEUVRE);
+    expect(c.result, c.detail).toBe("pass");
+    for (const k of targetTurnBearings())
+      expect(Math.abs(k.got - k.want), k.name).toBeLessThan(1e-6);
+  });
+
+  it("catches a target turn flown the wrong way with its courses unchanged", () => {
+    const p = turned.metadata.parameters;
+    const wrong = simulateTruth({
+      ...p,
+      target_manoeuvre_angle_rad: -(p.target_manoeuvre_angle_rad ?? 0),
+    });
+    const s = structuredClone(turned);
+    s.target.states.forEach((t, i) => {
+      t.x_m = Math.fround(wrong.tgtX[i] ?? 0);
+      t.y_m = Math.fround(wrong.tgtY[i] ?? 0);
+    });
+    expect(kinematicFailure(s)).toMatch(/^target/);
+  });
+
+  it("catches a held-course target whose stored course drifts", () => {
+    const s = structuredClone(held);
+    const last = s.target.states.at(-1);
+    if (last === undefined) throw new Error("empty");
+    last.course_rad = Math.fround(last.course_rad + 0.01);
+    expect(kinematicFailure(s)).toMatch(/held course/);
+  });
+
+  it("catches bearings drawn from the target's unturned track (red team M1)", () => {
+    const s = structuredClone(turned);
+    const p = s.metadata.parameters;
+    const straight = simulateTruth({
+      ...p,
+      target_manoeuvre_time_s: undefined,
+      target_manoeuvre_angle_rad: undefined,
+      target_turn_rate_rad_s: undefined,
+    });
+    s.observations.forEach((o, i) => {
+      const own = s.ownship.states[i];
+      if (own === undefined) return;
+      o.bearing_rad = Math.fround(
+        Math.atan2((straight.tgtX[i] ?? 0) - own.x_m, (straight.tgtY[i] ?? 0) - own.y_m),
+      );
+    });
+    const c = checkIndependentGeometry([s], MANOEUVRE);
+    expect(c.result).toBe("fail");
+    expect(c.detail).toMatch(/not the stored geometry/);
+  });
+
+  it("catches a turn flown at half its stored rate, and shifted turn indices (red team M3, M10, M11)", () => {
+    const s = structuredClone(turned);
+    const p = s.metadata.parameters;
+    s.metadata.parameters = { ...p, target_turn_rate_rad_s: (p.target_turn_rate_rad_s ?? 0) * 2 };
+    expect(kinematicFailure(s)).toMatch(/not ω·dt|ω·dt/);
+    const early = structuredClone(turned);
+    early.metadata.manoeuvre_start_index = (early.metadata.manoeuvre_start_index ?? 0) - 1;
+    expect(kinematicFailure(early)).toMatch(/not ω·dt/);
+    const late = structuredClone(turned);
+    late.metadata.manoeuvre_index = (late.metadata.manoeuvre_index ?? 0) + 1;
+    expect(kinematicFailure(late)).toMatch(/not ω·dt/);
+  });
+
+  it("beforeManoeuvre keeps the constant-velocity part, which batch least squares fits", () => {
+    const cut = beforeManoeuvre(turned);
+    expect(cut.metadata.samples).toBe(turned.metadata.manoeuvre_start_index);
+    expect(cut.observations).toHaveLength(cut.metadata.samples);
+    expect(cut.metadata.manoeuvre_index).toBeUndefined();
+    expect(beforeManoeuvre(held)).toBe(held);
+    expect(checkBearingResiduals([cut, held]).result).toBe("pass");
+    expect(checkBearingResiduals([turned]).result).toBe("fail");
+  });
+
+  it("the tracker check passes on noise-free scenarios", () => {
+    const c = checkTrackerNoiseFree(scen.slice(0, 20));
+    expect(c.result, c.detail).toBe("pass");
   });
 });

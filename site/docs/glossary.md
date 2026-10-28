@@ -49,8 +49,8 @@ beat its control, its result says little about learning the geometry. See
 
 **EKF (extended Kalman filter)** — A recursive estimator that predicts the target state under a
 constant-velocity model and corrects it with each bearing; its process noise σ_a sets how fast it
-can follow a turn. Phase 3's reference (SRD Annex B §B.3), with two tunings chosen on validation
-and frozen: tuned-straight and tuned-turn.
+can follow a turn. Reported in phase 3; in Cartesian coordinates it drifts after a target turn
+(Aidala's instability), so the gated reference is the [IMM](algorithms/trackers.md).
 
 **Early stopping** — Ending training when validation loss has not improved for `patience` epochs;
 the best epoch's weights are kept.
@@ -62,7 +62,7 @@ the best epoch's weights are kept.
 Reported as a rate because TMA failures are heavy-tailed.
 
 **G4** — Phase 3's gate (SRD Annex B §B.4): on manoeuvring scenarios five minutes after the
-target's turn, the network alone must beat the tuned-turn EKF on median range and course error,
+target's turn, the network alone must beat the tuned-turn IMM on median range and course error,
 not exceed its gross-error rate, and not regress from G2 on held-course scenarios.
 
 **Held-out geometry** — A test set drawn from parameter ranges outside training (for example
@@ -71,6 +71,10 @@ not exceed its gross-error rate, and not regress from G2 on held-course scenario
 **Hybrid estimator** — Classical's least-squares estimate, replaced by a network's where classical
 fails or the two ranges differ by more than 50% (spec 009, [note](algorithms/hybrid.md)). Its
 accuracy is classical's; it is judged at G3 as a hybrid, not as a network alone.
+
+**IMM (interacting multiple model)** — A tracker that runs a constant-velocity and a
+coordinated-turn EKF side by side and mixes them by how well each explains the bearings. Phase 3's
+gated reference, tuned on validation and frozen ([note](algorithms/trackers.md)).
 
 **Inconclusive** — A gate check whose 95% interval contains its threshold: the data cannot say
 which side the true value is on. A gate with an inconclusive check, and no failing one, is

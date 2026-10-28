@@ -76,6 +76,8 @@ pnpm tma-scan --data data/i2 --models <any models> --experiment <dir>   # side e
 pnpm tma-g2 --data data/i2 --models <carried> --compare-models <other phase> \
   --decision <committed decision.json> --plan <plan.json> --split test \
   --experiment experiments/<id>   # the gate: checks plan digests, decision ancestry, same rows; exit 3: not passed
+pnpm tma-track --in <split.f32pack> --out <pred.ndjson> --filter imm --sigma-cv <a> --sigma-ct <a> \
+  --sigma-omega <w> --switch <p>          # or --filter ekf --sigma-a <a>; per-timestep tracker rows
 pnpm tma-hybrid --truth <test.f32pack> --classical <classical.ndjson> --network <lstm.ndjson> --out <hybrid.ndjson>
 pnpm tma-g3 --truth <test.f32pack> --hybrid <hybrid.ndjson> --classical <classical.ndjson> \
   --decision <committed decision.json> --experiment experiments/<id>   # G3 (spec 009); validation: diagnostic only
@@ -161,7 +163,8 @@ sessions (containers are reclaimed when idle).
 - Training determinism needs seeded initializers and `trainOnBatch` in PRNG order; never
   `fit({shuffle: true})`.
 - Gate times count from `zig_index`, the first sample after the rate-limited turn ends (generator
-  0.2.0), not the turn start; zig + 600 s is reached by only ~60% of scenarios, so state coverage.
+  0.2.0), not the turn start; zig + 600 s is reached by only ~60% of scenarios (88% on generator 0.4.0, whose turn-fit redraw
+  removes short windows), so state coverage.
 - Data regenerated at a later commit has a different header digest though the scenarios are
   identical; prediction tolerates provenance-only header changes (both clean, constants equal) and
   `train-continue.mjs --train/--val` re-anchors digests. Always run the plan's digest check too.
@@ -235,10 +238,16 @@ for the hybrid** (panel round 1, `experiments/20261028-i5-g3/`):
 Write-up: `site/blog/2026-10-28-iteration-5.md`. Seeds 205–207 are reserved. `tma-g3` binds the
 decision and the seed, but not the data or model digests (a follow-up). **Phase 3** (SRD Annex B,
 decision 25, spec 010) tests the one place a learned estimator has an in-principle advantage:
-generator 0.4.0 adds one target course change (80% of scenarios); an EKF, tuned on validation
-and frozen, is the reference; **gate G4** asks the network alone to beat the tuned-turn EKF on
+generator 0.4.0 adds one target course change (80% of scenarios); a tracker, tuned on validation
+and frozen, is the reference; **gate G4** asks the network alone to beat the tuned-turn IMM on
 range and course at manoeuvre + 5 min without regressing on held-course scenarios. The follow-on
-for each outcome is fixed in advance (Annex B §B.5). Status: documentary PR only; no code yet. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+for each outcome is fixed in advance (Annex B §B.5). Status (PR 2): generator 0.4.0 (target turn, schema 0.12.0,
+`configs/phase3-ranges.json`), slices `manoeuvre=…`, trackers `ekfPredict` / `immPredict` and
+`tma-track`; G0 re-run on 0.4.0 (`experiments/20261028-g0-p3-r2/`, passed, panel rounds 1–2). The single Cartesian EKF drifts
+after a turn even noise-free (Aidala), so the owner re-decided D3: the gated reference is the
+tuned-turn **IMM** (CV + coordinated turn), the EKF reported. G0 checks batch least squares on each
+scenario up to the target's turn (`beforeManoeuvre`); zigs are planned on the target's straight
+track. Seed 900 is the viewer's phase-3 preview only. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

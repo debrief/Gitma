@@ -8,7 +8,13 @@ import type { Prediction, PredictionRow } from "@tma/types";
 import { type JSX, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Bookmark, Mode, ModelEntry, ViewerCatalogue } from "../core/catalogue.js";
 import { scenarioErrors } from "../core/errors.js";
-import { classicalTrack, modelPrediction, naiveRows, rowAtSample } from "../core/estimates.js";
+import {
+  classicalTrack,
+  modelPrediction,
+  naiveRows,
+  rowAtSample,
+  trackerRows,
+} from "../core/estimates.js";
 import { viewNdjson } from "../core/export.js";
 import { clampIndex, scenarioAt } from "../core/scenario.js";
 import { sampleAt } from "../core/series.js";
@@ -146,6 +152,10 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
           : view.classical,
     [v.classical, v.mode, s, view],
   );
+  const tracker: Prediction | null = useMemo(
+    () => (!v.tracker || v.mode === "truth" ? null : trackerRows(s)),
+    [v.tracker, v.mode, s],
+  );
   const naive = useMemo(() => naiveRows(s, pair.naive), [s, pair]);
 
   // URL state.
@@ -226,6 +236,8 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
     ];
     if (classical !== null)
       out.push({ label: "classical", values: valuesOf(classical, f), color: C.classical, wrap });
+    if (tracker !== null)
+      out.push({ label: "IMM", values: valuesOf(tracker, f), color: C.tracker, wrap });
     out.push({
       label: "naive",
       values: valuesOf(naive, f),
@@ -239,6 +251,13 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
   const markers: Marker[] = [{ t: zigT, label: "zig" }];
   const zig2 = s.metadata.zig2_index;
   if (zig2 != null) markers.push({ t: zig2 * dt, label: "zig 2" });
+  // The target's course change (generator 0.4.0): where it starts, and G4's point five minutes
+  // after it ends.
+  const tgtTurn = s.metadata.manoeuvre_start_index;
+  const tgtLeg = s.metadata.manoeuvre_index;
+  if (tgtTurn != null) markers.push({ t: (tgtTurn - 1) * dt, label: "target turn" });
+  if (tgtLeg != null && v.mode !== "truth" && (tgtLeg + 30) * dt <= windowS)
+    markers.push({ t: (tgtLeg + 30) * dt, label: "turn+5" });
   if (v.mode !== "truth") {
     for (const [m, label] of [
       [300, "zig+5"],
@@ -344,6 +363,9 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
           ...(classical === null
             ? []
             : [{ label: "classical", color: C.classical, row: rowAtSample(classical, s, cursor) }]),
+          ...(tracker === null
+            ? []
+            : [{ label: "IMM", color: C.tracker, row: rowAtSample(tracker, s, cursor) }]),
           { label: "naive", color: C.naive, row: rowAtSample(naive, s, cursor) },
         ];
 
@@ -354,9 +376,12 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
       ...(classical === null
         ? []
         : [{ label: "classical", color: C.classical, e: scenarioErrors(s, classical) }]),
+      ...(tracker === null
+        ? []
+        : [{ label: "IMM", color: C.tracker, e: scenarioErrors(s, tracker) }]),
       { label: "naive", color: C.naive, e: scenarioErrors(s, naive) },
     ];
-  }, [v.mode, model, classical, naive, s]);
+  }, [v.mode, model, classical, tracker, naive, s]);
 
   const modeLabel: Record<Mode, string> = {
     truth: "truth",
@@ -529,6 +554,16 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
           />
           classical
         </label>
+        <label title="Interacting-multiple-model tracker (constant velocity + coordinated turn); preview settings, not the G4 tuning">
+          <input
+            type="checkbox"
+            checked={v.tracker}
+            onChange={(e) => {
+              update({ tracker: e.target.checked });
+            }}
+          />
+          IMM
+        </label>
         <label>
           <input
             type="checkbox"
@@ -558,7 +593,7 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
         <button
           type="button"
           onClick={() => {
-            const ps = [model, classical, v.mode === "truth" ? null : naive].filter(
+            const ps = [model, classical, tracker, v.mode === "truth" ? null : naive].filter(
               (p): p is Prediction => p !== null,
             );
             saveText(viewNdjson(s, ps), `${fileStem}.ndjson`);
@@ -619,6 +654,7 @@ export function EngagementViewer(props: EngagementViewerProps): JSX.Element {
             mode={v.mode}
             model={model}
             classical={classical}
+            tracker={tracker}
             trueBearings={v.trueBearings}
             svgRef={planRef}
           />

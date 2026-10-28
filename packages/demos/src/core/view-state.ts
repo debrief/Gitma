@@ -9,6 +9,8 @@ export interface ViewState {
   t: number | null;
   pair: string;
   classical: boolean;
+  /** The IMM tracker (spec 010), off by default. */
+  tracker: boolean;
   trueBearings: boolean;
 }
 
@@ -22,6 +24,7 @@ export function encodeView(v: ViewState): string {
   if (v.t !== null) q.set("t", String(Math.round(v.t)));
   q.set("pair", v.pair);
   q.set("cl", v.classical ? "1" : "0");
+  if (v.tracker) q.set("tr", "1");
   q.set("tb", v.trueBearings ? "1" : "0");
   return q.toString();
 }
@@ -45,6 +48,7 @@ export function decodeView(search: string, cat: ViewerCatalogue): ViewState {
     t: Number.isFinite(tNum) && tNum >= 0 ? tNum : null,
     pair: pair.id,
     classical: q.get("cl") !== "0",
+    tracker: q.get("tr") === "1",
     trueBearings: q.get("tb") === "1",
   };
 }

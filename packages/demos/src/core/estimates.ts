@@ -5,6 +5,8 @@
 import {
   bearingData,
   classicalPredict,
+  type ImmParams,
+  immPredict,
   naivePredict,
   plausible,
   rowAt,
@@ -82,6 +84,20 @@ export function classicalTrack(s: Scenario): Prediction {
     rows,
   };
 }
+
+/**
+ * IMM settings the viewer shows (spec 010): a preview, not the G4 reference. The gated reference
+ * is tuned on validation and frozen in the phase-3 decision record.
+ */
+export const VIEWER_IMM: ImmParams = {
+  sigmaCv: 0.003,
+  sigmaCt: 0.03,
+  sigmaOmega: 0.003,
+  switchPerS: 0.001,
+};
+
+/** The IMM tracker's per-timestep estimate (causal: row t uses bearings up to t). */
+export const trackerRows = (s: Scenario): Prediction => immPredict(s, VIEWER_IMM);
 
 export const naiveRows = (s: Scenario, means: NaiveMeans): Prediction =>
   naivePredict(
