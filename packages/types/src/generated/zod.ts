@@ -16,6 +16,8 @@ export type ModelDigest = z.infer<typeof ModelDigest>;
 
 /** The single change of the iteration's change round, fixed from validation evidence and committed before phase B trains (spec 003 R5). */
 export const ChangeDecision = z.strictObject({
+  /** G4: the manifest id of the one carried network (Annex B §B.4); tma-g4 refuses network predictions from another model. */
+  carried_model: z.string().nullish(),
   carried_set_rule: z.string(),
   /** e.g. feature_set: derived */
   change: z.string(),
@@ -30,6 +32,8 @@ export const ChangeDecision = z.strictObject({
   plan: z.string().nullish(),
   /** Validation evidence cited. */
   rationale: z.string(),
+  /** G4 (spec 010, schema 0.13.0): the frozen reference tracker's estimator name, which encodes every tuning parameter (e.g. imm-cv0-ct0.03-w0.003-s0.0001-r4); tma-g4 refuses reference predictions with another name. */
+  reference_estimator: z.string().nullish(),
   /** The experiment directory of the inconclusive gate this decision re-scores (SRD §7: one re-score on a larger fresh-seed test set; e.g. experiments/20261024-i4-g2). When present, tma-g2 runs in re-score mode (--rescore-of): the frozen carried models are bound by model_digests instead of by training ancestry, the re-scored gate must be inconclusive and not itself a re-score, and the fresh test seed must differ from its test seed. */
   rescore_of: z.string().nullish(),
   /** Any gated criterion failed or was inconclusive on validation. */
@@ -242,7 +246,7 @@ export const GateCheck = z.strictObject({
 });
 export type GateCheck = z.infer<typeof GateCheck>;
 
-export const GateId = z.enum(["G0", "G1", "G2", "G3"]);
+export const GateId = z.enum(["G0", "G1", "G2", "G3", "G4"]);
 export type GateId = z.infer<typeof GateId>;
 
 /** Machine verdict for a gate; the team review records the final decision. */

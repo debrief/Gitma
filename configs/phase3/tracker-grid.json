@@ -1,0 +1,20 @@
+{
+  "description": "Spec 010 FR-004 and FR-011: the declared tuning grid for the phase-3 trackers, chosen on the seed-208 validation split at σ = 1° and frozen in the decision record. Objective: median range error (non-converged rows count as infinite) at manoeuvre_index + 30 samples on turning scenarios (tuned-turn) and at zig_index + 30 on held-course scenarios (tuned-straight). IMM in two stages: stage 1 scores every combination on the first stage1_scenarios qualifying scenarios of each kind; stage 2 re-scores the stage2_top best of stage 1 on all of them. The EKF grid is small and scored on all of them.",
+  "sigma_deg": 1,
+  "gate_offset_samples": 30,
+  "ekf": {
+    "sigma_a": [0, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3],
+    "p0_scale": [1, 4],
+    "r_scale": [1, 4]
+  },
+  "imm": {
+    "sigma_cv": [0, 0.003, 0.01],
+    "sigma_ct": [0.01, 0.03, 0.1],
+    "sigma_omega": [0.001, 0.003, 0.01],
+    "switch": [0.00001, 0.0001, 0.001],
+    "p0_scale": [1, 4],
+    "r_scale": [1, 4, 25]
+  },
+  "stage1_scenarios": 1000,
+  "stage2_top": 10
+}

@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.12.0
+version: 0.13.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -59,6 +59,7 @@ enums:
       G1: {}
       G2: {}
       G3: {}
+      G4: { description: "Better than the tuned tracker after a target turn (SRD Annex B §B.4)." }
   ModelKind:
     description: Model families of SRD §4.
     permissible_values:
@@ -837,6 +838,17 @@ classes:
         description: >-
           The dataset count whose test split a re-score scores (the plan's
           dataset.fresh_test.count; schema 0.11.1); tma-g2 refuses a plan with another count.
+      reference_estimator:
+        range: string
+        description: >-
+          G4 (spec 010, schema 0.13.0): the frozen reference tracker's estimator name, which
+          encodes every tuning parameter (e.g. imm-cv0-ct0.03-w0.003-s0.0001-r4); tma-g4 refuses
+          reference predictions with another name.
+      carried_model:
+        range: string
+        description: >-
+          G4: the manifest id of the one carried network (Annex B §B.4); tma-g4 refuses network
+          predictions from another model.
 
   ModelDigest:
     description: >-
