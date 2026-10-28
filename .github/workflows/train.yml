@@ -172,10 +172,21 @@ jobs:
           case "$CMD" in
             tma-g2) SUFFIX=$([ "$SPLIT" = test ] && echo g2 || echo val) ;;
             tma-scan) SUFFIX=scan ;;
+            models) SUFFIX=models ;;
             *) echo "::error::unknown evaluate command $CMD"; exit 1 ;;
           esac
           EXP="experiments/$(date -u +%Y%m%d)-$ID-$SUFFIX"
           echo "EXP=$EXP" >> "$GITHUB_ENV"
+          if [ "$CMD" = models ]; then
+            # Spec 010: commit the completed models only; G4 is scored separately.
+            mkdir -p "$EXP/models"
+            for d in "$RUNNER_TEMP"/models/*/; do
+              m=$(basename "$d")
+              mkdir -p "$EXP/models/$m"
+              cp "$d"manifest.json "$d"model.json "$d"weights.bin "$EXP/models/$m/"
+            done
+            exit 0
+          fi
           mapfile -t ARGS < <(node scripts/train-plan.mjs evaluate-args "$PLAN" "$DATA" "$RUNNER_TEMP/models" "$EXP")
           pnpm "$CMD" "${ARGS[@]}" || [ $? -eq 3 ]
           mkdir -p "$EXP/logs"

@@ -22,6 +22,18 @@ const estimator = (c) =>
       ? (s) => immPredict(s, c.params)
       : (s) => classicalPredict(s, "per_timestep");
 
+/**
+ * The scenario up to and including sample k: every estimator here is causal, so its rows up to k
+ * are unchanged, and nothing after k is computed.
+ */
+const upTo = (s, k) => ({
+  ...s,
+  metadata: { ...s.metadata, samples: k + 1 },
+  ownship: { ...s.ownship, states: s.ownship.states.slice(0, k + 1) },
+  target: { ...s.target, states: s.target.states.slice(0, k + 1) },
+  observations: s.observations.slice(0, k + 1),
+});
+
 if (!isMainThread) {
   const { pack, picks, configs } = workerData;
   const want = new Map(picks.map((p) => [p.index, p]));
@@ -30,8 +42,9 @@ if (!isMainThread) {
     const p = want.get(s.metadata.index);
     if (p === undefined) continue;
     const first = s.metadata.zig_index + 1;
+    const cut = upTo(s, p.k);
     configs.forEach((c, j) => {
-      out[j].push([p.order, rowError(s, estimator(c)(s).rows[p.k - first], p.k)]);
+      out[j].push([p.order, rowError(s, estimator(c)(cut).rows[p.k - first], p.k)]);
     });
   }
   parentPort.postMessage(out);
@@ -107,9 +120,12 @@ if (!isMainThread) {
   ]) {
     const t0 = Date.now();
     const lsq = (await run(picks, [{ kind: "lsq" }]))[0];
+    console.error(`${name}: least squares done, ${String((Date.now() - t0) / 1000)} s`);
     const ekf = (await run(picks, ekfs)).map((v, j) => summary(ekfs[j], v));
+    console.error(`${name}: EKF grid done, ${String((Date.now() - t0) / 1000)} s`);
     const sub = picks.slice(0, grid.stage1_scenarios);
     const stage1 = (await run(sub, imms)).map((v, j) => summary(imms[j], v));
+    console.error(`${name}: IMM stage 1 done, ${String((Date.now() - t0) / 1000)} s`);
     const top = [...stage1].sort((a, b) => a.median - b.median).slice(0, grid.stage2_top);
     const stage2 = (await run(picks, top)).map((v, j) => summary(top[j], v));
     const best = (xs) => [...xs].sort((a, b) => a.median - b.median)[0];
@@ -123,6 +139,7 @@ if (!isMainThread) {
       seconds: (Date.now() - t0) / 1000,
     };
     console.error(`${name}: ${String(picks.length)} scenarios, ${String(result[name].seconds)} s`);
+    writeFileSync(outPath, `${JSON.stringify(result, null, 1)}\n`);
   }
   writeFileSync(outPath, `${JSON.stringify(result, null, 1)}\n`);
   for (const k of ["turn", "straight"])

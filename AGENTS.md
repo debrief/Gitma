@@ -239,7 +239,7 @@ Write-up: `site/blog/2026-10-28-iteration-5.md`. Seeds 205–207 are reserved. `
 decision and the seed, but not the data or model digests (a follow-up). **Phase 3** (SRD Annex B,
 decision 25, spec 010) tests the one place a learned estimator has an in-principle advantage:
 generator 0.4.0 adds one target course change (80% of scenarios); a tracker, tuned on validation
-and frozen, is the reference; **gate G4** asks the network alone to beat the tuned-turn IMM on
+and frozen, is the reference; **gate G4** asks the network alone to beat the better tuned tracker (IMM or EKF, fixed on validation) on
 range and course at manoeuvre + 5 min without regressing on held-course scenarios. The follow-on
 for each outcome is fixed in advance (Annex B §B.5). Status (PR 2): generator 0.4.0 (target turn, schema 0.12.0,
 `configs/phase3-ranges.json`), slices `manoeuvre=…`, trackers `ekfPredict` / `immPredict` and

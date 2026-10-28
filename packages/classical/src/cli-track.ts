@@ -32,26 +32,42 @@ export function main(argv: string[]): unknown {
       "sigma-ct": { type: "string" },
       "sigma-omega": { type: "string" },
       switch: { type: "string" },
+      "p0-scale": { type: "string" },
+      "r-scale": { type: "string" },
     },
   });
   if (values.in === undefined || values.out === undefined)
     throw new UsageError(
       "usage: tma-track --in <split.f32pack> --out <pred.ndjson> " +
         "(--filter ekf --sigma-a <m/s²> | --filter imm --sigma-cv <m/s²> --sigma-ct <m/s²> " +
-        "--sigma-omega <rad/s/√s> --switch <1/s>)",
+        "--sigma-omega <rad/s/√s> --switch <1/s>) [--p0-scale k] [--r-scale k]",
     );
+  /** Optional scales (spec 010 FR-011); absent means 1, and names stay unchanged. */
+  const scale = (key: "p0-scale" | "r-scale"): number | undefined => {
+    if (values[key] === undefined) return undefined;
+    const v = num(values, key);
+    if (!(v > 0)) throw new UsageError(`--${key} must be > 0`);
+    return v;
+  };
+  const p0Scale = scale("p0-scale");
+  const rScale = scale("r-scale");
+  const scales = {
+    ...(p0Scale === undefined ? {} : { p0Scale }),
+    ...(rScale === undefined ? {} : { rScale }),
+  };
   let name: string;
   let predict: (s: Scenario) => Prediction;
   if (values.filter === "ekf") {
     const sigmaA = num(values, "sigma-a");
-    name = ekfName(sigmaA);
-    predict = (s) => ekfPredict(s, sigmaA);
+    name = ekfName(sigmaA, scales);
+    predict = (s) => ekfPredict(s, sigmaA, scales);
   } else if (values.filter === "imm") {
     const p: ImmParams = {
       sigmaCv: num(values, "sigma-cv"),
       sigmaCt: num(values, "sigma-ct"),
       sigmaOmega: num(values, "sigma-omega"),
       switchPerS: num(values, "switch"),
+      ...scales,
     };
     name = immName(p);
     predict = (s) => immPredict(s, p);

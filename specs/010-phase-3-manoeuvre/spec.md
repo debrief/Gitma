@@ -97,16 +97,16 @@ split, the agent panel, `review.md`, `decided_by`, a results page and a blog pos
   G4-control must pass. Otherwise the phase stops at validation and is written up.
 - **FR-008** (G4). As Annex B §B.4, implemented in `gate-g4.ts` and `tma-g4`: σ = 1°,
   manoeuvring rows, manoeuvre + 300 s; paired bootstrap ratios of median range and course error
-  against the tuned-turn IMM (limit 1), gross-error-rate difference (limit 0), speed ratio
+  against the frozen reference (the better tuned-turn tracker on validation; limit 1), gross-error-rate difference (limit 0), speed ratio
   reported; the G2 checks on held-course rows as the control. FR-015 for each; pass needs all
   gated checks; one re-score on a larger fresh seed if inconclusive.
 - **FR-009** (provenance). `tma-g4` binds the committed decision (test seed, carried model
   digests, IMM tunings) and the data's content digest, as `tma-g2` does; it refuses dirty data
   and a second scoring.
 - **FR-011** (from the G0 panel, to settle in the decision record before training):
-  - **Reference.** Whether G4 gates against the tuned IMM alone or against the better of the
-    tuned IMM and the tuned single EKF at the gate point (at σ = 1° the best EKF tried so far is
-    level with or better than the best IMM); the IMM grid includes a scale on the initial
+  - **Reference.** _Decided by the owner 2026-10-28: the better of the tuned IMM and the tuned
+    single EKF at the gate point on validation_ (at σ = 1° the best EKF tried so far is level with
+    or better than the best IMM); the IMM grid includes a scale on the initial
     covariance and a scale on the measurement variance R (G0 panel round 2: turn-ready settings
     are 1.7–1.8 × batch least squares on straight legs at the true σ, about 1.1 × with R × 100).
     The gated tracker's straight-leg ratio to batch least squares is reported beside G4.

@@ -90,8 +90,11 @@ re-decided D3 on 2026-10-28: the gated reference is an interacting-multiple-mode
     the manoeuvring scenarios of the *validation* split.
 
   Both are chosen on validation from a grid declared in the decision record, then frozen. The
-  gated reference is the **tuned-turn IMM**: the setting most favourable to the tracker at the
-  gate point. Both are reported beside every model figure, as are the tuned single-model EKF and
+  gated reference is the **better tuned-turn tracker**: the IMM and the single EKF are each
+  tuned for the turn on validation, and whichever has the lower validation median range error at
+  manoeuvre + 5 min is frozen as the reference (owner decision 2026-10-28, after the G0 panel
+  found the tuned EKF at least level with the IMM at σ = 1°): the setting most favourable to the
+  trackers at the gate point. Both trackers' tunings are reported beside every model figure, as is
   batch least squares (expected to fail after the turn, and reported to show that).
 - **Verified** at G0 on noise-free data: every row from zig + 60 s to the target's turn within
   the SC-001 tolerances, and re-convergence to within 0.5% range after a target turn followed by
@@ -111,10 +114,10 @@ with paired bootstrap 95% intervals (2,000 resamples, seed 20261011) and the FR-
 
 | Check | Statistic | Limit |
 | --- | --- | --- |
-| G4-range | median range error, network / IMM (tuned-turn) | wholly below 1 |
-| G4-course | median course error, network / IMM (tuned-turn) | wholly below 1 |
-| G4-speed | median speed error, network / IMM (tuned-turn) | reported; not gated (speed does not change at the turn, so the tracker's prior helps it here) |
-| G4-gross | gross-error rate, network − IMM (tuned-turn), at manoeuvre + 5 min | wholly at or below 0 |
+| G4-range | median range error, network / reference (B.3) | wholly below 1 |
+| G4-course | median course error, network / reference | wholly below 1 |
+| G4-speed | median speed error, network / reference | reported; not gated (speed does not change at the turn, so the tracker's prior helps it here) |
+| G4-gross | gross-error rate, network − reference, at manoeuvre + 5 min | wholly at or below 0 |
 | G4-control | the same network on the held-course scenarios, G2's three checks at zig + 5 and + 10 min | all pass (no regression from G2; G2 is re-run on phase-3 held-course data for the comparison, since the window distribution changed, B.2) |
 
 - **Pass:** G4-range, G4-course and G4-gross pass, and G4-control passes.
@@ -185,6 +188,7 @@ a technical one.
 - **D3** The gated reference. _Decided 2026-10-28 as a single EKF tuned on validation for the
   gate point; re-decided the same day, after spec 010's tests showed that EKF drifts after a turn,
   as the tuned-turn IMM, with tuned-straight, the tuned single EKF and batch least squares
-  reported beside (B.3)._
+  reported beside (B.3); revised again the same day, after the G0 panel, to the better of the
+  tuned-turn IMM and the tuned-turn EKF on validation, frozen before training._
 - **D4** The follow-ons for each outcome. _Decided 2026-10-28, as B.5._
 - **D5** The carried model and its fresh seed: in the phase-3 decision record, before training.

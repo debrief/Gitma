@@ -62,7 +62,7 @@ the best epoch's weights are kept.
 Reported as a rate because TMA failures are heavy-tailed.
 
 **G4** — Phase 3's gate (SRD Annex B §B.4): on manoeuvring scenarios five minutes after the
-target's turn, the network alone must beat the tuned-turn IMM on median range and course error,
+target's turn, the network alone must beat the better of the tuned IMM and EKF on median range and course error,
 not exceed its gross-error rate, and not regress from G2 on held-course scenarios.
 
 **Held-out geometry** — A test set drawn from parameter ranges outside training (for example

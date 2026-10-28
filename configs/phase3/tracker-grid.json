@@ -15,6 +15,6 @@
     "p0_scale": [1, 4],
     "r_scale": [1, 4, 25]
   },
-  "stage1_scenarios": 1000,
+  "stage1_scenarios": 400,
   "stage2_top": 10
 }
