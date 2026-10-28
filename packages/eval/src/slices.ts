@@ -62,12 +62,14 @@ export function dropoutBand(fraction: number): string {
 }
 
 /**
- * "held" when the target holds course, else the band of |course change|. Float32 rounding can
- * land just outside [30°, 120°] or exactly on 60° or 90° (kept in the band above, as `band` does).
+ * "held" when the target holds course, else the band of |course change|, from the drawn
+ * parameters: a scenario cut before its turn (G0's `beforeManoeuvre`) keeps its band. Float32
+ * rounding can land just outside [30°, 120°] or exactly on 60° or 90° (kept in the band above, as
+ * `band` does).
  */
 export function manoeuvreBand(m: ScenarioMetadata): string {
   const a = m.parameters.target_manoeuvre_angle_rad;
-  if (m.manoeuvre_index == null || a == null) return "held";
+  if (a == null) return "held";
   const deg = Math.abs(radToDeg(a));
   if (deg >= 120 && deg < 120.001) return "90-120deg";
   if (deg < 30 && deg > 29.999) return "30-60deg";

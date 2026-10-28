@@ -244,7 +244,12 @@ function trackFailure(
       return `sample ${String(i)}: course changed ${dc.toFixed(5)} rad > ω·dt`;
     if (constantCourse && dc !== 0)
       return `sample ${String(i)}: course changed ${dc.toFixed(5)} rad on a held course`;
-    if (rate > 0 && step > 1) {
+    // A step whose ends share a course lies on a straight leg: it is v·dt long, along that course
+    // (G0 panel phase 3, geometry: the arc-chord minimum alone lets a leg run ~1% slow, and a held
+    // course's direction was otherwise checked only through the solver).
+    if (dc === 0 && step < v * dt - 0.05)
+      return `sample ${String(i)}: straight step ${step.toFixed(3)} m < v·dt (slower than the stored speed)`;
+    if ((rate > 0 || dc === 0) && step > 1) {
       // On a constant-speed path that turns one way during the step, the chord's heading lies
       // between the headings at its ends (equal to them on a straight leg).
       const off = wrapPi(Math.atan2(dx, dy) - a.course_rad);
@@ -547,8 +552,9 @@ export const G0_IMM: ImmParams = {
  * The gated reference tracker on noise-free data (spec 010, SRD Annex B §B.3):
  * - on every given scenario, every IMM row from PER_TIMESTEP_SETTLE_S after the zig to the last
  *   sample before the target's turn (or the end) is within the SC-001 tolerances;
- * - after a target turn followed by an ownship zig (hand-built, both turn directions), the IMM is
- *   within 0.5% range over the last ten minutes: it re-converges once the geometry allows;
+ * - after a target turn followed by an ownship zig (hand-built: 90° at 1°/s, both directions), the
+ *   IMM is within 0.5% range over the last ten minutes. This shows the implementation tracks a
+ *   turn; it does not show the tracker always re-converges (the variants below are reported);
  * - reported, not gated: its median range error five minutes after the turn on the given
  *   scenarios (re-convergence there depends on an ownship manoeuvre after the turn).
  * Not applicable when `ranges` has no target manoeuvre: with an instantaneous zig (iteration 1)
@@ -593,6 +599,14 @@ export function checkTrackerNoiseFree(truth: Scenario[], ranges?: ParameterRange
   }
   const known = [1, -1].map((side) => reconvergenceError(side));
   const knownOk = known.every((k) => k <= 5e-3);
+  // Reported, not gated (G0 panel phase 3, numerics): the same geometry over the generator's
+  // angles and rates. One favourable case and one setting show the code is right, not that the
+  // tracker always re-converges.
+  const variants: number[] = [];
+  for (const side of [1, -1])
+    for (const angle of [30, 60, 90, 120])
+      for (const rate of [0.5, 1, 3]) variants.push(reconvergenceError(side, angle, rate));
+  const within = variants.filter((k) => k <= 5e-3).length;
   post.sort((a, b) => a - b);
   const median = post[Math.floor(post.length / 2)] ?? NaN;
   return check(
@@ -601,12 +615,13 @@ export function checkTrackerNoiseFree(truth: Scenario[], ranges?: ParameterRange
     `IMM (σ_cv ${String(G0_IMM.sigmaCv)}, σ_ct ${String(G0_IMM.sigmaCt)}, σ_ω ${String(G0_IMM.sigmaOmega)}, switch ${String(G0_IMM.switchPerS)}/s): ` +
       `${String(gated - bad)}/${String(gated)} rows from zig + ${String(PER_TIMESTEP_SETTLE_S)} s to the target's turn within tolerance (worst range ${worstPre.toExponential(2)}); ` +
       `after a hand-built target turn and ownship zig, worst range over the last 10 min ${known.map((k) => k.toExponential(2)).join(" (starboard), ")} (port), limit 5e-3; ` +
-      `reported, not gated: median range error at manoeuvre + 300 s ${median.toExponential(2)} on ${String(post.length)} turning scenarios`,
+      `reported, not gated: the same case at 30–120° and 0.5–3°/s, both sides, ${String(within)}/${String(variants.length)} within 5e-3 (worst ${Math.max(...variants).toExponential(2)}); ` +
+      `median range error at manoeuvre + 300 s ${median.toExponential(2)} on ${String(post.length)} turning scenarios`,
   );
 }
 
 /** Worst range error of the IMM over the last 10 min of the hand-built re-convergence case. */
-function reconvergenceError(side: number): number {
+function reconvergenceError(side: number, angleDeg = 90, rateDegS = 1): number {
   const p: ScenarioParameters = {
     window_s: 2400,
     dt_s: 10,
@@ -624,8 +639,8 @@ function reconvergenceError(side: number): number {
     zig2_delay_s: 600,
     zig2_angle_rad: degToRad(-90),
     target_manoeuvre_time_s: 900,
-    target_manoeuvre_angle_rad: side * degToRad(90),
-    target_turn_rate_rad_s: degToRad(1),
+    target_manoeuvre_angle_rad: side * degToRad(angleDeg),
+    target_turn_rate_rad_s: degToRad(rateDegS),
   };
   const tr = simulateTruth(p);
   const states = (x: Float64Array, y: Float64Array, c: Float64Array, v: number) =>

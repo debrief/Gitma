@@ -163,7 +163,8 @@ sessions (containers are reclaimed when idle).
 - Training determinism needs seeded initializers and `trainOnBatch` in PRNG order; never
   `fit({shuffle: true})`.
 - Gate times count from `zig_index`, the first sample after the rate-limited turn ends (generator
-  0.2.0), not the turn start; zig + 600 s is reached by only ~60% of scenarios, so state coverage.
+  0.2.0), not the turn start; zig + 600 s is reached by only ~60% of scenarios (88% on generator 0.4.0, whose turn-fit redraw
+  removes short windows), so state coverage.
 - Data regenerated at a later commit has a different header digest though the scenarios are
   identical; prediction tolerates provenance-only header changes (both clean, constants equal) and
   `train-continue.mjs --train/--val` re-anchors digests. Always run the plan's digest check too.

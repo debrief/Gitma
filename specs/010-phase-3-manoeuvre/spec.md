@@ -103,6 +103,17 @@ split, the agent panel, `review.md`, `decided_by`, a results page and a blog pos
 - **FR-009** (provenance). `tma-g4` binds the committed decision (test seed, carried model
   digests, IMM tunings) and the data's content digest, as `tma-g2` does; it refuses dirty data
   and a second scoring.
+- **FR-011** (from the G0 panel, to settle in the decision record before training):
+  - **Reference.** Whether G4 gates against the tuned IMM alone or against the better of the
+    tuned IMM and the tuned single EKF at the gate point (at σ = 1° the best EKF tried so far is
+    level with or better than the best IMM); the IMM grid includes a scale on the initial
+    covariance.
+  - **Control baseline.** G2's checks re-run on phase-3 held-course data (the window
+    distribution differs from iterations 2–4), and the test seed sized so the control's interval
+    can exclude regression (about 1,760 held σ = 1° rows at zig + 10 min per 20,000 scenarios).
+  - **Pre-registered slices.** Turn before / after ownship's second zig, and ownship manoeuvre
+    after the target's turn yes / no: turn timing is predictable (2–8 min after the zig), a prior
+    the IMM's constant switch rate lacks.
 - **FR-010** (reporting). Every figure sits beside naive, batch least squares, both IMM tunings, the tuned single EKF
   and the hybrid on the same rows; medians and P90; n and excluded; the curve of each metric
   against time since the manoeuvre.

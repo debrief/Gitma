@@ -41,7 +41,10 @@ Generator 0.4.0 (phase 3, spec 010) then draws, only when the ranges give
 
 A scenario whose window cannot fit that is redrawn, whether or not its target turns, so turning
 and held-course targets share one window distribution. The constraint does shift it: about 0.6
-redraws per accepted scenario on the phase-3 ranges, mostly short windows.
+redraws per accepted scenario on the phase-3 ranges (0.21 of them already there before the
+target's turn): windows under about 1,100 s all but disappear (P10 1,360 s against 990 s), and
+the realised angles and rates lean slightly towards short turns. Phase-3 figures are therefore
+not comparable with earlier iterations' without re-running them on phase-3 data.
 
 All parameters are float32-rounded before use, so the metadata describes the data exactly. Ranges
 without a turn rate consume the random stream exactly as generator 0.1.0 did, ranges without the

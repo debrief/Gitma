@@ -34,13 +34,17 @@ The single-model EKF is reported in phase 3 but is not the gated reference. Spec
 showed why:
 
 - **Before the turn it is exact.** On noise-free data it holds the truth to about 10⁻⁶ in range.
-- **After the turn it drifts.** Its range error grows steadily, to about 50% twenty minutes after
-  the turn. A later ownship zig does not pull it back, and no setting of σ_a or of the
-  measurement variance prevents it. Yet a batch fit on the post-turn bearings alone recovers the
-  truth exactly.
+- **After the turn it usually drifts.** In the first hand-built case (a 90° starboard turn followed
+  by an ownship zig) its range error grows to about 50% twenty minutes after the turn at every
+  ratio σ_a/σ tried, while a batch fit on the post-turn bearings alone recovers the truth exactly.
+  It is not hopeless everywhere: the G0 panel found the mirror-image port case ends at 0.33% with
+  σ_a/σ = 0.32.
 
-This is the instability of the Cartesian bearings-only EKF that Aidala described (1979). It makes
-a weak reference.
+The mechanism (G0 panel, numerics, reproduced with an independent EKF and a UKF): a
+constant-velocity model carried through the turn, then covariance collapse. While ownship holds
+course, every scaled track own + k(target − own) explains the bearings equally well, and the
+filter drifts along that family. It is related to, and looser than, the Cartesian instability
+Aidala described (1979).
 
 ## IMM (constant velocity + coordinated turn)
 
@@ -68,8 +72,12 @@ the decision record, and then used unchanged at G4 (spec 010 FR-004).
 
 ### What it does
 
-- **Noise-free, with an ownship zig after the target's turn.** It re-converges to about 0.1%
-  range within ten minutes. This case is gated at G0, in check `tracker-noise-free`.
+- **Noise-free, with an ownship zig after the target's turn.** With G0's settings it ends within
+  0.2% range on the hand-built 90° turn at 1°/s, in both directions; this is gated at G0 (check
+  `tracker-noise-free`) and shows the implementation follows a turn. It is not a general
+  re-convergence result: over 30–120° and 0.5–3°/s the same geometry is reported, not gated, and
+  some fast turns stay far off; and other settings (for example the viewer's) fail the gated
+  case itself.
 - **Noise-free, before the turn.** Every row from zig + 60 s to the turn is within G0's
   tolerances (0.1% range, 0.1° course, 0.01 kt).
 - **At σ = 1°, five minutes after the turn.** On 150 validation-like scenarios with untuned
@@ -79,15 +87,22 @@ the decision record, and then used unchanged at G4 (spec 010 FR-004).
 ### Reading it critically
 
 - **The IMM's advantage shows only with exact data.** At σ = 1°, five minutes after a turn, the
-  tuned EKF and the IMM are about level. There the bearings, not the filter, limit what is
+  best single EKF is level with or better than the best IMM tried so far (panel: medians 16.6%
+  against 17.8%, P90 39.6% against 51.6%, on 200 scenarios). The decision record must settle
+  whether G4 gates against the tuned IMM only or the better of the two tuned trackers, and widen
+  the IMM grid (including a scale on the initial covariance). There the bearings, not the filter, limit what is
   knowable. That is the regime G4 judges, so a network that beats the IMM must extract
   information the filter leaves on the table: for example, a prior over how targets turn.
-- **Re-convergence needs geometry.** When the target turns after ownship's last zig, no filter
-  can observe range again except through the continuity of position across the turn. G0 reports
+- **Re-convergence needs geometry.** When the target turns after ownship's last zig (about half
+  of the turning scenarios), a filter with process noise can observe range again only through
+  the continuity of position across the turn. A batch or smoothing fit that knows the speed is
+  constant through the turn could do better: that prior is exactly what a network can learn. G0 reports
   the noise-free median error at manoeuvre + 5 min on generated scenarios but does not gate it.
 - **The IMM is not the strongest possible reference.** A smoother, a particle filter, or an IMM
   in modified polar coordinates could do better. The owner chose the IMM on 2026-10-28 as the
   textbook tracker for manoeuvring targets (SRD Annex B, decision D3 revisited).
+- **Re-initialisation is crude.** After an implausible state the filter restarts from a
+  constant-velocity batch over every sample so far, turn included.
 - **Initialisation after an instantaneous zig is slow.** With iteration 1's instantaneous zig,
   the batch solution the filter starts from is nearly unobservable, and the IMM needs more than
   60 s to settle (worst 1% range). Phase-3 data have rate-limited turns, where it settles within

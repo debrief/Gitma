@@ -39,7 +39,7 @@ reference and the network have a settled solution to lose.
 | Parameter | Phase 3 range | Notes |
 | --- | --- | --- |
 | Target manoeuvre | One course change of 30–120° (sign uniform) | Rate-limited at 0.5–3°/s, as ownship's turns |
-| Manoeuvre time | Uniform in the window from 2 min after the end of ownship's first turn to 6 min before the window ends | So the target turns after the problem is observable and leaves time to score the response |
+| Manoeuvre time | Uniform start from 2 min after the end of ownship's first turn; the turn must *end* at least 6 min before the window ends | So the target turns after the problem is observable and leaves time to score the response |
 | Manoeuvre fraction | 80% of scenarios manoeuvre; 20% hold course | The straight 20% guard against a model that learns to expect a turn (B.4 control) |
 | Target speed | Constant through the turn | A speed change is a later lever, not this phase |
 | Everything else | As iteration 3 (`configs/iter4-ranges.json`) | Two ownship zigs across the line of sight, 3–20 kt, 2–20 km, σ 0.5–2°, dropouts 0–10% |
@@ -49,6 +49,16 @@ turn starts and completes), and the parameters gain the turn's time, signed angl
 absent when the target holds course (amended 2026-10-28 from "−1 / 0" while implementing: an
 absent field cannot be mistaken for a sample index). The slicing keys gain the manoeuvre angle band
 and "manoeuvred / held course".
+
+A window that cannot fit the turn is redrawn for every scenario, turning or not, so held-course and
+turning targets share one distribution. That distribution is not iteration 3's (G0 panel,
+2026-10-28): windows shorter than about 1,100 s all but disappear (P10 1,360 s against 990 s),
+the median time after the zig rises from 710 s to 810 s, and coverage at zig + 10 min from 65% to
+88%. The realised angles and rates lean slightly towards short turns (fitting is easier). Phase-3
+held-course figures are therefore not comparable with iteration 2–4 G2 figures: G4-control's
+baseline is G2 re-run on phase-3 data (B.4). Turn timing is also predictable: the turn starts
+2–8 min after the zig (P10–P90), and in about half of turning scenarios ownship makes no
+manoeuvre after it.
 
 G0 is re-run on the new generator before any training, as for every generator change.
 
@@ -84,7 +94,8 @@ re-decided D3 on 2026-10-28: the gated reference is an interacting-multiple-mode
   the SC-001 tolerances, and re-convergence to within 0.5% range after a target turn followed by
   an ownship zig. Re-convergence to numerical precision after *every* turn is not achievable: when
   the target turns after ownship's last zig, range is observable again only through the
-  continuity of position, and no tracker recovers it exactly. G0 reports, without gating, the
+  continuity of position, and no filter with process noise recovers it exactly (a fit that uses
+  the constant speed through the turn could). G0 reports, without gating, the
   noise-free error at manoeuvre + 5 min on generated scenarios. The tuned IMM's straight-target
   figures are compared with the batch solver's at zig + 10 min in the phase-3 research (R2) and
   reported.
@@ -101,7 +112,7 @@ with paired bootstrap 95% intervals (2,000 resamples, seed 20261011) and the FR-
 | G4-course | median course error, network / IMM (tuned-turn) | wholly below 1 |
 | G4-speed | median speed error, network / IMM (tuned-turn) | reported; not gated (speed does not change at the turn, so the tracker's prior helps it here) |
 | G4-gross | gross-error rate, network − IMM (tuned-turn), at manoeuvre + 5 min | wholly at or below 0 |
-| G4-control | the same network on the held-course scenarios, G2's three checks at zig + 5 and + 10 min | all pass (no regression from G2) |
+| G4-control | the same network on the held-course scenarios, G2's three checks at zig + 5 and + 10 min | all pass (no regression from G2; G2 is re-run on phase-3 held-course data for the comparison, since the window distribution changed, B.2) |
 
 - **Pass:** G4-range, G4-course and G4-gross pass, and G4-control passes.
 - **Fail:** any of those fails.
