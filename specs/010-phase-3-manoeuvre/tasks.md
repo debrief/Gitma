@@ -16,7 +16,7 @@
 - [x] T006 `@tma/classical` EKF and IMM (FR-003, amended), `tma-track` CLI, noise-free
   verification (US2); the single EKF's drift after a turn found and recorded (Annex B §B.3)
 - [x] T007 Viewer: the target's turn marked; IMM selectable; phase-3 preview source (seed 900)
-- [ ] T008 G0 re-run on 0.4.0 (`experiments/20261028-g0-p3/`); agent panel; `review.md`;
+- [ ] T008 G0 re-run on 0.4.0 (`experiments/20261028-g0-p3-r2/`, panel in progress); agent panel; `review.md`;
   `decided_by`
 
 ## PR 3 — Research, decision, training plan
