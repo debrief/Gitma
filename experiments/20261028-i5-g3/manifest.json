@@ -1,0 +1,100 @@
+{
+  "command_lines": [
+    "tma-eval --truth data/i5/test.f32pack --pred data/i5/test.naive.ndjson --pred data/i5/test.classical.ndjson --pred data/i5/test.lstm.ndjson --pred data/i5/test.hybrid.ndjson --experiment experiments/20261028-i5-g3 --points 300,600 --bootstrap 2000 --compare-to classical:per_timestep"
+  ],
+  "created": "2026-10-28T06:50:11.414Z",
+  "datasets": [
+    {
+      "digest": "32c02bb6aec882ce9234c999feb7f9c07b65bb3230e7107e4a2178bcec04fc82",
+      "header": {
+        "created_by": "tma-generate --seed 207 --count 200000 --ranges sha256:bdf46080f66c24c867245c482121a2f1b82d3f13e59ef8c0cabccde08d1172be --heldout-ranges sha256:7d9e444c99d8ac6f759d0226c1724a7ea19cb34237465730f4d1aed51de1aca1",
+        "dataset_seed": "207",
+        "generator_git_commit": "4bca164bb25f344e80344f02a13c0627c1add1dc",
+        "generator_git_dirty": false,
+        "generator_version": "0.3.0",
+        "index_end": 200000,
+        "index_start": 180000,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0.1,
+            "min": 0
+          },
+          "dt_s": 10,
+          "los_offset_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0.017453292519943295,
+            0.03490658503988659
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "ownship_turn_rate_rad_s": {
+            "max": 0.05235987755982989,
+            "min": 0.008726646259971648
+          },
+          "range_distribution": "log_uniform",
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "window_s": {
+            "max": 2400,
+            "min": 600
+          },
+          "zig2_delay_s": {
+            "max": 300,
+            "min": 180
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          },
+          "zig_rule": "across_los"
+        },
+        "record": "header",
+        "redraw_count": 4358,
+        "scenario_count": 20000,
+        "schema_version": "0.11.1",
+        "split": "test"
+      },
+      "path": "data/i5/test.f32pack"
+    }
+  ],
+  "estimators": [
+    {
+      "name": "naive:per_timestep",
+      "settings_json": "{}"
+    },
+    {
+      "name": "classical:per_timestep",
+      "settings_json": "{}"
+    },
+    {
+      "name": "lstm-instantaneous:per_timestep",
+      "settings_json": "{}"
+    },
+    {
+      "name": "hybrid-lstm-instantaneous:per_timestep",
+      "settings_json": "{}"
+    }
+  ],
+  "generator_version": "0.3.0",
+  "git_commit": "08ffbf56fe9ec19ff3695d04b187823202ce182c",
+  "git_dirty": false,
+  "id": "20261028-i5-g3",
+  "node_version": "v22.22.0",
+  "schema_version": "0.11.1"
+}

@@ -1,0 +1,4 @@
+d4ef5411175ac0c49bac6e0e57491cce89d58fd2e25d86bff0491aec68a82320  data/i5/test.classical.ndjson
+c2e808447a57fef263ffbca4ad838f360c00c9c7273260efe3757bccb986b50b  data/i5/test.hybrid.ndjson
+d3cf2bf25c3ccc31d775a290efecd0572bb172565c24fa4e2182cb75ff2bb1a0  data/i5/test.lstm.ndjson
+13f86020eb1d98c6f60fe379171d1df4a3886d89d2dd9a9979dc5611b003525b  data/i5/test.naive.ndjson

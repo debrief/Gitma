@@ -1,0 +1,29 @@
+2026-10-28T06:12:23Z start commit 08ffbf5 status '0'
+2026-10-28T06:12:23Z features
+2026-10-28T06:12:41Z lstm
+2026-10-28T06:23:32Z classical
+2026-10-28T06:47:00Z naive
+2026-10-28T06:48:12Z hybrid
+2026-10-28T06:48:27Z eval
+2026-10-28T06:50:12Z g3
+g3 exit 0
+2026-10-28T06:50:48Z done
+
+2026-10-28T06:12:23Z start commit 08ffbf5 status '0'
+2026-10-28T06:12:23Z features
+{"out":"data/i5/test.features.bin","scenarios":20000,"feature_set":"derived"}
+2026-10-28T06:12:41Z lstm
+{"out":"data/i5/test.lstm.ndjson","estimator":"lstm-instantaneous","scenarios":20000,"non_converged":0}
+2026-10-28T06:23:32Z classical
+{"out":"data/i5/test.classical.ndjson","mode":"per_timestep","scenarios":20000,"non_converged":4124,"seconds":1407.745405176}
+2026-10-28T06:47:00Z naive
+{"out":"data/i5/naive.json","final_n":80000,"per_timestep_n":5709409}
+{"out":"data/i5/test.naive.ndjson","mode":"per_timestep","scenarios":20000}
+2026-10-28T06:48:12Z hybrid
+{"out":"data/i5/test.hybrid.ndjson","estimator":"hybrid-lstm-instantaneous","scenarios":20000,"rows":1433304,"switched_rows":62773}
+2026-10-28T06:48:27Z eval
+{"experiment":"experiments/20261028-i5-g3","metrics":204,"curves":92,"intervals":78,"comparisons":153}
+2026-10-28T06:50:12Z g3
+{"experiment":"experiments/20261028-i5-g3","gate":"G3","result":"pass","checks":["g3-range-median: pass","g3-range-p90: pass","g3-course-median: pass","g3-course-p90: pass","g3-speed-median: pass","g3-speed-p90: pass","g3-gross-error-rate: pass"]}
+g3 exit 0
+2026-10-28T06:50:48Z done

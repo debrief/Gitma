@@ -1,0 +1,77 @@
+{
+  "checks": [
+    {
+      "ci_high": 1.0094385111688742,
+      "ci_level": 0.95,
+      "ci_low": 0.9994922211682349,
+      "detail": "hybrid-lstm-instantaneous:per_timestep / classical:per_timestep median range_rel 1.0025 vs limit 1.2 on sigma=1deg at zig+300s; 95% CI [0.9995, 1.0094] (paired bootstrap, 2000 resamples, n 9834)",
+      "name": "g3-range-median",
+      "result": "pass",
+      "threshold": 1.2,
+      "value": 1.002450319794182
+    },
+    {
+      "ci_high": 0.9984533134431098,
+      "ci_level": 0.95,
+      "ci_low": 0.9756409066820869,
+      "detail": "hybrid-lstm-instantaneous:per_timestep / classical:per_timestep P90 range_rel 0.9891 vs limit 1.2 on sigma=1deg at zig+300s; 95% CI [0.9756, 0.9985] (paired bootstrap, 2000 resamples, n 9834)",
+      "name": "g3-range-p90",
+      "result": "pass",
+      "threshold": 1.2,
+      "value": 0.9891490793840971
+    },
+    {
+      "ci_high": 1.0183640862771077,
+      "ci_level": 0.95,
+      "ci_low": 1.003267102280304,
+      "detail": "hybrid-lstm-instantaneous:per_timestep / classical:per_timestep median course_deg 1.0105 vs limit 1.2 on sigma=1deg at zig+300s; 95% CI [1.0033, 1.0184] (paired bootstrap, 2000 resamples, n 9834)",
+      "name": "g3-course-median",
+      "result": "pass",
+      "threshold": 1.2,
+      "value": 1.0105356537687142
+    },
+    {
+      "ci_high": 0.9831594476638492,
+      "ci_level": 0.95,
+      "ci_low": 0.9316232779512088,
+      "detail": "hybrid-lstm-instantaneous:per_timestep / classical:per_timestep P90 course_deg 0.9658 vs limit 1.2 on sigma=1deg at zig+300s; 95% CI [0.9316, 0.9832] (paired bootstrap, 2000 resamples, n 9834)",
+      "name": "g3-course-p90",
+      "result": "pass",
+      "threshold": 1.2,
+      "value": 0.9657509727391366
+    },
+    {
+      "ci_high": 1.0159372770108095,
+      "ci_level": 0.95,
+      "ci_low": 1.0015501626810859,
+      "detail": "hybrid-lstm-instantaneous:per_timestep / classical:per_timestep median speed_kt 1.0096 vs limit 1.2 on sigma=1deg at zig+600s; 95% CI [1.0016, 1.0159] (paired bootstrap, 2000 resamples, n 6483)",
+      "name": "g3-speed-median",
+      "result": "pass",
+      "threshold": 1.2,
+      "value": 1.0096022858418707
+    },
+    {
+      "ci_high": 1.0298945099083305,
+      "ci_level": 0.95,
+      "ci_low": 1.0010041496073965,
+      "detail": "hybrid-lstm-instantaneous:per_timestep / classical:per_timestep P90 speed_kt 1.0153 vs limit 1.2 on sigma=1deg at zig+600s; 95% CI [1.0010, 1.0299] (paired bootstrap, 2000 resamples, n 6483)",
+      "name": "g3-speed-p90",
+      "result": "pass",
+      "threshold": 1.2,
+      "value": 1.01533371277898
+    },
+    {
+      "ci_high": -0.0041692088671954446,
+      "ci_level": 0.95,
+      "ci_low": -0.00823672971323978,
+      "detail": "gross-error rate (range error > 50% or no converged estimate) hybrid-lstm-instantaneous:per_timestep 0.569% vs classical:per_timestep 1.190% on sigma=1deg at zig+300s; difference -0.620 pp, 95% CI [-0.824, -0.417] pp (paired bootstrap, 2000 resamples, n 9834)",
+      "name": "g3-gross-error-rate",
+      "result": "pass",
+      "threshold": 0,
+      "value": -0.006202969290217612
+    }
+  ],
+  "decided_by": "harness (pending agent panel review)",
+  "gate": "G3",
+  "result": "pass"
+}
