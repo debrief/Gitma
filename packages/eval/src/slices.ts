@@ -1,5 +1,6 @@
 // Slicing keys (research R8): range band by mean range, zig band by |zig angle|, noise σ, and
-// dropout band by the drawn dropout fraction (spec 003 R11; not the realised count).
+// dropout band by the drawn dropout fraction (spec 003 R11; not the realised count), and the
+// target's course change (spec 010: held, or its angle band).
 import type { ScenarioMetadata } from "@tma/types";
 import { radToDeg } from "@tma/sim";
 
@@ -18,6 +19,13 @@ const ZIG_BANDS_DEG: [number, number][] = [
   [90, 120],
   [120, 150],
   [150, 180],
+];
+
+// Phase 3 (spec 010): the target's course change, drawn in [30°, 120°].
+const MANOEUVRE_BANDS_DEG: [number, number][] = [
+  [30, 60],
+  [60, 90],
+  [90, 120],
 ];
 
 const DROPOUT_BANDS_PCT: [number, number][] = [
@@ -53,6 +61,19 @@ export function dropoutBand(fraction: number): string {
   return b === "10+pct" && pct < 10.001 ? "5-10pct" : b;
 }
 
+/**
+ * "held" when the target holds course, else the band of |course change|. Float32 rounding can
+ * land just outside [30°, 120°] or exactly on 60° or 90° (kept in the band above, as `band` does).
+ */
+export function manoeuvreBand(m: ScenarioMetadata): string {
+  const a = m.parameters.target_manoeuvre_angle_rad;
+  if (m.manoeuvre_index == null || a == null) return "held";
+  const deg = Math.abs(radToDeg(a));
+  if (deg >= 120 && deg < 120.001) return "90-120deg";
+  if (deg < 30 && deg > 29.999) return "30-60deg";
+  return band(deg, MANOEUVRE_BANDS_DEG, "deg");
+}
+
 /** Every slice a scenario belongs to, "overall" first. */
 export function sliceKeys(m: ScenarioMetadata): string[] {
   const p = m.parameters;
@@ -63,5 +84,6 @@ export function sliceKeys(m: ScenarioMetadata): string[] {
     `zig_band=${zigBand(Math.abs(radToDeg(p.zig_angle_rad)))}`,
     `sigma=${String(sigmaDeg)}deg`,
     `dropout_band=${dropoutBand(p.dropout_fraction)}`,
+    `manoeuvre=${manoeuvreBand(m)}`,
   ];
 }

@@ -96,8 +96,18 @@ export const ParameterRanges = z.strictObject({
   /** Turn rate drawn uniformly per scenario; absent means an instantaneous zig. */
   ownship_turn_rate_rad_s: FloatRange.nullish(),
   range_distribution: RangeDistribution,
+  /** Earliest start of the target's turn, after the first sample on leg 2. */
+  target_manoeuvre_after_zig_s: z.number().nullish(),
+  /** Absolute target course change; the sign is uniform ±. */
+  target_manoeuvre_angle_abs_rad: FloatRange.nullish(),
+  /** Probability a scenario's target makes one course change (generator 0.4.0, SRD Annex B §B.2); absent means the target always holds course, as generators 0.1.0–0.3.0. When present, every scenario draws the manoeuvre parameters (so the PRNG is consumed alike) and the window must fit a turn whether or not one is made. */
+  target_manoeuvre_fraction: z.number().nullish(),
+  /** Least time from the end of the target's turn to the end of the window, so the gate point (manoeuvre + 5 min) is reached. */
+  target_manoeuvre_margin_s: z.number().nullish(),
   target_range0_m: FloatRange,
   target_speed_mps: FloatRange,
+  /** Target turn rate, drawn uniformly per scenario. */
+  target_turn_rate_rad_s: FloatRange.nullish(),
   window_s: FloatRange,
   /** Delay from the start of leg 2 to the second turn; absent means one zig. The second zig follows zig_rule (and uses the same turn rate as the first). */
   zig2_delay_s: FloatRange.nullish(),
@@ -481,9 +491,15 @@ export const ScenarioParameters = z.strictObject({
   /** True bearing at window start. */
   target_bearing0_rad: z.number(),
   target_course_rad: z.number(),
+  /** Signed target course change; positive is clockwise. */
+  target_manoeuvre_angle_rad: z.number().nullish(),
+  /** Target course change (generator 0.4.0, SRD Annex B §B.2): time the target's turn starts, a whole number of samples. Absent: the target holds course. */
+  target_manoeuvre_time_s: z.number().nullish(),
   /** Range at window start. */
   target_range0_m: z.number(),
   target_speed_mps: z.number(),
+  /** Target turn rate through its course change. */
+  target_turn_rate_rad_s: z.number().nullish(),
   /** Window length; multiple of dt_s. */
   window_s: z.number(),
   /** Signed course change at the second zig; positive is clockwise. */
@@ -501,6 +517,10 @@ export type ScenarioParameters = z.infer<typeof ScenarioParameters>;
 export const ScenarioMetadata = z.strictObject({
   /** Scenario index within the dataset. */
   index: z.number().int(),
+  /** First timestep after the target's turn completes (generator 0.4.0; absent when the target holds course). Gate G4 counts time from here, as earlier gates count from zig_index. */
+  manoeuvre_index: z.number().int().nullish(),
+  /** First timestep after the target's turn starts (generator 0.4.0; absent when the target holds course). */
+  manoeuvre_start_index: z.number().int().nullish(),
   mean_range_m: z.number(),
   min_range_m: z.number(),
   parameters: ScenarioParameters,

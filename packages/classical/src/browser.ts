@@ -2,3 +2,5 @@
 export * from "./estimate.js";
 export * from "./lsq.js";
 export * from "./naive.js";
+export * from "./ekf.js";
+export * from "./imm.js";

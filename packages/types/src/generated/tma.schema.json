@@ -1141,11 +1141,54 @@
         "range_distribution": {
           "$ref": "#/$defs/RangeDistribution"
         },
+        "target_manoeuvre_after_zig_s": {
+          "description": "Earliest start of the target's turn, after the first sample on leg 2.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "target_manoeuvre_angle_abs_rad": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FloatRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Absolute target course change; the sign is uniform ±."
+        },
+        "target_manoeuvre_fraction": {
+          "description": "Probability a scenario's target makes one course change (generator 0.4.0, SRD Annex B §B.2); absent means the target always holds course, as generators 0.1.0–0.3.0. When present, every scenario draws the manoeuvre parameters (so the PRNG is consumed alike) and the window must fit a turn whether or not one is made.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "target_manoeuvre_margin_s": {
+          "description": "Least time from the end of the target's turn to the end of the window, so the gate point (manoeuvre + 5 min) is reached.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "target_range0_m": {
           "$ref": "#/$defs/FloatRange"
         },
         "target_speed_mps": {
           "$ref": "#/$defs/FloatRange"
+        },
+        "target_turn_rate_rad_s": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FloatRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Target turn rate, drawn uniformly per scenario."
         },
         "window_s": {
           "$ref": "#/$defs/FloatRange"
@@ -1402,6 +1445,20 @@
           "description": "Scenario index within the dataset.",
           "type": "integer"
         },
+        "manoeuvre_index": {
+          "description": "First timestep after the target's turn completes (generator 0.4.0; absent when the target holds course). Gate G4 counts time from here, as earlier gates count from zig_index.",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "manoeuvre_start_index": {
+          "description": "First timestep after the target's turn starts (generator 0.4.0; absent when the target holds course).",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "mean_range_m": {
           "type": "number"
         },
@@ -1498,12 +1555,33 @@
         "target_course_rad": {
           "type": "number"
         },
+        "target_manoeuvre_angle_rad": {
+          "description": "Signed target course change; positive is clockwise.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "target_manoeuvre_time_s": {
+          "description": "Target course change (generator 0.4.0, SRD Annex B §B.2): time the target's turn starts, a whole number of samples. Absent: the target holds course.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "target_range0_m": {
           "description": "Range at window start.",
           "type": "number"
         },
         "target_speed_mps": {
           "type": "number"
+        },
+        "target_turn_rate_rad_s": {
+          "description": "Target turn rate through its course change.",
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "window_s": {
           "description": "Window length; multiple of dt_s.",
@@ -1786,5 +1864,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.11.1"
+  "version": "0.12.0"
 }
