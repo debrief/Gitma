@@ -78,6 +78,13 @@ the decision record, and then used unchanged at G4 (spec 010 FR-004).
   re-convergence result: over 30–120° and 0.5–3°/s the same geometry is reported, not gated, and
   some fast turns stay far off; and other settings (for example the viewer's) fail the gated
   case itself.
+- **At σ = 1°, before the turn.** With no CV process noise and rare switching (σ_cv 0,
+  switch 10⁻⁵/s) its median range error at the last sample before the turn is about that of
+  per-timestep batch least squares (3.1% against 3.4% on 120 scenarios). G0 gates the ratio at
+  1.25 (check `tracker-noisy-sanity`), so a mis-scaled measurement variance cannot hide behind
+  noise-free data. With G0's noise-free settings (switch 10⁻³/s) it is 1.8 × batch least squares:
+  frequent switching leaks the turn model's noise into straight legs, so the tuning grid must
+  include low switch rates.
 - **Noise-free, before the turn.** Every row from zig + 60 s to the turn is within G0's
   tolerances (0.1% range, 0.1° course, 0.01 kt).
 - **At σ = 1°, five minutes after the turn.** On 150 validation-like scenarios with untuned

@@ -23,7 +23,9 @@ import {
   beforeManoeuvre,
   checkBearingResiduals,
   checkTrackerNoiseFree,
+  checkTrackerNoisy,
   G0_IMM,
+  G0_IMM_STRAIGHT,
   checkIndependentGeometry,
   checkPerTimestepRecovery,
 } from "./g0-checks.js";
@@ -87,6 +89,7 @@ export function runG0(dataDir: string, experiment: string, commandLine: string):
     checkBearingResiduals(scenarios),
     checkIndependentGeometry(full, truth.header.parameter_ranges),
     checkTrackerNoiseFree(full.slice(0, G0_PER_TIMESTEP_SCENARIOS), truth.header.parameter_ranges),
+    checkTrackerNoisy(truth.header.parameter_ranges),
     checkNaiveReproducible(evA.metrics, evB.metrics),
   ]);
   writeEvaluation(experiment, evA);
@@ -123,6 +126,13 @@ export function runG0(dataDir: string, experiment: string, commandLine: string):
             ...G0_IMM,
             scenarios: Math.min(full.length, G0_PER_TIMESTEP_SCENARIOS),
             note: "first scenarios of the test split, for check tracker-noise-free",
+          },
+        },
+        {
+          name: "imm:noisy-sanity",
+          settings: {
+            ...G0_IMM_STRAIGHT,
+            note: "σ = 1° scenarios regenerated from the test split's ranges, for check tracker-noisy-sanity",
           },
         },
       ],

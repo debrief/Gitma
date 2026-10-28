@@ -1,8 +1,14 @@
 // G0 checks added after the round-1 agent panel review (experiments/20261011-g0-r2/review.md):
 // per-timestep recovery (the G1 baseline path), bearing residuals at float32 precision, and
 // geometry checks that do not go through the solver.
-import { bearingData, type ImmParams, immPredict, solveBatch } from "@tma/classical";
-import { angleDiff, createRng, degToRad, observe, simulateTruth } from "@tma/sim";
+import {
+  bearingData,
+  classicalPredict,
+  type ImmParams,
+  immPredict,
+  solveBatch,
+} from "@tma/classical";
+import { angleDiff, createRng, degToRad, generateScenario, observe, simulateTruth } from "@tma/sim";
 import type { GateCheck, ParameterRanges, Scenario, ScenarioParameters } from "@tma/types";
 import { rowError } from "./errors.js";
 import type { PredictionLookup } from "./evaluate.js";
@@ -269,7 +275,12 @@ function trackFailure(
       const b = states[i];
       if (a === undefined || b === undefined)
         return `turn at sample ${String(start)}: samples missing`;
-      sum += wrapPi(b.course_rad - a.course_rad);
+      const dc = wrapPi(b.course_rad - a.course_rad);
+      sum += dc;
+      // Every step that lies wholly on the arc turns by exactly ω·dt, so a turn flown at the wrong
+      // rate, or indices shifted by a sample, fail (G0 panel phase 3, red team M3, M10, M11).
+      if (i < end && rate > 0 && Math.abs(Math.abs(dc) - rate * dt) > 1e-5)
+        return `turn at sample ${String(start)}: step ${String(i)} turned ${dc.toFixed(6)} rad, not ω·dt = ${(rate * dt).toFixed(6)}`;
     }
     if (Math.abs(sum - angle) > 1e-4)
       return `turn at sample ${String(start)}: course changed ${sum.toFixed(5)} rad, stored ${angle.toFixed(5)}`;
@@ -419,6 +430,7 @@ export function checkIndependentGeometry(
   // stored positions at the last sample before the turn and the course after it.
   const los = ranges?.zig_rule === "across_los" ? ranges.los_offset_rad : null;
   let turns = 0;
+  let observed = 0;
   const rel = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
   let n = 0;
   for (const s of truth) {
@@ -487,6 +499,27 @@ export function checkIndependentGeometry(
         }
       }
     }
+    // Noise-free: every valid bearing equals atan2 of the stored positions at its sample, so
+    // bearings drawn from another track (e.g. the target's unturned one, or one sample late)
+    // fail (G0 panel phase 3, red team M1, M2).
+    if (p.noise_sigma_rad === 0) {
+      for (let i = 0; i < s.observations.length; i++) {
+        const zi = s.observations[i];
+        const oi = s.ownship.states[i];
+        const ti = s.target.states[i];
+        if (zi === undefined || oi === undefined || ti === undefined || !zi.valid) continue;
+        observed++;
+        const want = Math.atan2(ti.x_m - oi.x_m, ti.y_m - oi.y_m);
+        if (!(Math.abs(angleDiff(zi.bearing_rad, want)) < 1e-5)) {
+          if (fails.length < 5)
+            fails.push(
+              `scenario ${String(s.metadata.index)}: bearing at sample ${String(i)} is not the stored geometry's`,
+            );
+          else fails.push("…");
+          break;
+        }
+      }
+    }
     const b = Math.atan2(t.x_m - o.x_m, t.y_m - o.y_m);
     const r = Math.hypot(t.x_m - o.x_m, t.y_m - o.y_m);
     if (
@@ -502,7 +535,7 @@ export function checkIndependentGeometry(
     "independent-geometry",
     fails.length === 0 && skipped === 0,
     fails.length === 0 && skipped === 0
-      ? `hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2), leg-3, second-turn (both directions, mid-arc and leg 3) and target-turn (both directions, mid-turn and after it) cases match; t = 0 bearing and range match the drawn parameters, and ownship and target kinematics (arc chord ≤ step ≤ v·dt, chord heading between the stored courses, turn ≤ ω·dt per step, summed turn = stored angle, |turn| ≤ 180°, target course constant unless it turns) hold, on ${String(n)} scenarios` +
+      ? `hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2), leg-3, second-turn (both directions, mid-arc and leg 3) and target-turn (both directions, mid-turn and after it) cases match; t = 0 bearing and range match the drawn parameters, and ownship and target kinematics (arc chord ≤ step ≤ v·dt, chord heading between the stored courses, turn ≤ ω·dt per step, summed turn = stored angle, |turn| ≤ 180°, target course constant unless it turns, every arc step = ω·dt) hold, and ${String(observed)} noise-free bearings equal atan2 of the stored positions, on ${String(n)} scenarios` +
           (los != null
             ? `; ${String(turns)} turns put the target on the other bow inside the drawn offset range`
             : "")
@@ -609,14 +642,76 @@ export function checkTrackerNoiseFree(truth: Scenario[], ranges?: ParameterRange
   const within = variants.filter((k) => k <= 5e-3).length;
   post.sort((a, b) => a - b);
   const median = post[Math.floor(post.length / 2)] ?? NaN;
+  // Gated loosely (G0 panel phase 3, red team): bearings or indices wrong after the turn raise it
+  // by an order of magnitude or more.
+  const postOk = post.length === 0 || median <= TRACKER_POST_TURN_LIMIT;
   return check(
     "tracker-noise-free",
-    truth.length > 0 && bad === 0 && knownOk,
+    truth.length > 0 && bad === 0 && knownOk && postOk,
     `IMM (σ_cv ${String(G0_IMM.sigmaCv)}, σ_ct ${String(G0_IMM.sigmaCt)}, σ_ω ${String(G0_IMM.sigmaOmega)}, switch ${String(G0_IMM.switchPerS)}/s): ` +
       `${String(gated - bad)}/${String(gated)} rows from zig + ${String(PER_TIMESTEP_SETTLE_S)} s to the target's turn within tolerance (worst range ${worstPre.toExponential(2)}); ` +
       `after a hand-built target turn and ownship zig, worst range over the last 10 min ${known.map((k) => k.toExponential(2)).join(" (starboard), ")} (port), limit 5e-3; ` +
       `reported, not gated: the same case at 30–120° and 0.5–3°/s, both sides, ${String(within)}/${String(variants.length)} within 5e-3 (worst ${Math.max(...variants).toExponential(2)}); ` +
-      `median range error at manoeuvre + 300 s ${median.toExponential(2)} on ${String(post.length)} turning scenarios`,
+      `median range error at manoeuvre + 300 s ${median.toExponential(2)} on ${String(post.length)} turning scenarios (limit ${String(TRACKER_POST_TURN_LIMIT)})`,
+  );
+}
+
+/** Limit on the IMM's noise-free median range error at manoeuvre + 300 s (observed 2.4e-3). */
+export const TRACKER_POST_TURN_LIMIT = 1e-2;
+
+/** IMM settings for the noisy check: no CV process noise, rare switching (a straight-leg tuning). */
+export const G0_IMM_STRAIGHT: ImmParams = {
+  sigmaCv: 0,
+  sigmaCt: 0.01,
+  sigmaOmega: 0.001,
+  switchPerS: 1e-5,
+};
+/** The IMM's median may be at most this multiple of per-timestep batch least squares'. */
+export const TRACKER_NOISY_RATIO = 1.25;
+const NOISY_SEED = 20261028n;
+const NOISY_SCENARIOS = 200;
+
+/**
+ * The tracker under noise (G0 panel phase 3, red team: a mis-scaled measurement variance is
+ * invisible on noise-free data). From the dataset's ranges at σ = 1° (fixed seed, regenerated, not
+ * a split of the dataset), at the last sample before each target's turn (or the end), the
+ * straight-leg IMM's median range error must be within `TRACKER_NOISY_RATIO` × the per-timestep
+ * batch solver's: on a constant-velocity stretch both should reach about the same accuracy.
+ */
+export function checkTrackerNoisy(ranges: ParameterRanges): GateCheck {
+  const name = "tracker-noisy-sanity";
+  if (ranges.target_manoeuvre_fraction == null)
+    return check(
+      name,
+      true,
+      "not applicable: the ranges have no target manoeuvre (generator 0.4.0 checks only)",
+    );
+  const r: ParameterRanges = {
+    ...ranges,
+    noise_sigma_rad_values: [degToRad(1)],
+    dropout_fraction: { min: 0, max: 0 },
+  };
+  const imm: number[] = [];
+  const lsq: number[] = [];
+  for (let i = 0; i < NOISY_SCENARIOS; i++) {
+    const s = generateScenario(NOISY_SEED, i, r).scenario;
+    const m = s.metadata;
+    const k = (m.manoeuvre_start_index ?? m.samples) - 1;
+    const first = m.zig_index + 1;
+    if (k < first) continue;
+    const a = immPredict(s, G0_IMM_STRAIGHT).rows[k - first];
+    const b = classicalPredict(s, "per_timestep").rows[k - first];
+    if (a === undefined || b === undefined) continue;
+    imm.push(a.converged ? rowError(s, a).range_rel : Infinity);
+    lsq.push(b.converged ? rowError(s, b).range_rel : Infinity);
+  }
+  const med = (v: number[]): number =>
+    [...v].sort((x, y) => x - y)[Math.floor(v.length / 2)] ?? NaN;
+  const ratio = med(imm) / med(lsq);
+  return check(
+    name,
+    imm.length > 0 && ratio <= TRACKER_NOISY_RATIO,
+    `σ = 1°, ${String(imm.length)} regenerated scenarios (seed ${String(NOISY_SEED)}), last sample before the target's turn: IMM (σ_cv ${String(G0_IMM_STRAIGHT.sigmaCv)}, σ_ct ${String(G0_IMM_STRAIGHT.sigmaCt)}, σ_ω ${String(G0_IMM_STRAIGHT.sigmaOmega)}, switch ${String(G0_IMM_STRAIGHT.switchPerS)}/s) median range error ${med(imm).toFixed(4)}, per-timestep batch least squares ${med(lsq).toFixed(4)}; ratio ${ratio.toFixed(3)}, limit ${String(TRACKER_NOISY_RATIO)}`,
   );
 }
 

@@ -185,6 +185,40 @@ describe("G0 on generator 0.4.0 (spec 010): the target's course change", () => {
     expect(kinematicFailure(s)).toMatch(/held course/);
   });
 
+  it("catches bearings drawn from the target's unturned track (red team M1)", () => {
+    const s = structuredClone(turned);
+    const p = s.metadata.parameters;
+    const straight = simulateTruth({
+      ...p,
+      target_manoeuvre_time_s: undefined,
+      target_manoeuvre_angle_rad: undefined,
+      target_turn_rate_rad_s: undefined,
+    });
+    s.observations.forEach((o, i) => {
+      const own = s.ownship.states[i];
+      if (own === undefined) return;
+      o.bearing_rad = Math.fround(
+        Math.atan2((straight.tgtX[i] ?? 0) - own.x_m, (straight.tgtY[i] ?? 0) - own.y_m),
+      );
+    });
+    const c = checkIndependentGeometry([s], MANOEUVRE);
+    expect(c.result).toBe("fail");
+    expect(c.detail).toMatch(/not the stored geometry/);
+  });
+
+  it("catches a turn flown at half its stored rate, and shifted turn indices (red team M3, M10, M11)", () => {
+    const s = structuredClone(turned);
+    const p = s.metadata.parameters;
+    s.metadata.parameters = { ...p, target_turn_rate_rad_s: (p.target_turn_rate_rad_s ?? 0) * 2 };
+    expect(kinematicFailure(s)).toMatch(/not ω·dt|ω·dt/);
+    const early = structuredClone(turned);
+    early.metadata.manoeuvre_start_index = (early.metadata.manoeuvre_start_index ?? 0) - 1;
+    expect(kinematicFailure(early)).toMatch(/not ω·dt/);
+    const late = structuredClone(turned);
+    late.metadata.manoeuvre_index = (late.metadata.manoeuvre_index ?? 0) + 1;
+    expect(kinematicFailure(late)).toMatch(/not ω·dt/);
+  });
+
   it("beforeManoeuvre keeps the constant-velocity part, which batch least squares fits", () => {
     const cut = beforeManoeuvre(turned);
     expect(cut.metadata.samples).toBe(turned.metadata.manoeuvre_start_index);
