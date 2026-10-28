@@ -179,7 +179,8 @@ sessions (containers are reclaimed when idle).
 
 ## Gates (SRD §5)
 
-G0 pipeline → G1 signal exists → G2 useful → G3 classical parity (stretch). Iteration 0 builds the
+G0 pipeline → G1 signal exists → G2 useful → G3 classical parity (stretch) → G4 better than the
+EKF after a target turn (phase 3, Annex B). Iteration 0 builds the
 pipeline and must pass G0 before any training. G0 passed (panel round 3,
 `experiments/20261011-g0-r3/`). G1 passed (panel round 3, `experiments/20261012-g1-r2/`) under
 pre-registered rule 1, with a caveat: time-late is not shown better than instantaneous. Iteration 2
@@ -232,7 +233,12 @@ for the hybrid** (panel round 1, `experiments/20261028-i5-g3/`):
 - **The LSTM alone** is still about 3 × classical on speed.
 
 Write-up: `site/blog/2026-10-28-iteration-5.md`. Seeds 205–207 are reserved. `tma-g3` binds the
-decision and the seed, but not the data or model digests (a follow-up). `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+decision and the seed, but not the data or model digests (a follow-up). **Phase 3** (SRD Annex B,
+decision 25, spec 010) tests the one place a learned estimator has an in-principle advantage:
+generator 0.4.0 adds one target course change (80% of scenarios); an EKF, tuned on validation
+and frozen, is the reference; **gate G4** asks the network alone to beat the tuned-turn EKF on
+range and course at manoeuvre + 5 min without regressing on held-course scenarios. The follow-on
+for each outcome is fixed in advance (Annex B §B.5). Status: documentary PR only; no code yet. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

@@ -292,3 +292,6 @@ Each is a separate, pre-registered experiment (B.3). None is chosen until A.7 is
   estimate is replaced by the iteration-4 LSTM's where the two disagree, judged on fresh seed 207
   (spec 009, decision 24). The per-leg fit of B.2.3 was tried first in research and set aside
   (spec 009 R1)._
+- **D7** After G3: the next phase. _Decided 2026-10-28: G3 passed for the hybrid (seed 207). Part
+  B's remaining model levers are set aside; the project moves to manoeuvring targets and an EKF
+  reference under [Annex B](SRD-annex-B.md) (decision 25)._

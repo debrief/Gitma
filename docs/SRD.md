@@ -23,7 +23,7 @@ The project answers one question: can a neural network trained on high volumes o
 
 ## 2. Problem definition
 
-Ownship holds a sequence of noisy bearings to a single target that moves at constant course and speed. Ownship's own track is known exactly. The task is to recover the target's state from bearings alone.
+Ownship holds a sequence of noisy bearings to a single target that moves at constant course and speed (up to G3; from phase 3 the target may make one course change, Annex B §B.2). Ownship's own track is known exactly. The task is to recover the target's state from bearings alone.
 
 **Frame and units.** Local flat-earth Cartesian (x east, y north, metres) centred on ownship's position at window start. Bearings are true, clockwise from north, in radians internally. Speeds in m/s, converted to knots only for reporting.
 
@@ -50,10 +50,11 @@ The generator must produce scenarios fast enough that data volume is never the b
 | Ownship speed | 5–15 kt | Constant within a leg |
 | Ownship zig | Course change 30–90°, at 40–60% of window | Turn modelled as instantaneous in iteration 1, then rate-limited |
 | Ownship zig, from iteration 3 | First zig at 40–60% of window, then a second zig 3–5 min after leg 2 starts; each turn crosses the line of sight, putting the target 30–90° on the other bow (shorter turn; median 143°) | Generator 0.3.0, Annex A lever B.2.1, spec 007; same turn rate (0.5–3°/s) for both turns; gate times still count from the end of the first turn, so zig + 5 min falls mostly during the second turn; redraws of second turns that do not fit skew windows long (p10 16.7 min) |
+| Target manoeuvre, from phase 3 | One course change of 30–120°, rate-limited at 0.5–3°/s, between 2 min after ownship's first turn ends and 6 min before the window ends; 80% of scenarios manoeuvre, 20% hold course | Generator 0.4.0, Annex B §B.2, spec 010; speed constant through the turn; metadata gains `manoeuvre_index` and `manoeuvre_angle_rad`; gate G4 counts time from the end of the target's turn |
 | Target initial range | 2–20 km | Log-uniform so short ranges aren't under-represented |
 | Target initial bearing | Uniform 0–360° | Relative to ownship at window start |
 | Target speed | 3–20 kt | Constant |
-| Target course | Uniform 0–360° | Constant; may include closing and opening geometries |
+| Target course | Uniform 0–360° | Constant up to G3; one change from phase 3 (above); may include closing and opening geometries |
 | Bearing noise | Gaussian σ = 0.5°, 1°, 2° | σ stored per scenario |
 | Dropouts | 0–10% of samples missing at random | Masked in the input tensor |
 
@@ -127,7 +128,7 @@ Success is staged: clear the naive baseline first, then approach classical-solve
 **Baselines**
 
 1. *Naive*: predict the training-set mean (log range, course vector, speed). Any model that cannot beat this has learned nothing.
-2. *Classical*: batch least-squares bearings-only solver (Gauss-Newton on the constant-velocity target model, initialised from a coarse range grid). Implemented in TypeScript for iteration 1; an EKF is added as a second reference only if G3 is reached. This solver is also the sanity check on the generator: it must converge on noise-free data to within numerical precision.
+2. *Classical*: batch least-squares bearings-only solver (Gauss-Newton on the constant-velocity target model, initialised from a coarse range grid). Implemented in TypeScript for iteration 1; an EKF is added as a second reference only if G3 is reached (G3 was reached 2026-10-28; the EKF is added by Annex B §B.3 as the primary reference for G4, with its process noise tuned on validation and frozen). This solver is also the sanity check on the generator: it must converge on noise-free data to within numerical precision.
 
 **Metrics** (reported overall and sliced by range band, zig angle and noise σ)
 
@@ -151,6 +152,7 @@ The instantaneous variant is scored at every timestep after the zig and reported
 | G1 — signal exists | Model median range error < 50% of naive baseline's, on both variants (95% interval wholly below; a shuffled-label failure voids the evidence, a time-late consistency failure makes it inconclusive, except as decided 2026-10-12 below; amended 2026-10-11. Amended 2026-10-12, after the first G1 result and before the continuation run: a variant that failed after stopping on the wall-clock cap with fewer epochs than the other may be continued once from its committed weights to the same epoch budget, all else unchanged; the first result stays recorded and a second fail is final. Decided by the user on 2026-10-12 before that run: if both ratio intervals then lie wholly below 0.5 and the shuffled-label check passes, G1 passes even if the time-late consistency check fails, with "time-late not shown better than instantaneous" recorded beside the pass) | Stop: ML not extracting the signal; report and close |
 | G2 — useful | Median range error < 20%, course < 10° (5 min after the zig), speed < 1 kt (10 min after the zig) at σ = 1° | Iterate features/architecture once; if still failed, stop |
 | G3 — classical parity (stretch) | Model within 1.2× classical solver on every metric, and lower gross-error rate | Not a stop condition; defines the bar for the next phase |
+| G4 — better than the EKF after a turn (phase 3, Annex B §B.4) | On manoeuvring scenarios at manoeuvre + 5 min, σ = 1°: the network's median range and course error below the tuned-turn EKF's (paired 95% interval wholly below 1) and its gross-error rate not above the EKF's; and no regression from G2 on held-course scenarios. One re-score on a larger fresh seed if inconclusive, then fail | Not a stop condition; Annex B §B.5 decides the follow-on |
 
 G3 is the interesting outcome either way: parity on clean data would be unremarkable, but a lower gross-error rate on noisy or near-unobservable geometries is the case for ML over classical methods.
 
@@ -202,6 +204,7 @@ Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; 
 | 1 — Signal | Both variants on 10^5 clean scenarios (σ = 0.5°, no dropouts) | G1 | Stop and report |
 | 2 — Noise | Same models on σ = 1–2°, 10% dropouts; one round of feature/architecture changes | G2 | One more iteration allowed, then stop (amended 2026-10-15, after iteration 2b's validation result and before its test scoring: a second extra iteration, 2c, is allowed, combining the two levers each shown to move speed on validation, a speed-weighted loss (2b) and model capacity (spec 003 research R20), judged on a fresh test split; then stop. The hyperparameter cap stands: 2c is one configuration, chosen from those two measured levers, not a search. Amended 2026-10-17 by Annex A: the stop was an effort-budget rule and is lifted; after 2c, Annex A Part B: further iterations at the owner's discretion, one pre-registered lever each, judged on fresh seeds) |
 | 3 — Parity | 10^6 scenarios, held-out geometry set, classical comparison by slice | G3 | Not a stop; result feeds the next-phase decision |
+| Phase 3 — Manoeuvre (Annex B) | Generator 0.4.0 (one target course change), G0 re-run, EKF reference tuned on validation, one carried instantaneous model on a fresh seed | G4 | Not a stop; Annex B §B.5 decides the follow-on, fixed in advance |
 
 **Each iteration produces**
 
@@ -233,7 +236,7 @@ Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; 
 
 - Window length is sampled per scenario, 10–40 min; models take variable-length, masked input from iteration 1.
 - The instantaneous model is scored at every timestep after the zig and reported as an error-vs-time curve; gates use the 5-minute point (G2 speed: the 10-minute point, amended 2026-10-11).
-- Batch least-squares is the only classical reference up to G3; an EKF is added only if G3 is reached.
+- Batch least-squares is the only classical reference up to G3; an EKF is added only if G3 is reached (added in phase 3, Annex B §B.3).
 - Gate verdicts are taken by an agent review panel (amended 2026-10-11; replaces the team review): independent AI reviewers with distinct specialities review the evidence, their findings are fixed or answered, and they are re-invited until all approve. No human sign-off is required.
 
 **Decisions taken** (17 Oct 2026, Annex A)
@@ -243,6 +246,10 @@ Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; 
 - Decision 22 (Annex A D4): the realism check is recorded (Annex A §A.7), and the first Part B lever is observability in the data. Iteration 3 (spec 007) adds a second zig, with both turns across the line of sight, keeps the first zig's timing, and is judged on fresh seed 204.
 - Decision 23 (Annex A D5, 2026-10-22): iteration 3 stopped at validation (LSTM speed 1.10 kt). Iteration 4 (spec 008) combines two Part B levers: velocity outputs (B.2.2) and the derived feature set (B.2.3), on iteration 3's three-leg problem, judged on fresh seed 205. Two levers at once, because removing the speed bias alone is forecast to reach only about 1.0 kt (spec 008 R1).
 - Decision 24 (Annex A D6, 2026-10-27): G2 passed on the iteration-4 re-score (seed 206). The owner chose G3, first through the per-leg fit (B.2.3). Research showed it gives no usable range rate on the young legs at the gate points (spec 009 R1), so the owner chose the hybrid (B.2.6). A network-initialised solver reproduces classical (R2): classical's gross errors are least-squares optima far from the truth, not missed basins. So iteration 5 (spec 009) judges G3 for a disagreement switch, reported as a hybrid and not as "a network alone": classical's estimate, or the frozen iteration-4 LSTM's where classical fails or the two ranges differ by more than 50%. It is judged on fresh seed 207 (20,000 test scenarios), with every median and P90 against 1.2 × classical and the gross-error rate against classical's.
+
+**Decisions taken** (28 Oct 2026, Annex B)
+
+- Decision 25 (Annex B D1–D4): G3 passed for the hybrid on seed 207 (iteration 5). Phase 3 tests the one place a learned estimator has an in-principle advantage: a target that manoeuvres. Generator 0.4.0 adds one target course change (80% of scenarios); an EKF, tuned on validation and frozen, is the reference; gate G4 asks the network alone to beat the tuned-turn EKF on range and course five minutes after the turn, without regressing on held-course scenarios. The owner set that as the success bar. The follow-on for each outcome is fixed in advance (Annex B §B.5): incremental if G4 passes (manoeuvre detection, learned uncertainty, realistic bearing error), a publish-and-decide if it fails.
 
 ## 9. Development practice and public site
 
@@ -290,3 +297,7 @@ The repository is public on GitHub from day one; nothing above OFFICIAL enters i
   lifted; an interactive engagement and model viewer is built and verified first, then further
   pre-registered attempts at G2 at the owner's discretion. Accepted 2026-10-17; its §B.4
   amendments are applied above (§4, §6, §7, §8).
+- [Annex B: Phase 3, manoeuvring targets and gate G4](SRD-annex-B.md) (2026-10-28): after G3, the
+  target may make one course change; an EKF is the reference; G4 asks the network alone to beat
+  the tuned EKF after the turn. The follow-on for each outcome is fixed in advance. Accepted
+  2026-10-28; its §B.6 amendments are applied above (§2, §3, §4, §5, §7, §8).
