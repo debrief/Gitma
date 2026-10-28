@@ -152,6 +152,20 @@ const VIEWER_PLANS = [
   },
 ];
 
+/**
+ * Generator previews with no plan yet (phase 3, generator 0.4.0): the owner's realism check of the
+ * target's turn before any dataset is fixed. Seed 900 is for the viewer only; it is never
+ * trained on or scored.
+ */
+const VIEWER_PREVIEWS = [
+  {
+    id: "phase3-preview",
+    label: "Phase 3 preview (generator 0.4.0, target turns)",
+    seed: "900",
+    ranges: "configs/phase3-ranges.json",
+  },
+];
+
 /** The panel's decision where it overrides the machine result (e.g. G1 passed under rule 1). */
 function decision(verdict) {
   const m = /\b(G\d) (PASS|FAIL)\b/.exec(verdict.decided_by ?? "");
@@ -247,6 +261,17 @@ function viewer() {
       end: Math.floor(0.9 * d.count),
       ranges: read(join(root, d.ranges)),
       note: `The ${v.label.toLowerCase()} dataset (${v.plan}); ${v.trained ?? "no model has been trained on it yet"}.`,
+    });
+  }
+  for (const v of VIEWER_PREVIEWS) {
+    sources.unshift({
+      id: v.id,
+      label: v.label,
+      seed: v.seed,
+      start: 0,
+      end: 1000,
+      ranges: read(join(root, v.ranges)),
+      note: `Scenarios from ${v.ranges} at seed ${v.seed} (viewer only). The target turns in about 80% of them; no model has been trained on this generator yet.`,
     });
   }
   const sim = readFileSync(join(root, "packages", "sim", "src", "scenario.ts"), "utf8");

@@ -22,7 +22,8 @@ trained and reported, not gated); changes to the G0–G3 record.
 ## The claim under test
 
 A causal network, trained on scenarios where the target may turn, estimates the target's range
-and course better than an EKF tuned for turns, five minutes after the turn. The hybrid of spec
+and course better than a tracker tuned for turns (an IMM, since D3's revision on 2026-10-28),
+five minutes after the turn. The hybrid of spec
 009 is reported beside it and is not the claim.
 
 ## User stories
@@ -30,7 +31,8 @@ and course better than an EKF tuned for turns, five minutes after the turn. The 
 ### US1 — Generate manoeuvring targets (P1)
 
 Generator 0.4.0 (schema bump) adds one target course change per scenario under Annex B §B.2.
-`manoeuvre_index` and `manoeuvre_angle_rad` are recorded; held-course scenarios record −1 and 0.
+`manoeuvre_start_index` and `manoeuvre_index` are recorded, with the turn's time, signed angle
+and rate in the parameters; all are absent for held-course scenarios.
 
 **Acceptance**:
 - The target's course changes at the recorded time by the recorded angle, rate-limited; its
@@ -39,16 +41,21 @@ Generator 0.4.0 (schema bump) adds one target course change per scenario under A
   parameters (the manoeuvre is additive).
 - Determinism and golden tests as for every generator change; G0 re-run and panel.
 
-### US2 — The EKF reference (P1)
+### US2 — The tracker reference (P1)
 
-`@tma/classical` gains a bearings-only EKF (`ekfPredict`), per timestep, initialised from the
-batch solution at the end of ownship's first turn, with process noise as a parameter. A CLI
-`tma-ekf` writes a prediction file. A tuning script chooses the two process-noise settings on
-the validation split from a declared grid and records them.
+`@tma/classical` gains a bearings-only EKF (`ekfPredict`, reported) and an IMM tracker
+(`immPredict`, constant velocity + coordinated turn; the gated reference, Annex B §B.3 as
+amended), per timestep, initialised from the batch solution at the end of ownship's first turn.
+The CLI `tma-track` writes a prediction file for either. A tuning script chooses the two settings
+on the validation split from a declared grid and records them.
 
-**Acceptance**:
-- Noise-free: tracks a manoeuvring target to within numerical precision once re-converged.
-- Straight targets: agrees with the batch solver at zig + 10 min within the bootstrap interval.
+**Acceptance** (amended 2026-10-28: re-convergence to numerical precision after every turn is
+not achievable; see Annex B §B.3):
+- Noise-free: every row from zig + 60 s to the target's turn within the SC-001 tolerances; after
+  a target turn followed by an ownship zig, within 0.5% range over the last ten minutes (G0
+  check `tracker-noise-free`).
+- Straight targets: its figures at zig + 10 min are compared with the batch solver's and
+  reported (research R2).
 - Both tunings are frozen in the decision record before test scoring.
 
 ### US3 — Train, validate, gate (P1)
@@ -62,10 +69,15 @@ split, the agent panel, `review.md`, `decided_by`, a results page and a blog pos
 
 - **FR-001** (generator). As Annex B §B.2: one course change of 30–120° (sign uniform), rate
   0.5–3°/s, start time uniform between 2 min after `zig_index` and 6 min before the window
-  ends; 80% of scenarios manoeuvre. Speed constant. Metadata `manoeuvre_index` (first sample
-  after the turn completes; −1 if none) and `manoeuvre_angle_rad` (0 if none).
+  ends; 80% of scenarios manoeuvre. Speed constant. Metadata `manoeuvre_start_index` and
+  `manoeuvre_index` (first samples after the turn starts and completes); parameters
+  `target_manoeuvre_time_s`, `target_manoeuvre_angle_rad`, `target_turn_rate_rad_s`; all absent
+  when the target holds course (schema 0.12.0). A window that cannot fit the turn is redrawn for
+  every scenario, turning or not.
 - **FR-002** (slices). `sliceKeys` gains `manoeuvre=held|30-60deg|60-90deg|90-120deg`.
-- **FR-003** (EKF). State (x, y, vx, vy), constant-velocity prediction, bearings-only update
+- **FR-003** (trackers). The gated reference is the IMM of Annex B §B.3 (amended): CV and
+  coordinated-turn EKFs on (x, y, vx, vy, ω), parameters σ_cv, σ_ct, σ_ω and the switch rate,
+  otherwise as the EKF below. The single EKF is reported. Original text, for the EKF: State (x, y, vx, vy), constant-velocity prediction, bearings-only update
   with wrapped innovation, process noise σ_a (m/s²) as the tuning parameter, measurement noise
   from the scenario's σ. Initialised at `zig_index` from `solveBatch`; rows before that are
   non-converged. Divergence (range outside `PLAUSIBLE`) is reported as non-converged and the
@@ -85,30 +97,31 @@ split, the agent panel, `review.md`, `decided_by`, a results page and a blog pos
   G4-control must pass. Otherwise the phase stops at validation and is written up.
 - **FR-008** (G4). As Annex B §B.4, implemented in `gate-g4.ts` and `tma-g4`: σ = 1°,
   manoeuvring rows, manoeuvre + 300 s; paired bootstrap ratios of median range and course error
-  against the tuned-turn EKF (limit 1), gross-error-rate difference (limit 0), speed ratio
+  against the tuned-turn IMM (limit 1), gross-error-rate difference (limit 0), speed ratio
   reported; the G2 checks on held-course rows as the control. FR-015 for each; pass needs all
   gated checks; one re-score on a larger fresh seed if inconclusive.
 - **FR-009** (provenance). `tma-g4` binds the committed decision (test seed, carried model
-  digests, EKF tunings) and the data's content digest, as `tma-g2` does; it refuses dirty data
+  digests, IMM tunings) and the data's content digest, as `tma-g2` does; it refuses dirty data
   and a second scoring.
-- **FR-010** (reporting). Every figure sits beside naive, batch least squares, both EKF tunings
+- **FR-010** (reporting). Every figure sits beside naive, batch least squares, both IMM tunings, the tuned single EKF
   and the hybrid on the same rows; medians and P90; n and excluded; the curve of each metric
   against time since the manoeuvre.
 
 ## Success criteria
 
 - **SC-001**: G0 passes on generator 0.4.0 before training.
-- **SC-002**: The EKF's two tunings and the carried model are committed before any test scoring.
+- **SC-002**: The IMM's two tunings and the carried model are committed before any test scoring.
 - **SC-003**: One scoring of the fresh test seed (plus at most one re-score).
 - **SC-004**: The write-up states the outcome against Annex B §B.5 and names the follow-on that
   outcome selects.
 
 ## Risks
 
-- **The EKF is the weakest part to get right.** A badly initialised or badly tuned filter makes
-  the gate easy. US2's two verifications and the validation-tuned, frozen σ_a are the guards; the
-  panel's numerics reviewer re-tunes independently.
-- **Five minutes may favour the EKF.** A turn of 30° at 3 kt is nearly invisible in bearings
+- **The reference is the weakest part to get right.** A badly initialised or badly tuned filter
+  makes the gate easy. It already happened once: the single Cartesian EKF drifts after a turn
+  (Annex B §B.3), so the reference is now an IMM. US2's verifications and the validation-tuned,
+  frozen parameters are the guards; the panel's numerics reviewer re-tunes independently.
+- **Five minutes may favour the tracker.** A turn of 30° at 3 kt is nearly invisible in bearings
   for minutes at long range. The gate point is fixed; the curve shows the rest.
 - **The network may learn "expect a turn".** The 20% held-course scenarios and G4-control catch
   a model that trades straight-leg accuracy for turn response.

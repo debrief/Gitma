@@ -29,9 +29,24 @@ ranges ask for them:
 - **Second zig.** Its delay, from `zig2_delay_s`, then its offset (or, under the random rule, its
   size and side).
 
+Generator 0.4.0 (phase 3, spec 010) then draws, only when the ranges give
+`target_manoeuvre_fraction`, four values for every scenario, whether or not its target turns:
+
+- **Whether the target turns.** A uniform draw below the fraction (0.8 in phase 3).
+- **Its course change.** Signed, |angle| from `target_manoeuvre_angle_abs_rad` (30–120°).
+- **Its turn rate.** From `target_turn_rate_rad_s` (0.5–3°/s).
+- **When.** A whole start sample, uniform from `target_manoeuvre_after_zig_s` (2 min) after
+  `zig_index` to the last start that ends the turn `target_manoeuvre_margin_s` (6 min) before the
+  window ends.
+
+A scenario whose window cannot fit that is redrawn, whether or not its target turns, so turning
+and held-course targets share one window distribution. The constraint does shift it: about 0.6
+redraws per accepted scenario on the phase-3 ranges, mostly short windows.
+
 All parameters are float32-rounded before use, so the metadata describes the data exactly. Ranges
-without a turn rate consume the random stream exactly as generator 0.1.0 did, and ranges without
-the 0.3.0 options exactly as 0.2.0 did. Both reproduce earlier datasets byte for byte.
+without a turn rate consume the random stream exactly as generator 0.1.0 did, ranges without the
+0.3.0 options exactly as 0.2.0 did, and ranges without a target manoeuvre exactly as 0.3.0 did.
+Each reproduces earlier datasets byte for byte.
 
 ## Motion
 
@@ -133,3 +148,16 @@ Hand-computed known answers (`packages/sim/test/unit/known-answer.test.ts`, and 
 shared by generator and solver cannot pass unnoticed. G0's `independent-geometry` check includes an
 in-turn case: the bearing half-way through a 60° turn at 1°/s, computed with literal `Math.atan2` from
 the closed-form arc.
+
+### Target course change (generator 0.4.0)
+
+The target holds course and speed `v_t` to the start sample `k_m`, then turns at the drawn rate
+`ω_m` on a constant-radius arc (`arcPosition`, as ownship's turns) for `|Δθ| / ω_m` seconds, then
+holds the new course `θ_t + Δθ` at the same speed. Metadata `manoeuvre_start_index` is `k_m + 1`
+(the first sample after the turn starts) and `manoeuvre_index` the first sample after it ends;
+both are absent when the target holds course. Gate times for G4 count from `manoeuvre_index`.
+
+Ownship's zigs under `zig_rule: across_los` are planned on the target's straight track, as an
+operator plans on the current solution. After the target turns, a later zig need not put the
+actual target across the line of sight; G0 checks the rule against the straight track.
+

@@ -18,6 +18,7 @@ export interface PlanViewProps {
   mode: Mode;
   model: Prediction | null;
   classical: Prediction | null;
+  tracker: Prediction | null;
   trueBearings: boolean;
   svgRef: RefObject<SVGSVGElement | null>;
 }
@@ -58,7 +59,7 @@ function pathOf(pts: readonly ([number, number] | null)[]): string {
 }
 
 export function PlanView(props: PlanViewProps): JSX.Element {
-  const { s, view, cursor, mode, model, classical, trueBearings, svgRef } = props;
+  const { s, view, cursor, mode, model, classical, tracker, trueBearings, svgRef } = props;
   const [vp, setVp] = useState<Viewport>(() => initial(view));
   const vpRef = useRef(vp);
   vpRef.current = vp;
@@ -220,9 +221,11 @@ export function PlanView(props: PlanViewProps): JSX.Element {
     if (mode === "instantaneous") {
       trail(model, C.model, "model", true);
       if (classical !== null) trail(classical, C.classical, "classical", true);
+      if (tracker !== null) trail(tracker, C.tracker, "tracker", true);
     } else {
       trail(model, C.model, "model", false);
       if (classical !== null) trail(classical, C.classical, "classical", false);
+      if (tracker !== null) trail(tracker, C.tracker, "tracker", false);
     }
     if (modelRow?.converged === true && oc !== undefined) {
       const [ox, oy] = pt(oc.x_m, oc.y_m);
@@ -265,6 +268,21 @@ export function PlanView(props: PlanViewProps): JSX.Element {
     }
   }
 
+  const trackRow = rowAtSample(tracker, s, cursor);
+  if (mode !== "truth" && trackRow?.converged === true) {
+    estimates.push(vector(trackRow, C.tracker, "tracker"));
+    const q = estPoint(trackRow);
+    if (q !== null)
+      estimates.push(
+        <polygon
+          key="tracker-at"
+          points={`${String(q[0])},${String(q[1] - 5)} ${String(q[0] + 5)},${String(q[1] + 4)} ${String(q[0] - 5)},${String(q[1] + 4)}`}
+          fill={C.tracker}
+          stroke={C.paper}
+        />,
+      );
+  }
+
   // Zig markers at the first sample on each new leg.
   const zigMarks: [string, [number, number]][] = [];
   for (const [label, k] of [
@@ -276,6 +294,10 @@ export function PlanView(props: PlanViewProps): JSX.Element {
   }
   const ownStart = ownAt(0);
   const tgtStart = tgt[0] === undefined ? null : pt(tgt[0].x_m, tgt[0].y_m);
+  // The last sample before the target's course change starts (generator 0.4.0).
+  const turnK = s.metadata.manoeuvre_start_index;
+  const tgtTurnState = turnK == null ? undefined : tgt[turnK - 1];
+  const tgtTurnAt = tgtTurnState === undefined ? null : pt(tgtTurnState.x_m, tgtTurnState.y_m);
   const tgtPath = pathOf(tgt.map((p) => pt(p.x_m, p.y_m)));
 
   const legend: [string, string, string?][] = [
@@ -288,6 +310,7 @@ export function PlanView(props: PlanViewProps): JSX.Element {
   if (mode !== "truth") {
     legend.push(["model", C.model]);
     if (classical !== null) legend.push(["classical", C.classical]);
+    if (tracker !== null) legend.push(["IMM", C.tracker]);
   }
 
   return (
@@ -327,6 +350,7 @@ export function PlanView(props: PlanViewProps): JSX.Element {
         {[
           ["model", C.model],
           ["classical", C.classical],
+          ["tracker", C.tracker],
         ].map(([id, color]) => (
           <marker
             key={id}
@@ -428,6 +452,22 @@ export function PlanView(props: PlanViewProps): JSX.Element {
             </text>
           </g>
         ))}
+        {tgtTurnAt !== null && (
+          <g key="target-turn">
+            <rect
+              x={tgtTurnAt[0] - 5}
+              y={tgtTurnAt[1] - 5}
+              width={10}
+              height={10}
+              transform={`rotate(45 ${f1(tgtTurnAt[0])} ${f1(tgtTurnAt[1])})`}
+              fill={C.target}
+              stroke={C.paper}
+            />
+            <text x={tgtTurnAt[0] + 9} y={tgtTurnAt[1] - 7} fontSize={11} fill={C.target}>
+              target turn
+            </text>
+          </g>
+        )}
         {oc !== undefined && heading(oc.x_m, oc.y_m, oc.course_rad, C.own, "own")}
         {tc !== undefined && heading(tc.x_m, tc.y_m, tc.course_rad, C.target, "tgt")}
       </g>

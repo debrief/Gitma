@@ -9,17 +9,19 @@ On generator 0.4.0 validation data at σ = 1°: for each manoeuvre angle band an
 time after the turn at which the bearing residual from the pre-turn constant-velocity fit exceeds
 3σ. This sets expectations for the 5-minute gate point and for the detection follow-on.
 
-## R2 — EKF tuning curves
+## R2 — Tracker tuning curves
 
-Median range and course error of the EKF against σ_a on the validation split, separately for
+Median range and course error of the IMM (and the single EKF) against their parameters on the
+validation split, separately for
 held-course rows at zig + 5 min and manoeuvring rows at manoeuvre + 5 min. The two minima are the
-two tunings (FR-004). Also: how far apart they are, which measures the EKF's dilemma that the
-network is meant to escape.
+two tunings (FR-004). Also: how far apart they are, which measures the tracker's dilemma that the
+network is meant to escape. Also the tuned IMM's straight-target figures against the batch
+solver's at zig + 10 min (US2).
 
 ## R3 — What the iteration-4 LSTM does on a turn, untrained
 
 The frozen iteration-4 LSTM on generator 0.4.0 validation data. Its error after a turn, against
-the tuned-turn EKF. This is the floor: what a network that never saw a turn does. The forecast
+the tuned-turn IMM. This is the floor: what a network that never saw a turn does. The forecast
 for the retrained model is set relative to it.
 
 ## R4 — Forecast

@@ -131,6 +131,7 @@ describe("view state", () => {
       t: 720,
       pair: "i1",
       classical: false,
+      tracker: true,
       trueBearings: true,
     };
     expect(decodeView(encodeView(v), cat)).toEqual(v);
@@ -141,6 +142,7 @@ describe("view state", () => {
       t: null,
       pair: "2c",
       classical: true,
+      tracker: false,
       trueBearings: false,
     });
   });
