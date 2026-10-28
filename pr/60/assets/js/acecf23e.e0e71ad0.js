@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunk_tma_site=self.webpackChunk_tma_site||[]).push([[1903],{1912(t){t.exports=JSON.parse('{"blogBasePath":"/Gitma/pr/60/blog","blogTitle":"Blog","authorsListPath":"/Gitma/pr/60/blog/authors"}')}}]);
