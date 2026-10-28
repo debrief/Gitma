@@ -83,3 +83,42 @@ using its own normalisation, on this split:
   track.
 - **Retraining has to teach the turn.** Retraining on phase-3 data must teach both detection and
   the new course. Holding course, it is as good as on iteration-4 data.
+
+## R2 result — the tuned trackers, and the frozen reference
+
+Grids: `configs/phase3/tracker-grid.json` (EKF 28 settings; IMM 486 settings in two stages:
+every setting on the first 400 scenarios, then the best 10 on all), and
+`configs/phase3/tracker-grid-ext.json` (243 IMM settings, turn only, added because the first
+pass's best IMM sat on the grid's edge). Script: `scripts/research/spec010-tune.mjs`; outputs in
+`experiments/20261028-p3-research/` (`tune.json`, `tune-ext.json`). Objective: the median range
+error at the gate row; a non-converged row counts as infinite.
+
+| Rows | Estimator | Setting | Median range error | P90 | Non-converged |
+| --- | --- | --- | --- | --- | --- |
+| Turning, manoeuvre + 300 s (n 4,074) | **IMM, tuned-turn (reference)** | σ_cv 0.003, σ_ct 0.1, σ_ω 0.001, switch 0.001/s, R × 2 | **13.6%** | 45.2% | 0.88% |
+| | EKF, tuned-turn | σ_a 0.1, P0 × 4, R × 4 | 15.3% | 47.3% | 0.22% |
+| | Batch least squares (per timestep) | | 29.7% | 183% | |
+| Held course, zig + 300 s (n 1,042) | IMM, tuned-straight | σ_cv 0, σ_ct 0.03, σ_ω 0.01, switch 10⁻⁵/s, P0 × 4, R × 4 | 3.23% | 16.0% | 0.58% |
+| | EKF, tuned-straight | σ_a 0.001, P0 × 4, R × 4 | 3.28% | 16.8% | 0.38% |
+| | Batch least squares | | 3.00% | 13.1% | |
+
+**What this decides.**
+- **The reference.** Under the owner's rule (the better tuned-turn tracker on validation), the
+  frozen reference is the IMM, `imm-cv0.003-ct0.1-w0.001-s0.001-r2`. It beats the EKF by
+  1.7 points of median range error after the turn.
+- **The batch solver after a turn.** It is about twice as bad as either tracker, as Annex B
+  expected.
+
+**Reading it critically.**
+- **The optimum is flat.** The best ten IMM settings span 13.6–14.0%. Turn-model noise of 0.3 or
+  1 and switching at 0.003 or 0.01/s did not help, and R scales of 2–8 sit within 0.4 points of
+  each other.
+- **σ_ω sits at the grid's lowest value (0.001).** It was not explored lower: at R × 4 the step
+  from 0.003 to 0.001 moved the median by 0.06 points, well inside sampling noise.
+- **The chosen setting misses more rows.** Its non-converged rate (0.88%) is four times the
+  runner-up's (0.32% at R × 4). Those rows count as gross errors for the reference at G4
+  (FR-011), which slightly favours the network. The median objective does not see that
+  trade-off.
+- **The dilemma is small at this noise.** On straight legs the tuned trackers match batch least
+  squares (3.2–3.3% against 3.0%). The turn tuning costs nothing visible at the median on held
+  course.
