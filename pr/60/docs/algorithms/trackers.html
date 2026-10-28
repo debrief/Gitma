@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Tracking filters: EKF and IMM | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/pr/60/docs/algorithms/trackers"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Tracking filters: EKF and IMM | TMA via ML"><meta data-rh="true" name="description" content="Source: packages/classical/src/ekf.ts (ekfPredict), packages/classical/src/imm.ts"><meta data-rh="true" property="og:description" content="Source: packages/classical/src/ekf.ts (ekfPredict), packages/classical/src/imm.ts"><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/pr/60/docs/algorithms/trackers"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/60/docs/algorithms/trackers" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/60/docs/algorithms/trackers" hreflang="x-default"><link rel="alternate" type="application/rss+xml" href="/Gitma/pr/60/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/pr/60/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/pr/60/assets/css/styles.d219d845.css">
-<script src="/Gitma/pr/60/assets/js/runtime~main.cec2fe1f.js" defer="defer"></script>
+<script src="/Gitma/pr/60/assets/js/runtime~main.afc95010.js" defer="defer"></script>
 <script src="/Gitma/pr/60/assets/js/main.b9343203.js" defer="defer"></script>
 </head>
 <body>
@@ -85,10 +85,13 @@ case itself.</li>
 <li class=""><strong>At σ = 1°, before the turn.</strong> With no CV process noise and rare switching (σ_cv 0,
 switch 10⁻⁵/s) its median range error at the last sample before the turn is about that of
 per-timestep batch least squares (3.1% against 3.4% on 120 scenarios). G0 gates the ratio at
-1.25 (check <code>tracker-noisy-sanity</code>), so a mis-scaled measurement variance cannot hide behind
-noise-free data. With G0&#x27;s noise-free settings (switch 10⁻³/s) it is 1.8 × batch least squares:
+1.25 (check <code>tracker-noisy-sanity</code>). The check is one-sided: it catches an under-stated
+measurement variance (σ × 0.1 gives 2.1 ×), not an over-stated one (σ × 10 gives 1.002 ×), because
+with no CV process noise the filter is close to recursive least squares whatever R is. With G0&#x27;s noise-free settings (switch 10⁻³/s) it is 1.8 × batch least squares:
 frequent switching leaks the turn model&#x27;s noise into straight legs, so the tuning grid must
-include low switch rates.</li>
+include low switch rates. Turn-ready settings are about 1.7–1.8 × batch least squares on straight
+legs at the true σ, and telling them σ × 10 brings that to about 1.1 ×: a scale on R is a
+tuning lever too (G0 panel round 2).</li>
 <li class=""><strong>Noise-free, before the turn.</strong> Every row from zig + 60 s to the turn is within G0&#x27;s
 tolerances (0.1% range, 0.1° course, 0.01 kt).</li>
 <li class=""><strong>At σ = 1°, five minutes after the turn.</strong> On 150 validation-like scenarios with untuned
