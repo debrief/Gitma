@@ -11,7 +11,23 @@ import { type BearingData, normalEquations, solve4, solveBatch } from "./lsq.js"
 export const EKF = "ekf";
 
 /** Estimator name of the EKF at process noise `sigmaA` (m/s²). */
-export const ekfName = (sigmaA: number): string => `${EKF}-sa${String(sigmaA)}`;
+export const ekfName = (sigmaA: number, scales: TrackerScales = {}): string =>
+  `${EKF}-sa${String(sigmaA)}${scaleSuffix(scales)}`;
+
+/**
+ * Tuning scales shared by both trackers (spec 010 FR-011, G0 panel): `p0Scale` multiplies the
+ * initial covariance σ²(JᵀJ)⁻¹, `rScale` the measurement variance σ². Both default to 1.
+ */
+export interface TrackerScales {
+  p0Scale?: number;
+  rScale?: number;
+}
+
+/** Name suffix for scales other than 1 (so names without scales are unchanged). */
+export const scaleSuffix = (s: TrackerScales): string =>
+  `${s.p0Scale !== undefined && s.p0Scale !== 1 ? `-p${String(s.p0Scale)}` : ""}${
+    s.rScale !== undefined && s.rScale !== 1 ? `-r${String(s.rScale)}` : ""
+  }`;
 
 /**
  * Floor on the measurement standard deviation (rad). Only noise-free data (σ = 0) reach it; it
@@ -68,7 +84,12 @@ function inverse4(a: Float64Array): Float64Array | null {
  * t_i, with covariance σ²(JᵀJ)⁻¹ propagated likewise (the batch fit's own uncertainty). Null when
  * there is no batch solution, it is implausible, or JᵀJ is singular.
  */
-export function ekfInitialise(d: BearingData, i: number, sigma: number): EkfState | null {
+export function ekfInitialise(
+  d: BearingData,
+  i: number,
+  sigma: number,
+  p0Scale = 1,
+): EkfState | null {
   const sol = solveBatch(d, i + 1);
   if (sol === null) return null;
   const t = d.t[i] ?? 0;
@@ -80,7 +101,7 @@ export function ekfInitialise(d: BearingData, i: number, sigma: number): EkfStat
   const { jtj } = normalEquations(d, sol.theta, i + 1);
   const info = inverse4(jtj);
   if (info === null) return null;
-  const r2 = Math.max(sigma, EKF_MIN_SIGMA_RAD) ** 2;
+  const r2 = Math.max(sigma, EKF_MIN_SIGMA_RAD) ** 2 * p0Scale;
   const p0 = mul(
     mul(
       f,
@@ -194,15 +215,17 @@ export const EKF_REINIT_EVERY = 6;
  * once and then every `EKF_REINIT_EVERY` samples until it succeeds; rows without a state are
  * non-converged. Measurement noise is the scenario's σ (floored at `EKF_MIN_SIGMA_RAD`).
  */
-export function ekfPredict(s: Scenario, sigmaA: number): Prediction {
+export function ekfPredict(s: Scenario, sigmaA: number, scales: TrackerScales = {}): Prediction {
   if (!(sigmaA >= 0)) throw new Error(`EKF process noise must be ≥ 0, got ${String(sigmaA)}`);
+  const { p0Scale = 1, rScale = 1 } = scales;
+  if (!(p0Scale > 0) || !(rScale > 0)) throw new Error("EKF scales must be > 0");
   const d = bearingData(s);
   const n = s.metadata.samples;
   const sigma = s.metadata.parameters.noise_sigma_rad;
-  const r2 = Math.max(sigma, EKF_MIN_SIGMA_RAD) ** 2;
+  const r2 = Math.max(sigma, EKF_MIN_SIGMA_RAD) ** 2 * rScale;
   const rows: PredictionRow[] = [];
   const first = s.metadata.zig_index + 1;
-  let st = first - 1 < n ? ekfInitialise(d, first - 1, sigma) : null;
+  let st = first - 1 < n ? ekfInitialise(d, first - 1, sigma, p0Scale) : null;
   let lastTry = first - 1;
   for (let i = first; i < n; i++) {
     if (st !== null) {
@@ -220,14 +243,14 @@ export function ekfPredict(s: Scenario, sigmaA: number): Prediction {
       rows.push(emptyRow(d, i));
     }
     if (i - lastTry >= EKF_REINIT_EVERY) {
-      st = ekfInitialise(d, i, sigma);
+      st = ekfInitialise(d, i, sigma, p0Scale);
       lastTry = i;
     }
   }
   return {
     record: "prediction",
     scenario_index: s.metadata.index,
-    estimator: ekfName(sigmaA),
+    estimator: ekfName(sigmaA, scales),
     mode: "per_timestep",
     rows,
   };

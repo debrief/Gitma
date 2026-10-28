@@ -128,3 +128,21 @@ pnpm tma-track --in <split.f32pack> --out <pred.ndjson> --filter ekf --sigma-a 0
 
 The estimator name records the settings (for example `imm-cv0.003-ct0.03-w0.003-s0.001`).
 Predictions are written as they are made.
+
+## Tuned for phase 3
+
+On the seed-208 validation split at σ = 1° (spec 010 R2; `experiments/20261028-p3-research/`),
+by median range error five minutes after the turn:
+
+- **IMM:** 13.6% (σ_cv 0.003, σ_ct 0.1, σ_ω 0.001, switch 0.001/s, R × 2).
+- **Single EKF:** 15.3% (σ_a 0.1, P0 × 4, R × 4).
+- **Batch least squares:** 29.7%.
+
+The IMM is therefore G4's frozen reference.
+
+- **Held course.** Both trackers' straight tunings are within 0.3 points of batch least squares
+  (3.2–3.3% against 3.0%).
+- **Under noise, after the turn.** Where ownship zigs after the turn, the reference reaches 12.5%,
+  against 31.5% for a batch fit on post-turn bearings alone. It uses the pre-turn track, as it
+  should.
+

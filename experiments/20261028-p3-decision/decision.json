@@ -1,0 +1,14 @@
+{
+  "carried_model": "lstm-instantaneous",
+  "carried_set_rule": "One carried model, lstm-instantaneous (configs/phase3/a/instantaneous.json), carried to test if and only if the validation rule holds; nothing else is trained or gated.",
+  "change": "phase 3 (SRD Annex B, spec 010): generator 0.4.0 (one target course change in 80% of scenarios); the iteration-4 instantaneous LSTM configuration trained from scratch on it (seed 208); G4 against the frozen reference tracker",
+  "decided_at": "2026-10-28T21:00:00Z",
+  "fresh_test_count": 400000,
+  "git_commit": "f8c1c6f059b2218ec8c194c935358045348b0c08",
+  "phase_a_experiment": "20261028-p3-research",
+  "plan": "configs/phase3/a/plan.json",
+  "rationale": "G3 passed for the hybrid; the network alone is about 3 x classical on held-course targets. Phase 3 tests the one place a learned estimator has an in-principle advantage: after a target turn. Research (experiments/20261028-p3-research): R1 turns show in bearings a median 130 s after they end; R2 the better tuned-turn tracker on validation is the IMM (13.6% median range error at manoeuvre + 300 s; EKF 15.3%); R3 the untrained iteration-4 LSTM is 1.92 x the reference on range and 2.21 x on course. Forecast recorded before training: G4-range ratio central 1.0 (0.75-1.3), G4-course 0.85 (0.6-1.2), P(pass) about 30%. Validation rule (FR-007): carry to test only if G4-range and G4-course points are below 1 with intervals not wholly at or above 1, and G4-control passes.",
+  "reference_estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2",
+  "stalled": false,
+  "test_seed": "209"
+}

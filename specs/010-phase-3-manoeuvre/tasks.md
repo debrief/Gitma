@@ -21,11 +21,11 @@
 
 ## PR 3 — Research, decision, training plan
 
-- [ ] T009 Research R1–R4 on the phase-3 validation split
-- [ ] T010 Tracker tuning script and the two frozen IMM settings (FR-004); the tuned single EKF
+- [x] T009 Research R1–R4 on the phase-3 validation split
+- [x] T010 Tracker tuning script and the two frozen IMM settings (FR-004); the tuned single EKF
   reported
-- [ ] T011 `gate-g4.ts`, `tma-g4` (FR-008, FR-009); tests
-- [ ] T012 Decision record (carried model, config, forecast, IMM tunings, fresh seed 208);
+- [x] T011 `gate-g4.ts`, `tma-g4` (FR-008, FR-009); tests
+- [x] T012 Decision record (carried model, config, forecast, IMM tunings, dataset seed 208, fresh test seed 209 at 400,000; `experiments/20261028-p3-decision/`);
   plan `configs/phase3/a`; seed reserved
 
 ## Run

@@ -9,7 +9,7 @@
 // timestep. Pure functions over typed arrays; the only state is what callers pass in.
 import { angleDiff, bearingOf, f32, f32Angle } from "@tma/sim";
 import type { Prediction, PredictionRow, Scenario } from "@tma/types";
-import { EKF_MIN_SIGMA_RAD, EKF_REINIT_EVERY, ekfInitialise } from "./ekf.js";
+import { EKF_MIN_SIGMA_RAD, EKF_REINIT_EVERY, ekfInitialise, scaleSuffix } from "./ekf.js";
 import { bearingData, PLAUSIBLE } from "./estimate.js";
 import type { BearingData } from "./lsq.js";
 
@@ -26,11 +26,15 @@ export interface ImmParams {
   sigmaOmega: number;
   /** Probability per second of switching model (Markov chain, both directions). */
   switchPerS: number;
+  /** Scale on the initial covariance (default 1). */
+  p0Scale?: number;
+  /** Scale on the measurement variance (default 1). */
+  rScale?: number;
 }
 
 /** Estimator name of the IMM with `p`. */
 export const immName = (p: ImmParams): string =>
-  `${IMM}-cv${String(p.sigmaCv)}-ct${String(p.sigmaCt)}-w${String(p.sigmaOmega)}-s${String(p.switchPerS)}`;
+  `${IMM}-cv${String(p.sigmaCv)}-ct${String(p.sigmaCt)}-w${String(p.sigmaOmega)}-s${String(p.switchPerS)}${scaleSuffix(p)}`;
 
 /** Prior turn-rate standard deviation at initialisation (rad/s): about the generator's 3°/s. */
 export const IMM_OMEGA0_SD = 0.05;
@@ -242,8 +246,13 @@ export function immEstimate(st: ImmState): Gaussian {
 }
 
 /** IMM state at sample i from the batch solution (`ekfInitialise`), ω = 0 with a wide prior. */
-export function immInitialise(d: BearingData, i: number, sigma: number): ImmState | null {
-  const e = ekfInitialise(d, i, sigma);
+export function immInitialise(
+  d: BearingData,
+  i: number,
+  sigma: number,
+  p0Scale = 1,
+): ImmState | null {
+  const e = ekfInitialise(d, i, sigma, p0Scale);
   if (e === null) return null;
   const x = new Float64Array(N);
   const p = new Float64Array(N * N);
@@ -290,13 +299,15 @@ function row(d: BearingData, x: Float64Array, i: number, converged: boolean): Pr
 export function immPredict(s: Scenario, params: ImmParams): Prediction {
   for (const [k, v] of Object.entries(params))
     if (!(typeof v === "number" && v >= 0)) throw new Error(`IMM ${k} must be ≥ 0`);
+  if (params.p0Scale === 0 || params.rScale === 0) throw new Error("IMM scales must be > 0");
   const d = bearingData(s);
   const n = s.metadata.samples;
   const sigma = s.metadata.parameters.noise_sigma_rad;
-  const r2 = Math.max(sigma, EKF_MIN_SIGMA_RAD) ** 2;
+  const p0Scale = params.p0Scale ?? 1;
+  const r2 = Math.max(sigma, EKF_MIN_SIGMA_RAD) ** 2 * (params.rScale ?? 1);
   const rows: PredictionRow[] = [];
   const first = s.metadata.zig_index + 1;
-  let st = first - 1 < n ? immInitialise(d, first - 1, sigma) : null;
+  let st = first - 1 < n ? immInitialise(d, first - 1, sigma, p0Scale) : null;
   let lastTry = first - 1;
   for (let i = first; i < n; i++) {
     if (st !== null) {
@@ -315,7 +326,7 @@ export function immPredict(s: Scenario, params: ImmParams): Prediction {
     }
     rows.push(row(d, new Float64Array(N), i, false));
     if (i - lastTry >= EKF_REINIT_EVERY) {
-      st = immInitialise(d, i, sigma);
+      st = immInitialise(d, i, sigma, p0Scale);
       lastTry = i;
     }
   }

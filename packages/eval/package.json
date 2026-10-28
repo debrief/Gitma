@@ -18,7 +18,8 @@
     "tma-gate": "./dist/cli-gate.js",
     "tma-g0": "./dist/cli-g0.js",
     "tma-hybrid": "./dist/cli-hybrid.js",
-    "tma-g3": "./dist/cli-g3.js"
+    "tma-g3": "./dist/cli-g3.js",
+    "tma-g4": "./dist/cli-g4.js"
   },
   "scripts": {},
   "dependencies": {

@@ -13,3 +13,4 @@ export * from "./gate-g2.js";
 export * from "./compare.js";
 export * from "./prediction-file.js";
 export * from "./gate-g3.js";
+export * from "./gate-g4.js";

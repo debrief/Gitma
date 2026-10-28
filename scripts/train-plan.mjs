@@ -42,9 +42,13 @@ export const RESERVED_SEEDS = {
   202: "iteration 2b G2 (fresh test)",
   203: "iteration 2c G2 (fresh test)",
   206: "the iteration-4 G2 re-score (fresh test only; SRD §7)",
+  207: "the iteration-5 G3 test (spec 009)",
+  209: "the phase-3 G4 test (fresh test only; spec 010)",
 };
 /** Dataset seeds owned by one iteration's plans: its test split decided that iteration's gate. */
 export const ITERATION_DATASET_SEEDS = { 201: "2", 204: "3", 205: "4" };
+/** Dataset seeds owned by one phase's plans (spec 010: phase 3, gate G4). */
+export const PHASE_DATASET_SEEDS = { 208: "3" };
 /**
  * Seeds whose test split has already decided a gate: a fresh test split may use one only in the
  * plan that decided it (so the committed plan of record still validates), never in another.
@@ -58,6 +62,8 @@ export const RESERVED_TEST_SEEDS = {
   204: { for: "iteration 3 G2 (the iteration-3 dataset's own test split)" },
   205: { for: "iteration 4 G2 (the iteration-4 dataset's own test split)" },
   206: { for: "iteration 4 G2 re-score (SRD §7)", plan: "configs/iter4/r/plan.json" },
+  207: { for: "iteration 5 G3 (spec 009)" },
+  209: { for: "phase 3 G4 (spec 010, fresh test)", plan: "configs/phase3/a/plan.json" },
 };
 
 class PlanError extends Error {}
@@ -104,6 +110,9 @@ export function planPath(input, ref) {
       throw new PlanError(`bad plan input "${input}"`);
     return `configs/${input.replace(/\/$/, "")}/plan.json`;
   }
+  // Phase 3 (spec 010): train/p3a → configs/phase3/a/plan.json.
+  const p = /^train\/p(\d+)([a-z])(?:[-/].*)?$/.exec(ref ?? "");
+  if (p !== null) return `configs/phase${p[1]}/${p[2]}/plan.json`;
   const m = /^train\/i(\d+)([a-z])(?:[-/].*)?$/.exec(ref ?? "");
   if (m === null) {
     throw new PlanError(
@@ -137,6 +146,12 @@ export function loadPlan(path) {
   // Reserved seeds are refused whatever the plan's path (G2 2b panel, red team round 2).
   if (Object.hasOwn(RESERVED_SEEDS, d.seed))
     fail(`dataset.seed ${d.seed} is reserved for ${RESERVED_SEEDS[d.seed]}`);
+  const phase = /(?:^|\/)configs\/phase(\d+)\//.exec(path);
+  const phaseOwner = PHASE_DATASET_SEEDS[d.seed];
+  if (phaseOwner !== undefined && phase?.[1] !== phaseOwner)
+    fail(
+      `dataset.seed ${d.seed} is the phase-${phaseOwner} dataset: only configs/phase${phaseOwner}/ plans may use it`,
+    );
   const owner = ITERATION_DATASET_SEEDS[d.seed];
   if (owner !== undefined && iter?.[1] !== owner)
     fail(
@@ -201,8 +216,12 @@ export function loadPlan(path) {
   if (p.continue_allow !== undefined && p.continue_from === undefined)
     fail("continue_allow needs continue_from");
   const e = p.evaluate;
-  if (!isObject(e) || !["tma-g2", "tma-scan"].includes(e.command))
-    fail('evaluate.command must be "tma-g2" or "tma-scan"');
+  if (!isObject(e) || !["tma-g2", "tma-scan", "models"].includes(e.command))
+    fail('evaluate.command must be "tma-g2", "tma-scan" or "models"');
+  // "models" (spec 010): the evaluation job only commits the completed models; G4 is scored
+  // separately (tracker predictions, tma-model-predict, tma-g4), validation first.
+  if (e.command === "models" && (e.split !== "validation" || Object.keys(e).length > 2))
+    fail('a "models" evaluation is { command: "models", split: "validation" } only');
   if (!["validation", "test"].includes(e.split)) fail("evaluate.split must be validation or test");
   for (const k of ["decision", "compare_models", "rescore_of"]) {
     if (e[k] !== undefined && typeof e[k] !== "string") fail(`evaluate.${k} must be a path`);

@@ -1,0 +1,28 @@
+{
+  "id": "p3a",
+  "description": "Spec 010 (phase 3, SRD Annex B, decision 25): the one carried network for G4, the iteration-4 instantaneous LSTM configuration (2 x 128 stacked LSTM, velocity outputs, derived features, loss_weight_speed 4, same seed) trained from scratch on generator 0.4.0 data (one target course change in 80% of scenarios, configs/phase3-ranges.json). Dataset seed 208 trains and validates; G4 is judged on a fresh test split, seed 209 at count 400,000 (its 40,000-scenario test split, generated alone), sized so the held-course control can resolve speed against 1 kt (spec 010 FR-011). The evaluation job only commits the model; the validation diagnostic (FR-007) and then G4 on the test split are scored with tma-track and tma-g4 against the frozen reference tracker named in experiments/20261028-p3-decision/decision.json.",
+  "dataset": {
+    "seed": "208",
+    "count": 100000,
+    "ranges": "configs/phase3-ranges.json",
+    "heldout_ranges": "configs/phase3-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "43196fdb48bfb38262c2ef892291e267fa814e13f74c00ef3ad2e65114ebcb5f",
+      "validation.f32pack": "39167c1756a8348c1a44fa7b10a0b88bcdc20d5226965e0a6d327d9b38ee2671",
+      "test.f32pack": "c12ad3fbde7767862c01e1e57cde6e251fb5b66d22a6c09dae9e1252a48f76c6",
+      "heldout.f32pack": "d792059cb5a9cd124c8c24201908ddbffa6eefab7d93ade949bb16bf78cce757"
+    },
+    "fresh_test": {
+      "seed": "209",
+      "count": 400000,
+      "digest": "c08e824cb2ad1a587d3b3385d0ec511042a99010cb9a0995408b35be848f005d"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/phase3/a",
+  "models": ["instantaneous"],
+  "evaluate": {
+    "command": "models",
+    "split": "validation"
+  }
+}

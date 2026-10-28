@@ -45,6 +45,15 @@ describe("plan resolution", () => {
     expect(r.out).toContain("command=tma-g2\n");
   });
 
+  it("train/p3a → configs/phase3/a/plan.json: one carried model, a models-only evaluation (spec 010)", () => {
+    const r = run(["resolve"], { env: { REF_NAME: "train/p3a" } });
+    expect(r.status).toBe(0);
+    expect(r.out).toContain("plan=configs/phase3/a/plan.json\n");
+    expect(r.out).toContain(`models=${JSON.stringify(["instantaneous"])}\n`);
+    expect(r.out).toContain("command=models\n");
+    expect(run(["validate", "configs/phase3/a/plan.json"]).status).toBe(0);
+  });
+
   it("train/i2s → the capacity scan: tma-scan on validation, plain arguments (R20)", () => {
     const r = run(["resolve"], { env: { REF_NAME: "train/i2s" } });
     expect(r.status).toBe(0);
@@ -224,6 +233,20 @@ describe("plan validation", () => {
       validate(workspace((p) => (p.evaluate = { command: "tma-scan", split: "validation" })))
         .status,
     ).toBe(0);
+    // A models-only evaluation (spec 010) is validation only and takes nothing else.
+    expect(
+      validate(workspace((p) => (p.evaluate = { command: "models", split: "validation" }))).status,
+    ).toBe(0);
+    expect(
+      validate(workspace((p) => (p.evaluate = { command: "models", split: "test" }))).err,
+    ).toMatch(/"models" evaluation/);
+    expect(
+      validate(
+        workspace(
+          (p) => (p.evaluate = { command: "models", split: "validation", decision: "d.json" }),
+        ),
+      ).status,
+    ).toBe(2);
   });
 
   it("a fresh test split needs its own unreserved seed and a digest (spec 004 decision 17)", () => {
