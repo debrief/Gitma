@@ -67,3 +67,59 @@ from about 1.2% to 0.5–0.6%. The result is ratios of 0.97–1.02 and 1.19% →
   that is 11 against 9. Here the switch takes the network's row a little more often than it
   helps.
 - **Validation.** The gate result reproduces the validation diagnostic (R3): 1.25% → 0.55%.
+
+## Panel round 1 (2026-10-28): all five approve with findings, none rejects
+
+| Reviewer | Verdict | Independent check |
+| --- | --- | --- |
+| TMA geometry | approve-with-findings | Recomputed the gate rows and gross counts (classical 117, LSTM 97, hybrid 56 at zig + 300 s). Gains are in near-unobservable geometry: beyond 12 km, gross errors fall 95 → 23; below 0.5 °/min bearing rate, 41 → 9; under 60° ownship course change, 18 → 6. |
+| Estimation and numerics | approve-with-findings | Recomputed `hybridSwitch` for all 20,000 scenarios: identical file. In switched rows the LSTM's range is better in 96 of 140. R2 holds on seed 207: the truth's cost was lower than classical's in 0 of 97 converged switched rows. |
+| Evaluation statistics | approve-with-findings | Own geometry and resampler (4,000 draws). All seven checks match. Gross difference −0.620 pp [−0.834, −0.427], from 82 classical-only against 21 hybrid-only gross rows. 20,000 scenarios is adequate. |
+| Reproducibility | approve-with-findings | Regenerated seed 207 (digest bc72f976…). Model digests match. `git diff 4bca164 8c5575b -- packages scripts configs` is empty. The re-run of `tma-hybrid`, `tma-eval` and `tma-g3` is byte-identical. 40 scenarios re-predicted by classical and the LSTM match exactly. |
+| Red team | approve-with-findings | No truth in the switch, and the network is causal (unidirectional LSTM). Data, model and normalisation are right. The rule was fixed before seed 207 existed. Own recompute matches. |
+
+No blocker or major findings. Responses to the minors:
+
+- **The claim** (red team, statistics, numerics).
+  - This is a **hybrid** result: classical's estimate, replaced by the network's in about 1.4%
+    of σ = 1° rows at zig + 300 s and 0.45% at zig + 600 s.
+  - It shows parity with classical plus a lower early gross-error rate. It does not show that a
+    network alone matches classical: the LSTM alone is 0.956 kt against classical's 0.307 kt at
+    zig + 600 s.
+  - **Accuracy.** The hybrid is not better than classical, and it is measurably about 1% worse
+    on the course and speed medians: both intervals exclude 1. That is immaterial against 1.2.
+- **Where the switch hurts** (numerics, geometry).
+  - At zig + 300 s, 140 σ = 1° rows switch. 82 classical gross errors are fixed, 21 good
+    classical rows become gross, 1 is gross either way and 36 are neither. In 44 of the 140 the
+    range gets worse.
+  - The cost is at short range and high bearing rate. Under 4 km, gross errors rise from 2 to 20.
+    There classical is sharp and the network's relative range error is large, and the 50% test
+    is measured against the network's range.
+  - A range or bearing-rate condition on the switch would be a new, pre-registered change. It
+    is not made here.
+- **Zig + 600 s, reported and not gated** (statistics, red team, geometry).
+  - Hybrid 0.170% against classical 0.139% (11 against 9 rows): +0.031 pp [−0.062, +0.123].
+  - There is no evidence of a difference either way. The SRD's "lower gross-error rate" is shown
+    only at the pre-registered point, zig + 300 s.
+  - At zig + 600 s, 29 rows switch: 4 fixed and 6 broken, all under 2.8 km.
+- **The shared 50% constant** (red team). The switch threshold equals the gross-error bound, so
+  the rule aims at the metric G3 gates on. That is by design, fixed in the decision before seed
+  207 was generated, and stated here.
+- **σ = 2°** (red team; reported, not gated).
+  - At zig + 300 s: range 6.45% against 6.58%, speed 0.993 against 1.017 kt, gross 1.80%
+    against 4.63%.
+  - At zig + 600 s: gross 0.62% against 1.36%, with every median within 1%.
+  - The hybrid's benefit grows with noise.
+- **Zig angle** (geometry). Under `across_los`, the zig-angle slice is ownship's course change,
+  up to about 180°, not the 30–90° target offset. Slices are labelled so in the write-up.
+- **Records** (reproducibility, red team).
+  - The aborted 06:11 launch's step log is `run-log-aborted-launch.txt`. It reached the LSTM
+    step, but no prediction was written; the relaunch rebuilt everything.
+  - `predictions.sha256` now also holds `test.features.bin`, `test.f32pack` and `norm.lstm.json`.
+  - `tma-g3` binds the decision and the seed, but not the data or model digests. They were
+    checked by hand here, and binding them in the tool is a follow-up.
+- **Cost precision** (numerics). The panel's cost comparisons use the float32-rounded reported
+  state. That is noted, and it is enough for the comparison.
+
+**Decision: G3 PASS for the hybrid** (SRD §5, decision 24). It is decided by the agent review
+panel, round 1: no rejections, no open blocker or major findings.

@@ -71,7 +71,7 @@
       "value": -0.006202969290217612
     }
   ],
-  "decided_by": "harness (pending agent panel review)",
+  "decided_by": "agent review panel, round 1 (no rejections; no open blocker or major findings): G3 PASS for the hybrid (classical with the iteration-4 LSTM as fallback; not a network alone) on seed 207, 20,000 test scenarios. Every median and P90 within 0.97-1.02 x classical against 1.2; gross-error rate at zig+300s 0.569% vs 1.190% (-0.620 pp [-0.824, -0.417]); at zig+600s 0.170% vs 0.139%, reported, not gated",
   "gate": "G3",
   "result": "pass"
 }

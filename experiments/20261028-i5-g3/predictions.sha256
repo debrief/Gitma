@@ -2,3 +2,6 @@ d4ef5411175ac0c49bac6e0e57491cce89d58fd2e25d86bff0491aec68a82320  data/i5/test.c
 c2e808447a57fef263ffbca4ad838f360c00c9c7273260efe3757bccb986b50b  data/i5/test.hybrid.ndjson
 d3cf2bf25c3ccc31d775a290efecd0572bb172565c24fa4e2182cb75ff2bb1a0  data/i5/test.lstm.ndjson
 13f86020eb1d98c6f60fe379171d1df4a3886d89d2dd9a9979dc5611b003525b  data/i5/test.naive.ndjson
+b0af904322fb111293eb7f5f23af9552b5ef5ebb676e5f9abc0ca426f81bac37  data/i5/test.features.bin
+32c02bb6aec882ce9234c999feb7f9c07b65bb3230e7107e4a2178bcec04fc82  data/i5/test.f32pack
+63b0cb7d4c3ecfb4e6e5e1f0550d0bae7413da2f0804b1d9a40475da0a47f484  data/i5/norm.lstm.json
