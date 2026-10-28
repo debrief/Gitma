@@ -243,7 +243,7 @@ and frozen, is the reference; **gate G4** asks the network alone to beat the tun
 range and course at manoeuvre + 5 min without regressing on held-course scenarios. The follow-on
 for each outcome is fixed in advance (Annex B §B.5). Status (PR 2): generator 0.4.0 (target turn, schema 0.12.0,
 `configs/phase3-ranges.json`), slices `manoeuvre=…`, trackers `ekfPredict` / `immPredict` and
-`tma-track`; G0 re-run on 0.4.0 (`experiments/20261028-g0-p3-r2/`, panel in progress). The single Cartesian EKF drifts
+`tma-track`; G0 re-run on 0.4.0 (`experiments/20261028-g0-p3-r2/`, passed, panel rounds 1–2). The single Cartesian EKF drifts
 after a turn even noise-free (Aidala), so the owner re-decided D3: the gated reference is the
 tuned-turn **IMM** (CV + coordinated turn), the EKF reported. G0 checks batch least squares on each
 scenario up to the target's turn (`beforeManoeuvre`); zigs are planned on the target's straight

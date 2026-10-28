@@ -116,6 +116,11 @@ split, the agent panel, `review.md`, `decided_by`, a results page and a blog pos
   - **Rows scored.** G4 scores only rows at or after `manoeuvre_index` + the gate offset; the
     manoeuvre slice alone labels the scenario ("would turn"), not whether a row is post-turn
     (G0 panel round 2, statistics). A unit test pins this.
+  - **Tracker under noise after the turn.** A noisy post-turn sanity check before G4 is scored:
+    the IMM at manoeuvre + 5 min against a batch fit on post-turn bearings, on scenarios where an
+    ownship zig follows the turn (G0 panel round 2, red team).
+  - **Non-converged tracker rows.** How they count at G4 (as gross errors they make G4-gross
+    easier), declared in advance.
   - **Pre-registered slices.** Turn before / after ownship's second zig, and ownship manoeuvre
     after the target's turn yes / no: turn timing is predictable (2–8 min after the zig), a prior
     the IMM's constant switch rate lacks.
