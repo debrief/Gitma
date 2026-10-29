@@ -40,6 +40,25 @@ costs about `w_s·(v·δ / velocity_scale_mps)²`, so course on slow targets wei
 course_speed. The fourth channel is never read when decoding. Untrained, it drifts freely (up to
 about ±0.8 on the iteration-4 LSTM); this has no effect on any estimate.
 
+With the **two-hypothesis** output (`velocity_two_hypothesis`, phase 3b, spec 011) the model has
+seven outputs per row:
+- hypothesis 0, the target has not turned: log range, vx, vy;
+- hypothesis 1, the target has turned: the same three;
+- a logit z of P(the target's turn has started by this row).
+
+The label l is 1 from the first row whose stored truth course differs from row 0's
+(`turnedLabel`). A target that holds course has the same stored course on every row. The loss per
+row is
+
+`(1 − l)·[w_r·(Δ log r₀)² + w_s·(Δ vx₀² + Δ vy₀²)] + l·[the same for hypothesis 1] + w_m·BCE(z, l)`,
+
+with `w_m = loss_weight_manoeuvre`, so each hypothesis learns only from rows where it is true.
+
+Decoding reports hypothesis 1 when P = σ(z) > 0.5 and hypothesis 0 otherwise, never a mixture,
+and records P on the row (`p_manoeuvre`). The design answers phase 3's finding. With a single
+velocity output, squared error made the network report the average over "turned" and "not
+turned", which biased speeds low and hedged courses on targets that held course.
+
 The weight is the post-zig loss mask for causal models (before the zig, range is unobservable, so
 the instantaneous model is not trained to guess it) and the window mask for non-causal models,
 which see the whole window anyway. Every model is still **scored** only after the zig.

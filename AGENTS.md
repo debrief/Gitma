@@ -259,7 +259,13 @@ turn the network beats the IMM (range 0.77 [0.74, 0.81], course 0.60 [0.57, 0.64
 but G4-control fails on held course (course 11.1° [10.3, 11.9] > 10°, speed 1.60 kt [1.47, 1.72]
 > 1 kt): it hedges towards a turn (speed −1.16 kt median bias). Seed 209's test split is unscored
 and reserved. Annex B §B.5's second branch applies (publish; the owner decides on a new design).
-Write-up: `site/blog/2026-10-29-phase-3.md`. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+Write-up: `site/blog/2026-10-29-phase-3.md`. **Phase 3b** (owner decision 2026-10-29, Annex B
+§B.8, spec 011, decision 27 `experiments/20261029-p3b-decision/`): the same design with a
+two-hypothesis output (`output_parameterisation: velocity_two_hypothesis`, schema 0.14.0: held
+and turned estimates plus P(turned), supervised by `turnedLabel` from the stored truth course; the
+more probable hypothesis is reported, never an average; `p_manoeuvre` on prediction rows); model
+`lstm-two-hypothesis`, plan `configs/phase3/b` (push `train/p3b`), same seed-208 data and frozen
+reference, G4 on fresh seed 210 (400,000). It is the last phase-3 attempt under Annex B. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

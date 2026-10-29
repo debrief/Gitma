@@ -1,7 +1,7 @@
 // The four SRD §4 models, built only from layers with direct Keras equivalents (constitution III).
 // Every initializer is seeded from the run's train seed, so training is reproducible (research R2).
 import * as tf from "@tensorflow/tfjs-node";
-import { inputWidth, NO, ROWS } from "@tma/features";
+import { inputWidth, NO, outputSpec, outputWidth, ROWS } from "@tma/features";
 import type { TrainingConfig } from "@tma/types";
 import { initSeed } from "./seeds.js";
 
@@ -35,10 +35,10 @@ function lstm(units: number, next: () => number): tf.layers.Layer {
   });
 }
 
-function head(next: () => number): tf.layers.Layer {
+function head(next: () => number, units: number): tf.layers.Layer {
   return tf.layers.timeDistributed({
     layer: tf.layers.dense({
-      units: NO,
+      units,
       kernelInitializer: tf.initializers.glorotUniform({ seed: next() }),
     }),
   });
@@ -72,6 +72,7 @@ export function buildModel(
   inputChannels: number = inputWidth(config.feature_set ?? "raw"),
 ): tf.Sequential {
   const next = seeder(config);
+  const no = outputWidth(outputSpec(config));
   const m = tf.sequential();
   const variable = config.length_bucketing === true;
   if (variable && config.model_kind === "mlp") {
@@ -84,7 +85,7 @@ export function buildModel(
       m.add(tf.layers.masking({ maskValue: 0, ...input }));
       // Stacked recurrent layers (capacity scan, spec 003 R20); every layer returns sequences.
       for (let l = 0; l < (config.layers ?? 1); l++) m.add(lstm(config.units, next));
-      m.add(head(next));
+      m.add(head(next, no));
       break;
     case "time_late":
       m.add(tf.layers.masking({ maskValue: 0, ...input }));
@@ -96,7 +97,7 @@ export function buildModel(
           }),
         );
       }
-      m.add(head(next));
+      m.add(head(next, no));
       break;
     case "causal_cnn": {
       const k = config.kernel_size ?? 9;
@@ -117,7 +118,7 @@ export function buildModel(
         );
         channels = config.units;
       }
-      m.add(head(next));
+      m.add(head(next, no));
       break;
     }
     case "mlp":
@@ -133,11 +134,11 @@ export function buildModel(
       }
       m.add(
         tf.layers.dense({
-          units: ROWS * NO,
+          units: ROWS * no,
           kernelInitializer: tf.initializers.glorotUniform({ seed: next() }),
         }),
       );
-      m.add(tf.layers.reshape({ targetShape: [ROWS, NO] }));
+      m.add(tf.layers.reshape({ targetShape: [ROWS, no] }));
       break;
   }
   return m;

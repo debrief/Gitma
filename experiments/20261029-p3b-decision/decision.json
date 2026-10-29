@@ -1,0 +1,14 @@
+{
+  "carried_model": "lstm-two-hypothesis",
+  "carried_set_rule": "One carried model, lstm-two-hypothesis (configs/phase3/b/instantaneous.json), carried to test if and only if the validation rule holds; nothing else is trained or gated.",
+  "change": "phase 3b (spec 011, Annex B \u00a7B.8): the phase-3 carried design with a two-hypothesis output (velocity_two_hypothesis: held and turned estimates plus P(turned), supervised by the turn label from the stored truth course; the more probable hypothesis is reported), from scratch on the same seed-208 data; G4 against the same frozen reference on fresh seed 210",
+  "decided_at": "2026-10-29T15:15:00Z",
+  "fresh_test_count": 400000,
+  "git_commit": "8cad05525b2c8ec95b61752d36dff71140859ed7",
+  "phase_a_experiment": "20261029-p3a-val",
+  "plan": "configs/phase3/b/plan.json",
+  "rationale": "Phase 3 stopped at validation (experiments/20261029-p3a-val): after a turn the network beat the tuned IMM (range 0.77, course 0.60) but failed G4-control on held course (course 11.1 deg, speed 1.60 kt) because squared-error training made it average 'turned' and 'not turned' (speed biased -1.16 kt). Reporting the more probable of two supervised hypotheses removes the averaging. Forecast recorded before training: held-course course about 6 deg, speed about 0.95 kt (0.8-1.2); G4-range about 0.85, G4-course about 0.7; P(carried to test) about 40%, P(G4 passes | carried) about 80%. Validation rule as decision 26: G4-range and G4-course points below 1 with intervals not wholly at or above 1, and G4-control passes.",
+  "reference_estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2",
+  "stalled": true,
+  "test_seed": "210"
+}

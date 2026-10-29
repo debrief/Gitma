@@ -293,7 +293,7 @@ export const StopReason = z.enum(["max_epochs", "early_stopping", "wall_clock", 
 export type StopReason = z.infer<typeof StopReason>;
 
 /** How the model's four output channels encode the target's course and speed (spec 008). */
-export const OutputParameterisation = z.enum(["course_speed", "velocity"]);
+export const OutputParameterisation = z.enum(["course_speed", "velocity", "velocity_two_hypothesis"]);
 export type OutputParameterisation = z.infer<typeof OutputParameterisation>;
 
 /** Hyperparameters and seeds for one training run (SRD §4; constitution III). */
@@ -313,6 +313,8 @@ export const TrainingConfig = z.strictObject({
   /** Length bucketing (research R15; default false). Each group of bucket_batches batches of the epoch's seeded permutation is sorted by valid length, cut into batches whose rows are trimmed to the longest window, and the batch order is shuffled with a seed derived from train_seed and the epoch. The model takes a variable time dimension. Not for mlp. */
   length_bucketing: z.boolean().nullish(),
   loss_weight_course: z.number(),
+  /** Weight of the turn-probability cross-entropy term (velocity_two_hypothesis only; spec 011). Absent means 1. */
+  loss_weight_manoeuvre: z.number().nullish(),
   loss_weight_range: z.number(),
   loss_weight_speed: z.number(),
   max_epochs: z.number().int(),
@@ -450,6 +452,8 @@ export const PredictionRow = z.strictObject({
   converged: z.boolean(),
   course_rad: z.number(),
   iterations: z.number().int().nullish(),
+  /** The estimator's probability that the target's turn has started by this timestep (velocity_two_hypothesis networks only; spec 011). Absent for other estimators. */
+  p_manoeuvre: z.number().nullish(),
   range_m: z.number(),
   speed_mps: z.number(),
   timestamp_s: z.number(),

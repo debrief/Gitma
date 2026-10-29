@@ -1,0 +1,28 @@
+{
+  "id": "p3b",
+  "description": "Spec 011 (phase 3b, owner decision 2026-10-29 after phase 3 stopped at validation): the phase-3 carried design with a two-hypothesis output (velocity_two_hypothesis: a held-course and a turned estimate plus P(turned), trained on the turn label from the stored truth course; the more probable hypothesis is reported, never an average). Everything else as configs/phase3/a: iteration-4 LSTM configuration from scratch, the same seed-208 training data. G4 on a fresh test split, seed 210 at 400,000 (its 40,000-scenario test split, generated alone). The evaluation job only commits the model; the validation diagnostic (FR-007) and then G4 are scored with tma-track and tma-g4 against the same frozen reference as phase 3.",
+  "dataset": {
+    "seed": "208",
+    "count": 100000,
+    "ranges": "configs/phase3-ranges.json",
+    "heldout_ranges": "configs/phase3-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "43196fdb48bfb38262c2ef892291e267fa814e13f74c00ef3ad2e65114ebcb5f",
+      "validation.f32pack": "39167c1756a8348c1a44fa7b10a0b88bcdc20d5226965e0a6d327d9b38ee2671",
+      "test.f32pack": "c12ad3fbde7767862c01e1e57cde6e251fb5b66d22a6c09dae9e1252a48f76c6",
+      "heldout.f32pack": "d792059cb5a9cd124c8c24201908ddbffa6eefab7d93ade949bb16bf78cce757"
+    },
+    "fresh_test": {
+      "seed": "210",
+      "count": 400000,
+      "digest": "2f27cfd465520a46b3195cdf2515f3f6e44f8a3262b5ffce7b61e329ad3f4087"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/phase3/b",
+  "models": ["instantaneous"],
+  "evaluate": {
+    "command": "models",
+    "split": "validation"
+  }
+}

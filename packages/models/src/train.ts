@@ -24,7 +24,7 @@ import {
   makeBatch,
   windowLengths,
 } from "./batches.js";
-import { lossParts, makeLoss, NY, termWeights } from "./loss.js";
+import { lossPartsFor, makeLoss, NY, termWeights } from "./loss.js";
 import { environment, sha256File } from "./manifest.js";
 import { threadSettings } from "./threads.js";
 
@@ -147,6 +147,7 @@ async function validationLoss(
   config: TrainingConfig,
 ): Promise<number> {
   const w = termWeights(config);
+  const parts = lossPartsFor(config, w);
   const ids = labelIdentity(file.count);
   let num = 0;
   let den = 0;
@@ -159,7 +160,7 @@ async function validationLoss(
     const [n, d] = tf.tidy(() => {
       const x = tf.tensor3d(b.x, [b.size, b.rows, file.inputChannels]);
       const y = tf.tensor3d(b.y, [b.size, b.rows, NY]);
-      const p = lossParts(w, y, model.predict(x) as tf.Tensor);
+      const p = parts(y, model.predict(x) as tf.Tensor);
       return [p.num, p.den];
     });
     num += (await n.data())[0] ?? NaN;
