@@ -1,0 +1,77 @@
+{
+  "checks": [
+    {
+      "ci_high": 0.8139244117950518,
+      "ci_level": 0.95,
+      "ci_low": 0.7378013748457254,
+      "detail": "lstm-instantaneous:per_timestep / imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep median range_rel 0.7745 vs limit 1 on σ = 1° turning scenarios at manoeuvre+300s; 95% CI [0.7378, 0.8139] (paired bootstrap, 2000 resamples, n 4074)",
+      "name": "g4-range",
+      "result": "pass",
+      "threshold": 1,
+      "value": 0.7745020586731264
+    },
+    {
+      "ci_high": 0.6383591274270626,
+      "ci_level": 0.95,
+      "ci_low": 0.5669311298096682,
+      "detail": "lstm-instantaneous:per_timestep / imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep median course_deg 0.5983 vs limit 1 on σ = 1° turning scenarios at manoeuvre+300s; 95% CI [0.5669, 0.6384] (paired bootstrap, 2000 resamples, n 4074)",
+      "name": "g4-course",
+      "result": "pass",
+      "threshold": 1,
+      "value": 0.5983089926468089
+    },
+    {
+      "ci_high": 0.7022893849744622,
+      "ci_level": 0.95,
+      "ci_low": 0.6327343363461345,
+      "detail": "reported, not gated: lstm-instantaneous:per_timestep / imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep median speed_kt 0.6689 vs limit 1 on σ = 1° turning scenarios at manoeuvre+300s; 95% CI [0.6327, 0.7023] (paired bootstrap, 2000 resamples, n 4074)",
+      "name": "g4-speed-reported",
+      "result": "pass",
+      "threshold": 1,
+      "value": 0.6689281915093522
+    },
+    {
+      "ci_high": -0.04786450662739323,
+      "ci_level": 0.95,
+      "ci_low": -0.06553755522827688,
+      "detail": "gross-error rate (range error > 50% or no converged estimate; a non-converged row counts as gross for either estimator) lstm-instantaneous:per_timestep 2.872% vs imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep 8.517% at manoeuvre+300s; difference -5.646 pp, 95% CI [-6.554, -4.786] pp, limit: wholly at or below 0 (paired bootstrap, 2000 resamples, n 4074)",
+      "name": "g4-gross",
+      "result": "pass",
+      "threshold": 0,
+      "value": -0.056455571919489446
+    },
+    {
+      "ci_high": 0.08034556954114729,
+      "ci_level": 0.95,
+      "ci_low": 0.07020352874525675,
+      "detail": "lstm-instantaneous:per_timestep median range_rel 0.0756 vs G2 limit 0.2 on σ = 1° held-course scenarios at zig+300s; 95% CI [0.0702, 0.0803] (bootstrap, 2000 resamples, n 1042)",
+      "name": "g4-control-range",
+      "result": "pass",
+      "threshold": 0.2,
+      "value": 0.07560687693589341
+    },
+    {
+      "ci_high": 11.885232665306697,
+      "ci_level": 0.95,
+      "ci_low": 10.294679683096659,
+      "detail": "lstm-instantaneous:per_timestep median course_deg 11.0742° vs G2 limit 10° on σ = 1° held-course scenarios at zig+300s; 95% CI [10.2947, 11.8852] (bootstrap, 2000 resamples, n 1042)",
+      "name": "g4-control-course",
+      "result": "fail",
+      "threshold": 10,
+      "value": 11.07416477684061
+    },
+    {
+      "ci_high": 1.7223151147236833,
+      "ci_level": 0.95,
+      "ci_low": 1.4706926263434326,
+      "detail": "lstm-instantaneous:per_timestep median speed_kt 1.6034 kt vs G2 limit 1 kt on σ = 1° held-course scenarios at zig+600s; 95% CI [1.4707, 1.7223] (bootstrap, 2000 resamples, n 913)",
+      "name": "g4-control-speed",
+      "result": "fail",
+      "threshold": 1,
+      "value": 1.6033969739085911
+    }
+  ],
+  "decided_by": "validation diagnostic (spec 010 FR-007): not a gate decision",
+  "gate": "G4",
+  "result": "fail"
+}

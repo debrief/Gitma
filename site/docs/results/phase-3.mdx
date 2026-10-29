@@ -1,0 +1,66 @@
+---
+title: "Results: phase 3 (manoeuvring targets, stopped at validation)"
+description: Phase 3 trained the iteration-4 LSTM on targets that turn and compared it with a tuned IMM tracker. After a turn the network was clearly better, but it regressed on targets that held course, so G4's control failed on validation and the test split was not scored.
+---
+
+# Results: phase 3 (manoeuvring targets, stopped at validation)
+
+**Question:** after a target turn, can a network beat the best tuned classical tracker without
+getting worse on targets that hold course? This is gate G4 of SRD Annex B.
+
+- **The problem.** Generator 0.4.0 gives the target one course change of 30–120° in 80% of
+  scenarios ([generator note](../algorithms/generator.md)).
+- **The reference.** The better tuned-turn tracker on validation. That was the IMM: constant
+  velocity plus coordinated turn, at 13.6% median range error five minutes after the turn,
+  against 15.3% for the EKF ([trackers note](../algorithms/trackers.md)).
+- **The network.** The iteration-4 LSTM configuration, trained from scratch on seed 208. It is
+  the only model, and it was declared before training.
+
+:::warning Stopped at validation: G4-control failed
+On seed 208's validation split (σ = 1°), the network beats the reference after the turn, but it
+fails the held-course control, so seed 209's test split was not scored (FR-007).
+
+| Check | Result | |
+| --- | --- | --- |
+| Range at manoeuvre + 5 min, network / IMM | 0.77 [0.74, 0.81] | better |
+| Course at manoeuvre + 5 min, network / IMM | 0.60 [0.57, 0.64] | better |
+| Gross errors at manoeuvre + 5 min, network − IMM | −5.7 pp | better |
+| Held course: course at zig + 5 min, limit 10° | 11.1° [10.3, 11.9] | **fail** |
+| Held course: speed at zig + 10 min, limit 1 kt | 1.60 kt [1.47, 1.72] | **fail** |
+
+Records:
+- the [validation record](https://github.com/debrief/Gitma/blob/main/experiments/20261029-p3a-val/validation.md);
+- the [decision](https://github.com/debrief/Gitma/blob/main/experiments/20261028-p3-decision/decision.md);
+- the [research](https://github.com/debrief/Gitma/blob/main/specs/010-phase-3-manoeuvre/research.md);
+- the [write-up](/blog/2026/10/29/phase-3).
+:::
+
+## Seed-208 validation split, σ = 1° (medians)
+
+| Estimator | After a turn: range | course | speed | Held course: range | course | speed |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Network** | **10.5%** | **14.4°** | **1.57 kt** | 7.6% | 11.1° | 1.60 kt |
+| IMM (reference) | 13.6% | 24.1° | 2.34 kt | 5.2% | 5.0° | 0.71 kt |
+| EKF | 15.3% | 24.4° | 3.04 kt | 7.7% | 6.5° | 1.82 kt |
+| Batch least squares | 29.7% | 64.6° | 3.26 kt | 3.0% | 1.2° | 0.31 kt |
+| Naive | 41.0% | 89.1° | 4.29 kt | 40.5% | 85.7° | 4.20 kt |
+| Iteration-4 LSTM (never shown a turn) | 26.1% | 53.2° | 2.85 kt | 6.4% | 4.7° | 0.87 kt |
+
+- **When each column is measured.** After a turn means five minutes after the turn ends
+  (n = 4,074). Held course means zig + 5 min for range and course (n = 1,042) and zig + 10 min
+  for speed (n = 913).
+- **The network's lead holds across turn timing.** It leads whether the target turned before
+  ownship's second zig (10.7% against 12.5%), during it (10.2% against 14.4%), or after it, when
+  ownship makes no later manoeuvre (10.8% against 14.1%).
+
+## Why the control failed
+
+On targets that hold course, the network:
+- reports speeds that are too low: median signed error −1.16 kt, with 74% of its estimates slow;
+- gets its course error worse, not better, as time passes: 6° at zig + 2 min, 11° from
+  zig + 5 min on. The IMM's falls to 4°.
+
+In this data, targets usually turn 2–8 minutes after the zig. A network trained to minimise
+squared velocity error reports an average when it cannot yet tell whether a turn has begun. An
+averaged velocity is shorter, and its direction is hedged. The network has learned the tracker's
+dilemma, trading straight-leg accuracy for turn response, rather than escaping it.

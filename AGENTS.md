@@ -253,7 +253,13 @@ frozen reference is `imm-cv0.003-ct0.1-w0.001-s0.001-r2` (13.6% median range err
 300 s on validation; EKF 15.3%); the carried model is the iteration-4 LSTM configuration from
 scratch on seed 208 (`configs/phase3/a`, push `train/p3a`; the job only commits the model); G4 on
 fresh seed 209 (400,000, its 40,000-scenario test split) with `tma-g4 --decision --plan --model`.
-Seeds 207–209 are reserved. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+Seeds 207–209 are reserved. **Phase 3 stopped at validation** (FR-007,
+`experiments/20261029-p3a-val/validation.md`; model `experiments/20261029-p3a-models/`): after a
+turn the network beats the IMM (range 0.77 [0.74, 0.81], course 0.60 [0.57, 0.64], gross −5.7 pp),
+but G4-control fails on held course (course 11.1° [10.3, 11.9] > 10°, speed 1.60 kt [1.47, 1.72]
+> 1 kt): it hedges towards a turn (speed −1.16 kt median bias). Seed 209's test split is unscored
+and reserved. Annex B §B.5's second branch applies (publish; the owner decides on a new design).
+Write-up: `site/blog/2026-10-29-phase-3.md`. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

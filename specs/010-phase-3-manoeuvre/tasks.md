@@ -30,6 +30,8 @@
 
 ## Run
 
-- [ ] T013 `train/p3a` on CI; validation diagnostic (FR-007)
-- [ ] T014 G4 on the test split; agent panel; `review.md`; `decided_by`
-- [ ] T015 Write-up: results page, blog post, AGENTS.md; the follow-on Annex B §B.5 selects
+- [x] T013 `train/p3a` on CI; validation diagnostic (FR-007): **stop** (G4-control fails;
+  `experiments/20261029-p3a-val/`)
+- [ ] T014 G4 on the test split; agent panel; `review.md`; `decided_by`: not run (FR-007 stop);
+  seed 209 unscored
+- [x] T015 Write-up: results page, blog post, AGENTS.md; the follow-on Annex B §B.5 selects
