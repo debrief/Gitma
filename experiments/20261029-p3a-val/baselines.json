@@ -1,0 +1,98 @@
+[
+ {
+  "estimator": "classical",
+  "rows": "turning, manoeuvre+300s",
+  "metric": "range_rel",
+  "n": 4074,
+  "median": 0.2967456748756489,
+  "p90": 1.8269182261309989
+ },
+ {
+  "estimator": "classical",
+  "rows": "turning, manoeuvre+300s",
+  "metric": "course_deg",
+  "n": 4074,
+  "median": 64.60266807583777,
+  "p90": 149.61626365599145
+ },
+ {
+  "estimator": "classical",
+  "rows": "turning, manoeuvre+300s",
+  "metric": "speed_kt",
+  "n": 4074,
+  "median": 3.2596457320575714,
+  "p90": 22.99667449361229
+ },
+ {
+  "estimator": "classical",
+  "rows": "held course, zig+300s",
+  "metric": "range_rel",
+  "n": 1042,
+  "median": 0.030009616448574413,
+  "p90": 0.13057203340621595
+ },
+ {
+  "estimator": "classical",
+  "rows": "held course, zig+300s",
+  "metric": "course_deg",
+  "n": 1042,
+  "median": 1.17853548090736,
+  "p90": 15.47483175341773
+ },
+ {
+  "estimator": "classical",
+  "rows": "held course, zig+600s",
+  "metric": "speed_kt",
+  "n": 913,
+  "median": 0.30540887004089357,
+  "p90": 1.712847351945877
+ },
+ {
+  "estimator": "naive",
+  "rows": "turning, manoeuvre+300s",
+  "metric": "range_rel",
+  "n": 4074,
+  "median": 0.4101357526390286,
+  "p90": 1.612988365741344
+ },
+ {
+  "estimator": "naive",
+  "rows": "turning, manoeuvre+300s",
+  "metric": "course_deg",
+  "n": 4074,
+  "median": 89.06416413534888,
+  "p90": 162.0819770233846
+ },
+ {
+  "estimator": "naive",
+  "rows": "turning, manoeuvre+300s",
+  "metric": "speed_kt",
+  "n": 4074,
+  "median": 4.292765182817459,
+  "p90": 7.632598632373809
+ },
+ {
+  "estimator": "naive",
+  "rows": "held course, zig+300s",
+  "metric": "range_rel",
+  "n": 1042,
+  "median": 0.40455554801529475,
+  "p90": 1.4275614062641395
+ },
+ {
+  "estimator": "naive",
+  "rows": "held course, zig+300s",
+  "metric": "course_deg",
+  "n": 1042,
+  "median": 85.67744215615473,
+  "p90": 159.57165050434423
+ },
+ {
+  "estimator": "naive",
+  "rows": "held course, zig+600s",
+  "metric": "speed_kt",
+  "n": 913,
+  "median": 4.203719573670387,
+  "p90": 7.661369516773224
+ }
+]
