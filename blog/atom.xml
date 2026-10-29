@@ -2,10 +2,99 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://debrief.github.io/Gitma/blog</id>
     <title>TMA via ML Blog</title>
-    <updated>2026-10-28T00:00:00.000Z</updated>
+    <updated>2026-10-29T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://debrief.github.io/Gitma/blog"/>
     <subtitle>TMA via ML Blog</subtitle>
+    <entry>
+        <title type="html"><![CDATA[Phase 3: better than the tracker after a turn, worse when there is none]]></title>
+        <id>https://debrief.github.io/Gitma/blog/2026/10/29/phase-3</id>
+        <link href="https://debrief.github.io/Gitma/blog/2026/10/29/phase-3"/>
+        <updated>2026-10-29T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Phase 3 asked the question the earlier gates could not: does a learned estimator have an edge]]></summary>
+        <content type="html"><![CDATA[<p>Phase 3 asked the question the earlier gates could not: does a learned estimator have an edge
+where the classical model breaks, when the target turns?</p>
+<p><strong>After a turn, yes.</strong> Five minutes after the turn ends, on the validation split:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Measure</th><th>Network</th><th>Tuned IMM tracker</th><th>Ratio</th></tr></thead><tbody><tr><td>Median range error</td><td>10.5%</td><td>13.6%</td><td>0.77</td></tr><tr><td>Median course error</td><td>14.4°</td><td>24.1°</td><td>0.60</td></tr><tr><td>Gross errors</td><td></td><td></td><td>5.7 points fewer</td></tr></tbody></table>
+<p>The IMM was the better of two tracking filters tuned on the same data.</p>
+<p><strong>On targets that never turn, no.</strong> Its course error is 11.1° and its speed error 1.60 kt, both
+past G2's limits (10°, 1 kt). The pre-registered rule therefore stopped the phase at validation.
+The test split was never scored.</p>
+<p>Records: <a class="" href="https://debrief.github.io/Gitma/docs/results/phase-3">results</a> and the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261029-p3a-val/validation.md" target="_blank" rel="noopener noreferrer" class="">validation record</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-was-tested">What was tested<a href="https://debrief.github.io/Gitma/blog/2026/10/29/phase-3#what-was-tested" class="hash-link" aria-label="Direct link to What was tested" title="Direct link to What was tested" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The data.</strong> The target makes one course change of 30–120° in 80% of scenarios (generator
+0.4.0).</li>
+<li class=""><strong>The reference.</strong> We tuned two tracking filters on validation, a single Cartesian EKF and an
+IMM (constant velocity plus coordinated turn). We froze the better one: the IMM.</li>
+<li class=""><strong>The network.</strong> It is the iteration-4 LSTM design, unchanged, trained from scratch on the new
+data. Its decision record was committed before training. It forecast about a 30% chance of a
+pass, with range the likely failure.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-happened">What happened<a href="https://debrief.github.io/Gitma/blog/2026/10/29/phase-3#what-happened" class="hash-link" aria-label="Direct link to What happened" title="Direct link to What happened" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>After a turn.</strong> The network beats the tracker on range, course, speed and gross errors. Its
+lead holds whether or not ownship manoeuvres after the turn. The network has learned something
+the tracker's model does not hold, for example that the target's speed is unchanged through a
+turn.</li>
+<li class=""><strong>On held course.</strong> It regresses. It reports speeds 1.2 kt too low on median, and its course
+error rises to 11° five minutes after the zig, which in this data is exactly when targets
+usually turn.</li>
+</ul>
+<p>A network trained to minimise squared error reports an average when it cannot tell whether a
+turn has started. An averaged velocity is shorter, and its direction is hedged. This is the
+dilemma every tracking filter faces, between following a turn quickly and staying steady on a
+straight leg, now inside the network.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reading-it-critically">Reading it critically<a href="https://debrief.github.io/Gitma/blog/2026/10/29/phase-3#reading-it-critically" class="hash-link" aria-label="Direct link to Reading it critically" title="Direct link to Reading it critically" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The forecast was wrong in an informative way.</strong> We expected range to be the obstacle. Range
+and course both cleared easily; the held-course control failed instead.</li>
+<li class=""><strong>The control is strict but fair.</strong> It asks the network not to regress below G2's absolute bar
+on the 20% of targets that hold course. A tracker that is tuned for turns pays a similar price:
+the IMM is 5.0° and 0.71 kt on those rows, against batch least squares' 1.2° and 0.31 kt.</li>
+<li class=""><strong>One validation look.</strong> This is not a test-split result, and the test split remains unseen.
+The margins on the failing checks are wide: both intervals lie wholly beyond the limits.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/blog/2026/10/29/phase-3#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>SRD Annex B §B.5 fixed this branch in advance:</p>
+<ol>
+<li class="">publish the result;</li>
+<li class="">then decide separately whether a different design is a new project.</li>
+</ol>
+<p>The new design could be an end-to-end tracker, a network that outputs "turned or not" rather
+than an average, or a hybrid that uses the network only after a detected turn. That decision is
+the owner's.</p>]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Iteration 5: a hybrid passes G3; the network adds robustness, not accuracy]]></title>
         <id>https://debrief.github.io/Gitma/blog/2026/10/28/iteration-5</id>
