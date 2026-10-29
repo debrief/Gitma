@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.13.0
+version: 0.14.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -83,6 +83,14 @@ enums:
         description: >-
           log_range_km, vx / velocity_scale_mps, vy / velocity_scale_mps, and a fourth channel
           that carries no loss and is ignored; course and speed are derived from (vx, vy).
+      velocity_two_hypothesis:
+        description: >-
+          Spec 011 (phase 3b): seven channels per row. log_range_km, vx, vy (as velocity) under
+          the hypothesis that the target has not turned; the same under the hypothesis that it
+          has; and a logit of P(the target's turn has started by this row). Each hypothesis is
+          trained only on rows where it is true (the label comes from the stored truth course);
+          the logit by binary cross-entropy. The reported estimate is the more probable
+          hypothesis's, never an average.
   FeatureSet:
     description: Model input channel sets (spec 003 R6).
     permissible_values:
@@ -405,6 +413,11 @@ classes:
       y_m: { range: float, required: true, unit: { ucum_code: m } }
       converged: { range: boolean, required: true }
       iterations: { range: integer }
+      p_manoeuvre:
+        range: float
+        description: >-
+          The estimator's probability that the target's turn has started by this timestep
+          (velocity_two_hypothesis networks only; spec 011). Absent for other estimators.
 
   Prediction:
     description: One estimator's output for one scenario.
@@ -590,6 +603,11 @@ classes:
       loss_weight_speed:
         range: float
         required: true
+      loss_weight_manoeuvre:
+        range: float
+        description: >-
+          Weight of the turn-probability cross-entropy term (velocity_two_hypothesis only; spec
+          011). Absent means 1.
       train_seed:
         range: string
         required: true

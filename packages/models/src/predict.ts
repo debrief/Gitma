@@ -8,6 +8,7 @@ import {
   type FeatureFile,
   type OutputSpec,
   outputsToPrediction,
+  outputWidth,
   ROWS,
 } from "@tma/features";
 import type {
@@ -17,7 +18,7 @@ import type {
   Prediction,
   Scenario,
 } from "@tma/types";
-import { modelInputWidth, NO } from "./architectures.js";
+import { modelInputWidth } from "./architectures.js";
 
 /** Moved to `@tma/features` (decode.ts) so the browser viewer shares it; re-exported here. */
 export { outputsToPrediction };
@@ -156,6 +157,7 @@ export function predictEach(
   const where = new Map<number, number>();
   features.indices.forEach((idx, k) => where.set(idx, k));
   let pending: Scenario[] = [];
+  const width = outputWidth(spec);
   const flush = (): void => {
     if (pending.length === 0) return;
     const x = new Float32Array(pending.length * ROWS * ni);
@@ -173,7 +175,7 @@ export function predictEach(
       emit(
         outputsToPrediction(
           s,
-          y.subarray(j * ROWS * NO, (j + 1) * ROWS * NO),
+          y.subarray(j * ROWS * width, (j + 1) * ROWS * width),
           norm,
           estimator,
           undefined,

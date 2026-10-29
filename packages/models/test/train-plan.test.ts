@@ -52,6 +52,9 @@ describe("plan resolution", () => {
     expect(r.out).toContain(`models=${JSON.stringify(["instantaneous"])}\n`);
     expect(r.out).toContain("command=models\n");
     expect(run(["validate", "configs/phase3/a/plan.json"]).status).toBe(0);
+    expect(run(["validate", "configs/phase3/b/plan.json"]).status).toBe(0);
+    const b = run(["resolve"], { env: { REF_NAME: "train/p3b" } });
+    expect(b.out).toContain("plan=configs/phase3/b/plan.json\n");
   });
 
   it("train/i2s → the capacity scan: tma-scan on validation, plain arguments (R20)", () => {

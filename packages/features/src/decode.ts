@@ -3,9 +3,12 @@
 import { bearingOf, f32, f32Angle } from "@tma/sim";
 import type { NormalisationConstants, Prediction, PredictionRow, Scenario } from "@tma/types";
 import { ROWS } from "./layout.js";
-import { COURSE_SPEED, decodeCourseSpeed, type OutputSpec } from "./output.js";
+import { COURSE_SPEED, decodeCourseSpeed, type OutputSpec, outputWidth } from "./output.js";
 
-/** Model outputs per row: log_range_km, then three channels whose meaning `OutputSpec` sets. */
+/**
+ * Model outputs per row of the four-channel parameterisations: log_range_km, then three channels
+ * whose meaning `OutputSpec` sets. velocity_two_hypothesis has `outputWidth` = 7.
+ */
 export const NO = 4;
 
 /** Last valid bearing at or before sample i (the derived position uses it, as naive does). */
@@ -33,19 +36,25 @@ export function outputsToPrediction(
   spec: OutputSpec = COURSE_SPEED,
 ): Prediction {
   const n = s.metadata.samples;
-  if (out.length !== ROWS * NO) throw new Error(`expected ${String(ROWS * NO)} outputs`);
+  const width = outputWidth(spec);
+  if (out.length !== ROWS * width) throw new Error(`expected ${String(ROWS * width)} outputs`);
+  const two = spec.parameterisation === "velocity_two_hypothesis";
   const rows: PredictionRow[] = [];
   for (let i = first; i < n; i++) {
     const own = s.ownship.states[i];
     if (own === undefined) throw new Error(`no sample ${String(i)}`);
-    const a = i * NO;
+    const base = i * width;
+    // Two hypotheses (spec 011): report the more probable one, never an average.
+    const logit = two ? (out[base + 6] ?? NaN) : NaN;
+    const p = two ? 1 / (1 + Math.exp(-logit)) : NaN;
+    const a = two && p > 0.5 ? base + 3 : base;
     const logR = out[a] ?? NaN;
     const { sin, cos, speed } = decodeCourseSpeed(
       out[a + 1] ?? NaN,
       out[a + 2] ?? NaN,
-      out[a + 3] ?? NaN,
+      two ? 0 : (out[a + 3] ?? NaN),
       norm,
-      spec,
+      two ? { ...spec, parameterisation: "velocity" } : spec,
     );
     const range = 1000 * Math.exp(logR);
     const b = lastBearing(s, i);
@@ -66,6 +75,7 @@ export function outputsToPrediction(
             x_m: f32(own.x_m + range * Math.sin(b)),
             y_m: f32(own.y_m + range * Math.cos(b)),
             converged: true,
+            ...(two && Number.isFinite(p) ? { p_manoeuvre: f32(p) } : {}),
           }
         : {
             timestamp_s: own.timestamp_s,

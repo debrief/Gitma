@@ -122,6 +122,11 @@ metadata that generated them. See the [data dictionary](data-dictionary).
 targets swapped for another's. It should do no better than the naive baseline; if it does, the
 inputs leak the answer.
 
+**Two-hypothesis output** — Phase 3b's network output (spec 011): an estimate assuming the target
+has held course, one assuming it has turned, and the probability that it has turned. The more
+probable estimate is reported, so the network does not average the two (as phase 3's single
+output did). See [models](algorithms/models.md).
+
 **Time-late variant** — The model that reconstructs the target track after the fact, using the
 whole window (non-causal). It has strictly more information than the instantaneous variant, so it
 must score at least as well.

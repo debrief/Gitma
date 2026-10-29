@@ -192,3 +192,19 @@ a technical one.
   tuned-turn IMM and the tuned-turn EKF on validation, frozen before training._
 - **D4** The follow-ons for each outcome. _Decided 2026-10-28, as B.5._
 - **D5** The carried model and its fresh seed: in the phase-3 decision record, before training.
+
+## B.8 Phase 3b (owner decision, 2026-10-29)
+
+Phase 3 stopped at validation (`experiments/20261029-p3a-val/`).
+- **After a turn, the network was better.** It beat the tuned IMM: range 0.77, course 0.60.
+- **On held course, it failed G4-control.** Course was 11.1° and speed 1.60 kt, because it
+  averaged "turned" and "not turned".
+
+Under B.5's second branch the owner chose to try one more design before any end-to-end rebuild:
+a **two-hypothesis output** with a supervised turn flag (spec 011).
+
+- **What is unchanged.** Everything else of B.2–B.4: the data, the frozen reference, the G4
+  checks, the validation rule and the one re-score.
+- **The test seed.** G4 is judged on fresh seed 210.
+- **What follows.** B.5 applies to its outcome as it did to phase 3's. This is the last phase-3
+  attempt under this annex. A further design is a new decision.

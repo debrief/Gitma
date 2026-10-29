@@ -1002,7 +1002,8 @@
       "description": "How the model's four output channels encode the target's course and speed (spec 008).",
       "enum": [
         "course_speed",
-        "velocity"
+        "velocity",
+        "velocity_two_hypothesis"
       ],
       "title": "OutputParameterisation",
       "type": "string"
@@ -1369,6 +1370,13 @@
         "iterations": {
           "type": [
             "integer",
+            "null"
+          ]
+        },
+        "p_manoeuvre": {
+          "description": "The estimator's probability that the target's turn has started by this timestep (velocity_two_hypothesis networks only; spec 011). Absent for other estimators.",
+          "type": [
+            "number",
             "null"
           ]
         },
@@ -1751,6 +1759,13 @@
         "loss_weight_course": {
           "type": "number"
         },
+        "loss_weight_manoeuvre": {
+          "description": "Weight of the turn-probability cross-entropy term (velocity_two_hypothesis only; spec 011). Absent means 1.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "loss_weight_range": {
           "type": "number"
         },
@@ -1879,5 +1894,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.13.0"
+  "version": "0.14.0"
 }
