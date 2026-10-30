@@ -25,6 +25,7 @@
     "tma-hybrid": "node packages/eval/dist/cli-hybrid.js",
     "tma-g3": "node packages/eval/dist/cli-g3.js",
     "tma-g4": "node packages/eval/dist/cli-g4.js",
+    "tma-g5": "node packages/eval/dist/cli-g5.js",
     "tma-g0": "tsc -b && node packages/eval/dist/cli-g0.js",
     "tma-features": "node packages/features/dist/cli.js",
     "site:build": "pnpm build && pnpm --filter @tma/site build",
