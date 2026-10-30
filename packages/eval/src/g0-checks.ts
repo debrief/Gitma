@@ -4,11 +4,8 @@
 import {
   bearingData,
   classicalPredict,
-  EKF_MIN_SIGMA_RAD,
   type ImmParams,
-  immInitialise,
   immPredict,
-  immStep,
   solveBatch,
 } from "@tma/classical";
 import { angleDiff, createRng, degToRad, generateScenario, observe, simulateTruth } from "@tma/sim";
@@ -318,6 +315,8 @@ export function kinematicFailure(s: Scenario): string | null {
     ],
   );
   if (own !== null) return `ownship ${own}`;
+  if ((p.target_manoeuvres != null) !== (m.manoeuvres != null))
+    return "target: drawn manoeuvres and their spans must both be present or both absent";
   if (m.manoeuvres != null) {
     const tgt = targetManoeuvresFailure(s);
     return tgt === null ? null : `target ${tgt}`;
@@ -984,6 +983,12 @@ const NOISY_SEED = 20261028n;
 const NOISY_SCENARIOS = 200;
 /** Generator 0.5.0: scenarios for the paired noisy check (G0 panel phase 4, statistics). */
 const NOISY_SCENARIOS_05 = 1000;
+/**
+ * Generator 0.5.0: limit on the median per-scenario ratio. Tighter than `TRACKER_NOISY_RATIO`,
+ * because a median of ratios sits lower than a ratio of medians (1.05 against 1.17–1.27 on the same
+ * scenarios; G0 panel phase 4, round 2, red team), so keeping 1.25 would have loosened the check.
+ */
+export const TRACKER_NOISY_PAIRED_RATIO = 1.15;
 
 /**
  * The tracker under noise (G0 panel phase 3, red team: a mis-scaled measurement variance is
@@ -993,11 +998,11 @@ const NOISY_SCENARIOS_05 = 1000;
  * stretch both should reach about the same accuracy.
  * - Generator 0.4.0: the ratio of the two medians over 200 scenarios, at most `TRACKER_NOISY_RATIO`.
  * - Generator 0.5.0 (G0 panel phase 4): the median over 1,000 scenarios of the per-scenario ratio
- *   (paired), at most `TRACKER_NOISY_RATIO`, with batch least squares fitted on the samples up to
+ *   (paired), at most `TRACKER_NOISY_PAIRED_RATIO`, with batch least squares fitted on the samples up to
  *   that row. The ratio of medians is reported. On 200 scenarios it was 1.26 against 1.25 in round
  *   0, but the panel found it noisy (95% interval [0.98, 1.64]; 0.93–1.23 on other seeds).
- * The check is one-sided: an over-stated measurement variance barely moves it; `tracker-nis` covers
- * that direction.
+ * The check is one-sided: an over-stated measurement variance barely moves it, and on 0.5.0 a
+ * mis-stated scenario σ does not move it at all; `tracker-nis` covers both.
  */
 export function checkTrackerNoisy(ranges: ParameterRanges): GateCheck {
   const name = "tracker-noisy-sanity";
@@ -1019,6 +1024,8 @@ export function checkTrackerNoisy(ranges: ParameterRanges): GateCheck {
   const lsq: number[] = [];
   if (ranges.target_course_change_count_weights != null) {
     const ratios: number[] = [];
+    let ncImm = 0;
+    let ncLsq = 0;
     for (let i = 0; i < NOISY_SCENARIOS_05; i++) {
       const s = beforeManoeuvre(generateScenario(NOISY_SEED, i, r).scenario);
       const m = s.metadata;
@@ -1028,6 +1035,8 @@ export function checkTrackerNoisy(ranges: ParameterRanges): GateCheck {
       if (a === undefined || b === undefined) continue;
       const ea = a.converged ? rowError(s, a).range_rel : Infinity;
       const eb = b.converged ? rowError(s, b).range_rel : Infinity;
+      if (!a.converged) ncImm++;
+      if (!b.converged) ncLsq++;
       imm.push(ea);
       lsq.push(eb);
       ratios.push(ea === eb ? 1 : ea / eb);
@@ -1035,8 +1044,8 @@ export function checkTrackerNoisy(ranges: ParameterRanges): GateCheck {
     const paired = med(ratios);
     return check(
       name,
-      ratios.length > 0 && paired <= TRACKER_NOISY_RATIO,
-      `σ = 1°, ${String(ratios.length)} regenerated scenarios (seed ${String(NOISY_SEED)}), last sample before the target's first manoeuvre (or the end): ${settings} / batch least squares on the same samples, median per-scenario range-error ratio ${paired.toFixed(3)}, limit ${String(TRACKER_NOISY_RATIO)}; reported: medians ${med(imm).toFixed(4)} and ${med(lsq).toFixed(4)}, ratio of medians ${(med(imm) / med(lsq)).toFixed(3)}`,
+      ratios.length > 0 && paired <= TRACKER_NOISY_PAIRED_RATIO,
+      `σ = 1°, ${String(ratios.length)} regenerated scenarios (seed ${String(NOISY_SEED)}), last sample before the target's first manoeuvre (or the end): ${settings} / batch least squares on the same samples, median per-scenario range-error ratio ${paired.toFixed(3)}, limit ${String(TRACKER_NOISY_PAIRED_RATIO)}; non-converged: IMM ${String(ncImm)}, least squares ${String(ncLsq)} (both: ratio 1; one: 0 or ∞); reported: medians ${med(imm).toFixed(4)} and ${med(lsq).toFixed(4)}, ratio of medians ${(med(imm) / med(lsq)).toFixed(3)}`,
     );
   }
   for (let i = 0; i < NOISY_SCENARIOS; i++) {
@@ -1060,15 +1069,17 @@ export function checkTrackerNoisy(ranges: ParameterRanges): GateCheck {
 }
 
 /** Band on the IMM's normalised innovation squared at σ = 1° on straight stretches. */
-export const TRACKER_NIS_BAND = { lo: 0.75, hi: 1.5 } as const;
+export const TRACKER_NIS_BAND = { lo: 0.75, hi: 1.3 } as const;
 
 /**
  * Measurement-variance consistency (G0 panel phase 4, red team: `tracker-noisy-sanity` cannot see an
- * over-stated variance). On the noisy check's regenerated σ = 1° scenarios (the first 200), the
+ * over-stated variance, nor, since the panel's round 2, a mis-stated σ at all: the initial
+ * covariance and the measurement variance then scale together). Run through `immPredict`. On the noisy check's regenerated σ = 1° scenarios (the first 200), the
  * straight-leg IMM is run from its initialisation to the last sample before the first manoeuvre,
  * and each scenario's mean normalised innovation squared is taken over rows from zig + 60 s. The
  * median over scenarios must lie in `TRACKER_NIS_BAND`. Observed in phase 4: about 1.08 with the
- * scenario's σ, 0.53 with σ² × 2 and 2.1 with σ² × 0.5.
+ * scenario's σ (1.00–1.04 on five other seeds), 0.71 with σ² × 1.5 and 1.44 with σ² × 0.75; the upper
+ * edge was narrowed from 1.5 to 1.3 in panel round 2 (statistics) so that × 0.75 fails too.
  */
 export function checkTrackerNis(ranges: ParameterRanges, rScale = 1): GateCheck {
   const name = "tracker-nis";
@@ -1085,28 +1096,29 @@ export function checkTrackerNis(ranges: ParameterRanges, rScale = 1): GateCheck 
   };
   const means: number[] = [];
   let rows = 0;
+  let short = 0;
+  let noRows = 0;
   for (let i = 0; i < NOISY_SCENARIOS; i++) {
     const s = generateScenario(NOISY_SEED, i, r).scenario;
     const m = s.metadata;
-    const d = bearingData(s);
-    const sigma = m.parameters.noise_sigma_rad;
-    const r2 = Math.max(sigma, EKF_MIN_SIGMA_RAD) ** 2 * rScale;
-    const first = m.zig_index + 1;
     const end = (m.manoeuvre_start_index ?? m.samples) - 1;
-    let st = immInitialise(d, first - 1, sigma);
-    if (st === null) continue;
     let sum = 0;
     let n = 0;
-    for (let k = first; k <= end; k++) {
-      const z =
-        d.valid[k] === 1
-          ? { bearing: d.bearing[k] ?? 0, ox: d.ownX[k] ?? 0, oy: d.ownY[k] ?? 0, r2 }
-          : null;
-      st = immStep(st, d.t[k] ?? 0, z, G0_IMM_STRAIGHT);
-      if ((k - m.zig_index) * m.parameters.dt_s >= PER_TIMESTEP_SETTLE_S && st.nis != null) {
+    // Through immPredict itself, so the reference tracker's own variance and scale handling and its
+    // re-initialisation are what is tested (G0 panel phase 4, round 2).
+    immPredict(beforeManoeuvre(s), { ...G0_IMM_STRAIGHT, rScale }, (k, st) => {
+      if (
+        k <= end &&
+        (k - m.zig_index) * m.parameters.dt_s >= PER_TIMESTEP_SETTLE_S &&
+        st.nis != null
+      ) {
         sum += st.nis;
         n++;
       }
+    });
+    if (n === 0) {
+      if ((end - m.zig_index) * m.parameters.dt_s < PER_TIMESTEP_SETTLE_S) short++;
+      else noRows++;
     }
     if (n > 0) {
       means.push(sum / n);
@@ -1117,7 +1129,7 @@ export function checkTrackerNis(ranges: ParameterRanges, rScale = 1): GateCheck 
   return check(
     name,
     means.length > 0 && median >= TRACKER_NIS_BAND.lo && median <= TRACKER_NIS_BAND.hi,
-    `σ = 1°, ${String(means.length)} regenerated scenarios (seed ${String(NOISY_SEED)}), ${String(rows)} rows from zig + ${String(PER_TIMESTEP_SETTLE_S)} s to the last sample before the first manoeuvre: straight-leg IMM median per-scenario mean NIS ${median.toFixed(3)}, band [${String(TRACKER_NIS_BAND.lo)}, ${String(TRACKER_NIS_BAND.hi)}] (catches σ² × 2 and × 0.5)`,
+    `σ = 1°, ${String(means.length)} regenerated scenarios (seed ${String(NOISY_SEED)}), ${String(rows)} rows from zig + ${String(PER_TIMESTEP_SETTLE_S)} s to the last sample before the first manoeuvre${short + noRows > 0 ? ` (no rows: ${String(short)} whose first manoeuvre starts within ${String(PER_TIMESTEP_SETTLE_S)} s of the zig, ${String(noRows)} others)` : ""}: straight-leg IMM median per-scenario mean NIS ${median.toFixed(3)}, band [${String(TRACKER_NIS_BAND.lo)}, ${String(TRACKER_NIS_BAND.hi)}] (catches σ² × 1.5 and × 0.75)`,
   );
 }
 
