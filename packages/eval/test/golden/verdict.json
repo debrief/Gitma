@@ -16,7 +16,7 @@
       "result": "pass"
     },
     {
-      "detail": "hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2), leg-3, second-turn (both directions, mid-arc and leg 3) and target-turn (both directions, mid-turn and after it) cases match; t = 0 bearing and range match the drawn parameters, and ownship and target kinematics (arc chord ≤ step ≤ v·dt, chord heading between the stored courses, turn ≤ ω·dt per step, summed turn = stored angle, |turn| ≤ 180°, target course constant unless it turns, every arc step = ω·dt) hold, and 637 noise-free bearings equal atan2 of the stored positions, on 4 scenarios",
+      "detail": "hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2), leg-3, second-turn (both directions, mid-arc and leg 3) target-turn (both directions, mid-turn and after it), target speed-change (during and after it) and two-target-turn cases match; t = 0 bearing and range match the drawn parameters, and ownship and target kinematics (arc chord ≤ step ≤ v·dt, chord heading between the stored courses, turn ≤ ω·dt per step, summed turn = stored angle, |turn| ≤ 180°, target course constant unless it turns, every arc step = ω·dt; generator 0.5.0: course and speed constant between manoeuvres, each interior turn step ω·dt and speed step a·dt, summed changes = drawn, spans = drawn, timing rules and speed bounds) hold, and 637 noise-free bearings equal atan2 of the stored positions, on 4 scenarios",
       "name": "independent-geometry",
       "result": "pass"
     },
