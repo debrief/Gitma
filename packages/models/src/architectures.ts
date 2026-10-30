@@ -3,6 +3,7 @@
 import * as tf from "@tensorflow/tfjs-node";
 import { inputWidth, NO, outputSpec, outputWidth, ROWS } from "@tma/features";
 import type { TrainingConfig } from "@tma/types";
+import { LearnedGainFilter } from "./filter-layer.js";
 import { initSeed } from "./seeds.js";
 
 /** Model outputs per row (defined with the decoding in `@tma/features`). */
@@ -19,6 +20,8 @@ export const ALLOWED_LAYERS = new Set([
   "Reshape",
   "ZeroPadding2D",
   "Flatten",
+  // A declared filter layer (constitution 1.3.0; spec 012 T1): equations in filter-layer.ts.
+  "LearnedGainFilter",
 ]);
 
 function seeder(config: TrainingConfig): () => number {
@@ -64,12 +67,13 @@ function causalPad(m: tf.Sequential, rows: number | null, channels: number, pad:
 /**
  * Builds a model. With length bucketing the time dimension is variable (null): the layers, their
  * parameters and their seeded initial values are unchanged, and so are the outputs on full-length
- * input. Without it the input shape stays fixed at ROWS (iteration 1). The input width is the
+ * input. Without it the input shape stays fixed at `windowRows` (ROWS, or the features file's rows). The input width is the
  * features file's (10 raw, 13 derived; spec 003 US2), by default the config's feature set's.
  */
 export function buildModel(
   config: TrainingConfig,
   inputChannels: number = inputWidth(config.feature_set ?? "raw"),
+  windowRows: number = ROWS,
 ): tf.Sequential {
   const next = seeder(config);
   const no = outputWidth(outputSpec(config));
@@ -78,7 +82,7 @@ export function buildModel(
   if (variable && config.model_kind === "mlp") {
     throw new Error(`${config.id}: length_bucketing is not supported for mlp`);
   }
-  const rows = variable ? null : ROWS;
+  const rows = variable ? null : windowRows;
   const input = { inputShape: [rows, inputChannels] };
   switch (config.model_kind) {
     case "instantaneous":
@@ -121,8 +125,24 @@ export function buildModel(
       m.add(head(next, no));
       break;
     }
+    case "learned_gain_filter": {
+      // Tracker T1 (spec 012): the whole recursion is one declared filter layer, reading the raw
+      // channels and emitting the velocity parameterisation's four channels.
+      if (inputChannels !== inputWidth("raw") || outputSpec(config).parameterisation !== "velocity")
+        throw new Error(
+          `${config.id}: learned_gain_filter reads the raw feature set and outputs velocity`,
+        );
+      m.add(
+        new LearnedGainFilter({
+          units: config.units,
+          seed: next(),
+          inputShape: [rows, inputChannels],
+        }),
+      );
+      break;
+    }
     case "mlp":
-      m.add(tf.layers.flatten({ inputShape: [ROWS, inputChannels] }));
+      m.add(tf.layers.flatten({ inputShape: [windowRows, inputChannels] }));
       for (let l = 0; l < 2; l++) {
         m.add(
           tf.layers.dense({
@@ -134,11 +154,11 @@ export function buildModel(
       }
       m.add(
         tf.layers.dense({
-          units: ROWS * no,
+          units: windowRows * no,
           kernelInitializer: tf.initializers.glorotUniform({ seed: next() }),
         }),
       );
-      m.add(tf.layers.reshape({ targetShape: [ROWS, no] }));
+      m.add(tf.layers.reshape({ targetShape: [windowRows, no] }));
       break;
   }
   return m;

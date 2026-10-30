@@ -1,0 +1,28 @@
+{
+  "id": "p4a",
+  "description": "Spec 012 (phase 4, SRD Annex C, decision 28): tracker T1, the learned-gain filter, trained from scratch on generator 0.5.0 data (seed 211, 20\u201360 min windows, 0\u20133 course changes and an occasional speed change). Both trackers share this dataset and are judged on the same rows at G5 on fresh seed 212 (400,000; its 40,000-scenario test split, generated alone), against the frozen reference the decision record names. The evaluation job only commits the model; the validation diagnostic and G5 are scored with tma-track and tma-g5.",
+  "dataset": {
+    "seed": "211",
+    "count": 100000,
+    "ranges": "configs/phase4-ranges.json",
+    "heldout_ranges": "configs/phase4-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "870aff4e5f14d76b9da8b39e68c32cc64a9344ba97c2b535ef468c707db59208",
+      "validation.f32pack": "afefe28892e1e361029d799414f3637ea0211c500ed75acb85c79f1592d3c127",
+      "test.f32pack": "05f1ce53be676c9b4b1a597396f01af35b55fa048cad8fa751b2bb262fd70d77",
+      "heldout.f32pack": "9fb7293ab9fae55389789082bc4bc4d5673d3fd56de7c90362de873919e69510"
+    },
+    "fresh_test": {
+      "seed": "212",
+      "count": 400000,
+      "digest": "2f0ca34b291c277688c71e2fed3aec6708718bf2567890caf219cdab0cf452fa"
+    }
+  },
+  "feature_set": "raw",
+  "configs": "configs/phase4/a",
+  "models": ["tracker"],
+  "evaluate": {
+    "command": "models",
+    "split": "validation"
+  }
+}

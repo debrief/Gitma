@@ -17,7 +17,16 @@ import type {
   NormalisationConstants,
   Scenario,
 } from "@tma/types";
-import { buildWindow, inputChannels, NI, NT, rateScale, ROWS, TARGET_CHANNELS } from "./layout.js";
+import {
+  buildWindow,
+  inputChannels,
+  NI,
+  NT,
+  rateScale,
+  ROWS,
+  rowsFor,
+  TARGET_CHANNELS,
+} from "./layout.js";
 
 export const FEATURE_MAGIC = "TMAFEAT\0";
 export const FEATURE_FORMAT_VERSION = 2;
@@ -25,9 +34,9 @@ export const FEATURE_FORMAT_VERSION = 2;
 export const READABLE_FEATURE_VERSIONS: readonly number[] = [1, 2];
 
 /** The layout recorded in a features file of feature set `fs`. */
-export const layoutFor = (fs: FeatureSet): FeatureLayout => ({
+export const layoutFor = (fs: FeatureSet, rows: number = ROWS): FeatureLayout => ({
   feature_set: fs,
-  rows: ROWS,
+  rows,
   input_channels: [...inputChannels(fs)],
   target_channels: [...TARGET_CHANNELS],
 });
@@ -81,7 +90,9 @@ export function writeFeatures(
   indices.forEach((v, i) => idx.writeInt32LE(v, 4 * i));
   const f = openAtomic(path);
   try {
-    const layout = padded(layoutFor(featureSet));
+    // Rows from the source's ranges: 240 up to generator 0.4.0, 360 for 0.5.0's 60-min windows.
+    const rows = rowsFor(source.header.parameter_ranges);
+    const layout = padded(layoutFor(featureSet, rows));
     const nc = padded(norm);
     const sh = padded(source.header);
     const sd = pad(Buffer.from(source.digest, "utf8"));
@@ -105,7 +116,7 @@ export function writeFeatures(
     for (const part of ["inputs", "targets", "lossMask"] as const) {
       // Targets and loss mask do not depend on the feature set: skip the derived channels' work.
       const fs = part === "inputs" ? featureSet : "raw";
-      for (const s of scenarios()) writeAll(f.fd, f32le(buildWindow(s, norm, fs)[part]));
+      for (const s of scenarios()) writeAll(f.fd, f32le(buildWindow(s, norm, fs, rows)[part]));
     }
     f.commit();
   } catch (e) {

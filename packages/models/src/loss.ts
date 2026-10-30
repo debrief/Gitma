@@ -13,7 +13,7 @@ export const NY = NO + 1;
 
 function termWeights(config: TrainingConfig): tf.Tensor1D {
   const p = outputSpec(config).parameterisation;
-  if (p === "velocity" || p === "velocity_two_hypothesis")
+  if (p === "velocity" || p === "velocity_two_hypothesis" || p === "velocity_gaussian")
     return tf.tensor1d([
       config.loss_weight_range,
       config.loss_weight_speed,
@@ -65,6 +65,34 @@ export function twoHypothesisLossParts(
   return { num: perRow.mul(weight).sum(), den: weight.sum() };
 }
 
+/** Log-variance bounds: keep exp(−s) finite early in training (σ of e^−6 to e^3 in output units). */
+export const LOG_VAR_MIN = -12;
+export const LOG_VAR_MAX = 6;
+
+/**
+ * Gaussian negative log-likelihood parts (spec 012, velocity_gaussian): for each of log range, vx
+ * and vy, ½(e² e^(−s) + s) with s its predicted log-variance (clipped to [LOG_VAR_MIN, LOG_VAR_MAX]),
+ * weighted as the squared error would be.
+ */
+export function gaussianLossParts(
+  w: tf.Tensor1D,
+  yTrue: tf.Tensor,
+  yPred: tf.Tensor,
+): { num: tf.Scalar; den: tf.Scalar } {
+  const target = yTrue.slice([0, 0, 0], [-1, -1, 3]);
+  const weight = yTrue.slice([0, 0, NO], [-1, -1, 1]).squeeze([2]);
+  const mean = yPred.slice([0, 0, 0], [-1, -1, 3]);
+  const s = tf.clipByValue(yPred.slice([0, 0, 3], [-1, -1, 3]), LOG_VAR_MIN, LOG_VAR_MAX);
+  const nll = mean
+    .sub(target)
+    .square()
+    .mul(tf.exp(tf.neg(s)))
+    .add(s)
+    .mul(0.5);
+  const perRow = nll.mul(w.slice([0], [3])).sum(2);
+  return { num: perRow.mul(weight).sum(), den: weight.sum() };
+}
+
 /** The loss parts a config trains with (validation loss uses the same). */
 export function lossPartsFor(
   config: TrainingConfig,
@@ -74,6 +102,8 @@ export function lossPartsFor(
     const bw = config.loss_weight_manoeuvre ?? 1;
     return (y, p) => twoHypothesisLossParts(w, bw, y, p);
   }
+  if (outputSpec(config).parameterisation === "velocity_gaussian")
+    return (y, p) => gaussianLossParts(w, y, p);
   return (y, p) => lossParts(w, y, p);
 }
 
@@ -89,9 +119,10 @@ export function makeLoss(
         return num.div(tf.maximum(den, 1));
       });
   }
+  const parts = lossPartsFor(config, w);
   return (yTrue, yPred) =>
     tf.tidy(() => {
-      const { num, den } = lossParts(w, yTrue, yPred);
+      const { num, den } = parts(yTrue, yPred);
       return num.div(tf.maximum(den, 1));
     });
 }

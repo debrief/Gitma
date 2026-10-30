@@ -2,7 +2,15 @@
 import type { FeatureSet, NormalisationConstants, Scenario } from "@tma/types";
 import { bearingLineIntercept, scenarioBearingRate } from "./derived.js";
 
+/** Rows per window up to phase 3 (generators 0.1.0–0.4.0, windows up to 40 min at 10 s). */
 export const ROWS = 240;
+
+/**
+ * Rows per window for a dataset's ranges: `ROWS`, or more when its longest window needs them
+ * (generator 0.5.0's 60-min windows: 360). Recorded in the features file's layout (`rows`).
+ */
+export const rowsFor = (r: { window_s: { max: number }; dt_s: number }): number =>
+  Math.max(ROWS, Math.floor(r.window_s.max / r.dt_s));
 export const INPUT_CHANNELS = [
   "bearing_sin",
   "bearing_cos",
@@ -52,11 +60,11 @@ export function rateScale(norm: NormalisationConstants): number {
 }
 
 export interface Window {
-  /** [ROWS × width], row-major (width 10 for raw, 13 for derived). */
+  /** [rows × width], row-major (width 10 for raw, 13 for derived; rows `ROWS` or `rowsFor`). */
   inputs: Float32Array;
-  /** [ROWS × NT], row-major. */
+  /** [rows × NT], row-major. */
   targets: Float32Array;
-  /** [ROWS]: 1 inside the window after the zig (rows > zig_index), else 0. */
+  /** [rows]: 1 inside the window after the zig (rows > zig_index), else 0. */
   lossMask: Float32Array;
 }
 
@@ -73,17 +81,18 @@ export function buildWindow(
   s: Scenario,
   norm: NormalisationConstants,
   featureSet: FeatureSet = "raw",
+  rows: number = ROWS,
 ): Window {
   const n = s.metadata.samples;
-  if (n > ROWS)
-    throw new Error(`scenario ${String(s.metadata.index)}: ${String(n)} > ${String(ROWS)} rows`);
+  if (n > rows)
+    throw new Error(`scenario ${String(s.metadata.index)}: ${String(n)} > ${String(rows)} rows`);
   const ni = inputWidth(featureSet);
   const derived = featureSet === "derived";
   const scale = derived ? rateScale(norm) : 1;
   const rate = derived ? scenarioBearingRate(s) : undefined;
-  const inputs = new Float32Array(ROWS * ni);
-  const targets = new Float32Array(ROWS * NT);
-  const lossMask = new Float32Array(ROWS);
+  const inputs = new Float32Array(rows * ni);
+  const targets = new Float32Array(rows * NT);
+  const lossMask = new Float32Array(rows);
   for (let i = 0; i < n; i++) {
     const o = s.ownship.states[i];
     const t = s.target.states[i];

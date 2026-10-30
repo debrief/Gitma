@@ -10,7 +10,7 @@ import {
   RecordError,
 } from "@tma/types";
 import { FEATURE_MAGIC, type FeatureSource, READABLE_FEATURE_VERSIONS } from "./features-file.js";
-import { inputChannels, inputWidth, NT, ROWS, type Window } from "./layout.js";
+import { inputChannels, inputWidth, NT, type Window } from "./layout.js";
 
 export interface FeatureFile {
   path: string;
@@ -22,8 +22,10 @@ export interface FeatureFile {
   layout: FeatureLayout;
   /** `layout.feature_set`, absent meaning raw. */
   featureSet: FeatureSet;
-  /** Input channels per row: 10 (raw) or 13 (derived); `read(k).inputs` is [ROWS × this]. */
+  /** Input channels per row: 10 (raw) or 13 (derived); `read(k).inputs` is [rows × this]. */
   inputChannels: number;
+  /** Rows per window (`layout.rows`): 240 up to generator 0.4.0, 360 for 0.5.0. */
+  rows: number;
   norm: NormalisationConstants;
   /** Source dataset header and SHA-256 (version 2); undefined for version 1. */
   source: FeatureSource | undefined;
@@ -107,17 +109,19 @@ export function openFeatures(path: string): FeatureFile {
     const featureSet = layout.feature_set ?? "raw";
     const ni = inputWidth(featureSet);
     const channels = inputChannels(featureSet);
+    const rows = layout.rows;
     if (
-      layout.rows !== ROWS ||
+      !Number.isInteger(rows) ||
+      rows < 1 ||
       layout.input_channels.length !== ni ||
       layout.input_channels.some((c, i) => c !== channels[i]) ||
       layout.target_channels.length !== NT
     ) {
       throw new RecordError(path, "layout", "feature layout does not match this build");
     }
-    const inBytes = ROWS * ni * 4;
-    const tgBytes = ROWS * NT * 4;
-    const lmBytes = ROWS * 4;
+    const inBytes = rows * ni * 4;
+    const tgBytes = rows * NT * 4;
+    const lmBytes = rows * 4;
     const inputsAt = pos;
     const targetsAt = inputsAt + count * inBytes;
     const maskAt = targetsAt + count * tgBytes;
@@ -142,6 +146,7 @@ export function openFeatures(path: string): FeatureFile {
       layout,
       featureSet,
       inputChannels: ni,
+      rows,
       norm,
       source,
       read(i: number): Window {

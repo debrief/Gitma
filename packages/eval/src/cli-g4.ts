@@ -65,7 +65,7 @@ export interface G4BindingDeps {
   precedes: (decisionPath: string, commit: string) => boolean;
 }
 
-const defaultDeps: G4BindingDeps = {
+export const defaultDeps: G4BindingDeps = {
   isCommitted: committed,
   checkDigests: (plan, dataDir) => {
     try {

@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.15.0
+version: 0.16.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -67,6 +67,10 @@ enums:
       G2: {}
       G3: {}
       G4: { description: "Better than the tuned tracker after a target turn (SRD Annex B §B.4)." }
+      G5:
+        {
+          description: "An end-to-end tracker better than the re-tuned reference overall, at most 10% worse when settled (SRD Annex C §C.5).",
+        }
   ModelKind:
     description: Model families of SRD §4.
     permissible_values:
@@ -74,6 +78,12 @@ enums:
       time_late: { description: "Bidirectional LSTM over the whole window." }
       causal_cnn: { description: "Causal 1-D CNN control for the instantaneous variant." }
       mlp: { description: "MLP over the flattened window, control for the time-late variant." }
+      learned_gain_filter:
+        description: >-
+          Phase 4 tracker T1 (spec 012, SRD Annex C §C.4): a constant-velocity filter with a
+          bearings-only update whose gain a GRU of `units` computes each step, in one declared
+          filter layer (constitution 1.3.0). Reads the raw feature set; outputs the velocity
+          parameterisation.
   StopReason:
     permissible_values:
       max_epochs: {}
@@ -98,6 +108,13 @@ enums:
           trained only on rows where it is true (the label comes from the stored truth course);
           the logit by binary cross-entropy. The reported estimate is the more probable
           hypothesis's, never an average.
+      velocity_gaussian:
+        description: >-
+          Spec 012 (phase 4, tracker T2): six channels per row. log_range_km, vx, vy (as
+          velocity), then the log-variance of each, trained by the Gaussian negative
+          log-likelihood. The reported estimate is the mean; prediction rows carry the standard
+          deviations (log_range_sd, vx_sd_mps, vy_sd_mps), reported and their calibration
+          measured, never gated.
   FeatureSet:
     description: Model input channel sets (spec 003 R6).
     permissible_values:
@@ -493,6 +510,19 @@ classes:
         description: >-
           The estimator's probability that the target's turn has started by this timestep
           (velocity_two_hypothesis networks only; spec 011). Absent for other estimators.
+      log_range_sd:
+        range: float
+        description: >-
+          Standard deviation of the estimator's log range (natural log; about the relative range
+          error), from a velocity_gaussian network (spec 012). Absent for other estimators.
+      vx_sd_mps:
+        range: float
+        unit: { ucum_code: m/s }
+        description: Standard deviation of the estimated east velocity (velocity_gaussian only).
+      vy_sd_mps:
+        range: float
+        unit: { ucum_code: m/s }
+        description: Standard deviation of the estimated north velocity (velocity_gaussian only).
 
   Prediction:
     description: One estimator's output for one scenario.
@@ -942,6 +972,19 @@ classes:
         description: >-
           G4: the manifest id of the one carried network (Annex B §B.4); tma-g4 refuses network
           predictions from another model.
+      carried_models:
+        range: string
+        multivalued: true
+        description: >-
+          G5 (spec 012, schema 0.16.0): the manifest ids of the carried trackers (one or both of
+          T1 and T2, Annex C §C.5), each with its own plan in `plans`, in the same order; tma-g5
+          refuses tracker predictions from any other model.
+      plans:
+        range: string
+        multivalued: true
+        description: >-
+          G5: the plan of each carried tracker (configs/phase4/<x>/plan.json), in the order of
+          carried_models; they share one dataset and one fresh test seed.
 
   ModelDigest:
     description: >-

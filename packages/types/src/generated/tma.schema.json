@@ -11,6 +11,16 @@
             "null"
           ]
         },
+        "carried_models": {
+          "description": "G5 (spec 012, schema 0.16.0): the manifest ids of the carried trackers (one or both of T1 and T2, Annex C §C.5), each with its own plan in `plans`, in the same order; tma-g5 refuses tracker predictions from any other model.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "carried_set_rule": {
           "type": "string"
         },
@@ -48,6 +58,16 @@
           "description": "The plan this decision pre-registers (configs/<…>/plan.json). Required from iteration 3 (spec 007): tma-g2 scores a test split only with the decision that names its plan.",
           "type": [
             "string",
+            "null"
+          ]
+        },
+        "plans": {
+          "description": "G5: the plan of each carried tracker (configs/phase4/<x>/plan.json), in the order of carried_models; they share one dataset and one fresh test seed.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "array",
             "null"
           ]
         },
@@ -538,7 +558,8 @@
         "G1",
         "G2",
         "G3",
-        "G4"
+        "G4",
+        "G5"
       ],
       "title": "GateId",
       "type": "string"
@@ -753,7 +774,8 @@
         "instantaneous",
         "time_late",
         "causal_cnn",
-        "mlp"
+        "mlp",
+        "learned_gain_filter"
       ],
       "title": "ModelKind",
       "type": "string"
@@ -1036,7 +1058,8 @@
       "enum": [
         "course_speed",
         "velocity",
-        "velocity_two_hypothesis"
+        "velocity_two_hypothesis",
+        "velocity_gaussian"
       ],
       "title": "OutputParameterisation",
       "type": "string"
@@ -1452,6 +1475,13 @@
             "null"
           ]
         },
+        "log_range_sd": {
+          "description": "Standard deviation of the estimator's log range (natural log; about the relative range error), from a velocity_gaussian network (spec 012). Absent for other estimators.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "p_manoeuvre": {
           "description": "The estimator's probability that the target's turn has started by this timestep (velocity_two_hypothesis networks only; spec 011). Absent for other estimators.",
           "type": [
@@ -1467,6 +1497,20 @@
         },
         "timestamp_s": {
           "type": "number"
+        },
+        "vx_sd_mps": {
+          "description": "Standard deviation of the estimated east velocity (velocity_gaussian only).",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "vy_sd_mps": {
+          "description": "Standard deviation of the estimated north velocity (velocity_gaussian only).",
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "x_m": {
           "type": "number"
@@ -2022,5 +2066,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.15.0"
+  "version": "0.16.0"
 }

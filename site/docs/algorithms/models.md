@@ -59,6 +59,19 @@ and records P on the row (`p_manoeuvre`). The design answers phase 3's finding. 
 velocity output, squared error made the network report the average over "turned" and "not
 turned", which biased speeds low and hedged courses on targets that held course.
 
+With the **Gaussian** output (`velocity_gaussian`, phase 4 tracker T2, spec 012) the model has six
+outputs per row: the means of log range, vx and vy, then the log-variance s of each. The loss per
+term is the Gaussian negative log-likelihood ½(e² e^(−s) + s), weighted as the squared error would
+be, with s clipped to [−12, 6]. Decoding reports the mean, and the row carries the standard
+deviations (`log_range_sd`, `vx_sd_mps`, `vy_sd_mps`). Their calibration is reported, never
+gated (Annex C §C.4).
+
+Phase 4's other tracker, T1, is not built from these layers: it is a single declared filter layer
+([learned-gain filter](learned-gain-filter.md)).
+
+Windows have `rowsFor(ranges)` rows: 240 up to phase 3, and 360 for generator 0.5.0's 60-min
+windows. The features file records the count, and models are built to it.
+
 The weight is the post-zig loss mask for causal models (before the zig, range is unobservable, so
 the instantaneous model is not trained to guess it) and the window mask for non-causal models,
 which see the whole window anyway. Every model is still **scored** only after the zig.

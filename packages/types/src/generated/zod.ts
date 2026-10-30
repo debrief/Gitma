@@ -18,6 +18,8 @@ export type ModelDigest = z.infer<typeof ModelDigest>;
 export const ChangeDecision = z.strictObject({
   /** G4: the manifest id of the one carried network (Annex B §B.4); tma-g4 refuses network predictions from another model. */
   carried_model: z.string().nullish(),
+  /** G5 (spec 012, schema 0.16.0): the manifest ids of the carried trackers (one or both of T1 and T2, Annex C §C.5), each with its own plan in `plans`, in the same order; tma-g5 refuses tracker predictions from any other model. */
+  carried_models: z.array(z.string()).nullish(),
   carried_set_rule: z.string(),
   /** e.g. feature_set: derived */
   change: z.string(),
@@ -30,6 +32,8 @@ export const ChangeDecision = z.strictObject({
   phase_a_experiment: z.string(),
   /** The plan this decision pre-registers (configs/<…>/plan.json). Required from iteration 3 (spec 007): tma-g2 scores a test split only with the decision that names its plan. */
   plan: z.string().nullish(),
+  /** G5: the plan of each carried tracker (configs/phase4/<x>/plan.json), in the order of carried_models; they share one dataset and one fresh test seed. */
+  plans: z.array(z.string()).nullish(),
   /** Validation evidence cited. */
   rationale: z.string(),
   /** G4 (spec 010, schema 0.13.0): the frozen reference tracker's estimator name, which encodes every tuning parameter (e.g. imm-cv0-ct0.03-w0.003-s0.0001-r4); tma-g4 refuses reference predictions with another name. */
@@ -256,7 +260,7 @@ export const GateCheck = z.strictObject({
 });
 export type GateCheck = z.infer<typeof GateCheck>;
 
-export const GateId = z.enum(["G0", "G1", "G2", "G3", "G4"]);
+export const GateId = z.enum(["G0", "G1", "G2", "G3", "G4", "G5"]);
 export type GateId = z.infer<typeof GateId>;
 
 /** Machine verdict for a gate; the team review records the final decision. */
@@ -310,14 +314,14 @@ export const MetricsRecord = z.strictObject({
 export type MetricsRecord = z.infer<typeof MetricsRecord>;
 
 /** Model families of SRD §4. */
-export const ModelKind = z.enum(["instantaneous", "time_late", "causal_cnn", "mlp"]);
+export const ModelKind = z.enum(["instantaneous", "time_late", "causal_cnn", "mlp", "learned_gain_filter"]);
 export type ModelKind = z.infer<typeof ModelKind>;
 
 export const StopReason = z.enum(["max_epochs", "early_stopping", "wall_clock", "diverged"]);
 export type StopReason = z.infer<typeof StopReason>;
 
 /** How the model's four output channels encode the target's course and speed (spec 008). */
-export const OutputParameterisation = z.enum(["course_speed", "velocity", "velocity_two_hypothesis"]);
+export const OutputParameterisation = z.enum(["course_speed", "velocity", "velocity_two_hypothesis", "velocity_gaussian"]);
 export type OutputParameterisation = z.infer<typeof OutputParameterisation>;
 
 /** Hyperparameters and seeds for one training run (SRD §4; constitution III). */
@@ -476,11 +480,17 @@ export const PredictionRow = z.strictObject({
   converged: z.boolean(),
   course_rad: z.number(),
   iterations: z.number().int().nullish(),
+  /** Standard deviation of the estimator's log range (natural log; about the relative range error), from a velocity_gaussian network (spec 012). Absent for other estimators. */
+  log_range_sd: z.number().nullish(),
   /** The estimator's probability that the target's turn has started by this timestep (velocity_two_hypothesis networks only; spec 011). Absent for other estimators. */
   p_manoeuvre: z.number().nullish(),
   range_m: z.number(),
   speed_mps: z.number(),
   timestamp_s: z.number(),
+  /** Standard deviation of the estimated east velocity (velocity_gaussian only). */
+  vx_sd_mps: z.number().nullish(),
+  /** Standard deviation of the estimated north velocity (velocity_gaussian only). */
+  vy_sd_mps: z.number().nullish(),
   x_m: z.number(),
   y_m: z.number(),
 });

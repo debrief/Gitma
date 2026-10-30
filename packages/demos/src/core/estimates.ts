@@ -38,8 +38,10 @@ export function modelPrediction<T extends TensorLike>(
   s: Scenario,
   entry: Pick<ModelEntry, "id" | "featureSet" | "normalisation" | "output">,
 ): Prediction {
-  const w = buildWindow(s, entry.normalisation, entry.featureSet);
-  const x = tf.tensor3d(w.inputs, [1, ROWS, inputWidth(entry.featureSet)]);
+  // 240 rows up to generator 0.4.0; a longer (0.5.0) scenario gets its own length.
+  const rows = Math.max(ROWS, s.metadata.samples);
+  const w = buildWindow(s, entry.normalisation, entry.featureSet, rows);
+  const x = tf.tensor3d(w.inputs, [1, rows, inputWidth(entry.featureSet)]);
   const outs: TensorLike[] = [];
   try {
     const y = model.predict(x);

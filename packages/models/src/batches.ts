@@ -66,11 +66,11 @@ export function checkBucketing(config: TrainingConfig): void {
  * Rows a window occupies: one past its last row with any non-zero input. Padding rows are all
  * zero (buildWindow), so every later row is padding; dropout rows keep ownship and time channels
  * and so are never mistaken for padding. Works for any feature set: the width is inferred from
- * the array (ROWS rows).
+ * the array and `rows` (the features file's rows).
  */
-export function windowLength(inputs: Float32Array): number {
-  const ni = inputs.length / ROWS;
-  for (let r = ROWS - 1; r >= 0; r--) {
+export function windowLength(inputs: Float32Array, rows: number = ROWS): number {
+  const ni = inputs.length / rows;
+  for (let r = rows - 1; r >= 0; r--) {
     for (let c = 0; c < ni; c++) if ((inputs[r * ni + c] ?? 0) !== 0) return r + 1;
   }
   return 0;
@@ -79,7 +79,7 @@ export function windowLength(inputs: Float32Array): number {
 /** Length of each of the first `n` windows of a features file. */
 export function windowLengths(file: FeatureFile, n: number): Uint16Array {
   const out = new Uint16Array(n);
-  for (let k = 0; k < n; k++) out[k] = windowLength(file.read(k).inputs);
+  for (let k = 0; k < n; k++) out[k] = windowLength(file.read(k).inputs, file.rows);
   return out;
 }
 
@@ -122,15 +122,16 @@ export function epochBatches(
   return Array.from(shuffle, (i) => cut[i] ?? new Uint32Array(0));
 }
 
-/** Rows a training batch needs: ROWS, or with bucketing its longest window (at least 1). */
+/** Rows a training batch needs: the file's rows, or with bucketing its longest window (at least 1). */
 export function batchRows(
   config: TrainingConfig,
   ks: ArrayLike<number>,
   lengths?: ArrayLike<number>,
+  fileRows: number = ROWS,
 ): number {
-  if (!bucketing(config) || lengths === undefined) return ROWS;
+  if (!bucketing(config) || lengths === undefined) return fileRows;
   let rows = 1;
-  for (let j = 0; j < ks.length; j++) rows = Math.max(rows, lengths[ks[j] ?? 0] ?? ROWS);
+  for (let j = 0; j < ks.length; j++) rows = Math.max(rows, lengths[ks[j] ?? 0] ?? fileRows);
   return rows;
 }
 
@@ -138,14 +139,14 @@ export interface Batch {
   x: Float32Array;
   y: Float32Array;
   size: number;
-  /** Rows per window in x and y: ROWS, or fewer when trimmed by length bucketing. */
+  /** Rows per window in x and y: the file's rows, or fewer when trimmed by length bucketing. */
   rows: number;
 }
 
 /**
  * Pack windows `ks` into x [B, rows, C] (C = the file's input width, 10 or 13) and y [B, rows, 5]
  * (targets 0–3 + row weight). With
- * `rows` below ROWS the trailing rows are dropped; the caller guarantees they are padding in every
+ * `rows` below the file's rows the trailing rows are dropped; the caller guarantees they are padding in every
  * window (batchRows), so they carried zero loss weight.
  */
 export function makeBatch(
@@ -153,7 +154,7 @@ export function makeBatch(
   ks: ArrayLike<number>,
   config: TrainingConfig,
   labels: Uint32Array,
-  rows: number = ROWS,
+  rows: number = file.rows,
 ): Batch {
   const b = ks.length;
   const ni = file.inputChannels;
@@ -166,7 +167,7 @@ export function makeBatch(
     const w: Window = file.read(k);
     const lk = labels[k] ?? k;
     const lw: Window = lk === k ? w : file.read(lk);
-    x.set(rows === ROWS ? w.inputs : w.inputs.subarray(0, rows * ni), j * rows * ni);
+    x.set(rows === file.rows ? w.inputs : w.inputs.subarray(0, rows * ni), j * rows * ni);
     for (let r = 0; r < rows; r++) {
       const windowMask =
         (w.inputs[r * ni + WINDOW_MASK] ?? 0) * (lw.inputs[r * ni + WINDOW_MASK] ?? 0);
