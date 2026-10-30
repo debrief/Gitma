@@ -94,6 +94,21 @@ the decision record, and then used unchanged at G4 (spec 010 FR-004).
   settings, its median range error is about 15.6%. The best single-model EKF reaches 14.8%,
   sliding-window least squares 42–100%, and batch least squares over the whole track 28%.
 
+### Generator 0.5.0 (phase 4)
+
+G0 on 0.5.0 (`experiments/20261030-g0-p4-r2/`) adds three tracker checks:
+- **Re-convergence after every manoeuvre kind.** G0's IMM setting (σ_ct 0.01) cannot follow a
+  deceleration: 0.93 range error on a hand-built −2 m/s case. With σ_ct 0.1, every hand-built case
+  ends within 0.6% when ownship zigs afterwards: two turns either side, ±2 m/s, and turn, speed
+  change, turn. A single coordinated-turn model with a signed ω handles S-turns poorly at small σ_ω.
+- **A paired straight-leg ratio.** The median per-scenario ratio to batch least squares is 1.05
+  over 1,000 scenarios, against a limit of 1.15. The ratio of medians, 1.17–1.26, was noisy on
+  200 scenarios.
+- **NIS.** The median per-scenario mean NIS, through `immPredict`, is 1.06 with the scenario's σ,
+  0.71 with σ² × 1.5 and 1.38 with σ² × 0.75. The band is [0.75, 1.3], so a variance mis-scaled
+  either way fails. The ratio check cannot see an over-stated variance, and on 0.5.0 it cannot see
+  a mis-stated σ at all.
+
 ### Reading it critically
 
 - **The IMM's advantage shows only with exact data.** At σ = 1°, five minutes after a turn, the

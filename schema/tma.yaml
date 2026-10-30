@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.14.0
+version: 0.15.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -49,6 +49,13 @@ enums:
           Turn across the line of sight: the new course puts the target on the other bow at an
           angle off drawn from los_offset_rad, by the shorter turn. Uses the true bearing at the
           last sample before the turn.
+  ManoeuvreKind:
+    description: What a target manoeuvre changes (generator 0.5.0, SRD Annex C §C.2).
+    permissible_values:
+      course:
+        description: A rate-limited course change at constant speed (an arc).
+      speed:
+        description: A constant-acceleration speed change on a constant course.
   PredictionMode:
     permissible_values:
       final: { description: One row at the last timestep of the window. }
@@ -194,6 +201,35 @@ classes:
         range: float
         unit: { ucum_code: rad/s }
         description: Target turn rate through its course change.
+      target_manoeuvres:
+        range: TargetManoeuvre
+        multivalued: true
+        inlined_as_list: true
+        description: >-
+          Target manoeuvres in time order (generator 0.5.0, SRD Annex C §C.2), none overlapping.
+          Present (possibly empty) only under generator 0.5.0 ranges; then the single-turn fields
+          above are absent.
+
+  TargetManoeuvre:
+    description: >-
+      One target manoeuvre (generator 0.5.0). A course change is an arc at constant speed; a speed
+      change is constant acceleration on a constant course.
+    attributes:
+      kind: { range: ManoeuvreKind, required: true }
+      start_time_s:
+        range: float
+        required: true
+        unit: { ucum_code: s }
+        description: Time the manoeuvre starts, a whole number of samples.
+      change:
+        range: float
+        required: true
+        description: >-
+          Signed change: course in rad (positive clockwise) or speed in m/s (positive faster).
+      rate:
+        range: float
+        required: true
+        description: Magnitude of the rate of change, rad/s (course) or m/s² (speed).
 
   ParameterRanges:
     description: >-
@@ -263,6 +299,31 @@ classes:
         description: >-
           Least time from the end of the target's turn to the end of the window, so the gate
           point (manoeuvre + 5 min) is reached.
+      target_course_change_count_weights:
+        range: float
+        multivalued: true
+        description: >-
+          Generator 0.5.0 (SRD Annex C §C.2): probabilities of 0, 1, 2, … target course changes
+          (summing to 1). Present: every scenario draws its manoeuvres this way, with
+          target_manoeuvre_angle_abs_rad, target_turn_rate_rad_s, target_manoeuvre_after_zig_s
+          and target_manoeuvre_margin_s, and target_manoeuvre_fraction must be absent.
+      target_speed_change_fraction:
+        range: float
+        description: Probability of one target speed change (generator 0.5.0).
+      target_speed_change_abs_mps:
+        range: FloatRange
+        inlined: true
+        description: >-
+          Absolute speed change; its sign is uniform ±, flipped if the new speed would leave
+          target_speed_mps (redrawn if both signs would).
+      target_speed_change_rate_mps2:
+        range: FloatRange
+        inlined: true
+        description: Magnitude of the target's acceleration during a speed change.
+      target_manoeuvre_spacing_s:
+        range: float
+        unit: { ucum_code: s }
+        description: Least time from the end of one target manoeuvre to the start of the next.
       min_range_m:
         {
           range: float,
@@ -321,16 +382,30 @@ classes:
         range: integer
         description: >-
           First timestep after the target's turn starts (generator 0.4.0; absent when the target
-          holds course).
+          holds course). Under generator 0.5.0, after the first manoeuvre starts.
       manoeuvre_index:
         range: integer
         description: >-
           First timestep after the target's turn completes (generator 0.4.0; absent when the
           target holds course). Gate G4 counts time from here, as earlier gates count from
-          zig_index.
+          zig_index. Under generator 0.5.0, after the last manoeuvre completes.
+      manoeuvres:
+        range: ManoeuvreSpan
+        multivalued: true
+        inlined_as_list: true
+        description: >-
+          Generator 0.5.0: each target manoeuvre's sample span, in time order (present, possibly
+          empty, only under 0.5.0).
       zig_time_s: { range: float, required: true, unit: { ucum_code: s } }
       mean_range_m: { range: float, required: true, unit: { ucum_code: m } }
       min_range_m: { range: float, required: true, unit: { ucum_code: m } }
+
+  ManoeuvreSpan:
+    description: Where one target manoeuvre lies in a scenario's samples (generator 0.5.0).
+    attributes:
+      kind: { range: ManoeuvreKind, required: true }
+      start_index: { range: integer, required: true, description: First timestep after it starts. }
+      end_index: { range: integer, required: true, description: First timestep after it completes. }
 
   Scenario:
     description: One ownship-vs-target run over a window.

@@ -9,7 +9,13 @@ import {
   solveBatch,
 } from "@tma/classical";
 import { angleDiff, createRng, degToRad, generateScenario, observe, simulateTruth } from "@tma/sim";
-import type { GateCheck, ParameterRanges, Scenario, ScenarioParameters } from "@tma/types";
+import type {
+  GateCheck,
+  ParameterRanges,
+  Scenario,
+  ScenarioParameters,
+  TargetManoeuvre,
+} from "@tma/types";
 import { rowError } from "./errors.js";
 import type { PredictionLookup } from "./evaluate.js";
 import { G0_TOLERANCE } from "./gate.js";
@@ -309,6 +315,12 @@ export function kinematicFailure(s: Scenario): string | null {
     ],
   );
   if (own !== null) return `ownship ${own}`;
+  if ((p.target_manoeuvres != null) !== (m.manoeuvres != null))
+    return "target: drawn manoeuvres and their spans must both be present or both absent";
+  if (m.manoeuvres != null) {
+    const tgt = targetManoeuvresFailure(s);
+    return tgt === null ? null : `target ${tgt}`;
+  }
   const turns = m.manoeuvre_index != null;
   const tgt = trackFailure(
     s.target.states,
@@ -319,6 +331,227 @@ export function kinematicFailure(s: Scenario): string | null {
     !turns,
   );
   return tgt === null ? null : `target ${tgt}`;
+}
+
+/**
+ * Kinematic consistency of a generator-0.5.0 target track (SRD Annex C §C.2), step by step:
+ * - outside every manoeuvre, course and speed are constant, each step is v·dt long along the
+ *   course;
+ * - in a course change, speed is constant, every step wholly on the arc turns by ω·dt, each step
+ *   lies between the full-step chord and v·dt with its chord heading between the end courses, and
+ *   the summed course change equals the stored change;
+ * - in a speed change, course is constant, every step wholly inside it changes speed by a·dt, each
+ *   step is between the end speeds × dt along the course, and the summed speed change equals the
+ *   stored change.
+ * The spans must match the drawn manoeuvres in kind, order and length. Returns the first failure.
+ */
+export function targetManoeuvresFailure(s: Scenario): string | null {
+  const p = s.metadata.parameters;
+  const spans = s.metadata.manoeuvres ?? [];
+  const plan = p.target_manoeuvres ?? [];
+  const dt = p.dt_s;
+  const st = s.target.states;
+  if (spans.length !== plan.length)
+    return `${String(spans.length)} manoeuvre spans for ${String(plan.length)} drawn manoeuvres`;
+  // The top-level indices G4 and G5 read are the first manoeuvre's start and the last one's end
+  // (G0 panel phase 4, red team).
+  if (
+    s.metadata.manoeuvre_start_index !== spans[0]?.start_index ||
+    s.metadata.manoeuvre_index !== spans[spans.length - 1]?.end_index
+  )
+    return "manoeuvre_start_index / manoeuvre_index disagree with the first and last spans";
+  // The track starts at the drawn speed and course (only changes are checked below).
+  const s0 = st[0];
+  if (
+    s0 === undefined ||
+    s0.speed_mps !== p.target_speed_mps ||
+    Math.abs(wrapPi(s0.course_rad - p.target_course_rad)) > 1e-6
+  )
+    return "sample 0 speed or course differs from the drawn parameters";
+  for (let j = 0; j < plan.length; j++) {
+    const m = plan[j];
+    const sp = spans[j];
+    if (m === undefined || sp === undefined) return "manoeuvre missing";
+    if (m.kind !== sp.kind) return `manoeuvre ${String(j)}: span kind ${sp.kind}, drawn ${m.kind}`;
+    const k = Math.round(m.start_time_s / dt);
+    const dur = Math.abs(m.change) / m.rate;
+    if (sp.start_index !== k + 1)
+      return `manoeuvre ${String(j)}: starts after sample ${String(sp.start_index)}, drawn ${String(k + 1)}`;
+    if (!((sp.end_index - k) * dt >= dur - 1e-6 && (sp.end_index - k - 1) * dt < dur - 1e-6))
+      return `manoeuvre ${String(j)}: span ${String(sp.start_index)}–${String(sp.end_index)} does not fit its ${dur.toFixed(2)} s`;
+    if (j > 0 && sp.start_index <= (spans[j - 1]?.end_index ?? 0))
+      return `manoeuvre ${String(j)} overlaps the one before`;
+  }
+  const spanOf = (i: number): number =>
+    spans.findIndex((x) => i >= x.start_index && i <= x.end_index);
+  for (let i = 1; i < st.length; i++) {
+    const a = st[i - 1];
+    const b = st[i];
+    if (a === undefined || b === undefined) return `sample ${String(i)} missing`;
+    const dx = b.x_m - a.x_m;
+    const dy = b.y_m - a.y_m;
+    const step = Math.hypot(dx, dy);
+    const dc = wrapPi(b.course_rad - a.course_rad);
+    const dv = b.speed_mps - a.speed_mps;
+    const heading = step > 1 ? wrapPi(Math.atan2(dx, dy) - a.course_rad) : 0;
+    const j = spanOf(i);
+    const sp = spans[j];
+    const m = plan[j];
+    if (sp === undefined || m === undefined) {
+      if (dc !== 0 || dv !== 0)
+        return `sample ${String(i)}: course or speed changed outside a manoeuvre`;
+      if (Math.abs(step - a.speed_mps * dt) > 0.05)
+        return `sample ${String(i)}: straight step ${step.toFixed(3)} m, not v·dt`;
+      if (Math.abs(heading) > 2e-4) return `sample ${String(i)}: straight step off the course`;
+      continue;
+    }
+    const interior = i < sp.end_index;
+    if (m.kind === "course") {
+      const v = a.speed_mps;
+      if (dv !== 0) return `sample ${String(i)}: speed changed in a course change`;
+      if (interior && Math.abs(Math.abs(dc) - m.rate * dt) > 1e-5)
+        return `sample ${String(i)}: turned ${dc.toFixed(6)} rad, not ω·dt`;
+      const minStep = 2 * (v / m.rate) * Math.sin((m.rate * dt) / 2);
+      if (step > v * dt + 0.05 || step < minStep - 0.05)
+        return `sample ${String(i)}: step ${step.toFixed(3)} m outside the arc's bounds`;
+      if (heading < Math.min(0, dc) - 2e-4 || heading > Math.max(0, dc) + 2e-4)
+        return `sample ${String(i)}: chord heading outside the turn`;
+    } else {
+      if (dc !== 0) return `sample ${String(i)}: course changed in a speed change`;
+      if (interior && Math.abs(Math.abs(dv) - m.rate * dt) > 1e-4)
+        return `sample ${String(i)}: speed changed ${dv.toFixed(5)} m/s, not a·dt`;
+      const lo = Math.min(a.speed_mps, b.speed_mps) * dt;
+      const hi = Math.max(a.speed_mps, b.speed_mps) * dt;
+      if (step < lo - 0.05 || step > hi + 0.05)
+        return `sample ${String(i)}: step ${step.toFixed(3)} m outside the end speeds' bounds`;
+      if (Math.abs(heading) > 2e-4) return `sample ${String(i)}: speed-change step off the course`;
+    }
+  }
+  for (let j = 0; j < spans.length; j++) {
+    const sp = spans[j];
+    const m = plan[j];
+    if (sp === undefined || m === undefined) continue;
+    const a = st[sp.start_index - 1];
+    const b = st[sp.end_index];
+    if (a === undefined || b === undefined) return `manoeuvre ${String(j)}: samples missing`;
+    if (m.kind === "course") {
+      let sum = 0;
+      for (let i = sp.start_index; i <= sp.end_index; i++)
+        sum += wrapPi((st[i]?.course_rad ?? 0) - (st[i - 1]?.course_rad ?? 0));
+      if (Math.abs(sum - m.change) > 1e-4)
+        return `manoeuvre ${String(j)}: course changed ${sum.toFixed(5)} rad, drawn ${m.change.toFixed(5)}`;
+    } else if (Math.abs(b.speed_mps - a.speed_mps - m.change) > 1e-5)
+      return `manoeuvre ${String(j)}: speed changed ${(b.speed_mps - a.speed_mps).toFixed(4)} m/s, drawn ${m.change.toFixed(4)}`;
+  }
+  return null;
+}
+
+/**
+ * Generator-0.5.0 timing and bounds (SRD Annex C §C.2) against the ranges: the first manoeuvre
+ * starts at least `target_manoeuvre_after_zig_s` after the zig, each at least
+ * `target_manoeuvre_spacing_s` after the one before ends, the last ends at least
+ * `target_manoeuvre_margin_s` before the window ends, and every stored target speed lies in
+ * `target_speed_mps`. Returns the first failure.
+ */
+export function manoeuvreTimingFailure(s: Scenario, r: ParameterRanges): string | null {
+  const m = s.metadata;
+  const spans = m.manoeuvres;
+  if (spans == null) return null;
+  const dt = m.parameters.dt_s;
+  const after = Math.ceil((r.target_manoeuvre_after_zig_s ?? 0) / dt);
+  const gap = Math.ceil((r.target_manoeuvre_spacing_s ?? 0) / dt);
+  const margin = Math.ceil((r.target_manoeuvre_margin_s ?? 0) / dt);
+  for (let j = 0; j < spans.length; j++) {
+    const sp = spans[j];
+    if (sp === undefined) continue;
+    const k = sp.start_index - 1;
+    if (j === 0 && k < m.zig_index + after) return "first manoeuvre too soon after the zig";
+    const prev = spans[j - 1];
+    if (prev !== undefined && k - prev.end_index < gap)
+      return `manoeuvre ${String(j)} closer than the spacing to the one before`;
+    if (j === spans.length - 1 && sp.end_index > m.samples - 1 - margin)
+      return "last manoeuvre ends inside the margin";
+  }
+  const lo = r.target_speed_mps.min - 1e-3;
+  const hi = r.target_speed_mps.max + 1e-3;
+  if (s.target.states.some((x) => x.speed_mps < lo || x.speed_mps > hi))
+    return "target speed outside target_speed_mps";
+  return null;
+}
+
+/**
+ * Generator-0.5.0 known answers (spec 012), with literal arithmetic. Ownship north at 10 m/s, its
+ * zig late (t = 540 s); the target starts 5 km due east heading north at 5 m/s.
+ * - Speed change: +5 m/s at 0.1 m/s² from t = 200 s at (5000, 1000). At t = 230 s it has run
+ *   5·30 + ½·0.1·30² = 195 m; the change ends at t = 250 s after 375 m, then 10 m/s for 150 s, so
+ *   at t = 400 s it is at (5000, 1000 + 375 + 1500).
+ * - Two turns: +90° at 1°/s from t = 200 s (ends t = 290 s at (5000 + r, 1000 + r) heading east,
+ *   r = 5/ω), 60 s east, then −90° at 1°/s from t = 350 s, ending at t = 440 s a further (r, r)
+ *   on, heading north; at t = 500 s it is 300 m further north.
+ */
+export function targetManoeuvreBearings(): { name: string; got: number; want: number }[] {
+  const omega = Math.PI / 180;
+  const r = 5 / omega;
+  const base: ScenarioParameters = {
+    ...KNOWN,
+    zig_fraction: 0.9,
+    target_bearing0_rad: Math.PI / 2,
+    target_range0_m: 5000,
+    target_speed_mps: 5,
+    target_course_rad: 0,
+  };
+  const speed: ScenarioParameters = {
+    ...base,
+    target_manoeuvres: [{ kind: "speed", start_time_s: 200, change: 5, rate: 0.1 }],
+  };
+  const turns: ScenarioParameters = {
+    ...base,
+    target_manoeuvres: [
+      { kind: "course", start_time_s: 200, change: Math.PI / 2, rate: omega },
+      { kind: "course", start_time_s: 350, change: -Math.PI / 2, rate: omega },
+    ],
+  };
+  // A 45° turn at 1°/s (45 s, not a whole number of samples) from t = 200 s: at t = 230 s it has
+  // turned 30° about (5000 + r, 1000); it ends at t = 245 s on course 45° and runs 55 s along it.
+  const partial: ScenarioParameters = {
+    ...base,
+    target_manoeuvres: [{ kind: "course", start_time_s: 200, change: Math.PI / 4, rate: omega }],
+  };
+  const sp = observe(createRng(1n), speed, simulateTruth(speed));
+  const tu = observe(createRng(1n), turns, simulateTruth(turns));
+  const pa = observe(createRng(1n), partial, simulateTruth(partial));
+  const c30 = Math.PI / 6;
+  const c45 = Math.PI / 4;
+  return [
+    {
+      name: "45° target turn, mid-arc",
+      got: pa[23]?.bearing_rad ?? NaN,
+      want: Math.atan2(5000 + r * (1 - Math.cos(c30)), 1000 + r * Math.sin(c30) - 2300),
+    },
+    {
+      name: "45° target turn, after its partial last step",
+      got: pa[30]?.bearing_rad ?? NaN,
+      want: Math.atan2(
+        5000 + r * (1 - Math.cos(c45)) + 5 * 55 * Math.sin(c45),
+        1000 + r * Math.sin(c45) + 5 * 55 * Math.cos(c45) - 3000,
+      ),
+    },
+    {
+      name: "target speed change, during it",
+      got: sp[23]?.bearing_rad ?? NaN,
+      want: Math.atan2(5000, 1195 - 2300),
+    },
+    {
+      name: "target speed change, after it",
+      got: sp[40]?.bearing_rad ?? NaN,
+      want: Math.atan2(5000, 2875 - 4000),
+    },
+    {
+      name: "two target turns, after both",
+      got: tu[50]?.bearing_rad ?? NaN,
+      want: Math.atan2(5000 + 2 * r + 300, 1000 + 2 * r + 300 - 5000),
+    },
+  ];
 }
 
 /**
@@ -419,7 +652,11 @@ export function checkIndependentGeometry(
   })[50];
   if (!(Math.abs(angleDiff(leg3 ?? NaN, Math.atan2(5000, -4000))) < 1e-6))
     fails.push(`leg-3 case gave ${String(leg3)}`);
-  for (const c of [...secondTurnBearings(), ...targetTurnBearings()]) {
+  for (const c of [
+    ...secondTurnBearings(),
+    ...targetTurnBearings(),
+    ...targetManoeuvreBearings(),
+  ]) {
     if (!(Math.abs(angleDiff(c.got, c.want)) < 1e-6))
       fails.push(`${c.name} gave ${String(c.got)}, want ${String(c.want)}`);
   }
@@ -451,7 +688,8 @@ export function checkIndependentGeometry(
       if (fails.length < 5)
         fails.push(`scenario ${String(s.metadata.index)}: turn larger than 180°`);
     }
-    const kin = kinematicFailure(s);
+    const kin =
+      kinematicFailure(s) ?? (ranges === undefined ? null : manoeuvreTimingFailure(s, ranges));
     if (kin !== null) {
       kinematic++;
       if (fails.length < 5) fails.push(`scenario ${String(s.metadata.index)}: ${kin}`);
@@ -535,7 +773,7 @@ export function checkIndependentGeometry(
     "independent-geometry",
     fails.length === 0 && skipped === 0,
     fails.length === 0 && skipped === 0
-      ? `hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2), leg-3, second-turn (both directions, mid-arc and leg 3) and target-turn (both directions, mid-turn and after it) cases match; t = 0 bearing and range match the drawn parameters, and ownship and target kinematics (arc chord ≤ step ≤ v·dt, chord heading between the stored courses, turn ≤ ω·dt per step, summed turn = stored angle, |turn| ≤ 180°, target course constant unless it turns, every arc step = ω·dt) hold, and ${String(observed)} noise-free bearings equal atan2 of the stored positions, on ${String(n)} scenarios` +
+      ? `hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2), leg-3, second-turn (both directions, mid-arc and leg 3), target-turn (both directions, mid-turn and after it), target speed-change (during and after it), two-target-turn and partial-step 45° target-turn (mid-arc and after it) cases match; t = 0 bearing and range match the drawn parameters, and ownship and target kinematics (arc chord ≤ step ≤ v·dt, chord heading between the stored courses, turn ≤ ω·dt per step, summed turn = stored angle, |turn| ≤ 180°, target course constant unless it turns, every arc step = ω·dt; generator 0.5.0: course and speed constant between manoeuvres, each interior turn step ω·dt and speed step a·dt, summed changes = drawn, spans = drawn, timing rules and speed bounds) hold, and ${String(observed)} noise-free bearings equal atan2 of the stored positions, on ${String(n)} scenarios` +
           (los != null
             ? `; ${String(turns)} turns put the target on the other bow inside the drawn offset range`
             : "")
@@ -548,8 +786,8 @@ export function checkIndependentGeometry(
 }
 
 /**
- * The part of a scenario that batch least squares can fit (generator 0.4.0): up to and including
- * the last sample before the target's turn starts. The constant-velocity solver cannot fit a turn,
+ * The part of a scenario that batch least squares can fit (generator 0.4.0 and later): up to and
+ * including the last sample before the target's (first) manoeuvre starts. The constant-velocity solver cannot fit a turn,
  * so G0's classical checks run on this; it keeps at least `target_manoeuvre_after_zig_s` of leg 2.
  * Scenarios whose target holds course are returned unchanged.
  */
@@ -560,6 +798,7 @@ export function beforeManoeuvre(s: Scenario): Scenario {
   const metadata = { ...m, samples: n };
   delete metadata.manoeuvre_start_index;
   delete metadata.manoeuvre_index;
+  delete metadata.manoeuvres;
   if (m.zig2_index != null && m.zig2_index >= n) {
     delete metadata.zig2_index;
     delete metadata.turn2_start_index;
@@ -572,6 +811,10 @@ export function beforeManoeuvre(s: Scenario): Scenario {
     observations: s.observations.slice(0, n),
   };
 }
+
+/** The ranges give the target manoeuvres (generator 0.4.0's one turn, or 0.5.0's). */
+export const hasTargetManoeuvre = (r: ParameterRanges): boolean =>
+  r.target_manoeuvre_fraction != null || r.target_course_change_count_weights != null;
 
 /** IMM settings G0 checks the tracker with (not a tuning: G4's are chosen on validation). */
 export const G0_IMM: ImmParams = {
@@ -594,16 +837,21 @@ export const G0_IMM: ImmParams = {
  * the batch fit the tracker starts from is nearly unobservable, and it settles more slowly.
  */
 export function checkTrackerNoiseFree(truth: Scenario[], ranges?: ParameterRanges): GateCheck {
-  if (ranges !== undefined && ranges.target_manoeuvre_fraction == null)
+  if (ranges !== undefined && !hasTargetManoeuvre(ranges))
     return check(
       "tracker-noise-free",
       true,
-      "not applicable: the ranges have no target manoeuvre (generator 0.4.0 checks only)",
+      "not applicable: the ranges have no target manoeuvre (generator 0.4.0 and later checks only)",
     );
   let gated = 0;
   let bad = 0;
   let worstPre = 0;
   const post: number[] = [];
+  // Generator 0.5.0: the post-manoeuvre limit was calibrated on one turn (0.4.0), so it is gated on
+  // scenarios with exactly one course change and no speed change; every other mix is reported
+  // (the IMM's CV + coordinated-turn model has no acceleration, and re-convergence after the last
+  // manoeuvre depends on an ownship manoeuvre after it).
+  const reported = new Map<string, number[]>();
   for (const s of truth) {
     const m = s.metadata;
     const p = immPredict(s, G0_IMM);
@@ -616,8 +864,16 @@ export function checkTrackerNoiseFree(truth: Scenario[], ranges?: ParameterRange
         continue;
       }
       const e = rowError(s, row);
-      if (m.manoeuvre_index != null && i === m.manoeuvre_index + 30)
-        post.push(row.converged ? e.range_rel : Infinity);
+      if (m.manoeuvre_index != null && i === m.manoeuvre_index + 30) {
+        const err = row.converged ? e.range_rel : Infinity;
+        const spans = m.manoeuvres;
+        if (spans == null || (spans.length === 1 && spans[0]?.kind === "course")) post.push(err);
+        else {
+          const turns = spans.filter((x) => x.kind === "course").length;
+          const key = `${String(turns)} turn${turns === 1 ? "" : "s"}${spans.some((x) => x.kind === "speed") ? " + speed" : ""}`;
+          reported.set(key, [...(reported.get(key) ?? []), err]);
+        }
+      }
       if (i >= to || e.t_since_zig_s < PER_TIMESTEP_SETTLE_S) continue;
       gated++;
       worstPre = Math.max(worstPre, row.converged ? e.range_rel : Infinity);
@@ -632,6 +888,15 @@ export function checkTrackerNoiseFree(truth: Scenario[], ranges?: ParameterRange
   }
   const known = [1, -1].map((side) => reconvergenceError(side));
   const knownOk = known.every((k) => k <= 5e-3);
+  // Generator 0.5.0: every manoeuvre kind and order re-converges under a setting that can follow it.
+  const multi =
+    ranges?.target_course_change_count_weights == null
+      ? []
+      : MANOEUVRE_CASES.map((c) => ({
+          name: c.name,
+          err: reconvergenceError(1, 90, 1, c.plan, G0_IMM_MANOEUVRE),
+        }));
+  const multiOk = multi.every((c) => c.err <= MANOEUVRE_CASE_LIMIT);
   // Reported, not gated (G0 panel phase 3, numerics): the same geometry over the generator's
   // angles and rates. One favourable case and one setting show the code is right, not that the
   // tracker always re-converges.
@@ -642,19 +907,65 @@ export function checkTrackerNoiseFree(truth: Scenario[], ranges?: ParameterRange
   const within = variants.filter((k) => k <= 5e-3).length;
   post.sort((a, b) => a - b);
   const median = post[Math.floor(post.length / 2)] ?? NaN;
+  const medianOf = (v: number[]): number =>
+    [...v].sort((a, b) => a - b)[Math.floor(v.length / 2)] ?? NaN;
+  const others = [...reported.keys()]
+    .sort()
+    .map((k) => {
+      const v = reported.get(k) ?? [];
+      return `${k} ${medianOf(v).toExponential(2)} (n ${String(v.length)})`;
+    })
+    .join(", ");
   // Gated loosely (G0 panel phase 3, red team): bearings or indices wrong after the turn raise it
   // by an order of magnitude or more.
   const postOk = post.length === 0 || median <= TRACKER_POST_TURN_LIMIT;
   return check(
     "tracker-noise-free",
-    truth.length > 0 && bad === 0 && knownOk && postOk,
+    truth.length > 0 && bad === 0 && knownOk && postOk && multiOk,
     `IMM (σ_cv ${String(G0_IMM.sigmaCv)}, σ_ct ${String(G0_IMM.sigmaCt)}, σ_ω ${String(G0_IMM.sigmaOmega)}, switch ${String(G0_IMM.switchPerS)}/s): ` +
       `${String(gated - bad)}/${String(gated)} rows from zig + ${String(PER_TIMESTEP_SETTLE_S)} s to the target's turn within tolerance (worst range ${worstPre.toExponential(2)}); ` +
       `after a hand-built target turn and ownship zig, worst range over the last 10 min ${known.map((k) => k.toExponential(2)).join(" (starboard), ")} (port), limit 5e-3; ` +
       `reported, not gated: the same case at 30–120° and 0.5–3°/s, both sides, ${String(within)}/${String(variants.length)} within 5e-3 (worst ${Math.max(...variants).toExponential(2)}); ` +
-      `median range error at manoeuvre + 300 s ${median.toExponential(2)} on ${String(post.length)} turning scenarios (limit ${String(TRACKER_POST_TURN_LIMIT)})`,
+      `median range error at manoeuvre + 300 s ${median.toExponential(2)} on ${String(post.length)} ${reported.size > 0 ? "one-turn " : "turning "}scenarios (limit ${String(TRACKER_POST_TURN_LIMIT)})` +
+      (reported.size > 0
+        ? `; reported, not gated, after the last manoeuvre of other mixes (generator 0.5.0): ${others}`
+        : "") +
+      (multi.length > 0
+        ? `; generator 0.5.0 hand-built cases under σ_ct ${String(G0_IMM_MANOEUVRE.sigmaCt)}, worst range over the last 10 min (limit ${String(MANOEUVRE_CASE_LIMIT)}): ${multi.map((c) => `${c.name} ${c.err.toExponential(2)}`).join(", ")}`
+        : ""),
   );
 }
+
+/**
+ * Generator 0.5.0: IMM settings with enough turn-model acceleration noise to follow a speed change
+ * (G0_IMM's σ_ct 0.01 cannot follow a deceleration at all: 0.93 range error; G0 panel phase 4,
+ * numerics). Not a tuning: the reference is tuned on validation.
+ */
+export const G0_IMM_MANOEUVRE: ImmParams = { ...G0_IMM, sigmaCt: 0.1 };
+
+/**
+ * Hand-built generator-0.5.0 cases on the re-convergence geometry (target manoeuvres all end before
+ * ownship's second zig at t = 1,300 s): each must end within 1e-2 range under `G0_IMM_MANOEUVRE`
+ * (observed worst 5.6e-3).
+ */
+export const MANOEUVRE_CASES: { name: string; plan: TargetManoeuvre[] }[] = [
+  { name: "two turns, same side", plan: [turn(700, 60), turn(1000, 60)] },
+  { name: "two turns, opposite sides", plan: [turn(700, 60), turn(1000, -60)] },
+  { name: "speed +2 m/s", plan: [{ kind: "speed", start_time_s: 900, change: 2, rate: 0.05 }] },
+  { name: "speed −2 m/s", plan: [{ kind: "speed", start_time_s: 900, change: -2, rate: 0.05 }] },
+  {
+    name: "turn, speed change, turn",
+    plan: [
+      turn(700, 45),
+      { kind: "speed", start_time_s: 930, change: 2, rate: 0.05 },
+      turn(1160, -45),
+    ],
+  },
+];
+function turn(t: number, deg: number): TargetManoeuvre {
+  return { kind: "course", start_time_s: t, change: degToRad(deg), rate: degToRad(1) };
+}
+export const MANOEUVRE_CASE_LIMIT = 1e-2;
 
 /** Limit on the IMM's noise-free median range error at manoeuvre + 300 s (observed 2.4e-3). */
 export const TRACKER_POST_TURN_LIMIT = 1e-2;
@@ -670,29 +981,73 @@ export const G0_IMM_STRAIGHT: ImmParams = {
 export const TRACKER_NOISY_RATIO = 1.25;
 const NOISY_SEED = 20261028n;
 const NOISY_SCENARIOS = 200;
+/** Generator 0.5.0: scenarios for the paired noisy check (G0 panel phase 4, statistics). */
+const NOISY_SCENARIOS_05 = 1000;
+/**
+ * Generator 0.5.0: limit on the median per-scenario ratio. Tighter than `TRACKER_NOISY_RATIO`,
+ * because a median of ratios sits lower than a ratio of medians (1.05 against 1.17–1.27 on the same
+ * scenarios; G0 panel phase 4, round 2, red team), so keeping 1.25 would have loosened the check.
+ */
+export const TRACKER_NOISY_PAIRED_RATIO = 1.15;
 
 /**
  * The tracker under noise (G0 panel phase 3, red team: a mis-scaled measurement variance is
  * invisible on noise-free data). From the dataset's ranges at σ = 1° (fixed seed, regenerated, not
  * a split of the dataset), at the last sample before each target's turn (or the end), the
- * straight-leg IMM's median range error must be within `TRACKER_NOISY_RATIO` × the per-timestep
- * batch solver's: on a constant-velocity stretch both should reach about the same accuracy.
+ * straight-leg IMM's range error is compared with batch least squares': on a constant-velocity
+ * stretch both should reach about the same accuracy.
+ * - Generator 0.4.0: the ratio of the two medians over 200 scenarios, at most `TRACKER_NOISY_RATIO`.
+ * - Generator 0.5.0 (G0 panel phase 4): the median over 1,000 scenarios of the per-scenario ratio
+ *   (paired), at most `TRACKER_NOISY_PAIRED_RATIO`, with batch least squares fitted on the samples up to
+ *   that row. The ratio of medians is reported. On 200 scenarios it was 1.26 against 1.25 in round
+ *   0, but the panel found it noisy (95% interval [0.98, 1.64]; 0.93–1.23 on other seeds).
+ * The check is one-sided: an over-stated measurement variance barely moves it, and on 0.5.0 a
+ * mis-stated scenario σ does not move it at all; `tracker-nis` covers both.
  */
 export function checkTrackerNoisy(ranges: ParameterRanges): GateCheck {
   const name = "tracker-noisy-sanity";
-  if (ranges.target_manoeuvre_fraction == null)
+  if (!hasTargetManoeuvre(ranges))
     return check(
       name,
       true,
-      "not applicable: the ranges have no target manoeuvre (generator 0.4.0 checks only)",
+      "not applicable: the ranges have no target manoeuvre (generator 0.4.0 and later checks only)",
     );
   const r: ParameterRanges = {
     ...ranges,
     noise_sigma_rad_values: [degToRad(1)],
     dropout_fraction: { min: 0, max: 0 },
   };
+  const med = (v: number[]): number =>
+    [...v].sort((x, y) => x - y)[Math.floor(v.length / 2)] ?? NaN;
+  const settings = `IMM (σ_cv ${String(G0_IMM_STRAIGHT.sigmaCv)}, σ_ct ${String(G0_IMM_STRAIGHT.sigmaCt)}, σ_ω ${String(G0_IMM_STRAIGHT.sigmaOmega)}, switch ${String(G0_IMM_STRAIGHT.switchPerS)}/s)`;
   const imm: number[] = [];
   const lsq: number[] = [];
+  if (ranges.target_course_change_count_weights != null) {
+    const ratios: number[] = [];
+    let ncImm = 0;
+    let ncLsq = 0;
+    for (let i = 0; i < NOISY_SCENARIOS_05; i++) {
+      const s = beforeManoeuvre(generateScenario(NOISY_SEED, i, r).scenario);
+      const m = s.metadata;
+      if (m.samples - 1 < m.zig_index + 1) continue;
+      const a = immPredict(s, G0_IMM_STRAIGHT).rows.at(-1);
+      const b = classicalPredict(s, "final").rows.at(-1);
+      if (a === undefined || b === undefined) continue;
+      const ea = a.converged ? rowError(s, a).range_rel : Infinity;
+      const eb = b.converged ? rowError(s, b).range_rel : Infinity;
+      if (!a.converged) ncImm++;
+      if (!b.converged) ncLsq++;
+      imm.push(ea);
+      lsq.push(eb);
+      ratios.push(ea === eb ? 1 : ea / eb);
+    }
+    const paired = med(ratios);
+    return check(
+      name,
+      ratios.length > 0 && paired <= TRACKER_NOISY_PAIRED_RATIO,
+      `σ = 1°, ${String(ratios.length)} regenerated scenarios (seed ${String(NOISY_SEED)}), last sample before the target's first manoeuvre (or the end): ${settings} / batch least squares on the same samples, median per-scenario range-error ratio ${paired.toFixed(3)}, limit ${String(TRACKER_NOISY_PAIRED_RATIO)}; non-converged: IMM ${String(ncImm)}, least squares ${String(ncLsq)} (both: ratio 1; one: 0 or ∞); reported: medians ${med(imm).toFixed(4)} and ${med(lsq).toFixed(4)}, ratio of medians ${(med(imm) / med(lsq)).toFixed(3)}`,
+    );
+  }
   for (let i = 0; i < NOISY_SCENARIOS; i++) {
     const s = generateScenario(NOISY_SEED, i, r).scenario;
     const m = s.metadata;
@@ -705,18 +1060,92 @@ export function checkTrackerNoisy(ranges: ParameterRanges): GateCheck {
     imm.push(a.converged ? rowError(s, a).range_rel : Infinity);
     lsq.push(b.converged ? rowError(s, b).range_rel : Infinity);
   }
-  const med = (v: number[]): number =>
-    [...v].sort((x, y) => x - y)[Math.floor(v.length / 2)] ?? NaN;
   const ratio = med(imm) / med(lsq);
   return check(
     name,
     imm.length > 0 && ratio <= TRACKER_NOISY_RATIO,
-    `σ = 1°, ${String(imm.length)} regenerated scenarios (seed ${String(NOISY_SEED)}), last sample before the target's turn: IMM (σ_cv ${String(G0_IMM_STRAIGHT.sigmaCv)}, σ_ct ${String(G0_IMM_STRAIGHT.sigmaCt)}, σ_ω ${String(G0_IMM_STRAIGHT.sigmaOmega)}, switch ${String(G0_IMM_STRAIGHT.switchPerS)}/s) median range error ${med(imm).toFixed(4)}, per-timestep batch least squares ${med(lsq).toFixed(4)}; ratio ${ratio.toFixed(3)}, limit ${String(TRACKER_NOISY_RATIO)}`,
+    `σ = 1°, ${String(imm.length)} regenerated scenarios (seed ${String(NOISY_SEED)}), last sample before the target's turn: ${settings} median range error ${med(imm).toFixed(4)}, per-timestep batch least squares ${med(lsq).toFixed(4)}; ratio ${ratio.toFixed(3)}, limit ${String(TRACKER_NOISY_RATIO)}`,
+  );
+}
+
+/** Band on the IMM's normalised innovation squared at σ = 1° on straight stretches. */
+export const TRACKER_NIS_BAND = { lo: 0.75, hi: 1.3 } as const;
+
+/**
+ * Measurement-variance consistency (G0 panel phase 4, red team: `tracker-noisy-sanity` cannot see an
+ * over-stated variance, nor, since the panel's round 2, a mis-stated σ at all: the initial
+ * covariance and the measurement variance then scale together). Run through `immPredict`. On the noisy check's regenerated σ = 1° scenarios (the first 200), the
+ * straight-leg IMM is run from its initialisation to the last sample before the first manoeuvre,
+ * and each scenario's mean normalised innovation squared is taken over rows from zig + 60 s. The
+ * median over scenarios must lie in `TRACKER_NIS_BAND`. Observed in phase 4: about 1.08 with the
+ * scenario's σ (1.00–1.04 on five other seeds), 0.71 with σ² × 1.5 and 1.44 with σ² × 0.75; the upper
+ * edge was narrowed from 1.5 to 1.3 in panel round 2 (statistics) so that × 0.75 fails too.
+ */
+export function checkTrackerNis(ranges: ParameterRanges, rScale = 1): GateCheck {
+  const name = "tracker-nis";
+  if (!hasTargetManoeuvre(ranges))
+    return check(
+      name,
+      true,
+      "not applicable: the ranges have no target manoeuvre (generator 0.4.0 and later checks only)",
+    );
+  const r: ParameterRanges = {
+    ...ranges,
+    noise_sigma_rad_values: [degToRad(1)],
+    dropout_fraction: { min: 0, max: 0 },
+  };
+  const means: number[] = [];
+  let rows = 0;
+  let short = 0;
+  let noRows = 0;
+  for (let i = 0; i < NOISY_SCENARIOS; i++) {
+    const s = generateScenario(NOISY_SEED, i, r).scenario;
+    const m = s.metadata;
+    const end = (m.manoeuvre_start_index ?? m.samples) - 1;
+    let sum = 0;
+    let n = 0;
+    // Through immPredict itself, so the reference tracker's own variance and scale handling and its
+    // re-initialisation are what is tested (G0 panel phase 4, round 2).
+    immPredict(beforeManoeuvre(s), { ...G0_IMM_STRAIGHT, rScale }, (k, st) => {
+      if (
+        k <= end &&
+        (k - m.zig_index) * m.parameters.dt_s >= PER_TIMESTEP_SETTLE_S &&
+        st.nis != null
+      ) {
+        sum += st.nis;
+        n++;
+      }
+    });
+    if (n === 0) {
+      if ((end - m.zig_index) * m.parameters.dt_s < PER_TIMESTEP_SETTLE_S) short++;
+      else noRows++;
+    }
+    if (n > 0) {
+      means.push(sum / n);
+      rows += n;
+    }
+  }
+  const median = [...means].sort((a, b) => a - b)[Math.floor(means.length / 2)] ?? NaN;
+  return check(
+    name,
+    means.length > 0 && median >= TRACKER_NIS_BAND.lo && median <= TRACKER_NIS_BAND.hi,
+    `σ = 1°, ${String(means.length)} regenerated scenarios (seed ${String(NOISY_SEED)}), ${String(rows)} rows from zig + ${String(PER_TIMESTEP_SETTLE_S)} s to the last sample before the first manoeuvre${short + noRows > 0 ? ` (no rows: ${String(short)} whose first manoeuvre starts within ${String(PER_TIMESTEP_SETTLE_S)} s of the zig, ${String(noRows)} others)` : ""}: straight-leg IMM median per-scenario mean NIS ${median.toFixed(3)}, band [${String(TRACKER_NIS_BAND.lo)}, ${String(TRACKER_NIS_BAND.hi)}] (catches σ² × 1.5 and × 0.75)`,
   );
 }
 
 /** Worst range error of the IMM over the last 10 min of the hand-built re-convergence case. */
-function reconvergenceError(side: number, angleDeg = 90, rateDegS = 1): number {
+function reconvergenceError(
+  side: number,
+  angleDeg = 90,
+  rateDegS = 1,
+  plan?: TargetManoeuvre[],
+  params: ImmParams = G0_IMM,
+): number {
+  const single = {
+    target_manoeuvre_time_s: 900,
+    target_manoeuvre_angle_rad: side * degToRad(angleDeg),
+    target_turn_rate_rad_s: degToRad(rateDegS),
+  };
   const p: ScenarioParameters = {
     window_s: 2400,
     dt_s: 10,
@@ -733,18 +1162,16 @@ function reconvergenceError(side: number, angleDeg = 90, rateDegS = 1): number {
     dropout_fraction: 0,
     zig2_delay_s: 600,
     zig2_angle_rad: degToRad(-90),
-    target_manoeuvre_time_s: 900,
-    target_manoeuvre_angle_rad: side * degToRad(angleDeg),
-    target_turn_rate_rad_s: degToRad(rateDegS),
+    ...(plan === undefined ? single : { target_manoeuvres: plan }),
   };
   const tr = simulateTruth(p);
-  const states = (x: Float64Array, y: Float64Array, c: Float64Array, v: number) =>
+  const states = (x: Float64Array, y: Float64Array, c: Float64Array, v: Float64Array | number) =>
     Array.from({ length: tr.samples }, (_, i) => ({
       timestamp_s: i * 10,
       x_m: x[i] ?? 0,
       y_m: y[i] ?? 0,
       course_rad: c[i] ?? 0,
-      speed_mps: v,
+      speed_mps: typeof v === "number" ? v : (v[i] ?? 0),
     }));
   const s: Scenario = {
     record: "scenario",
@@ -759,10 +1186,10 @@ function reconvergenceError(side: number, angleDeg = 90, rateDegS = 1): number {
       min_range_m: 0,
     },
     ownship: { id: "ownship", states: states(tr.ownX, tr.ownY, tr.ownCourse, 5) },
-    target: { id: "target", states: states(tr.tgtX, tr.tgtY, tr.tgtCourse, 4) },
+    target: { id: "target", states: states(tr.tgtX, tr.tgtY, tr.tgtCourse, tr.tgtSpeed) },
     observations: observe(createRng(1n), p, tr),
   };
-  const rows = immPredict(s, G0_IMM).rows;
+  const rows = immPredict(s, params).rows;
   const first = tr.zigIndex + 1;
   let worst = 0;
   for (let i = tr.samples - 60; i < tr.samples; i++) {

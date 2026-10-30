@@ -1,0 +1,223 @@
+{
+  "command_lines": [
+    "tma-generate --seed 42 --count 100000 --noise-free --ranges sha256:2147ade3b17fb9fd93d373687a7ae883e0c74670833ccc6870bb3ed0b3d1c558 --heldout-ranges sha256:41a406b1df129c6ead948764baeef8ae205f0628c0540495f0315a7e57328201",
+    "tma-g0 --data data/g0-p4 --experiment experiments/20261030-g0-p4-r3"
+  ],
+  "created": "2026-10-30T11:08:01.226Z",
+  "datasets": [
+    {
+      "digest": "608b5b37241256d477b807d21a288cf30f1fef7afa493968fcf77088a67f8042",
+      "header": {
+        "created_by": "tma-generate --seed 42 --count 100000 --noise-free --ranges sha256:2147ade3b17fb9fd93d373687a7ae883e0c74670833ccc6870bb3ed0b3d1c558 --heldout-ranges sha256:41a406b1df129c6ead948764baeef8ae205f0628c0540495f0315a7e57328201",
+        "dataset_seed": "42",
+        "generator_git_commit": "5794d6ccb69a42ae74d66651f4f9d055052acb33",
+        "generator_git_dirty": false,
+        "generator_version": "0.5.0",
+        "index_end": 80000,
+        "index_start": 0,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0,
+            "min": 0
+          },
+          "dt_s": 10,
+          "los_offset_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "ownship_turn_rate_rad_s": {
+            "max": 0.05235987755982989,
+            "min": 0.008726646259971648
+          },
+          "range_distribution": "log_uniform",
+          "target_course_change_count_weights": [
+            0.2,
+            0.3,
+            0.3,
+            0.2
+          ],
+          "target_manoeuvre_after_zig_s": 120,
+          "target_manoeuvre_angle_abs_rad": {
+            "max": 2.0943951023931953,
+            "min": 0.5235987755982988
+          },
+          "target_manoeuvre_margin_s": 360,
+          "target_manoeuvre_spacing_s": 180,
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_change_abs_mps": {
+            "max": 3.086666666666667,
+            "min": 1.028888888888889
+          },
+          "target_speed_change_fraction": 0.3,
+          "target_speed_change_rate_mps2": {
+            "max": 0.1028888888888889,
+            "min": 0.025722222222222226
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "target_turn_rate_rad_s": {
+            "max": 0.05235987755982989,
+            "min": 0.008726646259971648
+          },
+          "window_s": {
+            "max": 3600,
+            "min": 1200
+          },
+          "zig2_delay_s": {
+            "max": 300,
+            "min": 180
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          },
+          "zig_rule": "across_los"
+        },
+        "record": "header",
+        "redraw_count": 33507,
+        "scenario_count": 80000,
+        "schema_version": "0.15.0",
+        "split": "train"
+      },
+      "path": "data/g0-p4/train.f32pack"
+    },
+    {
+      "digest": "7646c99a146229ac9dbcc45e446bf832b35e6fe775c38f5edc3c8f30ecc1551e",
+      "header": {
+        "created_by": "tma-generate --seed 42 --count 100000 --noise-free --ranges sha256:2147ade3b17fb9fd93d373687a7ae883e0c74670833ccc6870bb3ed0b3d1c558 --heldout-ranges sha256:41a406b1df129c6ead948764baeef8ae205f0628c0540495f0315a7e57328201",
+        "dataset_seed": "42",
+        "generator_git_commit": "5794d6ccb69a42ae74d66651f4f9d055052acb33",
+        "generator_git_dirty": false,
+        "generator_version": "0.5.0",
+        "index_end": 100000,
+        "index_start": 90000,
+        "parameter_ranges": {
+          "dropout_fraction": {
+            "max": 0,
+            "min": 0
+          },
+          "dt_s": 10,
+          "los_offset_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "min_range_m": 100,
+          "noise_sigma_rad_values": [
+            0
+          ],
+          "ownship_speed_mps": {
+            "max": 7.716666666666667,
+            "min": 2.5722222222222224
+          },
+          "ownship_turn_rate_rad_s": {
+            "max": 0.05235987755982989,
+            "min": 0.008726646259971648
+          },
+          "range_distribution": "log_uniform",
+          "target_course_change_count_weights": [
+            0.2,
+            0.3,
+            0.3,
+            0.2
+          ],
+          "target_manoeuvre_after_zig_s": 120,
+          "target_manoeuvre_angle_abs_rad": {
+            "max": 2.0943951023931953,
+            "min": 0.5235987755982988
+          },
+          "target_manoeuvre_margin_s": 360,
+          "target_manoeuvre_spacing_s": 180,
+          "target_range0_m": {
+            "max": 20000,
+            "min": 2000
+          },
+          "target_speed_change_abs_mps": {
+            "max": 3.086666666666667,
+            "min": 1.028888888888889
+          },
+          "target_speed_change_fraction": 0.3,
+          "target_speed_change_rate_mps2": {
+            "max": 0.1028888888888889,
+            "min": 0.025722222222222226
+          },
+          "target_speed_mps": {
+            "max": 10.28888888888889,
+            "min": 1.5433333333333334
+          },
+          "target_turn_rate_rad_s": {
+            "max": 0.05235987755982989,
+            "min": 0.008726646259971648
+          },
+          "window_s": {
+            "max": 3600,
+            "min": 1200
+          },
+          "zig2_delay_s": {
+            "max": 300,
+            "min": 180
+          },
+          "zig_angle_abs_rad": {
+            "max": 1.5707963267948966,
+            "min": 0.5235987755982988
+          },
+          "zig_fraction": {
+            "max": 0.6,
+            "min": 0.4
+          },
+          "zig_rule": "across_los"
+        },
+        "record": "header",
+        "redraw_count": 4188,
+        "scenario_count": 10000,
+        "schema_version": "0.15.0",
+        "split": "test"
+      },
+      "path": "data/g0-p4/test.f32pack"
+    }
+  ],
+  "estimators": [
+    {
+      "name": "naive",
+      "settings_json": "{\"fitted_on\":\"train\",\"means\":{\"course_cos\":0.002680664117398751,\"course_sin\":0.0009074939572583105,\"log_range_km\":2.469121615221819,\"n\":80000,\"speed_mps\":5.909931560003757}}"
+    },
+    {
+      "name": "classical",
+      "settings_json": "{\"max_iterations\":50,\"method\":\"levenberg-marquardt\",\"mode\":\"final\"}"
+    },
+    {
+      "name": "classical:per_timestep",
+      "settings_json": "{\"grid_every\":6,\"max_iterations\":50,\"method\":\"levenberg-marquardt\",\"mode\":\"per_timestep\",\"note\":\"first scenarios of the test split, for check classical-per-timestep-recovers\",\"scenarios\":1000}"
+    },
+    {
+      "name": "imm",
+      "settings_json": "{\"note\":\"first scenarios of the test split, for check tracker-noise-free\",\"scenarios\":1000,\"sigmaCt\":0.01,\"sigmaCv\":0.001,\"sigmaOmega\":0.001,\"switchPerS\":0.001}"
+    },
+    {
+      "name": "imm:noisy-sanity",
+      "settings_json": "{\"note\":\"σ = 1° scenarios regenerated from the test split's ranges, for check tracker-noisy-sanity\",\"sigmaCt\":0.01,\"sigmaCv\":0,\"sigmaOmega\":0.001,\"switchPerS\":0.00001}"
+    }
+  ],
+  "generator_version": "0.5.0",
+  "git_commit": "93febf5b03279345aff4da6a7c2faca781bc1519",
+  "git_dirty": false,
+  "id": "20261030-g0-p4-r3",
+  "node_version": "v22.22.0",
+  "schema_version": "0.15.0"
+}

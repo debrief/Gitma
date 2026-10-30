@@ -1,0 +1,68 @@
+{
+  "window_s": {
+    "min": 1200,
+    "max": 3600
+  },
+  "dt_s": 10,
+  "ownship_speed_mps": {
+    "min": 2.5722222222222224,
+    "max": 7.716666666666667
+  },
+  "zig_angle_abs_rad": {
+    "min": 0.5235987755982988,
+    "max": 1.5707963267948966
+  },
+  "zig_fraction": {
+    "min": 0.4,
+    "max": 0.6
+  },
+  "target_range0_m": {
+    "min": 20000,
+    "max": 30000
+  },
+  "range_distribution": "log_uniform",
+  "target_speed_mps": {
+    "min": 1.5433333333333334,
+    "max": 10.28888888888889
+  },
+  "noise_sigma_rad_values": [0.017453292519943295, 0.03490658503988659],
+  "dropout_fraction": {
+    "min": 0,
+    "max": 0.1
+  },
+  "ownship_turn_rate_rad_s": {
+    "min": 0.008726646259971648,
+    "max": 0.05235987755982989
+  },
+  "min_range_m": 100,
+  "zig_rule": "across_los",
+  "los_offset_rad": {
+    "min": 0.5235987755982988,
+    "max": 1.5707963267948966
+  },
+  "zig2_delay_s": {
+    "min": 180,
+    "max": 300
+  },
+  "target_manoeuvre_angle_abs_rad": {
+    "min": 0.5235987755982988,
+    "max": 2.0943951023931953
+  },
+  "target_turn_rate_rad_s": {
+    "min": 0.008726646259971648,
+    "max": 0.05235987755982989
+  },
+  "target_manoeuvre_after_zig_s": 120,
+  "target_manoeuvre_margin_s": 360,
+  "target_course_change_count_weights": [0.2, 0.3, 0.3, 0.2],
+  "target_speed_change_fraction": 0.3,
+  "target_speed_change_abs_mps": {
+    "min": 1.028888888888889,
+    "max": 3.086666666666667
+  },
+  "target_speed_change_rate_mps2": {
+    "min": 0.025722222222222226,
+    "max": 0.1028888888888889
+  },
+  "target_manoeuvre_spacing_s": 180
+}

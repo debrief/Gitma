@@ -136,12 +136,13 @@ describe("G0 guard (constitution V)", () => {
     ).not.toBeNull();
   });
 
-  it("the committed phase-3 G0 (generator 0.4.0) is the latest, and needs its panel review", () => {
-    // Generator 0.4.0 (spec 010, target course change) no longer accepts the iteration-3 G0
-    // (20261017-g0-i3-r3, 0.3.0). G0 ran on 0.4.0 at f138bd4 and, after the round-1 panel fixes
-    // to its checks, again at ff5f7cd (round 2); the generator source HEAD still matches.
+  it("the committed phase-4 G0 (generator 0.5.0) is the latest, and needs its panel review", () => {
+    // Generator 0.5.0 (spec 012, several target manoeuvres) no longer accepts the phase-3 G0
+    // (20261028-g0-p3-r2, 0.4.0). G0 ran on 0.5.0 four times on the same data (rounds 0–3, as the
+    // panel's fixes changed the checks); round 3 at 93febf5 is the latest, and the generator source
+    // at HEAD still matches.
     const dir = new URL("../../../experiments", import.meta.url).pathname;
-    const want = { id: "20261028-g0-p3-r2", commit: "ff5f7cd0785af52a7742a041dfc766d830cca2ed" };
+    const want = { id: "20261030-g0-p4-r3", commit: "93febf5b03279345aff4da6a7c2faca781bc1519" };
     expect(g0Accepted(dir, { requireReview: false })).toEqual(want);
     const verdict = JSON.parse(readFileSync(join(dir, want.id, "verdict.json"), "utf8")) as {
       decided_by: string;

@@ -46,9 +46,55 @@ target's turn): windows under about 1,100 s all but disappear (P10 1,360 s again
 the realised angles and rates lean slightly towards short turns. Phase-3 figures are therefore
 not comparable with earlier iterations' without re-running them on phase-3 data.
 
+Generator 0.5.0 (phase 4, spec 012, SRD Annex C §C.2) replaces the single turn when the ranges
+give `target_course_change_count_weights` (and then `target_manoeuvre_fraction` must be absent):
+
+- **How many.** The number of course changes (P(0, 1, 2, 3) = 0.2, 0.3, 0.3, 0.2) and whether
+  there is a speed change (30%) are drawn **once per scenario**, from their own stream (the
+  scenario seed's sub-stream 1), before any geometry. A geometry that cannot fit them is redrawn
+  with the same count, so the realised count distribution is the declared one. A first version
+  drew the count with the geometry; on 10–40 min windows its redraws left 3.7% of scenarios with
+  three turns instead of 20%.
+- **What.** For every possible course change, its side, size (30–120°) and rate (0.5–3°/s); for
+  the speed change, its side, size (2–6 kt) and rate (0.05–0.2 kt/s). The side is flipped if the
+  new speed would leave `target_speed_mps`, and the geometry is redrawn if both sides would. Then
+  the speed change's place in the order, and one uniform per possible manoeuvre for the timing.
+  All are drawn for every scenario, so the stream is consumed alike whatever is used.
+- **When.** Manoeuvres never overlap. The first starts at least 2 min after `zig_index`, each
+  starts at least `target_manoeuvre_spacing_s` (3 min) after the previous one ends, and the last
+  ends at least 6 min before the window ends. The free time is shared out by sorted uniforms.
+
+Phase-4 windows are 20–60 min (`configs/phase4-ranges.json`), against phase 3's 10–40 min, so that
+three turns and a speed change fit. The realised distribution is reported at G0
+(`scripts/research/spec012-distribution.mjs`, `experiments/20261030-g0-p4-r2/distribution.json`);
+on its test split:
+- **Counts.** Counts match the declared mix (χ² 1.1 on 3 df) and speed changes are in 30.0% of
+  scenarios. There are about 0.4 redraws per accepted scenario.
+- **Coverage.** Rows reach zig + 5, 10, 15 and 20 min in 100%, 98%, 83% and 55% of scenarios.
+- **Settled rows.** 44% of G5 rows are settled (Annex C §C.5).
+
+Reading it critically:
+- **Windows lengthen with the count.** The median is 40 min with no manoeuvre and 52 min with
+  three turns and a speed change, and the zig comes later too.
+  - Later gate times therefore over-represent busy scenarios: at zig + 20 min, three turns plus a
+    speed change hold 1.6 × their share.
+  - G5 is paired, so this does not favour either estimator, but it defines what is measured.
+  - Causal trackers cannot see the window's end.
+- **The speed-change side is predictable.** It is flipped to keep the speed in range, so 82% of
+  changes starting below 9 kt are increases and 83% above 14 kt are decreases. A learned tracker
+  can learn this prior and the IMM cannot. It is a property of the data, declared here.
+- **The redraws lean slightly towards short, fast turns.** The mean |turn| is 74.3° against 75°
+  for the uniform draw, and the mean rate 1.78°/s against 1.75°/s.
+- **The second zig is planned on the target's straight track.** It often follows the target's
+  first manoeuvre: 33%, 53%, 73% and 85% of scenarios with one to four manoeuvres of any kind (G0
+  panel round 1, geometry, on 5,000 scenarios of seed 42). Against the actual target it still crosses the
+  line of sight every time, with its offset outside the drawn 30–90° in 1.0% of scenarios (phase 3:
+  1.9%).
+
 All parameters are float32-rounded before use, so the metadata describes the data exactly. Ranges
 without a turn rate consume the random stream exactly as generator 0.1.0 did, ranges without the
-0.3.0 options exactly as 0.2.0 did, and ranges without a target manoeuvre exactly as 0.3.0 did.
+0.3.0 options exactly as 0.2.0 did, ranges without a target manoeuvre exactly as 0.3.0 did, and
+ranges without the 0.5.0 fields exactly as 0.4.0 did.
 Each reproduces earlier datasets byte for byte.
 
 ## Motion
@@ -163,4 +209,35 @@ both are absent when the target holds course. Gate times for G4 count from `mano
 Ownship's zigs under `zig_rule: across_los` are planned on the target's straight track, as an
 operator plans on the current solution. After the target turns, a later zig need not put the
 actual target across the line of sight; G0 checks the rule against the straight track.
+
+### Several target manoeuvres (generator 0.5.0)
+
+The target holds course and speed between manoeuvres. A **course change** is a constant-rate arc at
+constant speed, as in 0.4.0. A **speed change** is constant acceleration `a` along the course for
+`|Δv| / a` seconds: the distance run is `v τ + ½ a τ²`. Each manoeuvre starts from the exact state
+where the previous segment ended, in closed form, so errors do not accumulate. Stored target speeds
+vary from 0.5.0 on.
+
+Metadata `manoeuvres` lists each one's kind and sample span (first sample after it starts, first
+after it ends). `manoeuvre_start_index` is the start of the **first** manoeuvre, so G0's
+`beforeManoeuvre` cuts every scenario where the constant-velocity fit stops holding, and
+`manoeuvre_index` is the end of the **last**.
+
+G0 adds, for 0.5.0:
+- **Known answers** for a speed change, during and after it, and for two turns in sequence.
+- **Step-by-step kinematics** (`targetManoeuvresFailure`). Outside a manoeuvre, course and speed
+  are constant and each step is v·dt along the course. In a turn, each interior step turns ω·dt at
+  constant speed. In a speed change, each interior step changes speed by a·dt on a constant
+  course. The summed change of each manoeuvre equals the drawn one.
+- **Timing and bounds** (`manoeuvreTimingFailure`). These cover the spacing, the start after the
+  zig and the end margin, and target speeds within range.
+- **Consistency.** The top-level indices agree with the first and last spans, and sample 0 starts
+  at the drawn speed and course.
+- **Held-out sample.** The first 2,000 held-out scenarios are checked as well as the test split.
+- **The trackers.**
+  - Hand-built re-convergence cases for every manoeuvre kind and order, under a setting that can
+    follow a speed change.
+  - A paired straight-leg comparison with batch least squares over 1,000 scenarios.
+  - A normalised-innovation check (`tracker-nis`) that catches a measurement variance mis-scaled
+    either way. See the [trackers note](trackers.md).
 

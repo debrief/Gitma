@@ -41,9 +41,11 @@ accepted.
 | Parameter | Phase 4 range | Notes |
 | --- | --- | --- |
 | Course changes | 0–3 per scenario: P(0, 1, 2, 3) = 0.2, 0.3, 0.3, 0.2 | Each 30–120°, sign uniform, rate-limited at 0.5–3°/s, as in 0.4.0 |
-| Speed changes | One, in 30% of scenarios: ±2–6 kt at 0.05–0.2 kt/s | The speed stays within 3–20 kt; it may overlap a course change |
+| Speed changes | One, in 30% of scenarios: ±2–6 kt at 0.05–0.2 kt/s | The speed stays within 3–20 kt; manoeuvres never overlap (amended 2026-10-30 while implementing: an overlap would make a step's kinematics ambiguous to check) |
 | Timing | First manoeuvre starts ≥ 2 min after ownship's first turn ends. Manoeuvres are ≥ 3 min apart (end to start). The last ends ≥ 6 min before the window ends | Manoeuvres start only once the problem is observable, and each leaves time to score the response |
 | Fit | A window that cannot fit its drawn manoeuvres is redrawn, as in 0.4.0 | The realised distribution (counts, window lengths, coverage at each gate time) is reported at G0, as the 0.4.0 panel required |
+| Window | 20–60 min (amended 2026-10-30 while implementing, from phase 3's 10–40 min) | On 10–40 min windows three turns and a speed change rarely fit: 6 redraws per scenario, and only 12% reach zig + 20 min. On 20–60 min windows it is 0.4 redraws and 54% |
+| Count | Drawn once per scenario before the geometry, and kept through redraws | So the realised count distribution is the declared one (redrawing the count with the geometry left 3.7% with three turns) |
 | Everything else | As phase 3 (`configs/phase3-ranges.json`) | Two ownship zigs across the line of sight, 3–20 kt, 2–20 km, σ 0.5–2°, dropouts 0–10% |
 
 **Metadata.** Each manoeuvre's start and end sample indices, its kind (course or speed) and its
@@ -115,9 +117,17 @@ intervals are therefore **97.5%** (Bonferroni over two), so the chance of a fals
 | G5-settled-speed | the same for speed | wholly below 1.1 |
 | G5-gross | gross-error rate (range error > 50% or no estimate), tracker − reference | reported, not gated |
 
-**Settled rows** are G5 rows more than 5 min after the last manoeuvre ended, or in a scenario
-with no manoeuvre. On those rows the constant-velocity model is right again, so they measure
-straight-leg accuracy.
+**Settled rows** are G5 rows where the constant-velocity model is right again, so they measure
+straight-leg accuracy (pinned 2026-10-30 after the G0 panel found the first wording ambiguous). At
+row k:
+- **No manoeuvre is in progress:** no span has start_index ≤ k < end_index.
+- **Either no manoeuvre has started yet** (every start_index > k), **or the most recent one ended
+  at least 5 min before:** (k − end_index) · dt ≥ 300 s, where end_index is the latest span end
+  at or before k.
+
+Later manoeuvres do not matter: a tracker cannot see them yet. On G0's data this is 44% of G5 rows.
+The other reading, more than 5 min after the scenario's last manoeuvre, gives 27% and was not
+meant.
 
 **The verdict.**
 - **Pass** if all six gated checks pass for at least one tracker.
