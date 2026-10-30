@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="blog-wrapper blog-post-page plugin-blog plugin-id-default" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.10.2">
+<title data-rh="true">Phase 3b: two hypotheses fix the course, not the speed | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/pr/64/blog/2026/10/30/phase-3b"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docusaurus_tag" content="default"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docsearch:docusaurus_tag" content="default"><meta data-rh="true" property="og:title" content="Phase 3b: two hypotheses fix the course, not the speed | TMA via ML"><meta data-rh="true" name="description" content="Phase 3 found a network that beats a tuned IMM tracker after a target turns, but that averages"><meta data-rh="true" property="og:description" content="Phase 3 found a network that beats a tuned IMM tracker after a target turns, but that averages"><meta data-rh="true" property="og:type" content="article"><meta data-rh="true" property="article:published_time" content="2026-10-30T00:00:00.000Z"><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/pr/64/blog/2026/10/30/phase-3b"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/64/blog/2026/10/30/phase-3b" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/64/blog/2026/10/30/phase-3b" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","@id":"https://debrief.github.io/Gitma/pr/64/blog/2026/10/30/phase-3b","mainEntityOfPage":"https://debrief.github.io/Gitma/pr/64/blog/2026/10/30/phase-3b","url":"https://debrief.github.io/Gitma/pr/64/blog/2026/10/30/phase-3b","headline":"Phase 3b: two hypotheses fix the course, not the speed","name":"Phase 3b: two hypotheses fix the course, not the speed","description":"Phase 3 found a network that beats a tuned IMM tracker after a target turns, but that averages","datePublished":"2026-10-30T00:00:00.000Z","author":[],"keywords":[],"isPartOf":{"@type":"Blog","@id":"https://debrief.github.io/Gitma/pr/64/blog","name":"Blog"}}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/pr/64/blog/rss.xml" title="TMA via ML RSS Feed">
+<link rel="alternate" type="application/atom+xml" href="/Gitma/pr/64/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/pr/64/assets/css/styles.d219d845.css">
+<script src="/Gitma/pr/64/assets/js/runtime~main.f50b1fb3.js" defer="defer"></script>
+<script src="/Gitma/pr/64/assets/js/main.7235ec3d.js" defer="defer"></script>
+</head>
+<body>
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||"light"),document.documentElement.setAttribute("data-theme-choice",t||"light")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_JWeg" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/Gitma/pr/64/"><b class="navbar__title text--truncate">TMA via ML</b></a><a class="navbar__item navbar__link" href="/Gitma/pr/64/docs/glossary">Glossary</a><a class="navbar__item navbar__link" href="/Gitma/pr/64/docs/data-dictionary">Data dictionary</a><a class="navbar__item navbar__link" href="/Gitma/pr/64/docs/algorithms/generator">Algorithms</a><a class="navbar__item navbar__link" href="/Gitma/pr/64/docs/results/iteration-1">Results</a><a class="navbar__item navbar__link" href="/Gitma/pr/64/viewer">Viewer</a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/Gitma/pr/64/blog">Blog</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://github.com/debrief/Gitma" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_ny9m"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_Lxsn colorModeToggle_wCyq"><button class="clean-btn toggleButton_BEJb toggleButtonDisabled_wzmd" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_Lr3m lightToggleIcon_ViIh"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_Lr3m darkToggleIcon_Xnlu"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_Lr3m systemToggleIcon_LOzk"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_agmU"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_ra6T"><div class="container margin-vert--lg"><div class="row"><aside class="col col--3"><nav class="sidebar_WZvC thin-scrollbar" aria-label="Blog recent posts navigation"><div class="sidebarItemTitle_K1Mb margin-bottom--md">Recent posts</div><div role="group"><h3 class="yearGroupHeading_NsJf">2026</h3><ul class="sidebarItemList_CugS clean-list"><li class="sidebarItem_e6qr"><a aria-current="page" class="sidebarItemLink_Klnn sidebarItemLinkActive_EfBZ" href="/Gitma/pr/64/blog/2026/10/30/phase-3b">Phase 3b: two hypotheses fix the course, not the speed</a></li><li class="sidebarItem_e6qr"><a class="sidebarItemLink_Klnn" href="/Gitma/pr/64/blog/2026/10/29/phase-3">Phase 3: better than the tracker after a turn, worse when there is none</a></li><li class="sidebarItem_e6qr"><a class="sidebarItemLink_Klnn" href="/Gitma/pr/64/blog/2026/10/28/iteration-5">Iteration 5: a hybrid passes G3; the network adds robustness, not accuracy</a></li><li class="sidebarItem_e6qr"><a class="sidebarItemLink_Klnn" href="/Gitma/pr/64/blog/2026/10/25/iteration-4">Iteration 4: velocity outputs pass G2, still 3 × classical</a></li><li class="sidebarItem_e6qr"><a class="sidebarItemLink_Klnn" href="/Gitma/pr/64/blog/2026/10/22/iteration-3">Iteration 3: a second zig helps everyone, classical most</a></li></ul></div></nav></aside><main class="col col--7"><article class=""><header><h1 class="title_LyMS">Phase 3b: two hypotheses fix the course, not the speed</h1><div class="container_oQwR margin-vert--md"><time datetime="2026-10-30T00:00:00.000Z">October 30, 2026</time> · <!-- -->4 min read</div></header><div id="__blog-post-container" class="markdown"><p>Phase 3 found a network that beats a tuned IMM tracker after a target turns, but that averages
+&quot;turned&quot; and &quot;not turned&quot; on targets that hold course. Phase 3b gave the network a way out. It
+outputs two estimates and the probability that the target has turned, and reports the more
+probable estimate.</p>
+<p><strong>It half worked.</strong> On the same validation split:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Measure</th><th>Phase 3b</th><th>Phase 3a</th><th>IMM tracker</th><th>Limit</th></tr></thead><tbody><tr><td>After a turn: median range error</td><td>10.3%</td><td>10.5%</td><td>13.6%</td><td>below the IMM</td></tr><tr><td>After a turn: median course error</td><td>14.5°</td><td>14.4°</td><td>24.1°</td><td>below the IMM</td></tr><tr><td>Held course: course error</td><td>6.1°</td><td>11.1°</td><td>5.0°</td><td>10°</td></tr><tr><td>Held course: speed error</td><td><strong>1.15 kt</strong></td><td>1.60 kt</td><td>0.71 kt</td><td>1 kt</td></tr></tbody></table>
+<p>The speed interval, [1.05, 1.25] kt, lies wholly above the limit. The pre-registered rule
+therefore stopped phase 3b at validation, and its test split was never scored. Under SRD Annex
+B, this was the last phase-3 attempt.</p>
+<p>Records: <a class="" href="/Gitma/pr/64/docs/results/phase-3">results</a> and the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261030-p3b-val/validation.md" target="_blank" rel="noopener noreferrer" class="">validation record</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-was-tested">What was tested<a href="#what-was-tested" class="hash-link" aria-label="Direct link to What was tested" title="Direct link to What was tested" translate="no">​</a></h2>
+<p>Only the network&#x27;s output changed. The data, the frozen IMM reference and the gate were all as
+in phase 3.</p>
+<ul>
+<li class=""><strong>The network</strong> gives a held-course estimate, a turned estimate, and P(turned).</li>
+<li class=""><strong>The flag&#x27;s training.</strong> The training label is the truth: has the target&#x27;s course changed yet?</li>
+<li class=""><strong>The forecast</strong> in the decision record, written before training, was held-course course about
+6° and speed about 0.95 kt (0.8–1.2), with a 40% chance of reaching the test split.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-happened">What happened<a href="#what-happened" class="hash-link" aria-label="Direct link to What happened" title="Direct link to What happened" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Course: fixed.</strong> Held-course course error fell from 11.1° to 6.1°, as forecast. It no longer
+grows with time.</li>
+<li class=""><strong>After a turn: unchanged.</strong> The network still beats the IMM by about a quarter on range and
+40% on course.</li>
+<li class=""><strong>Speed: not fixed.</strong> Speed fell from 1.60 to 1.15 kt, inside the forecast band but above the
+limit.</li>
+</ul>
+<p>The flag explains the speed failure:</p>
+<ul>
+<li class=""><strong>It detects real turns well.</strong> The median delay is 70 s, and it misses 0.5%.</li>
+<li class=""><strong>It also false-alarms.</strong> On 29–31% of held-course rows five and ten minutes after the zig,
+it calls &quot;turned&quot;. In this data, those minutes are when targets usually start to turn.</li>
+<li class=""><strong>A false alarm is costly.</strong> The turned estimate is biased slow, so each one costs about
+1.8 kt.</li>
+<li class=""><strong>Even without false alarms, speed sits at the limit.</strong> Where the network says &quot;held&quot;, its
+speed error is 1.00 kt, so a perfect flag would leave it there too. The IMM manages 0.71 kt and
+batch least squares 0.31 kt.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reading-it-critically">Reading it critically<a href="#reading-it-critically" class="hash-link" aria-label="Direct link to Reading it critically" title="Direct link to Reading it critically" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Switching moves the failure rather than removing it.</strong> An averaged output blurs every
+estimate a little. A switched output is sharp, but sometimes sharply wrong: held-course course
+P90 rose from 34° to 51°.</li>
+<li class=""><strong>No threshold tuning.</strong> A stricter threshold than 0.5 would cut false alarms but slow
+detection. Choosing it on this split would make validation a training signal, so it was not
+done.</li>
+<li class=""><strong>Two changes at once.</strong> The output form and its supervision changed together, as declared,
+so this result cannot separate them.</li>
+<li class=""><strong>The finding is consistent.</strong> Two different network designs beat a tuned tracker after a
+turn, and both give back accuracy on targets that hold course. Neither dominates the tracker,
+and dominating it is what gate G4 asks.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>SRD Annex B §B.5&#x27;s second branch applies, as it did for phase 3:</p>
+<ol>
+<li class="">publish the negative result, which this post does;</li>
+<li class="">the owner then decides separately whether an end-to-end learned tracker is a new project.</li>
+</ol>
+<p>Real or recorded data stay deferred either way.</p></div></article><nav class="pagination-nav docusaurus-mt-lg" aria-label="Blog post page navigation"><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/pr/64/blog/2026/10/29/phase-3"><div class="pagination-nav__sublabel">Older post</div><div class="pagination-nav__label">Phase 3: better than the tracker after a turn, worse when there is none</div></a></nav></main><div class="col col--2"><div class="tableOfContents_kFBU thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#what-was-tested" class="table-of-contents__link toc-highlight">What was tested</a></li><li><a href="#what-happened" class="table-of-contents__link toc-highlight">What happened</a></li><li><a href="#reading-it-critically" class="table-of-contents__link toc-highlight">Reading it critically</a></li><li><a href="#what-next" class="table-of-contents__link toc-highlight">What next</a></li></ul></div></div></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
+</body>
+</html>
