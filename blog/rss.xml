@@ -4,10 +4,118 @@
         <title>TMA via ML Blog</title>
         <link>https://debrief.github.io/Gitma/blog</link>
         <description>TMA via ML Blog</description>
-        <lastBuildDate>Thu, 29 Oct 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Fri, 30 Oct 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Phase 3b: two hypotheses fix the course, not the speed]]></title>
+            <link>https://debrief.github.io/Gitma/blog/2026/10/30/phase-3b</link>
+            <guid>https://debrief.github.io/Gitma/blog/2026/10/30/phase-3b</guid>
+            <pubDate>Fri, 30 Oct 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Phase 3 found a network that beats a tuned IMM tracker after a target turns, but that averages]]></description>
+            <content:encoded><![CDATA[<p>Phase 3 found a network that beats a tuned IMM tracker after a target turns, but that averages
+"turned" and "not turned" on targets that hold course. Phase 3b gave the network a way out. It
+outputs two estimates and the probability that the target has turned, and reports the more
+probable estimate.</p>
+<p><strong>It half worked.</strong> On the same validation split:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Measure</th><th>Phase 3b</th><th>Phase 3a</th><th>IMM tracker</th><th>Limit</th></tr></thead><tbody><tr><td>After a turn: median range error</td><td>10.3%</td><td>10.5%</td><td>13.6%</td><td>below the IMM</td></tr><tr><td>After a turn: median course error</td><td>14.5°</td><td>14.4°</td><td>24.1°</td><td>below the IMM</td></tr><tr><td>Held course: course error</td><td>6.1°</td><td>11.1°</td><td>5.0°</td><td>10°</td></tr><tr><td>Held course: speed error</td><td><strong>1.15 kt</strong></td><td>1.60 kt</td><td>0.71 kt</td><td>1 kt</td></tr></tbody></table>
+<p>The speed interval, [1.05, 1.25] kt, lies wholly above the limit. The pre-registered rule
+therefore stopped phase 3b at validation, and its test split was never scored. Under SRD Annex
+B, this was the last phase-3 attempt.</p>
+<p>Records: <a class="" href="https://debrief.github.io/Gitma/docs/results/phase-3">results</a> and the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261030-p3b-val/validation.md" target="_blank" rel="noopener noreferrer" class="">validation record</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-was-tested">What was tested<a href="https://debrief.github.io/Gitma/blog/2026/10/30/phase-3b#what-was-tested" class="hash-link" aria-label="Direct link to What was tested" title="Direct link to What was tested" translate="no">​</a></h2>
+<p>Only the network's output changed. The data, the frozen IMM reference and the gate were all as
+in phase 3.</p>
+<ul>
+<li class=""><strong>The network</strong> gives a held-course estimate, a turned estimate, and P(turned).</li>
+<li class=""><strong>The flag's training.</strong> The training label is the truth: has the target's course changed yet?</li>
+<li class=""><strong>The forecast</strong> in the decision record, written before training, was held-course course about
+6° and speed about 0.95 kt (0.8–1.2), with a 40% chance of reaching the test split.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-happened">What happened<a href="https://debrief.github.io/Gitma/blog/2026/10/30/phase-3b#what-happened" class="hash-link" aria-label="Direct link to What happened" title="Direct link to What happened" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Course: fixed.</strong> Held-course course error fell from 11.1° to 6.1°, as forecast. It no longer
+grows with time.</li>
+<li class=""><strong>After a turn: unchanged.</strong> The network still beats the IMM by about a quarter on range and
+40% on course.</li>
+<li class=""><strong>Speed: not fixed.</strong> Speed fell from 1.60 to 1.15 kt, inside the forecast band but above the
+limit.</li>
+</ul>
+<p>The flag explains the speed failure:</p>
+<ul>
+<li class=""><strong>It detects real turns well.</strong> The median delay is 70 s, and it misses 0.5%.</li>
+<li class=""><strong>It also false-alarms.</strong> On 29–31% of held-course rows five and ten minutes after the zig,
+it calls "turned". In this data, those minutes are when targets usually start to turn.</li>
+<li class=""><strong>A false alarm is costly.</strong> The turned estimate is biased slow, so each one costs about
+1.8 kt.</li>
+<li class=""><strong>Even without false alarms, speed sits at the limit.</strong> Where the network says "held", its
+speed error is 1.00 kt, so a perfect flag would leave it there too. The IMM manages 0.71 kt and
+batch least squares 0.31 kt.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reading-it-critically">Reading it critically<a href="https://debrief.github.io/Gitma/blog/2026/10/30/phase-3b#reading-it-critically" class="hash-link" aria-label="Direct link to Reading it critically" title="Direct link to Reading it critically" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Switching moves the failure rather than removing it.</strong> An averaged output blurs every
+estimate a little. A switched output is sharp, but sometimes sharply wrong: held-course course
+P90 rose from 34° to 51°.</li>
+<li class=""><strong>No threshold tuning.</strong> A stricter threshold than 0.5 would cut false alarms but slow
+detection. Choosing it on this split would make validation a training signal, so it was not
+done.</li>
+<li class=""><strong>Two changes at once.</strong> The output form and its supervision changed together, as declared,
+so this result cannot separate them.</li>
+<li class=""><strong>The finding is consistent.</strong> Two different network designs beat a tuned tracker after a
+turn, and both give back accuracy on targets that hold course. Neither dominates the tracker,
+and dominating it is what gate G4 asks.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/blog/2026/10/30/phase-3b#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>SRD Annex B §B.5's second branch applies, as it did for phase 3:</p>
+<ol>
+<li class="">publish the negative result, which this post does;</li>
+<li class="">the owner then decides separately whether an end-to-end learned tracker is a new project.</li>
+</ol>
+<p>Real or recorded data stay deferred either way.</p>]]></content:encoded>
+        </item>
         <item>
             <title><![CDATA[Phase 3: better than the tracker after a turn, worse when there is none]]></title>
             <link>https://debrief.github.io/Gitma/blog/2026/10/29/phase-3</link>
