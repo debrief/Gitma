@@ -81,3 +81,25 @@ Length bucketing shortens both. T2 may need more than CI's three chained jobs; r
     persisted for six iterations (3b: 1.15 kt against the IMM's 0.71 kt on held course).
   - P(carried) about 10%.
 - **G5 overall.** P(pass) about 20%.
+
+## Amendment, 2026-10-30, before any training result
+
+T1's first CI run (`train/p4a`, run 41069524617) diverged in epoch 0: the loss was NaN. Nothing
+was scored. Replaying the epoch locally on the same seed-211 data located the cause:
+- **Gradient growth.** Gradient norms grew exponentially with window length, to about 1e18 by
+  batch 5.
+- **Gain units.** The gain was learned in absolute scaled units, so the bearing loop's per-step
+  factor scaled with 1/range and exceeded 1 at short range.
+
+**The fix.** T1's gain is now expressed in the line-of-sight frame and scaled by the range, as the
+EKF's is (algorithm note, "Why the line-of-sight frame"). The cross-line-of-sight terms are
+positive, so one update takes up a fixed fraction of the bearing innovation at any range.
+- **Output scales.** The replay also showed the loss stuck near 9 because λ, which maps scaled
+  range to log km, started at 0 instead of ln(23.8 km) ≈ 3.2. λ and α now start from the training
+  data's normalisation (an initial value only; both stay trainable).
+- **Effect.** Over 35 replayed batches, the loss fell from 2.1 to about 1.7 and gradient norms
+  settled at 3–5.
+- **Unchanged.** The data, features, loss, training settings, validation rule, G5 and the
+  forecast are as recorded above. T2 is unaffected.
+- **What it is.** This is an implementation fix to the filter's gain parameterisation, decided on
+  a training failure and not on any validation or test result.

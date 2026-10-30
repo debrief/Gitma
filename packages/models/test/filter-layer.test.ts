@@ -90,6 +90,34 @@ describe("learned-gain filter: the recursion", () => {
   });
 });
 
+describe("learned-gain filter: the gain", () => {
+  it("contracts the bearing innovation by the same fraction at any range", () => {
+    // The CI run that diverged learned gains in absolute units, so the bearing loop's per-step
+    // factor scaled with 1/r: unstable at short range. In the line-of-sight frame, scaled by r,
+    // one update leaves (1 − σ(a_n)) of the innovation whatever the range.
+    const layer = new LearnedGainFilter({ units: 4, seed: 1 });
+    layer.build();
+    const ratios = [0.08, 0.5, 2].map((range) => {
+      const st = {
+        p: tf.tensor2d([[0, range]]),
+        v: tf.zeros<tf.Rank.R2>([1, 2]),
+        started: tf.tensor2d([[1]]),
+        tPrev: tf.tensor2d([[0]]),
+        h: tf.zeros<tf.Rank.R2>([1, 4]),
+      };
+      const z = 0.01; // measured bearing (rad); the predicted one is 0
+      const x = tf.tensor2d([[Math.sin(z), Math.cos(z), 0, 0, 0, 1, 0, 0, 1, 1]]);
+      const p = layer.step(x, st).st.p.dataSync();
+      return Math.atan2(p[0] ?? 0, p[1] ?? 0) / z; // fraction of the innovation taken up
+    });
+    for (const q of ratios) {
+      expect(q).toBeGreaterThan(0);
+      expect(q).toBeLessThan(1);
+      expect(q).toBeCloseTo(ratios[0] ?? 0, 3);
+    }
+  });
+});
+
 describe("learned-gain filter: the model", () => {
   it("is a declared filter layer and refuses other feature sets or outputs", () => {
     expect(ALLOWED_LAYERS.has("LearnedGainFilter")).toBe(true);

@@ -17,12 +17,19 @@
 //            bearing (sz, cz) is replaced by (sb, cb), so ν = 0 with finite gradients)
 //   f      = [ν·valid, valid, log r, τ, v⁻ₓ, v⁻ᵧ]             (gain features)
 //   h      = GRU(f, h)                                       (standard GRU equations, below)
-//   K      = κ · tanh(W_K h + b_K)                           (4 gains: pₓ, pᵧ, vₓ, vᵧ)
+//   (a_n, a_l, c_n, c_l) = W_K h + b_K + (−3, 0, −3, 0)      (gain coefficients; the fixed offset
+//            starts the across gains at σ(−3) ≈ 0.05)
+//   n̂ = (cb, −sb), l̂ = (sb, cb)                               (across and along the line of sight)
+//   K_p    = r · (σ(a_n) n̂ + κ tanh(a_l) l̂)                  (position gain, per radian)
+//   K_v    = r · (σ(c_n) n̂ + κ tanh(c_l) l̂)                  (velocity gain, per radian per
+//            scaled time unit)
+//   The gain lives in the line-of-sight frame and scales with r, as the EKF's does: a step
+//   K_p ν moves the predicted bearing by σ(a_n) ν, so the bearing loop contracts at any range.
 //   start  = valid · (1 − started)                           (first valid bearing)
 //   p      = start · (o_k + R₀ (sz, cz)) + (1 − start) · (p⁻ + K_p ν valid)
 //   v      = (1 − start) · (v⁻ + K_v ν valid)
 //   p, v clipped to ±P_BOUND, ±V_BOUND (scaled units);  started = max(started, valid)
-// with R₀ = exp(ρ) a trainable initial range and κ a fixed gain bound. GRU (input f, state h):
+// with R₀ = exp(ρ) a trainable initial range and κ a fixed bound on the along-line-of-sight gains. GRU (input f, state h):
 //   zg = σ(W_z f + U_z h + b_z),  rg = σ(W_r f + U_r h + b_r)
 //   ĥ = tanh(W_h f + U_h (rg ⊙ h) + b_h),  h = (1 − zg) ⊙ h + zg ⊙ ĥ
 // Output per row: [log(r_p · e^λ), α vₓ, α vᵧ, 0] with r_p = √(|p − o_k|² + ε²) and λ, α trainable
@@ -32,8 +39,10 @@ import * as tf from "@tensorflow/tfjs-node";
 /** Raw input channels the filter reads. */
 const CH = { sin: 0, cos: 1, ox: 2, oy: 3, time: 7, valid: 8, mask: 9 } as const;
 const EPS = 1e-6;
-/** Gain bound κ: |K| ≤ κ per component (scaled units per radian). */
+/** Bound κ on the along-line-of-sight gain coefficients (fractions of r per radian). */
 export const GAIN_BOUND = 1;
+/** Fixed offset on the gain coefficients (a_n, a_l, c_n, c_l). */
+export const GAIN_OFFSET = [-3, 0, -3, 0];
 /** State bounds in scaled units (|p| ≤ 10 position scales, |v| ≤ 5 velocity units ≈ 30 m/s). */
 export const P_BOUND = 10;
 export const V_BOUND = 5;
@@ -46,6 +55,9 @@ export interface LearnedGainFilterArgs {
   name?: string;
   /** [rows | null, 10], when it is a model's first layer. */
   inputShape?: (number | null)[];
+  /** Initial λ and α (default 0 and 1); `outputScales` derives them from the normalisation. */
+  lambda0?: number;
+  alpha0?: number;
   /** As saved by getConfig (restoring a model). */
   batchInputShape?: (number | null)[];
 }
@@ -63,6 +75,8 @@ export class LearnedGainFilter extends tf.layers.Layer {
   static className = "LearnedGainFilter";
   readonly units: number;
   readonly seed: number;
+  readonly lambda0: number;
+  readonly alpha0: number;
   private w: Record<string, tf.LayerVariable> = {};
 
   constructor(args: LearnedGainFilterArgs) {
@@ -73,6 +87,8 @@ export class LearnedGainFilter extends tf.layers.Layer {
     });
     this.units = args.units;
     this.seed = args.seed;
+    this.lambda0 = args.lambda0 ?? 0;
+    this.alpha0 = args.alpha0 ?? 1;
   }
 
   override build(): void {
@@ -95,7 +111,8 @@ export class LearnedGainFilter extends tf.layers.Layer {
       add(`U_${g}`, [u, u], orth());
       add(`b_${g}`, [u], tf.initializers.zeros());
     }
-    // Near-zero initial gains: an untrained filter coasts on its prediction instead of diverging.
+    // Small initial gains (σ(−3) ≈ 0.05 across the line of sight, 0 along it): an untrained filter
+    // mostly coasts on its prediction.
     add(
       "W_K",
       [u, 4],
@@ -104,8 +121,8 @@ export class LearnedGainFilter extends tf.layers.Layer {
     add("b_K", [4], tf.initializers.zeros());
     // log R₀ in scaled units (about 0.6 of the position scale), log km per scaled unit, velocity scale.
     add("rho", [1], tf.initializers.constant({ value: Math.log(0.6) }));
-    add("lambda", [1], tf.initializers.zeros());
-    add("alpha", [1], tf.initializers.ones());
+    add("lambda", [1], tf.initializers.constant({ value: this.lambda0 }));
+    add("alpha", [1], tf.initializers.constant({ value: this.alpha0 }));
     this.built = true;
   }
 
@@ -162,11 +179,7 @@ export class LearnedGainFilter extends tf.layers.Layer {
     const rg = tf.sigmoid(gate("r", st.h));
     const hHat = tf.tanh(gate("h", rg.mul(st.h)));
     const h = tf.scalar(1).sub(zg).mul(st.h).add<tf.Tensor2D>(zg.mul(hHat));
-    const k =
-      gainOverride ??
-      tf
-        .tanh(h.matMul(this.v("W_K") as tf.Tensor2D).add(this.v("b_K")))
-        .mul<tf.Tensor2D>(GAIN_BOUND);
+    const k = gainOverride ?? this.gain(h, r as tf.Tensor2D, sb as tf.Tensor2D, cb as tf.Tensor2D);
     const start = valid.mul(tf.scalar(1).sub(st.started));
     const keep = tf.scalar(1).sub(start);
     const r0 = tf.exp(this.v("rho"));
@@ -194,6 +207,23 @@ export class LearnedGainFilter extends tf.layers.Layer {
       1,
     ) as tf.Tensor2D;
     return { st: { p, v: vNew, started, tPrev, h }, out };
+  }
+
+  /** K = [K_p, K_v] (4 columns) in the line-of-sight frame, scaled by r (equations above). */
+  private gain(h: tf.Tensor2D, r: tf.Tensor2D, sb: tf.Tensor2D, cb: tf.Tensor2D): tf.Tensor2D {
+    const a = h
+      .matMul(this.v("W_K") as tf.Tensor2D)
+      .add(this.v("b_K"))
+      .add<tf.Tensor2D>(tf.tensor1d(GAIN_OFFSET));
+    const c = (j: number): tf.Tensor2D => a.slice([0, j], [-1, 1]);
+    const across = tf.concat([cb, sb.neg()], 1);
+    const along = tf.concat([sb, cb], 1);
+    const part = (n: number, l: number): tf.Tensor2D =>
+      across
+        .mul(tf.sigmoid(c(n)))
+        .add(along.mul(tf.tanh(c(l)).mul(GAIN_BOUND)))
+        .mul<tf.Tensor2D>(r);
+    return tf.concat([part(0, 1), part(2, 3)], 1);
   }
 
   /** The initial state for a batch of `b` scenarios. */
@@ -228,7 +258,29 @@ export class LearnedGainFilter extends tf.layers.Layer {
   }
 
   override getConfig(): tf.serialization.ConfigDict {
-    return { ...super.getConfig(), units: this.units, seed: this.seed };
+    return {
+      ...super.getConfig(),
+      units: this.units,
+      seed: this.seed,
+      lambda0: this.lambda0,
+      alpha0: this.alpha0,
+    };
   }
 }
 tf.serialization.registerClass(LearnedGainFilter);
+
+/**
+ * Initial output scales from the training data's normalisation: λ = ln(position_scale_km) maps a
+ * scaled range to km, and α maps a scaled velocity (position scale per time scale) to
+ * v / velocity_scale_mps. Starting λ at 0 instead left the range output about e³ ≈ 24 × short,
+ * which Adam took thousands of steps to undo.
+ */
+export function outputScales(
+  norm: { position_scale_km: number; time_scale_s: number },
+  velocityScaleMps: number,
+): { lambda0: number; alpha0: number } {
+  return {
+    lambda0: Math.log(norm.position_scale_km),
+    alpha0: (norm.position_scale_km * 1000) / norm.time_scale_s / velocityScaleMps,
+  };
+}
