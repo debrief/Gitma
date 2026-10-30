@@ -1,0 +1,19 @@
+{
+  "description": "Spec 012 T006 extension of configs/phase4/tracker-grid.json, declared after the first grid's best IMM sat on its upper edges in r_scale (4) and p0_scale (4) (the top of stage 1 was flat in sigma_cv and sigma_ct, 9.2–9.4%). Same objective and rows; the EKF is re-scored on a widened r_scale and p0_scale too. The better of the two grids' winners is frozen in the decision record.",
+  "sigma_deg": 1,
+  "ekf": {
+    "sigma_a": [0.01, 0.03, 0.1],
+    "p0_scale": [4, 16],
+    "r_scale": [4, 8, 16]
+  },
+  "imm": {
+    "sigma_cv": [0, 0.01],
+    "sigma_ct": [0.03, 0.1],
+    "sigma_omega": [0.01, 0.03],
+    "switch": [0.001, 0.003],
+    "p0_scale": [4, 16],
+    "r_scale": [4, 8, 16]
+  },
+  "stage1_scenarios": 300,
+  "stage2_top": 10
+}
