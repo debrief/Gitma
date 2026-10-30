@@ -157,16 +157,16 @@ export class LearnedGainFilter extends tf.layers.Layer {
       feat
         .matMul(this.v(`W_${g}`) as tf.Tensor2D)
         .add(h.matMul(this.v(`U_${g}`) as tf.Tensor2D))
-        .add(this.v(`b_${g}`)) as tf.Tensor2D;
+        .add<tf.Tensor2D>(this.v(`b_${g}`));
     const zg = tf.sigmoid(gate("z", st.h));
     const rg = tf.sigmoid(gate("r", st.h));
     const hHat = tf.tanh(gate("h", rg.mul(st.h)));
-    const h = tf.scalar(1).sub(zg).mul(st.h).add(zg.mul(hHat)) as tf.Tensor2D;
+    const h = tf.scalar(1).sub(zg).mul(st.h).add<tf.Tensor2D>(zg.mul(hHat));
     const k =
       gainOverride ??
-      (tf
+      tf
         .tanh(h.matMul(this.v("W_K") as tf.Tensor2D).add(this.v("b_K")))
-        .mul(GAIN_BOUND) as tf.Tensor2D);
+        .mul<tf.Tensor2D>(GAIN_BOUND);
     const start = valid.mul(tf.scalar(1).sub(st.started));
     const keep = tf.scalar(1).sub(start);
     const r0 = tf.exp(this.v("rho"));
@@ -181,8 +181,8 @@ export class LearnedGainFilter extends tf.layers.Layer {
       -V_BOUND,
       V_BOUND,
     ) as tf.Tensor2D;
-    const started = tf.maximum(st.started, valid) as tf.Tensor2D;
-    const tPrev = mask.mul(t).add(tf.scalar(1).sub(mask).mul(st.tPrev)) as tf.Tensor2D;
+    const started = tf.maximum<tf.Tensor2D>(st.started, valid);
+    const tPrev = mask.mul(t).add<tf.Tensor2D>(tf.scalar(1).sub(mask).mul(st.tPrev));
     const rp = p
       .sub(o)
       .square()
@@ -209,8 +209,9 @@ export class LearnedGainFilter extends tf.layers.Layer {
 
   override call(inputs: tf.Tensor | tf.Tensor[]): tf.Tensor {
     return tf.tidy(() => {
-      const x = (Array.isArray(inputs) ? inputs[0] : inputs) as tf.Tensor3D;
-      if (x === undefined) throw new Error("LearnedGainFilter: no input");
+      const x0 = Array.isArray(inputs) ? inputs[0] : inputs;
+      if (x0 === undefined) throw new Error("LearnedGainFilter: no input");
+      const x = x0 as tf.Tensor3D;
       const [b, rows] = x.shape;
       let st = this.initialState(b);
       const outs: tf.Tensor2D[] = [];

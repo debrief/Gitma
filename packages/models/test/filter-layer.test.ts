@@ -52,7 +52,7 @@ describe("learned-gain filter: the recursion", () => {
       v: tf.tensor2d([[((ekf.x[2] ?? 0) * T) / L, ((ekf.x[3] ?? 0) * T) / L]]),
       started: tf.tensor2d([[1]]),
       tPrev: tf.tensor2d([[(d.t[m.zig_index] ?? 0) / T]]),
-      h: tf.zeros([1, 4]) as tf.Tensor2D,
+      h: tf.zeros<tf.Rank.R2>([1, 4]),
     };
     let worst = 0;
     let updates = 0;

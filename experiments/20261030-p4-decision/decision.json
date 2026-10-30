@@ -1,0 +1,20 @@
+{
+  "carried_models": [
+    "learned-gain-filter",
+    "lstm-gaussian"
+  ],
+  "carried_set_rule": "Both trackers are trained; each is carried to the test split if and only if it meets the validation rule (Annex C \u00a7C.5) on seed-211 validation; G5 passes if any carried tracker passes. If neither is carried the test split is not scored.",
+  "change": "phase 4 (spec 012, SRD Annex C, decision 28): two end-to-end learned trackers trained from scratch on generator 0.5.0 data (seed 211): T1 learned-gain-filter (configs/phase4/a/tracker.json, a declared filter layer, raw features, velocity output) and T2 lstm-gaussian (configs/phase4/b/tracker.json, 2 x 128 LSTM, derived features, velocity_gaussian output); G5 against the frozen reference on fresh seed 212",
+  "decided_at": "2026-10-30T12:30:00Z",
+  "fresh_test_count": 400000,
+  "git_commit": "3b4a5c0c925b06643c3f503b2689cadd1ec8ab2f",
+  "phase_a_experiment": "20261030-p4-research",
+  "plans": [
+    "configs/phase4/a/plan.json",
+    "configs/phase4/b/plan.json"
+  ],
+  "rationale": "Phases 3 and 3b: a network beat the tuned IMM after a turn but lost on held course. Annex C asks whether an end-to-end tracker, trained where manoeuvres are the norm, beats the re-tuned reference overall without losing more than 10% on settled rows. Reference frozen from research R2 (experiments/20261030-p4-research): imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8, 9.24% median range error over all G5 rows on seed-211 validation (EKF ekf-sa0.03-p4-r8 9.72%, least squares 12.2%). Forecast recorded before training: T1 overall range ratio about 0.95 (0.85-1.1), settled range about 1.05, settled speed about 1.1 (0.9-1.4), P(T1 carried) about 35%, P(T1 passes G5 | carried) about 50%; T2 overall range ratio about 0.9, settled speed about 1.5 (1.2-2.0) as the networks' straight-leg speed gap persists, P(T2 carried) about 10%; P(G5 passes) about 20%. Validation rule as Annex C \u00a7C.5: a tracker is carried only if every gated check's point meets its limit and no interval lies wholly beyond it.",
+  "reference_estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8",
+  "stalled": false,
+  "test_seed": "212"
+}
