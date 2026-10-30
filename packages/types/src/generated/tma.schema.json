@@ -754,7 +754,8 @@
         "instantaneous",
         "time_late",
         "causal_cnn",
-        "mlp"
+        "mlp",
+        "learned_gain_filter"
       ],
       "title": "ModelKind",
       "type": "string"

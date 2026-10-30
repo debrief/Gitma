@@ -3,6 +3,7 @@
 import * as tf from "@tensorflow/tfjs-node";
 import { inputWidth, NO, outputSpec, outputWidth, ROWS } from "@tma/features";
 import type { TrainingConfig } from "@tma/types";
+import { LearnedGainFilter } from "./filter-layer.js";
 import { initSeed } from "./seeds.js";
 
 /** Model outputs per row (defined with the decoding in `@tma/features`). */
@@ -19,6 +20,8 @@ export const ALLOWED_LAYERS = new Set([
   "Reshape",
   "ZeroPadding2D",
   "Flatten",
+  // A declared filter layer (constitution 1.3.0; spec 012 T1): equations in filter-layer.ts.
+  "LearnedGainFilter",
 ]);
 
 function seeder(config: TrainingConfig): () => number {
@@ -120,6 +123,22 @@ export function buildModel(
         channels = config.units;
       }
       m.add(head(next, no));
+      break;
+    }
+    case "learned_gain_filter": {
+      // Tracker T1 (spec 012): the whole recursion is one declared filter layer, reading the raw
+      // channels and emitting the velocity parameterisation's four channels.
+      if (inputChannels !== inputWidth("raw") || outputSpec(config).parameterisation !== "velocity")
+        throw new Error(
+          `${config.id}: learned_gain_filter reads the raw feature set and outputs velocity`,
+        );
+      m.add(
+        new LearnedGainFilter({
+          units: config.units,
+          seed: next(),
+          inputShape: [rows, inputChannels],
+        }),
+      );
       break;
     }
     case "mlp":

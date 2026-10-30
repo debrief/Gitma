@@ -310,7 +310,7 @@ export const MetricsRecord = z.strictObject({
 export type MetricsRecord = z.infer<typeof MetricsRecord>;
 
 /** Model families of SRD §4. */
-export const ModelKind = z.enum(["instantaneous", "time_late", "causal_cnn", "mlp"]);
+export const ModelKind = z.enum(["instantaneous", "time_late", "causal_cnn", "mlp", "learned_gain_filter"]);
 export type ModelKind = z.infer<typeof ModelKind>;
 
 export const StopReason = z.enum(["max_epochs", "early_stopping", "wall_clock", "diverged"]);
