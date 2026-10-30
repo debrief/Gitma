@@ -7,6 +7,7 @@ import {
   type DatasetHeader,
   type FeatureSet,
   type ModelKind,
+  type ParameterRanges,
   SCHEMA_VERSION,
   type Split,
   type TrainingConfig,
@@ -87,21 +88,31 @@ export function tinyFeatures(
   n: number,
   seed = 3n,
   featureSet: FeatureSet = "raw",
+  ranges: ParameterRanges = DEFAULT_RANGES,
 ): { train: string; val: string } {
   const dir = tempDir();
-  const tr = Array.from(
-    { length: n },
-    (_, i) => generateScenario(seed, i, DEFAULT_RANGES).scenario,
-  );
+  const tr = Array.from({ length: n }, (_, i) => generateScenario(seed, i, ranges).scenario);
   const va = Array.from(
     { length: 16 },
-    (_, i) => generateScenario(seed, 10_000 + i, DEFAULT_RANGES).scenario,
+    (_, i) => generateScenario(seed, 10_000 + i, ranges).scenario,
   );
   const norm = computeNormalisation(tr, "test", featureSet);
   const train = join(dir, "train.features.bin");
   const val = join(dir, "val.features.bin");
-  writeFeatures(train, () => tr, norm, testSource("train", seed, n), featureSet);
-  writeFeatures(val, () => va, norm, testSource("validation", seed, 16), featureSet);
+  writeFeatures(
+    train,
+    () => tr,
+    norm,
+    testSource("train", seed, n, { parameter_ranges: ranges }),
+    featureSet,
+  );
+  writeFeatures(
+    val,
+    () => va,
+    norm,
+    testSource("validation", seed, 16, { parameter_ranges: ranges }),
+    featureSet,
+  );
   return { train, val };
 }
 

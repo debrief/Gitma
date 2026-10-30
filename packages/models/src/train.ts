@@ -199,6 +199,17 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
         );
       }
     }
+    // The turn label (spec 011) means "the target has turned once"; under generator 0.5.0 data
+    // (several manoeuvres, speed changes) it has no defined meaning (spec 012 T007).
+    if (config.output_parameterisation === "velocity_two_hypothesis") {
+      for (const f of [trainFile, valFile]) {
+        if (f.source?.header.parameter_ranges.target_course_change_count_weights != null) {
+          throw new Error(
+            `${f.path}: generator 0.5.0 data (several manoeuvres); velocity_two_hypothesis is defined for one turn`,
+          );
+        }
+      }
+    }
     // Length bucketing (R15) needs each window's length; validation always uses full windows.
     const lengths = config.length_bucketing === true ? windowLengths(trainFile, n) : undefined;
     const manifestPath = join(outDir, "manifest.json");

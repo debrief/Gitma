@@ -116,6 +116,23 @@ describe("two-hypothesis outputs", () => {
     }
   });
 
+  it("refuses generator 0.5.0 data (several manoeuvres; the turn label is undefined)", async () => {
+    const phase4 = JSON.parse(
+      readFileSync(new URL("../../../configs/phase4-ranges.json", import.meta.url), "utf8"),
+    ) as ParameterRanges;
+    const data = tinyFeatures(4, 3n, "raw", phase4);
+    await expect(
+      train({
+        config: tinyConfig("time_late", { ...TWO, max_epochs: 1 }),
+        trainPath: data.train,
+        valPath: data.val,
+        outDir: tempDir(),
+        log: () => undefined,
+        source: { commit: "c".repeat(40), dirty: false },
+      }),
+    ).rejects.toThrow(/defined for one turn/);
+  });
+
   it("trains and predicts end to end", async () => {
     const data = tinyFeatures(24);
     const out = tempDir();

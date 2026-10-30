@@ -161,3 +161,18 @@ The IMM is therefore G4's frozen reference.
   against 31.5% for a batch fit on post-turn bearings alone. It uses the pre-turn track, as it
   should.
 
+
+## Re-tuned for phase 4
+
+On the seed-211 validation split (generator 0.5.0: 0–3 course changes, one speed change in 30%),
+by median range error over all G5 rows (σ = 1°, zig + 5/10/15/20 min; spec 012 R2,
+`experiments/20261030-p4-research/`):
+
+- **IMM:** 9.24% (σ_cv 0.01, σ_ct 0.03, σ_ω 0.01, switch 0.001/s, P0 × 4, R × 8): G5's frozen
+  reference, `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8`.
+- **Single EKF:** 9.72% (σ_a 0.03, P0 × 4, R × 8).
+- **Batch least squares:** 12.2% overall, but 6.7% on settled rows, where the IMM reaches 7.2%.
+  A batch fit over a long straight segment beats a recursive filter there.
+
+Two declared grids were run, the second because the first's optimum sat on its R and P0 edges.
+The surface is flat in σ_cv and σ_ct: the top four settings are within 0.05 points.
