@@ -15,7 +15,7 @@ Where this file and the SRD disagree, the SRD wins; flag the conflict.
 
 Spec Kit is installed (`.specify/`, skills in `.claude/skills/speckit-*`). Feature work follows:
 
-1. `/speckit-constitution` — project principles, ratified in `.specify/memory/constitution.md` (v1.2.0). Plans MUST pass its checks.
+1. `/speckit-constitution` — project principles, ratified in `.specify/memory/constitution.md` (v1.3.0). Plans MUST pass its checks.
 2. `/speckit-specify` — feature spec, traced to SRD sections
 3. `/speckit-clarify` — optional, de-risk ambiguity
 4. `/speckit-plan` → `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement`
@@ -122,8 +122,9 @@ sessions (containers are reclaimed when idle).
   under the pinned Node version. Stored floats are float32-rounded at generation.
 - **Golden tests:** every package has a fixed-seed, byte-identical golden-file test.
 - **Portability:** `sim` and `features` are plain functions over numeric arrays — no classes with hidden
-  state. Models use only layers with direct Keras equivalents (LSTM, Bidirectional, Conv1D, Dense, Masking);
-  hyperparameters live in the manifest, not code.
+  state. Models use only layers with direct Keras equivalents (LSTM, Bidirectional, Conv1D, Dense, Masking),
+  plus, from phase 4, a declared filter layer whose equations its algorithm note states (constitution
+  1.3.0); hyperparameters live in the manifest, not code.
 - **Units/frame:** flat-earth Cartesian, x east, y north, metres; bearings true, clockwise from north,
   radians internally; speeds m/s (knots only for reporting).
 - **No leakage:** normalisation stats computed from inputs only, never from truth.
@@ -183,7 +184,8 @@ sessions (containers are reclaimed when idle).
 ## Gates (SRD §5)
 
 G0 pipeline → G1 signal exists → G2 useful → G3 classical parity (stretch) → G4 better than the
-EKF after a target turn (phase 3, Annex B). Iteration 0 builds the
+EKF after a target turn (phase 3, Annex B) → G5 an end-to-end tracker better than the re-tuned reference
+(phase 4, Annex C). Iteration 0 builds the
 pipeline and must pass G0 before any training. G0 passed (panel round 3,
 `experiments/20261011-g0-r3/`). G1 passed (panel round 3, `experiments/20261012-g1-r2/`) under
 pre-registered rule 1, with a caveat: time-late is not shown better than instantaneous. Iteration 2
@@ -265,7 +267,7 @@ two-hypothesis output (`output_parameterisation: velocity_two_hypothesis`, schem
 and turned estimates plus P(turned), supervised by `turnedLabel` from the stored truth course; the
 more probable hypothesis is reported, never an average; `p_manoeuvre` on prediction rows); model
 `lstm-two-hypothesis`, plan `configs/phase3/b` (push `train/p3b`), same seed-208 data and frozen
-reference, G4 on fresh seed 210 (400,000). It is the last phase-3 attempt under Annex B. **Phase 3b stopped at validation** (FR-002, `experiments/20261030-p3b-val/validation.md`; model `experiments/20261030-p3b-models/`): after a turn it still beats the IMM (range 0.76, course 0.60, gross −6.4 pp) and held-course course passes (6.1°), but held-course speed fails, 1.15 kt [1.05, 1.25]. The turn flag false-alarms on ~30% of held rows (turned estimate biased −1.65 kt), and where it reports held the error is 1.00 kt. Seed 210 is unscored and reserved; Annex B §B.5's second branch applies (publish; the owner decides on an end-to-end tracker as a new project). Detection figures: `scripts/research/spec011-detection.mjs`. Write-up: `site/blog/2026-10-30-phase-3b.md`. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+reference, G4 on fresh seed 210 (400,000). It is the last phase-3 attempt under Annex B. **Phase 3b stopped at validation** (FR-002, `experiments/20261030-p3b-val/validation.md`; model `experiments/20261030-p3b-models/`): after a turn it still beats the IMM (range 0.76, course 0.60, gross −6.4 pp) and held-course course passes (6.1°), but held-course speed fails, 1.15 kt [1.05, 1.25]. The turn flag false-alarms on ~30% of held rows (turned estimate biased −1.65 kt), and where it reports held the error is 1.00 kt. Seed 210 is unscored and reserved; Annex B §B.5's second branch applies (publish; the owner decides on an end-to-end tracker as a new project). Detection figures: `scripts/research/spec011-detection.mjs`. Write-up: `site/blog/2026-10-30-phase-3b.md`. **Phase 4** (SRD Annex C, decision 28, owner 2026-10-30; spec 012 to come): an end-to-end learned tracker as a new project. Generator 0.5.0 (0–3 course changes, one speed change in 30%), G0 re-run, IMM/EKF re-tuned on validation over all G5 rows; two trackers trained from scratch and compared: T1 a learned-gain (KalmanNet-style) filter in a declared filter layer, T2 a pure recurrent tracker with per-output log-variance (NLL). Gate G5: σ = 1° rows at zig + 5/10/15/20 min, scenario-clustered bootstrap, 97.5% intervals per tracker; overall median range and course wholly below 1 × reference, settled rows (> 5 min after the last manoeuvre) range/course/speed wholly below 1.1 ×. If G5 fails, the owner decides the follow-on then (not fixed in advance). Fresh seeds from 211; 201–210 reserved. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

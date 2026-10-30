@@ -65,6 +65,11 @@ Reported as a rate because TMA failures are heavy-tailed.
 target's turn, the network alone must beat the better of the tuned IMM and EKF on median range and course error,
 not exceed its gross-error rate, and not regress from G2 on held-course scenarios.
 
+**G5** — Phase 4's gate (SRD Annex C §C.5): an end-to-end learned tracker must beat the re-tuned
+reference on median range and course error over all σ = 1° rows at zig + 5, 10, 15 and 20 min, and
+stay within 1.1 × the reference on range, course and speed on settled rows. Two trackers are
+judged, each with 97.5% intervals.
+
 **Held-out geometry** — A test set drawn from parameter ranges outside training (for example
 20–30 km initial range), used to measure extrapolation.
 
@@ -75,6 +80,10 @@ accuracy is classical's; it is judged at G3 as a hybrid, not as a network alone.
 **IMM (interacting multiple model)** — A tracker that runs a constant-velocity and a
 coordinated-turn EKF side by side and mixes them by how well each explains the bearings. Phase 3's
 gated reference, tuned on validation and frozen ([note](algorithms/trackers.md)).
+
+**Learned-gain filter** — A Kalman-style filter whose motion and bearing models stay explicit but
+whose gain is computed each step by a recurrent network, trained end to end through the recursion
+(KalmanNet, Revach et al. 2022). Phase 4's tracker T1 (SRD Annex C §C.4).
 
 **Inconclusive** — A gate check whose 95% interval contains its threshold: the data cannot say
 which side the true value is on. A gate with an inconclusive check, and no failing one, is
@@ -117,6 +126,9 @@ first sample after the turn completes. See [generator](algorithms/generator.md#r
 
 **Scenario** — One ownship-versus-target run over a window: two tracks, the bearings and the
 metadata that generated them. See the [data dictionary](data-dictionary).
+
+**Settled row** — A G5 row more than 5 min after the target's last manoeuvre ended, or in a
+scenario with no manoeuvre: where the constant-velocity model is right again (SRD Annex C §C.5).
 
 **Shuffled-label test** — A leakage check: the instantaneous model trained with each scenario's
 targets swapped for another's. It should do no better than the naive baseline; if it does, the

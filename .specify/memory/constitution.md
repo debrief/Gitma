@@ -35,6 +35,10 @@ Rationale: a go/no-go verdict is worthless if the experiment behind it cannot be
   no TS-only idioms.
 - Models MUST use only layers with direct Keras equivalents (LSTM, Bidirectional, Conv1D, Dense,
   Masking); hyperparameters live in the manifest, not in code.
+  A model MAY also contain a **declared filter layer** (amended 1.3.0, SRD Annex C §C.7): a fixed
+  recursion built only from standard tensor operations (matrix products, elementwise maths,
+  `atan2`), whose equations its algorithm note states exactly so that a port can implement it as a
+  Keras custom layer and test it against the golden files.
 - Each pipeline stage MUST be a separate CLI reading and writing files, so any stage can be
   replaced (e.g. generator by Stone Soup, training by PyTorch) without touching the others.
 - A port is accepted when it reproduces the golden files: integers, flags, seeds and strings
@@ -118,4 +122,4 @@ Rationale: the project exists to answer one question cheaply, not to build a pro
   `experiments/<id>/review.md`, and the verdict's `decided_by` names the panel round.
 - Runtime guidance for agents lives in `AGENTS.md`.
 
-**Version**: 1.2.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-11
+**Version**: 1.3.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-30

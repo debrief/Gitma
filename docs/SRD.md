@@ -23,7 +23,7 @@ The project answers one question: can a neural network trained on high volumes o
 
 ## 2. Problem definition
 
-Ownship holds a sequence of noisy bearings to a single target that moves at constant course and speed (up to G3; from phase 3 the target may make one course change, Annex B §B.2). Ownship's own track is known exactly. The task is to recover the target's state from bearings alone.
+Ownship holds a sequence of noisy bearings to a single target that moves at constant course and speed (up to G3; from phase 3 the target may make one course change, Annex B §B.2; from phase 4 up to three course changes and one speed change, Annex C §C.2). Ownship's own track is known exactly. The task is to recover the target's state from bearings alone.
 
 **Frame and units.** Local flat-earth Cartesian (x east, y north, metres) centred on ownship's position at window start. Bearings are true, clockwise from north, in radians internally. Speeds in m/s, converted to knots only for reporting.
 
@@ -51,6 +51,7 @@ The generator must produce scenarios fast enough that data volume is never the b
 | Ownship zig | Course change 30–90°, at 40–60% of window | Turn modelled as instantaneous in iteration 1, then rate-limited |
 | Ownship zig, from iteration 3 | First zig at 40–60% of window, then a second zig 3–5 min after leg 2 starts; each turn crosses the line of sight, putting the target 30–90° on the other bow (shorter turn; median 143°) | Generator 0.3.0, Annex A lever B.2.1, spec 007; same turn rate (0.5–3°/s) for both turns; gate times still count from the end of the first turn, so zig + 5 min falls mostly during the second turn; redraws of second turns that do not fit skew windows long (p10 16.7 min) |
 | Target manoeuvre, from phase 3 | One course change of 30–120°, rate-limited at 0.5–3°/s, between 2 min after ownship's first turn ends and 6 min before the window ends; 80% of scenarios manoeuvre, 20% hold course | Generator 0.4.0, Annex B §B.2, spec 010; speed constant through the turn; metadata gains `manoeuvre_index` and `manoeuvre_angle_rad`; gate G4 counts time from the end of the target's turn |
+| Target manoeuvres, from phase 4 | 0–3 course changes (P = 0.2, 0.3, 0.3, 0.2), each as phase 3's; one speed change of ±2–6 kt at 0.05–0.2 kt/s in 30% of scenarios; manoeuvres ≥ 3 min apart, the first ≥ 2 min after ownship's first turn ends, the last ending ≥ 6 min before the window ends | Generator 0.5.0, Annex C §C.2, spec 012; gate G5 rows at zig + 5, 10, 15, 20 min, with settled rows > 5 min after the last manoeuvre |
 | Target initial range | 2–20 km | Log-uniform so short ranges aren't under-represented |
 | Target initial bearing | Uniform 0–360° | Relative to ownship at window start |
 | Target speed | 3–20 kt | Constant |
@@ -118,7 +119,8 @@ The time-late variant has strictly more information at every timestep, so it mus
 
 - `@tensorflow/tfjs-node` for training; `tfjs-node-gpu` optional, not assumed.
 - Expect throughput roughly an order of magnitude below PyTorch; iteration-1 datasets are about 10^5 scenarios. ~~Each model trains for at most 6 hours wall-clock on a 4-core CPU~~ (amended 2026-10-11 from "under an hour", see spec 002 research R1; replaced 2026-10-17 by Annex A §B.4): training runs as chained jobs on CI with checkpoints after every epoch (AGENTS.md); there is no cap beyond the runners' limits, and every job's duration is recorded. Training stops on early stopping or `max_epochs`.
-- Only layers with direct Keras equivalents (LSTM, Bidirectional, Conv1D, Dense, Masking), so a port to Keras or PyTorch is mechanical.
+- Only layers with direct Keras equivalents (LSTM, Bidirectional, Conv1D, Dense, Masking), so a port to Keras or PyTorch is mechanical. From phase 4 a model may also contain a declared filter layer (constitution III, 1.3.0; Annex C §C.7), whose equations its algorithm note states exactly.
+- Phase 4 (Annex C §C.4) adds two model variants: a learned-gain filter (a constant-velocity prediction and bearings-only update whose gain a recurrent network computes) and a pure recurrent tracker (position, velocity and a per-output log-variance each timestep).
 - Models saved in the `tfjs` layers format plus a JSON manifest (hyperparameters, dataset seed, normalisation constants, generator version); every run is reproducible from manifest plus dataset.
 
 ## 5. Baselines, metrics and success gates
@@ -153,6 +155,7 @@ The instantaneous variant is scored at every timestep after the zig and reported
 | G2 — useful | Median range error < 20%, course < 10° (5 min after the zig), speed < 1 kt (10 min after the zig) at σ = 1° | Iterate features/architecture once; if still failed, stop |
 | G3 — classical parity (stretch) | Model within 1.2× classical solver on every metric, and lower gross-error rate | Not a stop condition; defines the bar for the next phase |
 | G4 — better than the EKF after a turn (phase 3, Annex B §B.4) | On manoeuvring scenarios at manoeuvre + 5 min, σ = 1°: the network's median range and course error below the tuned-turn EKF's (paired 95% interval wholly below 1) and its gross-error rate not above the EKF's; and no regression from G2 on held-course scenarios. One re-score on a larger fresh seed if inconclusive, then fail | Not a stop condition; Annex B §B.5 decides the follow-on |
+| G5 — an end-to-end tracker better than the re-tuned reference (phase 4, Annex C §C.5) | σ = 1° rows at zig + 5, 10, 15, 20 min, scenario-clustered paired bootstrap, 97.5% intervals per tracker (two trackers): median range and course error over all rows wholly below 1 × the reference's, and on settled rows (> 5 min after the last manoeuvre) range, course and speed wholly below 1.1 ×. One re-score on a larger fresh seed if inconclusive | Not a stop condition; Annex C §C.6 (incremental if passed; otherwise the owner decides when the result is known) |
 
 G3 is the interesting outcome either way: parity on clean data would be unremarkable, but a lower gross-error rate on noisy or near-unobservable geometries is the case for ML over classical methods.
 
@@ -205,6 +208,7 @@ Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; 
 | 2 — Noise | Same models on σ = 1–2°, 10% dropouts; one round of feature/architecture changes | G2 | One more iteration allowed, then stop (amended 2026-10-15, after iteration 2b's validation result and before its test scoring: a second extra iteration, 2c, is allowed, combining the two levers each shown to move speed on validation, a speed-weighted loss (2b) and model capacity (spec 003 research R20), judged on a fresh test split; then stop. The hyperparameter cap stands: 2c is one configuration, chosen from those two measured levers, not a search. Amended 2026-10-17 by Annex A: the stop was an effort-budget rule and is lifted; after 2c, Annex A Part B: further iterations at the owner's discretion, one pre-registered lever each, judged on fresh seeds) |
 | 3 — Parity | 10^6 scenarios, held-out geometry set, classical comparison by slice | G3 | Not a stop; result feeds the next-phase decision |
 | Phase 3 — Manoeuvre (Annex B) | Generator 0.4.0 (one target course change), G0 re-run, EKF reference tuned on validation, one carried instantaneous model on a fresh seed | G4 | Not a stop; Annex B §B.5 decides the follow-on, fixed in advance |
+| Phase 4 — Tracker (Annex C) | Generator 0.5.0 (0–3 course changes, one speed change), G0 re-run, re-tuned references, a learned-gain filter and a pure recurrent tracker on a fresh seed | G5 | Not a stop; Annex C §C.6 |
 
 **Each iteration produces**
 
@@ -250,6 +254,10 @@ Four one-week iterations, each ending at a gate. Iteration 0 is infrastructure; 
 **Decisions taken** (28 Oct 2026, Annex B)
 
 - Decision 25 (Annex B D1–D4): G3 passed for the hybrid on seed 207 (iteration 5). Phase 3 tests the one place a learned estimator has an in-principle advantage: a target that manoeuvres. Generator 0.4.0 adds one target course change (80% of scenarios); an EKF, tuned on validation and frozen, is the reference; gate G4 asks the network alone to beat the tuned-turn EKF on range and course five minutes after the turn, without regressing on held-course scenarios. The owner set that as the success bar. The follow-on for each outcome is fixed in advance (Annex B §B.5): incremental if G4 passes (manoeuvre detection, learned uncertainty, realistic bearing error), a publish-and-decide if it fails.
+
+**Decisions taken** (30 Oct 2026, Annex C)
+
+- Decision 28 (Annex C D1–D4): phases 3 and 3b stopped at validation (G4 not met: better than the tuned IMM after a turn, worse on held course). The owner chose the end-to-end learned tracker that Annex B §B.5 names as a separate project: two trackers (a learned-gain filter and a pure recurrent tracker), compared on generator 0.5.0 (0–3 course changes and an occasional speed change), against re-tuned references, at gate G5 (better overall, at most 10% worse on settled rows). If G5 fails, the follow-on is decided when the result is known.
 
 ## 9. Development practice and public site
 
@@ -301,3 +309,7 @@ The repository is public on GitHub from day one; nothing above OFFICIAL enters i
   target may make one course change; an EKF is the reference; G4 asks the network alone to beat
   the tuned EKF after the turn. The follow-on for each outcome is fixed in advance. Accepted
   2026-10-28; its §B.6 amendments are applied above (§2, §3, §4, §5, §7, §8).
+- [Annex C: Phase 4, end-to-end learned trackers and gate G5](SRD-annex-C.md) (2026-10-30): after
+  phase 3 closed, two learned trackers (a learned-gain filter and a pure recurrent tracker) on
+  targets with up to three turns and a speed change, judged against re-tuned references at G5.
+  Accepted 2026-10-30; its §C.7 amendments are applied above (§2, §3, §4, §5, §7, §8).
