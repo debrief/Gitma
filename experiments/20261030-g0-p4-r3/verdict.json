@@ -1,0 +1,47 @@
+{
+  "checks": [
+    {
+      "detail": "10000/10000 scenarios within tolerance (range 0.001, course 0.1°, speed 0.01 kt); worst range 6.37e-6, course 1.63e-2°, speed 4.69e-3 kt",
+      "name": "classical-recovers-noise-free-truth",
+      "result": "pass"
+    },
+    {
+      "detail": "1000 scenarios, 40767 rows: 0 non-converged; 35767/35767 rows ≥ 60 s after the zig within tolerance (worst range 1.01e-5); worst range in the first 60 s 3.47e-5 (reported, not gated)",
+      "name": "classical-per-timestep-recovers",
+      "result": "pass"
+    },
+    {
+      "detail": "10000/10000 final solutions with RMS bearing residual ≤ 0.000001 rad; worst 2.27e-7 rad",
+      "name": "bearing-residuals-at-float32-precision",
+      "result": "pass"
+    },
+    {
+      "detail": "hand-computed 315°, abeam, leg-2, turn (starboard and port, mid-turn and leg 2), leg-3, second-turn (both directions, mid-arc and leg 3), target-turn (both directions, mid-turn and after it), target speed-change (during and after it), two-target-turn and partial-step 45° target-turn (mid-arc and after it) cases match; t = 0 bearing and range match the drawn parameters, and ownship and target kinematics (arc chord ≤ step ≤ v·dt, chord heading between the stored courses, turn ≤ ω·dt per step, summed turn = stored angle, |turn| ≤ 180°, target course constant unless it turns, every arc step = ω·dt; generator 0.5.0: course and speed constant between manoeuvres, each interior turn step ω·dt and speed step a·dt, summed changes = drawn, spans = drawn, timing rules and speed bounds) hold, and 3194452 noise-free bearings equal atan2 of the stored positions, on 12000 scenarios; 24000 turns put the target on the other bow inside the drawn offset range",
+      "name": "independent-geometry",
+      "result": "pass"
+    },
+    {
+      "detail": "IMM (σ_cv 0.001, σ_ct 0.01, σ_ω 0.001, switch 0.001/s): 35767/35767 rows from zig + 60 s to the target's turn within tolerance (worst range 1.59e-5); after a hand-built target turn and ownship zig, worst range over the last 10 min 1.81e-3 (starboard), 5.32e-4 (port), limit 5e-3; reported, not gated: the same case at 30–120° and 0.5–3°/s, both sides, 20/24 within 5e-3 (worst Infinity); median range error at manoeuvre + 300 s 2.32e-3 on 211 one-turn scenarios (limit 0.01); reported, not gated, after the last manoeuvre of other mixes (generator 0.5.0): 0 turns + speed 4.09e-2 (n 56), 1 turn + speed 6.13e-2 (n 70), 2 turns 1.72e-2 (n 232), 2 turns + speed 8.62e-2 (n 74), 3 turns 4.44e-2 (n 157), 3 turns + speed 1.56e-1 (n 66); generator 0.5.0 hand-built cases under σ_ct 0.1, worst range over the last 10 min (limit 0.01): two turns, same side 1.52e-3, two turns, opposite sides 1.76e-3, speed +2 m/s 5.55e-3, speed −2 m/s 2.94e-3, turn, speed change, turn 1.83e-3",
+      "name": "tracker-noise-free",
+      "result": "pass"
+    },
+    {
+      "detail": "σ = 1°, 1000 regenerated scenarios (seed 20261028), last sample before the target's first manoeuvre (or the end): IMM (σ_cv 0, σ_ct 0.01, σ_ω 0.001, switch 0.00001/s) / batch least squares on the same samples, median per-scenario range-error ratio 1.054, limit 1.15; non-converged: IMM 5, least squares 6 (both: ratio 1; one: 0 or ∞); reported: medians 0.0373 and 0.0317, ratio of medians 1.174",
+      "name": "tracker-noisy-sanity",
+      "result": "pass"
+    },
+    {
+      "detail": "σ = 1°, 200 regenerated scenarios (seed 20261028), 7257 rows from zig + 60 s to the last sample before the first manoeuvre: straight-leg IMM median per-scenario mean NIS 1.061, band [0.75, 1.3] (catches σ² × 1.5 and × 0.75)",
+      "name": "tracker-nis",
+      "result": "pass"
+    },
+    {
+      "detail": "two in-process naive fits gave identical metrics (determinism only; cross-process and cross-commit reproduction is shown by re-running G0 from the manifest)",
+      "name": "naive-baseline-reproduces",
+      "result": "pass"
+    }
+  ],
+  "decided_by": "harness (pending agent panel review)",
+  "gate": "G0",
+  "result": "pass"
+}
