@@ -2,8 +2,8 @@
 // Every initializer is seeded from the run's train seed, so training is reproducible (research R2).
 import * as tf from "@tensorflow/tfjs-node";
 import { inputWidth, NO, outputSpec, outputWidth, ROWS } from "@tma/features";
-import type { TrainingConfig } from "@tma/types";
-import { LearnedGainFilter } from "./filter-layer.js";
+import type { NormalisationConstants, TrainingConfig } from "@tma/types";
+import { LearnedGainFilter, outputScales } from "./filter-layer.js";
 import { initSeed } from "./seeds.js";
 
 /** Model outputs per row (defined with the decoding in `@tma/features`). */
@@ -74,6 +74,8 @@ export function buildModel(
   config: TrainingConfig,
   inputChannels: number = inputWidth(config.feature_set ?? "raw"),
   windowRows: number = ROWS,
+  /** The training data's normalisation; the learned-gain filter starts its output scales from it. */
+  norm?: NormalisationConstants,
 ): tf.Sequential {
   const next = seeder(config);
   const no = outputWidth(outputSpec(config));
@@ -137,6 +139,7 @@ export function buildModel(
           units: config.units,
           seed: next(),
           inputShape: [rows, inputChannels],
+          ...(norm === undefined ? {} : outputScales(norm, outputSpec(config).velocityScaleMps)),
         }),
       );
       break;

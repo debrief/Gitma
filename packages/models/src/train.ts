@@ -309,7 +309,7 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       }
     } else {
       if (prior?.complete === true) throw new Error(`${outDir} already holds a completed model`);
-      model = buildModel(config, trainFile.inputChannels, trainFile.rows);
+      model = buildModel(config, trainFile.inputChannels, trainFile.rows, trainFile.norm);
     }
     const lossFn = makeLoss(config);
 

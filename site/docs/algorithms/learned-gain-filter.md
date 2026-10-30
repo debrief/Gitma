@@ -32,7 +32,9 @@ and the GRU state **h**. At each row k:
 | Innovation | ν = atan2(s_z c_b − c_z s_b, c_z c_b + s_z s_b) · valid (wrapped to (−π, π]) |
 | Gain features | f = [ν·valid, valid, log r, τ, v⁻] |
 | GRU | z = σ(W_z f + U_z h + b_z), g = σ(W_r f + U_r h + b_r), ĥ = tanh(W_h f + U_h (g ⊙ h) + b_h), h ← (1 − z) ⊙ h + z ⊙ ĥ |
-| Gain | K = κ tanh(W_K h + b_K), four components (p_x, p_y, v_x, v_y) |
+| Gain coefficients | (a_n, a_l, c_n, c_l) = W_K h + b_K + (−3, 0, −3, 0) |
+| Line-of-sight frame | n̂ = (c_b, −s_b) across the line of sight, l̂ = (s_b, c_b) along it |
+| Gain | K_p = r (σ(a_n) n̂ + κ tanh(a_l) l̂), K_v = r (σ(c_n) n̂ + κ tanh(c_l) l̂) |
 | Update | p = p⁻ + K_p ν, v = v⁻ + K_v ν |
 | First bearing | p = o_k + R₀ (s_z, c_z), v = 0, with R₀ = e^ρ trainable |
 | Bounds | p clipped to ±10 and v to ±5 scaled units (about 30 m/s) |
@@ -41,9 +43,21 @@ Output per row, in the velocity parameterisation: [log r_p + λ, α v_x, α v_y,
 range from ownship to p. λ maps scaled range to log km and α maps scaled velocity to
 v / `velocity_scale_mps`. Both are trainable, and the loss is phase 3's velocity loss.
 
+**Why the line-of-sight frame.** The bearing's sensitivity to position is n̂ / r, so the update
+K_p ν moves the predicted bearing by σ(a_n) ν. The bearing loop therefore keeps (1 − σ(a_n)) of the
+innovation at every step, at any range. The first CI run learned the four gains directly in
+absolute scaled units, and it diverged in its first epoch. There, a gain change of 0.03 against a
+2 km range (0.08 scaled units) gave a per-step factor of about 1.4, and gradients through 300
+steps overflowed. The EKF's gain has the same form (it scales with r), and any gain vector can be
+written in this frame. The constraints are only that the across-line-of-sight terms are positive
+and that the along-line-of-sight terms are bounded by κ = 1.
+
 Choices made for training stability, each of which changes nothing in the filter's equations:
-- **Gain bound κ = 1.** Initial gains are near zero, so an untrained filter coasts on its
-  prediction instead of diverging.
+- **Initial output scales.** λ starts at ln(position_scale_km) and α at the ratio of the scaled
+  velocity unit to `velocity_scale_mps`, both from the training data's normalisation. Starting λ
+  at 0 left the range output about 24 × short, which Adam takes thousands of steps to undo.
+- **Small initial gains.** The fixed offset starts the across gains at σ(−3) ≈ 0.05 and the along
+  gains at 0, so an untrained filter mostly coasts on its prediction.
 - **Offset before the first bearing.** Before the first bearing, d is offset one unit north, so
   that atan2 and the square root stay differentiable.
 - **Rows without a bearing.** On those rows the predicted bearing stands in for the measured one,
@@ -59,7 +73,10 @@ together.
 
 ## Porting
 
+A unit test checks the contraction: one update takes up the same fraction of the innovation at
+2 km, 12 km and 48 km.
+
 The layer uses only matrix products, elementwise maths and atan2, so a Keras custom layer can
-implement it from the table above. Its weights are the GRU's (W, U and b for z, r and h), W_K, b_K,
+implement it from the table above. Its weights are the GRU's (W, U and b for z, r and h), W_K, b_K (the offset (−3, 0, −3, 0) is a constant),
 ρ, λ and α. Training cost, measured on 4 cores shared with other work: about 4.5 s per batch of 64
 windows × 360 rows, against 5.7 s for a 2 × 128 LSTM with the Gaussian head.
