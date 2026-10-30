@@ -7,8 +7,8 @@
 - [x] T005 G0 re-run on 0.5.0 (seed 42, 100,000, noise-free); agent panel; `review.md` — passed, panel rounds 1–3 (`experiments/20261030-g0-p4-r3/`)
 - [ ] T006 References re-tuned on phase-4 validation (seed 211); EKF/IMM grid; frozen reference
 - [ ] T007 T1 learned-gain filter layer (algorithm note; fixed-gain = EKF test); T2 NLL head
-  (prerequisites found by the G0 panel: `features` `ROWS = 240` must grow to the 361 samples of a
-  60-min window; `velocity_two_hypothesis` and other phase-3 consumers must refuse 0.5.0 data, as
+  (prerequisites found by the G0 panel: `features` rows per window now come from the source's
+  ranges, `rowsFor`: 240 up to phase 3, 360 for 60-min windows — done; `velocity_two_hypothesis` and other phase-3 consumers must refuse 0.5.0 data, as
   `tma-g4` now does; the viewer draws one target turn)
 - [ ] T008 Training-cost measurements; `tma-g5`; decision record (seeds, configs, forecast)
   (from the G0 panel: `tma-g5` reuses `settled()` from `scripts/research/spec012-distribution.mjs`,

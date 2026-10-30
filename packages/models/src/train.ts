@@ -298,7 +298,7 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       }
     } else {
       if (prior?.complete === true) throw new Error(`${outDir} already holds a completed model`);
-      model = buildModel(config, trainFile.inputChannels);
+      model = buildModel(config, trainFile.inputChannels, trainFile.rows);
     }
     const lossFn = makeLoss(config);
 
@@ -346,7 +346,13 @@ export async function train(opts: TrainOptions): Promise<ModelManifest> {
       let lossSum = 0;
       let batches = 0;
       for (const ks of epochBatches(config, e, n, lengths)) {
-        const b = makeBatch(trainFile, ks, config, labels, batchRows(config, ks, lengths));
+        const b = makeBatch(
+          trainFile,
+          ks,
+          config,
+          labels,
+          batchRows(config, ks, lengths, trainFile.rows),
+        );
         const x = tf.tensor3d(b.x, [b.size, b.rows, trainFile.inputChannels]);
         const y = tf.tensor3d(b.y, [b.size, b.rows, NY]);
         lossSum += trainStep(model, optimizer, lossFn, x, y);
