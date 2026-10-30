@@ -40,6 +40,8 @@ export function outputsToPrediction(
   if (out.length % width !== 0 || out.length / width < n)
     throw new Error(`expected a multiple of ${String(width)} outputs covering ${String(n)} rows`);
   const two = spec.parameterisation === "velocity_two_hypothesis";
+  // Gaussian (spec 012): means in channels 0–2, log-variances in 3–5; the mean is reported.
+  const gauss = spec.parameterisation === "velocity_gaussian";
   const rows: PredictionRow[] = [];
   for (let i = first; i < n; i++) {
     const own = s.ownship.states[i];
@@ -53,10 +55,11 @@ export function outputsToPrediction(
     const { sin, cos, speed } = decodeCourseSpeed(
       out[a + 1] ?? NaN,
       out[a + 2] ?? NaN,
-      two ? 0 : (out[a + 3] ?? NaN),
+      two || gauss ? 0 : (out[a + 3] ?? NaN),
       norm,
-      two ? { ...spec, parameterisation: "velocity" } : spec,
+      two || gauss ? { ...spec, parameterisation: "velocity" } : spec,
     );
+    const sd = (k: number): number => Math.exp(0.5 * (out[base + k] ?? NaN));
     const range = 1000 * Math.exp(logR);
     const b = lastBearing(s, i);
     const ok =
@@ -77,6 +80,13 @@ export function outputsToPrediction(
             y_m: f32(own.y_m + range * Math.cos(b)),
             converged: true,
             ...(two && Number.isFinite(p) ? { p_manoeuvre: f32(p) } : {}),
+            ...(gauss && [3, 4, 5].every((k) => Number.isFinite(sd(k)))
+              ? {
+                  log_range_sd: f32(sd(3)),
+                  vx_sd_mps: f32(sd(4) * spec.velocityScaleMps),
+                  vy_sd_mps: f32(sd(5) * spec.velocityScaleMps),
+                }
+              : {}),
           }
         : {
             timestamp_s: own.timestamp_s,

@@ -102,6 +102,13 @@ enums:
           trained only on rows where it is true (the label comes from the stored truth course);
           the logit by binary cross-entropy. The reported estimate is the more probable
           hypothesis's, never an average.
+      velocity_gaussian:
+        description: >-
+          Spec 012 (phase 4, tracker T2): six channels per row. log_range_km, vx, vy (as
+          velocity), then the log-variance of each, trained by the Gaussian negative
+          log-likelihood. The reported estimate is the mean; prediction rows carry the standard
+          deviations (log_range_sd, vx_sd_mps, vy_sd_mps), reported and their calibration
+          measured, never gated.
   FeatureSet:
     description: Model input channel sets (spec 003 R6).
     permissible_values:
@@ -497,6 +504,19 @@ classes:
         description: >-
           The estimator's probability that the target's turn has started by this timestep
           (velocity_two_hypothesis networks only; spec 011). Absent for other estimators.
+      log_range_sd:
+        range: float
+        description: >-
+          Standard deviation of the estimator's log range (natural log; about the relative range
+          error), from a velocity_gaussian network (spec 012). Absent for other estimators.
+      vx_sd_mps:
+        range: float
+        unit: { ucum_code: m/s }
+        description: Standard deviation of the estimated east velocity (velocity_gaussian only).
+      vy_sd_mps:
+        range: float
+        unit: { ucum_code: m/s }
+        description: Standard deviation of the estimated north velocity (velocity_gaussian only).
 
   Prediction:
     description: One estimator's output for one scenario.
