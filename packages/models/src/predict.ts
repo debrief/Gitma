@@ -9,7 +9,6 @@ import {
   type OutputSpec,
   outputsToPrediction,
   outputWidth,
-  ROWS,
 } from "@tma/features";
 import type {
   DatasetHeader,
@@ -160,22 +159,23 @@ export function predictEach(
   const width = outputWidth(spec);
   const flush = (): void => {
     if (pending.length === 0) return;
-    const x = new Float32Array(pending.length * ROWS * ni);
+    const rows = features.rows;
+    const x = new Float32Array(pending.length * rows * ni);
     pending.forEach((s, j) => {
       const k = where.get(s.metadata.index);
       if (k === undefined)
         throw new Error(`${features.path}: no window for scenario ${String(s.metadata.index)}`);
-      x.set(features.read(k).inputs, j * ROWS * ni);
+      x.set(features.read(k).inputs, j * rows * ni);
     });
     const y = tf.tidy(() => {
-      const p = model.predict(tf.tensor3d(x, [pending.length, ROWS, ni])) as tf.Tensor;
+      const p = model.predict(tf.tensor3d(x, [pending.length, rows, ni])) as tf.Tensor;
       return p.dataSync() as Float32Array;
     });
     pending.forEach((s, j) => {
       emit(
         outputsToPrediction(
           s,
-          y.subarray(j * ROWS * width, (j + 1) * ROWS * width),
+          y.subarray(j * rows * width, (j + 1) * rows * width),
           norm,
           estimator,
           undefined,

@@ -2,7 +2,6 @@
 // layout.ts. Pure, so the CLI (`@tma/models`) and the browser viewer (`@tma/demos`) share it.
 import { bearingOf, f32, f32Angle } from "@tma/sim";
 import type { NormalisationConstants, Prediction, PredictionRow, Scenario } from "@tma/types";
-import { ROWS } from "./layout.js";
 import { COURSE_SPEED, decodeCourseSpeed, type OutputSpec, outputWidth } from "./output.js";
 
 /**
@@ -21,7 +20,7 @@ function lastBearing(s: Scenario, i: number): number | null {
 }
 
 /**
- * One scenario's per-timestep prediction from the model's [ROWS × NO] output (row-major), rows from
+ * One scenario's per-timestep prediction from the model's [rows × NO] output (row-major), rows from
  * `first` (default zig_index + 1, as scored) to the last sample. Uses only ownship and bearings
  * from `s`, never target truth. Non-finite outputs or no bearing yet → `converged = false`
  * (scored as gross). The viewer passes `first` = 0 to show the pre-zig (unobservable) rows too.
@@ -37,7 +36,9 @@ export function outputsToPrediction(
 ): Prediction {
   const n = s.metadata.samples;
   const width = outputWidth(spec);
-  if (out.length !== ROWS * width) throw new Error(`expected ${String(ROWS * width)} outputs`);
+  // Rows of the window (240, or 360 for generator 0.5.0): whatever the output holds, at least n.
+  if (out.length % width !== 0 || out.length / width < n)
+    throw new Error(`expected a multiple of ${String(width)} outputs covering ${String(n)} rows`);
   const two = spec.parameterisation === "velocity_two_hypothesis";
   const rows: PredictionRow[] = [];
   for (let i = first; i < n; i++) {
