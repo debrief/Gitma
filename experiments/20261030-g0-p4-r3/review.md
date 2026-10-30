@@ -214,4 +214,31 @@ None rejected, and no blocker or major finding is open. Every round-1 major was 
 
 ## Round 3
 
-_Pending._
+| Reviewer | Verdict | Blocker | Major | Minor |
+| --- | --- | --- | --- | --- |
+| TMA geometry | approve | 0 | 0 | 0 |
+| Estimation and numerics | approve | 0 | 0 | 0 |
+| Evaluation statistics | approve | 0 | 0 | 0 |
+| Reproducibility | approve | 0 | 0 | 0 |
+| Red team | approve | 0 | 0 | 0 |
+
+All five approve the round-3 run (code 93febf5). What they confirmed:
+- **Reproducibility.** `tma-g0` at 93febf5 re-ran byte for byte (verdict, metrics.json,
+  metrics.csv) on data regenerated at 5794d6c. `distribution.json` is byte-identical to round 2's.
+- **The IMM's rows are unchanged** by the `onStep` hook: `tracker-noise-free` matches rounds 1–2 at
+  every printed digit.
+- **`tracker-nis` is stable.** Over 11 more seeds the median runs 0.987–1.056, with interval upper
+  bounds at most 1.097. It fails σ² × 0.25, 0.5, 0.75, 1.5, 2, 4 and 100.
+- **The paired ratio** is 1.054 [1.037, 1.075] against 1.15, and 1.028–1.043 on five more seeds.
+- **Every round-2 fix is in place:** a drawn plan without spans fails (261/261 caught).
+
+Recorded limits, no action needed:
+- **The variance checks catch errors of about ±25–33% or more.** σ² × 0.8 is caught only
+  marginally and × 1.25 not at all, so G0 is no evidence of finer variance calibration (statistics).
+- **One contrived case still reaches the 0.4.0 path:** a scenario with both the plan and the spans
+  removed but the top-level indices kept (red team nit; 12/261 pass, as before this phase).
+- **A step judged implausible still contributes its NIS.** This is harmless, because the median is
+  taken over scenarios (numerics).
+
+**Decision: G0 passes on generator 0.5.0** (panel rounds 1–3). `verdict.json` `decided_by` names
+this record.
