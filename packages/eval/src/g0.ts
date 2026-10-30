@@ -3,7 +3,7 @@
 // evaluation use each test scenario up to the target's turn (`beforeManoeuvre`); the geometry
 // and tracker checks use the whole scenario.
 import { join } from "node:path";
-import { renameSync, writeFileSync } from "node:fs";
+import { existsSync, renameSync, writeFileSync } from "node:fs";
 import {
   CLASSICAL,
   classicalPredict,
@@ -15,7 +15,7 @@ import {
   predictionLines,
 } from "@tma/classical";
 import { canonicalJson, readDataset } from "@tma/data";
-import type { GateVerdict, NaiveModel, Prediction } from "@tma/types";
+import type { GateVerdict, NaiveModel, Prediction, Scenario } from "@tma/types";
 import { evaluate } from "./evaluate.js";
 import { makeManifest, writeEvaluation, writeManifest, writeVerdict } from "./experiment.js";
 import { checkNaiveReproducible, checkNoiseFreeRecovery, g0Verdict } from "./gate.js";
@@ -23,6 +23,7 @@ import {
   beforeManoeuvre,
   checkBearingResiduals,
   checkTrackerNoiseFree,
+  checkTrackerNis,
   checkTrackerNoisy,
   G0_IMM,
   G0_IMM_STRAIGHT,
@@ -50,6 +51,21 @@ function writePredictions(
 export interface G0Result {
   verdict: GateVerdict;
   experiment: string;
+}
+
+/** Held-out scenarios checked for geometry and kinematics (G0 panel phase 4, geometry). */
+export const G0_HELDOUT_SCENARIOS = 2000;
+
+/** The first `G0_HELDOUT_SCENARIOS` of the held-out split, when the data has one. */
+function heldoutSample(dataDir: string): Scenario[] {
+  const path = join(dataDir, "heldout.f32pack");
+  if (!existsSync(path)) return [];
+  const out: Scenario[] = [];
+  for (const s of readDataset(path).scenarios()) {
+    if (out.length >= G0_HELDOUT_SCENARIOS) break;
+    out.push(s);
+  }
+  return out;
 }
 
 export function runG0(dataDir: string, experiment: string, commandLine: string): G0Result {
@@ -87,9 +103,10 @@ export function runG0(dataDir: string, experiment: string, commandLine: string):
     checkNoiseFreeRecovery(truth.header, scenarios, byIndex(classical)),
     checkPerTimestepRecovery(sub, byIndex(perTimestep)),
     checkBearingResiduals(scenarios),
-    checkIndependentGeometry(full, truth.header.parameter_ranges),
+    checkIndependentGeometry([...full, ...heldoutSample(dataDir)], truth.header.parameter_ranges),
     checkTrackerNoiseFree(full.slice(0, G0_PER_TIMESTEP_SCENARIOS), truth.header.parameter_ranges),
     checkTrackerNoisy(truth.header.parameter_ranges),
+    checkTrackerNis(truth.header.parameter_ranges),
     checkNaiveReproducible(evA.metrics, evB.metrics),
   ]);
   writeEvaluation(experiment, evA);

@@ -117,7 +117,7 @@ describe("target manoeuvres: generated scenarios (phase-4 ranges)", () => {
         const prev = spans[j - 1];
         if (prev !== undefined)
           expect(sp.start_index - 1 - prev.end_index).toBeGreaterThanOrEqual(
-            Math.ceil((PHASE4.target_manoeuvre_spacing_s ?? 0) / dt) - 1,
+            Math.ceil((PHASE4.target_manoeuvre_spacing_s ?? 0) / dt),
           );
       });
       const last = spans[spans.length - 1];

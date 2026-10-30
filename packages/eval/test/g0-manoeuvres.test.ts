@@ -5,6 +5,7 @@ import { generateScenario } from "@tma/sim";
 import type { ParameterRanges, Scenario } from "@tma/types";
 import { describe, expect, it } from "vitest";
 import {
+  checkTrackerNis,
   kinematicFailure,
   manoeuvreTimingFailure,
   targetManoeuvreBearings,
@@ -68,5 +69,23 @@ describe("G0 on generator 0.5.0", () => {
     if (last === undefined) throw new Error("index");
     s.metadata.samples = last.end_index + 2;
     expect(manoeuvreTimingFailure(s, PHASE4)).toMatch(/margin/);
+  });
+
+  it("catches top-level indices that disagree with the spans", () => {
+    const s = withKind("course");
+    s.metadata.manoeuvre_index = (s.metadata.manoeuvre_index ?? 0) + 1;
+    expect(kinematicFailure(s)).toMatch(/manoeuvre_index/);
+  });
+
+  it("catches a track that starts at the wrong speed", () => {
+    const s = withKind("course");
+    s.metadata.parameters.target_speed_mps += 0.5;
+    expect(kinematicFailure(s)).toMatch(/sample 0/);
+  });
+
+  it("the NIS check passes with the scenario's σ and fails with σ² × 2 or × 0.5", () => {
+    expect(checkTrackerNis(PHASE4).result).toBe("pass");
+    expect(checkTrackerNis(PHASE4, 2).result).toBe("fail");
+    expect(checkTrackerNis(PHASE4, 0.5).result).toBe("fail");
   });
 });

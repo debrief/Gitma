@@ -254,6 +254,13 @@ export function main(argv: string[]): unknown {
   const out = join(experiment, gate ? "verdict.json" : "diagnostic.json");
   if (existsSync(out)) throw new UsageError(`${out} exists: a G4 split is scored once`);
   const scenarios = Array.from(scenarioSource(truth));
+  // G4's rows and timing slices assume one target turn (generator 0.4.0). Under 0.5.0 a speed
+  // change counts as "turning" and the timing spans first start to last end, so refuse it
+  // (G0 panel phase 4, red team); G5 (Annex C) is phase 4's gate.
+  if (scenarios.some((s) => s.metadata.manoeuvres != null))
+    throw new UsageError(
+      `${truth}: generator 0.5.0 data (several manoeuvres); G4 is defined for one turn`,
+    );
   const judged = g4Verdict(g4Checks(scenarios, net, ref));
   const verdict = gate
     ? judged

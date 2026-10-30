@@ -65,9 +65,30 @@ give `target_course_change_count_weights` (and then `target_manoeuvre_fraction` 
   ends at least 6 min before the window ends. The free time is shared out by sorted uniforms.
 
 Phase-4 windows are 20–60 min (`configs/phase4-ranges.json`), against phase 3's 10–40 min, so that
-three turns and a speed change fit: about 0.4 redraws per accepted scenario, 54% of scenarios reach
-zig + 20 min, and 44% of G5 rows are settled. Windows lengthen with the count (median 39 min with
-no manoeuvre, 51 min with three turns and a speed change).
+three turns and a speed change fit. The realised distribution is reported at G0
+(`scripts/research/spec012-distribution.mjs`, `experiments/20261030-g0-p4-r2/distribution.json`);
+on its test split:
+- **Counts.** Counts match the declared mix (χ² 1.1 on 3 df) and speed changes are in 30.0% of
+  scenarios. There are about 0.4 redraws per accepted scenario.
+- **Coverage.** Rows reach zig + 5, 10, 15 and 20 min in 100%, 98%, 83% and 55% of scenarios.
+- **Settled rows.** 44% of G5 rows are settled (Annex C §C.5).
+
+Reading it critically:
+- **Windows lengthen with the count.** The median is 40 min with no manoeuvre and 52 min with
+  three turns and a speed change, and the zig comes later too.
+  - Later gate times therefore over-represent busy scenarios: at zig + 20 min, three turns plus a
+    speed change hold 1.6 × their share.
+  - G5 is paired, so this does not favour either estimator, but it defines what is measured.
+  - Causal trackers cannot see the window's end.
+- **The speed-change side is predictable.** It is flipped to keep the speed in range, so 82% of
+  changes starting below 9 kt are increases and 83% above 14 kt are decreases. A learned tracker
+  can learn this prior and the IMM cannot. It is a property of the data, declared here.
+- **The redraws lean slightly towards short, fast turns.** The mean |turn| is 74.3° against 75°
+  for the uniform draw, and the mean rate 1.78°/s against 1.75°/s.
+- **The second zig is planned on the target's straight track.** It often follows the target's
+  first manoeuvre (73% of scenarios with three). Against the actual target it still crosses the
+  line of sight every time, with its offset outside the drawn 30–90° in 1.0% of scenarios (phase 3:
+  1.9%).
 
 All parameters are float32-rounded before use, so the metadata describes the data exactly. Ranges
 without a turn rate consume the random stream exactly as generator 0.1.0 did, ranges without the
@@ -209,4 +230,13 @@ G0 adds, for 0.5.0:
   course. The summed change of each manoeuvre equals the drawn one.
 - **Timing and bounds** (`manoeuvreTimingFailure`). These cover the spacing, the start after the
   zig and the end margin, and target speeds within range.
+- **Consistency.** The top-level indices agree with the first and last spans, and sample 0 starts
+  at the drawn speed and course.
+- **Held-out sample.** The first 2,000 held-out scenarios are checked as well as the test split.
+- **The trackers.**
+  - Hand-built re-convergence cases for every manoeuvre kind and order, under a setting that can
+    follow a speed change.
+  - A paired straight-leg comparison with batch least squares over 1,000 scenarios.
+  - A normalised-innovation check (`tracker-nis`) that catches a measurement variance mis-scaled
+    either way. See the [trackers note](trackers.md).
 

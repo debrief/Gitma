@@ -30,6 +30,14 @@ separate project Annex B §B.5 named.
   - the existing checks on each scenario up to its first manoeuvre (`beforeManoeuvre`).
 
   An agent panel decides.
+
+  Two tracker checks were re-scoped after round 0 failed them (post hoc, recorded in
+  `experiments/20261030-g0-p4-r2/review.md`).
+  - **The post-manoeuvre limit** is gated on one-turn scenarios, the population it was calibrated
+    on. Other mixes are reported, and hand-built cases for every manoeuvre kind are gated under a
+    setting that can follow them.
+  - **The straight-leg comparison** uses the paired per-scenario ratio over 1,000 scenarios.
+  - **A NIS band** was added so that both directions of a variance error fail.
 - **FR-003 (references).** Re-tune the IMM and the EKF on phase-4 validation over all G5 rows, and
   freeze the better one before training (Annex C §C.3).
 - **FR-004 (trackers).**
