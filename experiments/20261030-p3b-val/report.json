@@ -1,0 +1,326 @@
+[
+  {
+    "estimator": "lstm-two-hypothesis:per_timestep",
+    "median": 0.10316160666960357,
+    "metric": "range_rel",
+    "n": 4074,
+    "non_converged": 0,
+    "p90": 0.2713413554758565,
+    "rows": "turning, manoeuvre+300s"
+  },
+  {
+    "estimator": "lstm-two-hypothesis:per_timestep",
+    "median": 14.492595909256535,
+    "metric": "course_deg",
+    "n": 4074,
+    "non_converged": 0,
+    "p90": 54.99222991360383,
+    "rows": "turning, manoeuvre+300s"
+  },
+  {
+    "estimator": "lstm-two-hypothesis:per_timestep",
+    "median": 1.572972497466316,
+    "metric": "speed_kt",
+    "n": 4074,
+    "non_converged": 0,
+    "p90": 4.961886004289334,
+    "rows": "turning, manoeuvre+300s"
+  },
+  {
+    "estimator": "lstm-two-hypothesis:per_timestep",
+    "median": 0.10291322761918767,
+    "metric": "range_rel",
+    "n": 1533,
+    "non_converged": 0,
+    "p90": 0.27129177310888547,
+    "rows": "turning, manoeuvre+300s, turn before zig 2"
+  },
+  {
+    "estimator": "lstm-two-hypothesis:per_timestep",
+    "median": 13.854984089857506,
+    "metric": "course_deg",
+    "n": 1533,
+    "non_converged": 0,
+    "p90": 50.00914246121596,
+    "rows": "turning, manoeuvre+300s, turn before zig 2"
+  },
+  {
+    "estimator": "lstm-two-hypothesis:per_timestep",
+    "median": 0.09661608775048144,
+    "metric": "range_rel",
+    "n": 1398,
+    "non_converged": 0,
+    "p90": 0.2642453546498759,
+    "rows": "turning, manoeuvre+300s, turn overlaps zig 2"
+  },
+  {
+    "estimator": "lstm-two-hypothesis:per_timestep",
+    "median": 14.772579023713698,
+    "metric": "course_deg",
+    "n": 1398,
+    "non_converged": 0,
+    "p90": 58.180466595517395,
+    "rows": "turning, manoeuvre+300s, turn overlaps zig 2"
+  },
+  {
+    "estimator": "lstm-two-hypothesis:per_timestep",
+    "median": 0.10943477724910722,
+    "metric": "range_rel",
+    "n": 1143,
+    "non_converged": 0,
+    "p90": 0.28055058269961036,
+    "rows": "turning, manoeuvre+300s, zig 2 before turn (no ownship manoeuvre after it)"
+  },
+  {
+    "estimator": "lstm-two-hypothesis:per_timestep",
+    "median": 15.244408491578179,
+    "metric": "course_deg",
+    "n": 1143,
+    "non_converged": 0,
+    "p90": 57.817223475077775,
+    "rows": "turning, manoeuvre+300s, zig 2 before turn (no ownship manoeuvre after it)"
+  },
+  {
+    "estimator": "lstm-two-hypothesis:per_timestep",
+    "median": 0.07064974341260252,
+    "metric": "range_rel",
+    "n": 1042,
+    "non_converged": 0,
+    "p90": 0.19083966705847677,
+    "rows": "held course, zig+300s"
+  },
+  {
+    "estimator": "lstm-two-hypothesis:per_timestep",
+    "median": 6.096065297465247,
+    "metric": "course_deg",
+    "n": 1042,
+    "non_converged": 0,
+    "p90": 51.072821481040386,
+    "rows": "held course, zig+300s"
+  },
+  {
+    "estimator": "lstm-two-hypothesis:per_timestep",
+    "median": 1.1497970791151404,
+    "metric": "speed_kt",
+    "n": 913,
+    "non_converged": 0,
+    "p90": 3.695980673474833,
+    "rows": "held course, zig+600s"
+  },
+  {
+    "estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep",
+    "median": 0.13579985279385673,
+    "metric": "range_rel",
+    "n": 4074,
+    "non_converged": 36,
+    "p90": 0.4527012095782251,
+    "rows": "turning, manoeuvre+300s"
+  },
+  {
+    "estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep",
+    "median": 24.113573053379817,
+    "metric": "course_deg",
+    "n": 4074,
+    "non_converged": 36,
+    "p90": 92.45492958653166,
+    "rows": "turning, manoeuvre+300s"
+  },
+  {
+    "estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep",
+    "median": 2.343004465618092,
+    "metric": "speed_kt",
+    "n": 4074,
+    "non_converged": 36,
+    "p90": 8.786775380952312,
+    "rows": "turning, manoeuvre+300s"
+  },
+  {
+    "estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep",
+    "median": 0.12453904897529454,
+    "metric": "range_rel",
+    "n": 1533,
+    "non_converged": 17,
+    "p90": 0.44266170077426126,
+    "rows": "turning, manoeuvre+300s, turn before zig 2"
+  },
+  {
+    "estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep",
+    "median": 22.697394800680204,
+    "metric": "course_deg",
+    "n": 1533,
+    "non_converged": 17,
+    "p90": 89.07957304211642,
+    "rows": "turning, manoeuvre+300s, turn before zig 2"
+  },
+  {
+    "estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep",
+    "median": 0.14385088238139535,
+    "metric": "range_rel",
+    "n": 1398,
+    "non_converged": 13,
+    "p90": 0.4647351311916597,
+    "rows": "turning, manoeuvre+300s, turn overlaps zig 2"
+  },
+  {
+    "estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep",
+    "median": 24.446216926337776,
+    "metric": "course_deg",
+    "n": 1398,
+    "non_converged": 13,
+    "p90": 94.79656432082216,
+    "rows": "turning, manoeuvre+300s, turn overlaps zig 2"
+  },
+  {
+    "estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep",
+    "median": 0.14076637061926395,
+    "metric": "range_rel",
+    "n": 1143,
+    "non_converged": 6,
+    "p90": 0.4535109893919703,
+    "rows": "turning, manoeuvre+300s, zig 2 before turn (no ownship manoeuvre after it)"
+  },
+  {
+    "estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep",
+    "median": 25.31778258897471,
+    "metric": "course_deg",
+    "n": 1143,
+    "non_converged": 6,
+    "p90": 94.11511634732997,
+    "rows": "turning, manoeuvre+300s, zig 2 before turn (no ownship manoeuvre after it)"
+  },
+  {
+    "estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep",
+    "median": 0.05214144920998845,
+    "metric": "range_rel",
+    "n": 1042,
+    "non_converged": 3,
+    "p90": 0.245483944980175,
+    "rows": "held course, zig+300s"
+  },
+  {
+    "estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep",
+    "median": 5.024396436488099,
+    "metric": "course_deg",
+    "n": 1042,
+    "non_converged": 3,
+    "p90": 29.96424820961562,
+    "rows": "held course, zig+300s"
+  },
+  {
+    "estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2:per_timestep",
+    "median": 0.7135431400900525,
+    "metric": "speed_kt",
+    "n": 913,
+    "non_converged": 0,
+    "p90": 4.025504707517685,
+    "rows": "held course, zig+600s"
+  },
+  {
+    "estimator": "ekf-sa0.1-p4-r4:per_timestep",
+    "median": 0.15290973434368826,
+    "metric": "range_rel",
+    "n": 4074,
+    "non_converged": 9,
+    "p90": 0.47337722091167833,
+    "rows": "turning, manoeuvre+300s"
+  },
+  {
+    "estimator": "ekf-sa0.1-p4-r4:per_timestep",
+    "median": 24.36374922229904,
+    "metric": "course_deg",
+    "n": 4074,
+    "non_converged": 9,
+    "p90": 85.58758418743403,
+    "rows": "turning, manoeuvre+300s"
+  },
+  {
+    "estimator": "ekf-sa0.1-p4-r4:per_timestep",
+    "median": 3.0396382185604347,
+    "metric": "speed_kt",
+    "n": 4074,
+    "non_converged": 9,
+    "p90": 7.702807937276028,
+    "rows": "turning, manoeuvre+300s"
+  },
+  {
+    "estimator": "ekf-sa0.1-p4-r4:per_timestep",
+    "median": 0.12488965347201235,
+    "metric": "range_rel",
+    "n": 1533,
+    "non_converged": 8,
+    "p90": 0.44355289506743134,
+    "rows": "turning, manoeuvre+300s, turn before zig 2"
+  },
+  {
+    "estimator": "ekf-sa0.1-p4-r4:per_timestep",
+    "median": 22.492468635012308,
+    "metric": "course_deg",
+    "n": 1533,
+    "non_converged": 8,
+    "p90": 77.46629118880294,
+    "rows": "turning, manoeuvre+300s, turn before zig 2"
+  },
+  {
+    "estimator": "ekf-sa0.1-p4-r4:per_timestep",
+    "median": 0.1603301616406699,
+    "metric": "range_rel",
+    "n": 1398,
+    "non_converged": 0,
+    "p90": 0.4674960586540237,
+    "rows": "turning, manoeuvre+300s, turn overlaps zig 2"
+  },
+  {
+    "estimator": "ekf-sa0.1-p4-r4:per_timestep",
+    "median": 26.24216052707927,
+    "metric": "course_deg",
+    "n": 1398,
+    "non_converged": 0,
+    "p90": 88.68650612803704,
+    "rows": "turning, manoeuvre+300s, turn overlaps zig 2"
+  },
+  {
+    "estimator": "ekf-sa0.1-p4-r4:per_timestep",
+    "median": 0.1799973317221692,
+    "metric": "range_rel",
+    "n": 1143,
+    "non_converged": 1,
+    "p90": 0.5015939592585659,
+    "rows": "turning, manoeuvre+300s, zig 2 before turn (no ownship manoeuvre after it)"
+  },
+  {
+    "estimator": "ekf-sa0.1-p4-r4:per_timestep",
+    "median": 25.806476420302495,
+    "metric": "course_deg",
+    "n": 1143,
+    "non_converged": 1,
+    "p90": 89.17104293548122,
+    "rows": "turning, manoeuvre+300s, zig 2 before turn (no ownship manoeuvre after it)"
+  },
+  {
+    "estimator": "ekf-sa0.1-p4-r4:per_timestep",
+    "median": 0.07737313674523455,
+    "metric": "range_rel",
+    "n": 1042,
+    "non_converged": 3,
+    "p90": 0.29601692055826057,
+    "rows": "held course, zig+300s"
+  },
+  {
+    "estimator": "ekf-sa0.1-p4-r4:per_timestep",
+    "median": 6.5444686966527765,
+    "metric": "course_deg",
+    "n": 1042,
+    "non_converged": 3,
+    "p90": 30.299279233688505,
+    "rows": "held course, zig+300s"
+  },
+  {
+    "estimator": "ekf-sa0.1-p4-r4:per_timestep",
+    "median": 1.8194150203762507,
+    "metric": "speed_kt",
+    "n": 913,
+    "non_converged": 0,
+    "p90": 4.777878355516471,
+    "rows": "held course, zig+600s"
+  }
+]

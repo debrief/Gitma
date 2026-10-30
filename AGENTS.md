@@ -265,7 +265,7 @@ two-hypothesis output (`output_parameterisation: velocity_two_hypothesis`, schem
 and turned estimates plus P(turned), supervised by `turnedLabel` from the stored truth course; the
 more probable hypothesis is reported, never an average; `p_manoeuvre` on prediction rows); model
 `lstm-two-hypothesis`, plan `configs/phase3/b` (push `train/p3b`), same seed-208 data and frozen
-reference, G4 on fresh seed 210 (400,000). It is the last phase-3 attempt under Annex B. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+reference, G4 on fresh seed 210 (400,000). It is the last phase-3 attempt under Annex B. **Phase 3b stopped at validation** (FR-002, `experiments/20261030-p3b-val/validation.md`; model `experiments/20261030-p3b-models/`): after a turn it still beats the IMM (range 0.76, course 0.60, gross −6.4 pp) and held-course course passes (6.1°), but held-course speed fails, 1.15 kt [1.05, 1.25]. The turn flag false-alarms on ~30% of held rows (turned estimate biased −1.65 kt), and where it reports held the error is 1.00 kt. Seed 210 is unscored and reserved; Annex B §B.5's second branch applies (publish; the owner decides on an end-to-end tracker as a new project). Detection figures: `scripts/research/spec011-detection.mjs`. Write-up: `site/blog/2026-10-30-phase-3b.md`. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

@@ -208,3 +208,11 @@ a **two-hypothesis output** with a supervised turn flag (spec 011).
 - **The test seed.** G4 is judged on fresh seed 210.
 - **What follows.** B.5 applies to its outcome as it did to phase 3's. This is the last phase-3
   attempt under this annex. A further design is a new decision.
+
+**Outcome (2026-10-30).** Phase 3b stopped at validation (`experiments/20261030-p3b-val/`).
+- **After a turn, the network was still better** than the IMM: range 0.76, course 0.60.
+- **Held-course course passed** at 6.1°.
+- **Held-course speed failed** at 1.15 kt [1.05, 1.25]. The turn flag false-alarms on about 30%
+  of held-course rows, and where it reports "held" the error is 1.00 kt.
+
+Seed 210 was not scored. B.5's second branch applies.

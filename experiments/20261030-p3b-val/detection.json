@@ -1,0 +1,68 @@
+{
+  "estimator": "lstm-two-hypothesis",
+  "turn_flag": {
+    "turning_scenarios": 4074,
+    "delay_s": {
+      "n": 4053,
+      "median": 70,
+      "p10": 0,
+      "p90": 140
+    },
+    "missed_by_g4_row": 0.005154639175257732,
+    "alarm_before_turn_starts": 0.24668630338733433,
+    "held_false_alarm_zig300": 0.30518234165067176,
+    "held_false_alarm_zig600": 0.2858707557502738,
+    "held_alarm_any_row": 0.7216890595009597,
+    "auc_zig300": 0.7940807498674229,
+    "auc_n": {
+      "turned": 2757,
+      "held": 2359
+    }
+  },
+  "held_speed_zig600_by_reported_hypothesis": {
+    "held": {
+      "n": 652,
+      "abs_median_kt": 1.003037261138982,
+      "signed_median_kt": -0.06043323945278225,
+      "slow": 0.5184049079754601
+    },
+    "turned": {
+      "n": 261,
+      "abs_median_kt": 1.7952505764641977,
+      "signed_median_kt": -1.6525447754829026,
+      "slow": 0.7777777777777778
+    }
+  },
+  "held": [
+    {
+      "estimator": "lstm-two-hypothesis",
+      "speed_zig600": {
+        "n": 913,
+        "abs_median_kt": 1.1497970791151404,
+        "signed_median_kt": -0.332517912269411,
+        "slow": 0.592552026286966
+      },
+      "course_abs_median_deg_by_min": {
+        "2": 5.505460320110438,
+        "5": 6.096065297465247,
+        "10": 5.512946207440772,
+        "15": 4.6191066715178835
+      }
+    },
+    {
+      "estimator": "imm-cv0.003-ct0.1-w0.001-s0.001-r2",
+      "speed_zig600": {
+        "n": 913,
+        "abs_median_kt": 0.7135431400900525,
+        "signed_median_kt": 0.24193409452170583,
+        "slow": 0.3493975903614458
+      },
+      "course_abs_median_deg_by_min": {
+        "2": 6.046845019387745,
+        "5": 4.989664924558585,
+        "10": 3.725340560128572,
+        "15": 4.495958360782554
+      }
+    }
+  ]
+}
