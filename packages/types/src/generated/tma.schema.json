@@ -1037,7 +1037,8 @@
       "enum": [
         "course_speed",
         "velocity",
-        "velocity_two_hypothesis"
+        "velocity_two_hypothesis",
+        "velocity_gaussian"
       ],
       "title": "OutputParameterisation",
       "type": "string"
@@ -1453,6 +1454,13 @@
             "null"
           ]
         },
+        "log_range_sd": {
+          "description": "Standard deviation of the estimator's log range (natural log; about the relative range error), from a velocity_gaussian network (spec 012). Absent for other estimators.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "p_manoeuvre": {
           "description": "The estimator's probability that the target's turn has started by this timestep (velocity_two_hypothesis networks only; spec 011). Absent for other estimators.",
           "type": [
@@ -1468,6 +1476,20 @@
         },
         "timestamp_s": {
           "type": "number"
+        },
+        "vx_sd_mps": {
+          "description": "Standard deviation of the estimated east velocity (velocity_gaussian only).",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "vy_sd_mps": {
+          "description": "Standard deviation of the estimated north velocity (velocity_gaussian only).",
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "x_m": {
           "type": "number"

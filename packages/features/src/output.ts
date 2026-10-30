@@ -11,9 +11,13 @@ export interface OutputSpec {
   velocityScaleMps: number;
 }
 
-/** Output channels per row: 4, or 7 for velocity_two_hypothesis. */
+/** Output channels per row: 4, 7 for velocity_two_hypothesis, 6 for velocity_gaussian. */
 export const outputWidth = (spec: OutputSpec): number =>
-  spec.parameterisation === "velocity_two_hypothesis" ? 7 : 4;
+  spec.parameterisation === "velocity_two_hypothesis"
+    ? 7
+    : spec.parameterisation === "velocity_gaussian"
+      ? 6
+      : 4;
 
 export const COURSE_SPEED: OutputSpec = { parameterisation: "course_speed", velocityScaleMps: 1 };
 

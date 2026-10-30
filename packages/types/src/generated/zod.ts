@@ -317,7 +317,7 @@ export const StopReason = z.enum(["max_epochs", "early_stopping", "wall_clock", 
 export type StopReason = z.infer<typeof StopReason>;
 
 /** How the model's four output channels encode the target's course and speed (spec 008). */
-export const OutputParameterisation = z.enum(["course_speed", "velocity", "velocity_two_hypothesis"]);
+export const OutputParameterisation = z.enum(["course_speed", "velocity", "velocity_two_hypothesis", "velocity_gaussian"]);
 export type OutputParameterisation = z.infer<typeof OutputParameterisation>;
 
 /** Hyperparameters and seeds for one training run (SRD §4; constitution III). */
@@ -476,11 +476,17 @@ export const PredictionRow = z.strictObject({
   converged: z.boolean(),
   course_rad: z.number(),
   iterations: z.number().int().nullish(),
+  /** Standard deviation of the estimator's log range (natural log; about the relative range error), from a velocity_gaussian network (spec 012). Absent for other estimators. */
+  log_range_sd: z.number().nullish(),
   /** The estimator's probability that the target's turn has started by this timestep (velocity_two_hypothesis networks only; spec 011). Absent for other estimators. */
   p_manoeuvre: z.number().nullish(),
   range_m: z.number(),
   speed_mps: z.number(),
   timestamp_s: z.number(),
+  /** Standard deviation of the estimated east velocity (velocity_gaussian only). */
+  vx_sd_mps: z.number().nullish(),
+  /** Standard deviation of the estimated north velocity (velocity_gaussian only). */
+  vy_sd_mps: z.number().nullish(),
   x_m: z.number(),
   y_m: z.number(),
 });
