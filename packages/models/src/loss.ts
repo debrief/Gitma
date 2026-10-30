@@ -83,7 +83,12 @@ export function gaussianLossParts(
   const weight = yTrue.slice([0, 0, NO], [-1, -1, 1]).squeeze([2]);
   const mean = yPred.slice([0, 0, 0], [-1, -1, 3]);
   const s = tf.clipByValue(yPred.slice([0, 0, 3], [-1, -1, 3]), LOG_VAR_MIN, LOG_VAR_MAX);
-  const nll = mean.sub(target).square().mul(tf.exp(tf.neg(s))).add(s).mul(0.5);
+  const nll = mean
+    .sub(target)
+    .square()
+    .mul(tf.exp(tf.neg(s)))
+    .add(s)
+    .mul(0.5);
   const perRow = nll.mul(w.slice([0], [3])).sum(2);
   return { num: perRow.mul(weight).sum(), den: weight.sum() };
 }
