@@ -19,7 +19,8 @@
     "tma-g0": "./dist/cli-g0.js",
     "tma-hybrid": "./dist/cli-hybrid.js",
     "tma-g3": "./dist/cli-g3.js",
-    "tma-g4": "./dist/cli-g4.js"
+    "tma-g4": "./dist/cli-g4.js",
+    "tma-g5": "./dist/cli-g5.js"
   },
   "scripts": {},
   "dependencies": {

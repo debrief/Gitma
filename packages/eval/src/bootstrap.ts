@@ -450,3 +450,112 @@ export function bootstrapRateDifference(
     seed: seed.toString(),
   };
 }
+
+/**
+ * Scenario-clustered paired bootstrap of the q-quantile ratio a / b (G5, SRD Annex C §C.5): rows
+ * come in clusters (one scenario contributes several rows), so each resample draws clusters with
+ * replacement and takes all of their rows, the same draw for both estimators. `level` is the
+ * two-sided interval level (0.975 per tracker under G5's Bonferroni split). `cluster[i]` is row i's
+ * cluster, numbered 0, 1, … in any order.
+ */
+export function bootstrapClusteredQuantileRatio(
+  a: Float64Array,
+  b: Float64Array,
+  cluster: Int32Array,
+  q: number,
+  level: number,
+  resamples = BOOTSTRAP_RESAMPLES,
+  seed = BOOTSTRAP_SEED,
+): RatioInterval & { clusters: number; level: number } {
+  const n = a.length;
+  if (n === 0 || b.length !== n || cluster.length !== n)
+    throw new Error("bootstrap needs two equal, non-empty samples and a cluster per row");
+  const members = new Map<number, number[]>();
+  for (let i = 0; i < n; i++) {
+    const c = cluster[i] ?? 0;
+    const m = members.get(c);
+    if (m === undefined) members.set(c, [i]);
+    else m.push(i);
+  }
+  const groups = [...members.values()];
+  const g = groups.length;
+  const rng = createRng(seed);
+  const ratios: number[] = [];
+  const ra: number[] = [];
+  const rb: number[] = [];
+  for (let r = 0; r < resamples; r++) {
+    ra.length = 0;
+    rb.length = 0;
+    for (let j = 0; j < g; j++) {
+      for (const i of groups[uniformInt(rng, g)] ?? []) {
+        ra.push(nanToInf(a[i]));
+        rb.push(nanToInf(b[i]));
+      }
+    }
+    ratios.push(
+      selectQuantile(Float64Array.from(ra), q) / selectQuantile(Float64Array.from(rb), q),
+    );
+  }
+  const sorted = ascending(ratios);
+  const tail = (1 - level) / 2;
+  return {
+    ratio: percentile(ascending(Array.from(a)), q) / percentile(ascending(Array.from(b)), q),
+    lo: percentile(sorted, tail),
+    hi: percentile(sorted, 1 - tail),
+    n,
+    clusters: g,
+    level,
+    resamples,
+    seed: seed.toString(),
+  };
+}
+
+/** Scenario-clustered paired bootstrap of a rate difference mean(a) − mean(b) (G5-gross). */
+export function bootstrapClusteredRateDifference(
+  a: Uint8Array,
+  b: Uint8Array,
+  cluster: Int32Array,
+  level: number,
+  resamples = BOOTSTRAP_RESAMPLES,
+  seed = BOOTSTRAP_SEED,
+): DifferenceInterval & { clusters: number; level: number } {
+  const n = a.length;
+  if (n === 0 || b.length !== n || cluster.length !== n)
+    throw new Error("bootstrap needs two equal, non-empty samples and a cluster per row");
+  const sums = new Map<number, [number, number]>();
+  for (let i = 0; i < n; i++) {
+    const c = cluster[i] ?? 0;
+    const s = sums.get(c) ?? [0, 0];
+    s[0] += (a[i] ?? 0) - (b[i] ?? 0);
+    s[1] += 1;
+    sums.set(c, s);
+  }
+  const groups = [...sums.values()];
+  const g = groups.length;
+  const rng = createRng(seed);
+  const diffs: number[] = [];
+  for (let r = 0; r < resamples; r++) {
+    let d = 0;
+    let m = 0;
+    for (let j = 0; j < g; j++) {
+      const [sd, sn] = groups[uniformInt(rng, g)] ?? [0, 0];
+      d += sd;
+      m += sn;
+    }
+    diffs.push(m > 0 ? d / m : 0);
+  }
+  let full = 0;
+  for (let i = 0; i < n; i++) full += (a[i] ?? 0) - (b[i] ?? 0);
+  const sorted = ascending(diffs);
+  const tail = (1 - level) / 2;
+  return {
+    difference: full / n,
+    lo: percentile(sorted, tail),
+    hi: percentile(sorted, 1 - tail),
+    n,
+    clusters: g,
+    level,
+    resamples,
+    seed: seed.toString(),
+  };
+}

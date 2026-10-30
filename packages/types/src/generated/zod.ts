@@ -256,7 +256,7 @@ export const GateCheck = z.strictObject({
 });
 export type GateCheck = z.infer<typeof GateCheck>;
 
-export const GateId = z.enum(["G0", "G1", "G2", "G3", "G4"]);
+export const GateId = z.enum(["G0", "G1", "G2", "G3", "G4", "G5"]);
 export type GateId = z.infer<typeof GateId>;
 
 /** Machine verdict for a gate; the team review records the final decision. */
