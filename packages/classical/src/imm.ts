@@ -51,6 +51,12 @@ export interface ImmState {
   t: number;
   models: [Gaussian, Gaussian];
   mu: [number, number];
+  /**
+   * Normalised innovation squared of the last update, ν²/S averaged over the models with their
+   * predicted probabilities (null without a bearing). About 1 on average when the measurement
+   * variance and the motion models are right (a consistency check, G0 phase 4).
+   */
+  nis?: number | null;
 }
 
 const at = (a: Float64Array, i: number, j: number): number => a[N * i + j] ?? 0;
@@ -153,7 +159,7 @@ function updateModel(
   ox: number,
   oy: number,
   r2: number,
-): { g: Gaussian; likelihood: number } {
+): { g: Gaussian; likelihood: number; nis: number } {
   const [x = 0, y = 0] = g.x;
   const dx = x - ox;
   const dy = y - oy;
@@ -174,7 +180,7 @@ function updateModel(
     (v, k) => v + r2 * (kg[Math.floor(k / N)] ?? 0) * (kg[k % N] ?? 0),
   );
   const likelihood = Math.exp((-0.5 * nu * nu) / s) / Math.sqrt(2 * Math.PI * s);
-  return { g: { x: xn, p: symmetrise(p) }, likelihood };
+  return { g: { x: xn, p: symmetrise(p) }, likelihood, nis: (nu * nu) / s };
 }
 
 /** Mixture of `gs` with weights `w` (summing to 1): its mean and covariance with the spread. */
@@ -220,12 +226,14 @@ export function immStep(
   let cv = predictModel(m0, tau, cvMotion, processNoise(tau, params.sigmaCv, 0));
   let ct = predictModel(m1, tau, ctMotion, processNoise(tau, params.sigmaCt, params.sigmaOmega));
   let like = [1, 1];
+  let nis: number | null = null;
   if (z !== null) {
     const a = updateModel(cv, z.bearing, z.ox, z.oy, z.r2);
     const b = updateModel(ct, z.bearing, z.ox, z.oy, z.r2);
     cv = a.g;
     ct = b.g;
     like = [a.likelihood, b.likelihood];
+    nis = (c[0] ?? 0) * a.nis + (c[1] ?? 0) * b.nis;
   }
   let u0 = (like[0] ?? 0) * (c[0] ?? 0);
   let u1 = (like[1] ?? 0) * (c[1] ?? 0);
@@ -237,7 +245,7 @@ export function immStep(
     u0 /= total;
     u1 /= total;
   }
-  return { t, models: [cv, ct], mu: [u0, u1] };
+  return { t, models: [cv, ct], mu: [u0, u1], nis };
 }
 
 /** The combined estimate (x, y, vx, vy, ω). */

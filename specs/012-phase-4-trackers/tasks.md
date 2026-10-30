@@ -7,6 +7,9 @@
 - [ ] T005 G0 re-run on 0.5.0 (seed 42, 100,000, noise-free); agent panel; `review.md`
 - [ ] T006 References re-tuned on phase-4 validation (seed 211); EKF/IMM grid; frozen reference
 - [ ] T007 T1 learned-gain filter layer (algorithm note; fixed-gain = EKF test); T2 NLL head
+  (prerequisites found by the G0 panel: `features` `ROWS = 240` must grow to the 361 samples of a
+  60-min window; `velocity_two_hypothesis` and other phase-3 consumers must refuse 0.5.0 data, as
+  `tma-g4` now does; the viewer draws one target turn)
 - [ ] T008 Training-cost measurements; `tma-g5`; decision record (seeds, configs, forecast)
 - [ ] T009 Training on CI, both trackers
 - [ ] T010 Validation diagnostic; G5 on the fresh test seed for each tracker carried; panel

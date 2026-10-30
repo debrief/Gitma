@@ -117,9 +117,17 @@ intervals are therefore **97.5%** (Bonferroni over two), so the chance of a fals
 | G5-settled-speed | the same for speed | wholly below 1.1 |
 | G5-gross | gross-error rate (range error > 50% or no estimate), tracker − reference | reported, not gated |
 
-**Settled rows** are G5 rows more than 5 min after the last manoeuvre ended, or in a scenario
-with no manoeuvre. On those rows the constant-velocity model is right again, so they measure
-straight-leg accuracy.
+**Settled rows** are G5 rows where the constant-velocity model is right again, so they measure
+straight-leg accuracy (pinned 2026-10-30 after the G0 panel found the first wording ambiguous). At
+row k:
+- **No manoeuvre is in progress:** no span has start_index ≤ k < end_index.
+- **Either no manoeuvre has started yet** (every start_index > k), **or the most recent one ended
+  at least 5 min before:** (k − end_index) · dt ≥ 300 s, where end_index is the latest span end
+  at or before k.
+
+Later manoeuvres do not matter: a tracker cannot see them yet. On G0's data this is 44% of G5 rows.
+The other reading, more than 5 min after the scenario's last manoeuvre, gives 27% and was not
+meant.
 
 **The verdict.**
 - **Pass** if all six gated checks pass for at least one tracker.
