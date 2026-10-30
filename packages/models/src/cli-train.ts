@@ -1,7 +1,6 @@
 // tma-train. This module must not import tfjs-node (directly or through ./train.js) at load time:
 // the config's tfjs_threads is applied to the environment first, and only then is the trainer
 // imported, so libtensorflow creates its thread pools with that size (see threads.ts).
-import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
@@ -11,6 +10,7 @@ import { ModelManifest, parseRecord, RecordError, TrainingConfig } from "@tma/ty
 import { runAsyncCli } from "./cli-run.js";
 import { g0Accepted, generatorPathsEqual } from "./g0-guard.js";
 import { checkLineage } from "./lineage.js";
+import { sha256File } from "./manifest.js";
 import { applyThreads, threadSettings } from "./threads.js";
 
 /** Git checks, injectable for tests (defaults run git in this checkout). */
@@ -120,8 +120,8 @@ export async function main(argv: string[], deps: TrainDeps = {}): Promise<unknow
         manifestPath,
         "manifest",
       );
-      const sha = (f: string): string => createHash("sha256").update(readFileSync(f)).digest("hex");
-      const now = { train: sha(values.train), val: sha(values.val) };
+      // Streamed: derived phase-4 features exceed readFileSync's 2 GiB limit (train/p4b job 2).
+      const now = { train: sha256File(values.train), val: sha256File(values.val) };
       if (canonicalJson(prior.config) !== canonicalJson(config)) {
         throw new RecordError(
           manifestPath,
