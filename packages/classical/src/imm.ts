@@ -303,8 +303,14 @@ function row(d: BearingData, x: Float64Array, i: number, converged: boolean): Pr
  * classical per-timestep mode and `ekfPredict`, each using only bearings up to that sample. An
  * implausible combined estimate is reported non-converged and the tracker re-initialises from the
  * batch solution, at once and then every `EKF_REINIT_EVERY` samples until it succeeds.
+ * `onStep`, if given, sees the state after each update (G0's NIS check reads it there, so it tests
+ * this code path, measurement variance and scales included).
  */
-export function immPredict(s: Scenario, params: ImmParams): Prediction {
+export function immPredict(
+  s: Scenario,
+  params: ImmParams,
+  onStep?: (i: number, st: ImmState) => void,
+): Prediction {
   for (const [k, v] of Object.entries(params))
     if (!(typeof v === "number" && v >= 0)) throw new Error(`IMM ${k} must be ≥ 0`);
   if (params.p0Scale === 0 || params.rScale === 0) throw new Error("IMM scales must be > 0");
@@ -324,6 +330,7 @@ export function immPredict(s: Scenario, params: ImmParams): Prediction {
           ? { bearing: d.bearing[i] ?? 0, ox: d.ownX[i] ?? 0, oy: d.ownY[i] ?? 0, r2 }
           : null;
       st = immStep(st, d.t[i] ?? 0, z, params);
+      onStep?.(i, st);
       const est = immEstimate(st).x;
       if (plausible(d, est, i)) {
         rows.push(row(d, est, i, true));

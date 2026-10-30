@@ -102,9 +102,12 @@ G0 on 0.5.0 (`experiments/20261030-g0-p4-r2/`) adds three tracker checks:
   ends within 0.6% when ownship zigs afterwards: two turns either side, ±2 m/s, and turn, speed
   change, turn. A single coordinated-turn model with a signed ω handles S-turns poorly at small σ_ω.
 - **A paired straight-leg ratio.** The median per-scenario ratio to batch least squares is 1.05
-  over 1,000 scenarios. The ratio of medians, 1.17–1.26, was noisy on 200 scenarios.
-- **NIS.** The median per-scenario mean NIS is about 1.08 with the scenario's σ, 0.53 with σ² × 2
-  and 2.1 with σ² × 0.5. So an over-stated variance, which the ratio check cannot see, now fails.
+  over 1,000 scenarios, against a limit of 1.15. The ratio of medians, 1.17–1.26, was noisy on
+  200 scenarios.
+- **NIS.** The median per-scenario mean NIS, through `immPredict`, is 1.06 with the scenario's σ,
+  0.71 with σ² × 1.5 and 1.38 with σ² × 0.75. The band is [0.75, 1.3], so a variance mis-scaled
+  either way fails. The ratio check cannot see an over-stated variance, and on 0.5.0 it cannot see
+  a mis-stated σ at all.
 
 ### Reading it critically
 

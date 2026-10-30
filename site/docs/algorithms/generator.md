@@ -86,7 +86,8 @@ Reading it critically:
 - **The redraws lean slightly towards short, fast turns.** The mean |turn| is 74.3° against 75°
   for the uniform draw, and the mean rate 1.78°/s against 1.75°/s.
 - **The second zig is planned on the target's straight track.** It often follows the target's
-  first manoeuvre (73% of scenarios with three). Against the actual target it still crosses the
+  first manoeuvre: 33%, 53%, 73% and 85% of scenarios with one to four manoeuvres of any kind (G0
+  panel round 1, geometry, on 5,000 scenarios of seed 42). Against the actual target it still crosses the
   line of sight every time, with its offset outside the drawn 30–90° in 1.0% of scenarios (phase 3:
   1.9%).
 

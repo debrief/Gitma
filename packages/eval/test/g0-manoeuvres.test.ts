@@ -83,9 +83,16 @@ describe("G0 on generator 0.5.0", () => {
     expect(kinematicFailure(s)).toMatch(/sample 0/);
   });
 
+  it("catches drawn manoeuvres whose spans were removed", () => {
+    const s = withKind("course");
+    delete s.metadata.manoeuvres;
+    expect(kinematicFailure(s)).toMatch(/both be present/);
+  });
+
   it("the NIS check passes with the scenario's σ and fails with σ² × 2 or × 0.5", () => {
     expect(checkTrackerNis(PHASE4).result).toBe("pass");
     expect(checkTrackerNis(PHASE4, 2).result).toBe("fail");
     expect(checkTrackerNis(PHASE4, 0.5).result).toBe("fail");
+    expect(checkTrackerNis(PHASE4, 0.75).result).toBe("fail");
   });
 });

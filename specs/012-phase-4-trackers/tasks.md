@@ -11,6 +11,11 @@
   60-min window; `velocity_two_hypothesis` and other phase-3 consumers must refuse 0.5.0 data, as
   `tma-g4` now does; the viewer draws one target turn)
 - [ ] T008 Training-cost measurements; `tma-g5`; decision record (seeds, configs, forecast)
+  (from the G0 panel: `tma-g5` reuses `settled()` from `scripts/research/spec012-distribution.mjs`,
+  with a test that they agree on G0 data; the decision record reports the settled checks by gate time
+  as well as pooled; and it states that the count–window correlation, which over-weights busy
+  scenarios at later gate times, is the intended estimand, and that the speed-change side prior
+  favours learned trackers)
 - [ ] T009 Training on CI, both trackers
 - [ ] T010 Validation diagnostic; G5 on the fresh test seed for each tracker carried; panel
 - [ ] T011 Write-up
