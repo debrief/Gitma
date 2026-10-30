@@ -972,6 +972,19 @@ classes:
         description: >-
           G4: the manifest id of the one carried network (Annex B §B.4); tma-g4 refuses network
           predictions from another model.
+      carried_models:
+        range: string
+        multivalued: true
+        description: >-
+          G5 (spec 012, schema 0.16.0): the manifest ids of the carried trackers (one or both of
+          T1 and T2, Annex C §C.5), each with its own plan in `plans`, in the same order; tma-g5
+          refuses tracker predictions from any other model.
+      plans:
+        range: string
+        multivalued: true
+        description: >-
+          G5: the plan of each carried tracker (configs/phase4/<x>/plan.json), in the order of
+          carried_models; they share one dataset and one fresh test seed.
 
   ModelDigest:
     description: >-
