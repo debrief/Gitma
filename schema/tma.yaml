@@ -78,6 +78,12 @@ enums:
       time_late: { description: "Bidirectional LSTM over the whole window." }
       causal_cnn: { description: "Causal 1-D CNN control for the instantaneous variant." }
       mlp: { description: "MLP over the flattened window, control for the time-late variant." }
+      learned_gain_filter:
+        description: >-
+          Phase 4 tracker T1 (spec 012, SRD Annex C §C.4): a constant-velocity filter with a
+          bearings-only update whose gain a GRU of `units` computes each step, in one declared
+          filter layer (constitution 1.3.0). Reads the raw feature set; outputs the velocity
+          parameterisation.
   StopReason:
     permissible_values:
       max_epochs: {}
