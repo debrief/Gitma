@@ -45,11 +45,12 @@ export const RESERVED_SEEDS = {
   207: "the iteration-5 G3 test (spec 009)",
   209: "the phase-3 G4 test (fresh test only; spec 010)",
   210: "the phase-3b G4 test (fresh test only; spec 011)",
+  212: "the phase-4 G5 test (fresh test only; spec 012)",
 };
 /** Dataset seeds owned by one iteration's plans: its test split decided that iteration's gate. */
 export const ITERATION_DATASET_SEEDS = { 201: "2", 204: "3", 205: "4" };
 /** Dataset seeds owned by one phase's plans (spec 010: phase 3, gate G4). */
-export const PHASE_DATASET_SEEDS = { 208: "3" };
+export const PHASE_DATASET_SEEDS = { 208: "3", 211: "4" };
 /**
  * Seeds whose test split has already decided a gate: a fresh test split may use one only in the
  * plan that decided it (so the committed plan of record still validates), never in another.
@@ -66,6 +67,11 @@ export const RESERVED_TEST_SEEDS = {
   207: { for: "iteration 5 G3 (spec 009)" },
   209: { for: "phase 3 G4 (spec 010, fresh test)", plan: "configs/phase3/a/plan.json" },
   210: { for: "phase 3b G4 (spec 011, fresh test)", plan: "configs/phase3/b/plan.json" },
+  // Both phase-4 trackers are judged on the same rows (Annex C §C.5), so both plans name seed 212.
+  212: {
+    for: "phase 4 G5 (spec 012, fresh test)",
+    plans: ["configs/phase4/a/plan.json", "configs/phase4/b/plan.json"],
+  },
 };
 
 class PlanError extends Error {}
@@ -183,7 +189,8 @@ export function loadPlan(path) {
     if (f.seed === d.seed) fail("dataset.fresh_test.seed must differ from dataset.seed");
     // The exemption is bound to the committed plan's path, not to its id (any plan can claim an id).
     const reserved = RESERVED_TEST_SEEDS[f.seed];
-    if (reserved !== undefined && !path.replace(/\\/g, "/").endsWith(reserved.plan ?? "\0"))
+    const allowed = reserved?.plans ?? (reserved?.plan === undefined ? [] : [reserved.plan]);
+    if (reserved !== undefined && !allowed.some((p) => path.replace(/\\/g, "/").endsWith(p)))
       fail(`dataset.fresh_test.seed ${f.seed} is reserved for ${reserved.for}`);
     if (
       typeof f.digest !== "string" ||
