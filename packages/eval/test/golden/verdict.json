@@ -21,12 +21,12 @@
       "result": "pass"
     },
     {
-      "detail": "not applicable: the ranges have no target manoeuvre (generator 0.4.0 checks only)",
+      "detail": "not applicable: the ranges have no target manoeuvre (generator 0.4.0 and later checks only)",
       "name": "tracker-noise-free",
       "result": "pass"
     },
     {
-      "detail": "not applicable: the ranges have no target manoeuvre (generator 0.4.0 checks only)",
+      "detail": "not applicable: the ranges have no target manoeuvre (generator 0.4.0 and later checks only)",
       "name": "tracker-noisy-sanity",
       "result": "pass"
     },

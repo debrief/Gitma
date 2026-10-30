@@ -50,7 +50,11 @@ export function main(argv: string[], deps: GenerateDeps = {}): unknown {
     values["heldout-ranges"] === undefined ? HELDOUT_RANGES : loadRanges(values["heldout-ranges"]);
   // The default held-out ranges have no target manoeuvre: a manoeuvre dataset without its own
   // held-out ranges would silently get a held-out split of a different problem (G0 panel, phase 3).
-  if (ranges.target_manoeuvre_fraction != null && values["heldout-ranges"] === undefined)
+  if (
+    (ranges.target_manoeuvre_fraction != null ||
+      ranges.target_course_change_count_weights != null) &&
+    values["heldout-ranges"] === undefined
+  )
     throw new UsageError("--ranges with a target manoeuvre needs --heldout-ranges");
   if (values["noise-free"]) {
     ranges = noiseFree(ranges);
