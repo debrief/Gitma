@@ -309,6 +309,10 @@ export function kinematicFailure(s: Scenario): string | null {
     ],
   );
   if (own !== null) return `ownship ${own}`;
+  if (m.manoeuvres != null) {
+    const tgt = targetManoeuvresFailure(s);
+    return tgt === null ? null : `target ${tgt}`;
+  }
   const turns = m.manoeuvre_index != null;
   const tgt = trackFailure(
     s.target.states,
@@ -319,6 +323,190 @@ export function kinematicFailure(s: Scenario): string | null {
     !turns,
   );
   return tgt === null ? null : `target ${tgt}`;
+}
+
+/**
+ * Kinematic consistency of a generator-0.5.0 target track (SRD Annex C §C.2), step by step:
+ * - outside every manoeuvre, course and speed are constant, each step is v·dt long along the
+ *   course;
+ * - in a course change, speed is constant, every step wholly on the arc turns by ω·dt, each step
+ *   lies between the full-step chord and v·dt with its chord heading between the end courses, and
+ *   the summed course change equals the stored change;
+ * - in a speed change, course is constant, every step wholly inside it changes speed by a·dt, each
+ *   step is between the end speeds × dt along the course, and the summed speed change equals the
+ *   stored change.
+ * The spans must match the drawn manoeuvres in kind, order and length. Returns the first failure.
+ */
+export function targetManoeuvresFailure(s: Scenario): string | null {
+  const p = s.metadata.parameters;
+  const spans = s.metadata.manoeuvres ?? [];
+  const plan = p.target_manoeuvres ?? [];
+  const dt = p.dt_s;
+  const st = s.target.states;
+  if (spans.length !== plan.length)
+    return `${String(spans.length)} manoeuvre spans for ${String(plan.length)} drawn manoeuvres`;
+  for (let j = 0; j < plan.length; j++) {
+    const m = plan[j];
+    const sp = spans[j];
+    if (m === undefined || sp === undefined) return "manoeuvre missing";
+    if (m.kind !== sp.kind) return `manoeuvre ${String(j)}: span kind ${sp.kind}, drawn ${m.kind}`;
+    const k = Math.round(m.start_time_s / dt);
+    const dur = Math.abs(m.change) / m.rate;
+    if (sp.start_index !== k + 1)
+      return `manoeuvre ${String(j)}: starts after sample ${String(sp.start_index)}, drawn ${String(k + 1)}`;
+    if (!((sp.end_index - k) * dt >= dur - 1e-6 && (sp.end_index - k - 1) * dt < dur - 1e-6))
+      return `manoeuvre ${String(j)}: span ${String(sp.start_index)}–${String(sp.end_index)} does not fit its ${dur.toFixed(2)} s`;
+    if (j > 0 && sp.start_index <= (spans[j - 1]?.end_index ?? 0))
+      return `manoeuvre ${String(j)} overlaps the one before`;
+  }
+  const spanOf = (i: number): number =>
+    spans.findIndex((x) => i >= x.start_index && i <= x.end_index);
+  for (let i = 1; i < st.length; i++) {
+    const a = st[i - 1];
+    const b = st[i];
+    if (a === undefined || b === undefined) return `sample ${String(i)} missing`;
+    const dx = b.x_m - a.x_m;
+    const dy = b.y_m - a.y_m;
+    const step = Math.hypot(dx, dy);
+    const dc = wrapPi(b.course_rad - a.course_rad);
+    const dv = b.speed_mps - a.speed_mps;
+    const heading = step > 1 ? wrapPi(Math.atan2(dx, dy) - a.course_rad) : 0;
+    const j = spanOf(i);
+    const sp = spans[j];
+    const m = plan[j];
+    if (sp === undefined || m === undefined) {
+      if (dc !== 0 || dv !== 0)
+        return `sample ${String(i)}: course or speed changed outside a manoeuvre`;
+      if (Math.abs(step - a.speed_mps * dt) > 0.05)
+        return `sample ${String(i)}: straight step ${step.toFixed(3)} m, not v·dt`;
+      if (Math.abs(heading) > 2e-4) return `sample ${String(i)}: straight step off the course`;
+      continue;
+    }
+    const interior = i < sp.end_index;
+    if (m.kind === "course") {
+      const v = a.speed_mps;
+      if (dv !== 0) return `sample ${String(i)}: speed changed in a course change`;
+      if (interior && Math.abs(Math.abs(dc) - m.rate * dt) > 1e-5)
+        return `sample ${String(i)}: turned ${dc.toFixed(6)} rad, not ω·dt`;
+      const minStep = 2 * (v / m.rate) * Math.sin((m.rate * dt) / 2);
+      if (step > v * dt + 0.05 || step < minStep - 0.05)
+        return `sample ${String(i)}: step ${step.toFixed(3)} m outside the arc's bounds`;
+      if (heading < Math.min(0, dc) - 2e-4 || heading > Math.max(0, dc) + 2e-4)
+        return `sample ${String(i)}: chord heading outside the turn`;
+    } else {
+      if (dc !== 0) return `sample ${String(i)}: course changed in a speed change`;
+      if (interior && Math.abs(Math.abs(dv) - m.rate * dt) > 1e-4)
+        return `sample ${String(i)}: speed changed ${dv.toFixed(5)} m/s, not a·dt`;
+      const lo = Math.min(a.speed_mps, b.speed_mps) * dt;
+      const hi = Math.max(a.speed_mps, b.speed_mps) * dt;
+      if (step < lo - 0.05 || step > hi + 0.05)
+        return `sample ${String(i)}: step ${step.toFixed(3)} m outside the end speeds' bounds`;
+      if (Math.abs(heading) > 2e-4) return `sample ${String(i)}: speed-change step off the course`;
+    }
+  }
+  for (let j = 0; j < spans.length; j++) {
+    const sp = spans[j];
+    const m = plan[j];
+    if (sp === undefined || m === undefined) continue;
+    const a = st[sp.start_index - 1];
+    const b = st[sp.end_index];
+    if (a === undefined || b === undefined) return `manoeuvre ${String(j)}: samples missing`;
+    if (m.kind === "course") {
+      let sum = 0;
+      for (let i = sp.start_index; i <= sp.end_index; i++)
+        sum += wrapPi((st[i]?.course_rad ?? 0) - (st[i - 1]?.course_rad ?? 0));
+      if (Math.abs(sum - m.change) > 1e-4)
+        return `manoeuvre ${String(j)}: course changed ${sum.toFixed(5)} rad, drawn ${m.change.toFixed(5)}`;
+    } else if (Math.abs(b.speed_mps - a.speed_mps - m.change) > 1e-3)
+      return `manoeuvre ${String(j)}: speed changed ${(b.speed_mps - a.speed_mps).toFixed(4)} m/s, drawn ${m.change.toFixed(4)}`;
+  }
+  return null;
+}
+
+/**
+ * Generator-0.5.0 timing and bounds (SRD Annex C §C.2) against the ranges: the first manoeuvre
+ * starts at least `target_manoeuvre_after_zig_s` after the zig, each at least
+ * `target_manoeuvre_spacing_s` after the one before ends, the last ends at least
+ * `target_manoeuvre_margin_s` before the window ends, and every stored target speed lies in
+ * `target_speed_mps`. Returns the first failure.
+ */
+export function manoeuvreTimingFailure(s: Scenario, r: ParameterRanges): string | null {
+  const m = s.metadata;
+  const spans = m.manoeuvres;
+  if (spans == null) return null;
+  const dt = m.parameters.dt_s;
+  const after = Math.ceil((r.target_manoeuvre_after_zig_s ?? 0) / dt);
+  const gap = Math.ceil((r.target_manoeuvre_spacing_s ?? 0) / dt);
+  const margin = Math.ceil((r.target_manoeuvre_margin_s ?? 0) / dt);
+  for (let j = 0; j < spans.length; j++) {
+    const sp = spans[j];
+    if (sp === undefined) continue;
+    const k = sp.start_index - 1;
+    if (j === 0 && k < m.zig_index + after) return "first manoeuvre too soon after the zig";
+    const prev = spans[j - 1];
+    if (prev !== undefined && k - prev.end_index < gap - 1)
+      return `manoeuvre ${String(j)} closer than the spacing to the one before`;
+    if (j === spans.length - 1 && sp.end_index > m.samples - 1 - margin)
+      return "last manoeuvre ends inside the margin";
+  }
+  const lo = r.target_speed_mps.min - 1e-3;
+  const hi = r.target_speed_mps.max + 1e-3;
+  if (s.target.states.some((x) => x.speed_mps < lo || x.speed_mps > hi))
+    return "target speed outside target_speed_mps";
+  return null;
+}
+
+/**
+ * Generator-0.5.0 known answers (spec 012), with literal arithmetic. Ownship north at 10 m/s, its
+ * zig late (t = 540 s); the target starts 5 km due east heading north at 5 m/s.
+ * - Speed change: +5 m/s at 0.1 m/s² from t = 200 s at (5000, 1000). At t = 230 s it has run
+ *   5·30 + ½·0.1·30² = 195 m; the change ends at t = 250 s after 375 m, then 10 m/s for 150 s, so
+ *   at t = 400 s it is at (5000, 1000 + 375 + 1500).
+ * - Two turns: +90° at 1°/s from t = 200 s (ends t = 290 s at (5000 + r, 1000 + r) heading east,
+ *   r = 5/ω), 60 s east, then −90° at 1°/s from t = 350 s, ending at t = 440 s a further (r, r)
+ *   on, heading north; at t = 500 s it is 300 m further north.
+ */
+export function targetManoeuvreBearings(): { name: string; got: number; want: number }[] {
+  const omega = Math.PI / 180;
+  const r = 5 / omega;
+  const base: ScenarioParameters = {
+    ...KNOWN,
+    zig_fraction: 0.9,
+    target_bearing0_rad: Math.PI / 2,
+    target_range0_m: 5000,
+    target_speed_mps: 5,
+    target_course_rad: 0,
+  };
+  const speed: ScenarioParameters = {
+    ...base,
+    target_manoeuvres: [{ kind: "speed", start_time_s: 200, change: 5, rate: 0.1 }],
+  };
+  const turns: ScenarioParameters = {
+    ...base,
+    target_manoeuvres: [
+      { kind: "course", start_time_s: 200, change: Math.PI / 2, rate: omega },
+      { kind: "course", start_time_s: 350, change: -Math.PI / 2, rate: omega },
+    ],
+  };
+  const sp = observe(createRng(1n), speed, simulateTruth(speed));
+  const tu = observe(createRng(1n), turns, simulateTruth(turns));
+  return [
+    {
+      name: "target speed change, during it",
+      got: sp[23]?.bearing_rad ?? NaN,
+      want: Math.atan2(5000, 1195 - 2300),
+    },
+    {
+      name: "target speed change, after it",
+      got: sp[40]?.bearing_rad ?? NaN,
+      want: Math.atan2(5000, 2875 - 4000),
+    },
+    {
+      name: "two target turns, after both",
+      got: tu[50]?.bearing_rad ?? NaN,
+      want: Math.atan2(5000 + 2 * r + 300, 1000 + 2 * r + 300 - 5000),
+    },
+  ];
 }
 
 /**
@@ -419,7 +607,11 @@ export function checkIndependentGeometry(
   })[50];
   if (!(Math.abs(angleDiff(leg3 ?? NaN, Math.atan2(5000, -4000))) < 1e-6))
     fails.push(`leg-3 case gave ${String(leg3)}`);
-  for (const c of [...secondTurnBearings(), ...targetTurnBearings()]) {
+  for (const c of [
+    ...secondTurnBearings(),
+    ...targetTurnBearings(),
+    ...targetManoeuvreBearings(),
+  ]) {
     if (!(Math.abs(angleDiff(c.got, c.want)) < 1e-6))
       fails.push(`${c.name} gave ${String(c.got)}, want ${String(c.want)}`);
   }
@@ -451,7 +643,8 @@ export function checkIndependentGeometry(
       if (fails.length < 5)
         fails.push(`scenario ${String(s.metadata.index)}: turn larger than 180°`);
     }
-    const kin = kinematicFailure(s);
+    const kin =
+      kinematicFailure(s) ?? (ranges === undefined ? null : manoeuvreTimingFailure(s, ranges));
     if (kin !== null) {
       kinematic++;
       if (fails.length < 5) fails.push(`scenario ${String(s.metadata.index)}: ${kin}`);
@@ -560,6 +753,7 @@ export function beforeManoeuvre(s: Scenario): Scenario {
   const metadata = { ...m, samples: n };
   delete metadata.manoeuvre_start_index;
   delete metadata.manoeuvre_index;
+  delete metadata.manoeuvres;
   if (m.zig2_index != null && m.zig2_index >= n) {
     delete metadata.zig2_index;
     delete metadata.turn2_start_index;
@@ -572,6 +766,10 @@ export function beforeManoeuvre(s: Scenario): Scenario {
     observations: s.observations.slice(0, n),
   };
 }
+
+/** The ranges give the target manoeuvres (generator 0.4.0's one turn, or 0.5.0's). */
+export const hasTargetManoeuvre = (r: ParameterRanges): boolean =>
+  r.target_manoeuvre_fraction != null || r.target_course_change_count_weights != null;
 
 /** IMM settings G0 checks the tracker with (not a tuning: G4's are chosen on validation). */
 export const G0_IMM: ImmParams = {
@@ -594,11 +792,11 @@ export const G0_IMM: ImmParams = {
  * the batch fit the tracker starts from is nearly unobservable, and it settles more slowly.
  */
 export function checkTrackerNoiseFree(truth: Scenario[], ranges?: ParameterRanges): GateCheck {
-  if (ranges !== undefined && ranges.target_manoeuvre_fraction == null)
+  if (ranges !== undefined && !hasTargetManoeuvre(ranges))
     return check(
       "tracker-noise-free",
       true,
-      "not applicable: the ranges have no target manoeuvre (generator 0.4.0 checks only)",
+      "not applicable: the ranges have no target manoeuvre (generator 0.4.0 and later checks only)",
     );
   let gated = 0;
   let bad = 0;
@@ -680,11 +878,11 @@ const NOISY_SCENARIOS = 200;
  */
 export function checkTrackerNoisy(ranges: ParameterRanges): GateCheck {
   const name = "tracker-noisy-sanity";
-  if (ranges.target_manoeuvre_fraction == null)
+  if (!hasTargetManoeuvre(ranges))
     return check(
       name,
       true,
-      "not applicable: the ranges have no target manoeuvre (generator 0.4.0 checks only)",
+      "not applicable: the ranges have no target manoeuvre (generator 0.4.0 and later checks only)",
     );
   const r: ParameterRanges = {
     ...ranges,

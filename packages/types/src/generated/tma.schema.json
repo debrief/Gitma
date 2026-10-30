@@ -582,6 +582,39 @@
       "title": "GateVerdict",
       "type": "object"
     },
+    "ManoeuvreKind": {
+      "description": "What a target manoeuvre changes (generator 0.5.0, SRD Annex C §C.2).",
+      "enum": [
+        "course",
+        "speed"
+      ],
+      "title": "ManoeuvreKind",
+      "type": "string"
+    },
+    "ManoeuvreSpan": {
+      "additionalProperties": false,
+      "description": "Where one target manoeuvre lies in a scenario's samples (generator 0.5.0).",
+      "properties": {
+        "end_index": {
+          "description": "First timestep after it completes.",
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/$defs/ManoeuvreKind"
+        },
+        "start_index": {
+          "description": "First timestep after it starts.",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "start_index",
+        "end_index"
+      ],
+      "title": "ManoeuvreSpan",
+      "type": "object"
+    },
     "MetricsRecord": {
       "additionalProperties": false,
       "description": "Metric values for one estimator on one slice at one evaluation point.",
@@ -1157,6 +1190,16 @@
         "range_distribution": {
           "$ref": "#/$defs/RangeDistribution"
         },
+        "target_course_change_count_weights": {
+          "description": "Generator 0.5.0 (SRD Annex C §C.2): probabilities of 0, 1, 2, … target course changes (summing to 1). Present: every scenario draws its manoeuvres this way, with target_manoeuvre_angle_abs_rad, target_turn_rate_rad_s, target_manoeuvre_after_zig_s and target_manoeuvre_margin_s, and target_manoeuvre_fraction must be absent.",
+          "items": {
+            "type": "number"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "target_manoeuvre_after_zig_s": {
           "description": "Earliest start of the target's turn, after the first sample on leg 2.",
           "type": [
@@ -1189,8 +1232,44 @@
             "null"
           ]
         },
+        "target_manoeuvre_spacing_s": {
+          "description": "Least time from the end of one target manoeuvre to the start of the next.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "target_range0_m": {
           "$ref": "#/$defs/FloatRange"
+        },
+        "target_speed_change_abs_mps": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FloatRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Absolute speed change; its sign is uniform ±, flipped if the new speed would leave target_speed_mps (redrawn if both signs would)."
+        },
+        "target_speed_change_fraction": {
+          "description": "Probability of one target speed change (generator 0.5.0).",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "target_speed_change_rate_mps2": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FloatRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Magnitude of the target's acceleration during a speed change."
         },
         "target_speed_mps": {
           "$ref": "#/$defs/FloatRange"
@@ -1469,16 +1548,26 @@
           "type": "integer"
         },
         "manoeuvre_index": {
-          "description": "First timestep after the target's turn completes (generator 0.4.0; absent when the target holds course). Gate G4 counts time from here, as earlier gates count from zig_index.",
+          "description": "First timestep after the target's turn completes (generator 0.4.0; absent when the target holds course). Gate G4 counts time from here, as earlier gates count from zig_index. Under generator 0.5.0, after the last manoeuvre completes.",
           "type": [
             "integer",
             "null"
           ]
         },
         "manoeuvre_start_index": {
-          "description": "First timestep after the target's turn starts (generator 0.4.0; absent when the target holds course).",
+          "description": "First timestep after the target's turn starts (generator 0.4.0; absent when the target holds course). Under generator 0.5.0, after the first manoeuvre starts.",
           "type": [
             "integer",
+            "null"
+          ]
+        },
+        "manoeuvres": {
+          "description": "Generator 0.5.0: each target manoeuvre's sample span, in time order (present, possibly empty, only under 0.5.0).",
+          "items": {
+            "$ref": "#/$defs/ManoeuvreSpan"
+          },
+          "type": [
+            "array",
             "null"
           ]
         },
@@ -1592,6 +1681,16 @@
             "null"
           ]
         },
+        "target_manoeuvres": {
+          "description": "Target manoeuvres in time order (generator 0.5.0, SRD Annex C §C.2), none overlapping. Present (possibly empty) only under generator 0.5.0 ranges; then the single-turn fields above are absent.",
+          "items": {
+            "$ref": "#/$defs/TargetManoeuvre"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "target_range0_m": {
           "description": "Range at window start.",
           "type": "number"
@@ -1671,6 +1770,35 @@
       ],
       "title": "StopReason",
       "type": "string"
+    },
+    "TargetManoeuvre": {
+      "additionalProperties": false,
+      "description": "One target manoeuvre (generator 0.5.0). A course change is an arc at constant speed; a speed change is constant acceleration on a constant course.",
+      "properties": {
+        "change": {
+          "description": "Signed change: course in rad (positive clockwise) or speed in m/s (positive faster).",
+          "type": "number"
+        },
+        "kind": {
+          "$ref": "#/$defs/ManoeuvreKind"
+        },
+        "rate": {
+          "description": "Magnitude of the rate of change, rad/s (course) or m/s² (speed).",
+          "type": "number"
+        },
+        "start_time_s": {
+          "description": "Time the manoeuvre starts, a whole number of samples.",
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind",
+        "start_time_s",
+        "change",
+        "rate"
+      ],
+      "title": "TargetManoeuvre",
+      "type": "object"
     },
     "Track": {
       "additionalProperties": false,
@@ -1894,5 +2022,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.14.0"
+  "version": "0.15.0"
 }

@@ -68,6 +68,14 @@ export function dropoutBand(fraction: number): string {
  * `band` does).
  */
 export function manoeuvreBand(m: ScenarioMetadata): string {
+  // Generator 0.5.0: the drawn plan, as course-change count plus a speed-change mark ("2turns+speed").
+  const plan = m.parameters.target_manoeuvres;
+  if (plan != null) {
+    const turns = plan.filter((x) => x.kind === "course").length;
+    const speed = plan.some((x) => x.kind === "speed");
+    if (turns === 0 && !speed) return "held";
+    return `${String(turns)}turn${turns === 1 ? "" : "s"}${speed ? "+speed" : ""}`;
+  }
   const a = m.parameters.target_manoeuvre_angle_rad;
   if (a == null) return "held";
   const deg = Math.abs(radToDeg(a));

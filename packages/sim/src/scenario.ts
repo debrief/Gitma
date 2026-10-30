@@ -3,15 +3,19 @@
 // (spec 003 US6). Generator 0.3.0 (spec 007) adds an optional second zig and the across-the-line-
 // of-sight rule; ranges without them reproduce 0.2.0's scenarios byte for byte. Generator 0.4.0
 // (spec 010, SRD Annex B §B.2) adds an optional target course change, drawn last; ranges without
-// it reproduce 0.3.0's scenarios byte for byte.
+// it reproduce 0.3.0's scenarios byte for byte. Generator 0.5.0 (spec 012, SRD Annex C §C.2) adds
+// 0–3 target course changes and an optional speed change, drawn last; ranges without them
+// reproduce 0.4.0's scenarios byte for byte.
 // Pure functions: every output is determined by (datasetSeed, index, ranges).
 import type {
   FloatRange,
+  ManoeuvreKind,
   Observation,
   ParameterRanges,
   PlatformState,
   Scenario,
   ScenarioParameters,
+  TargetManoeuvre,
 } from "@tma/types";
 import { bearingOf, f32, f32Angle, TWO_PI, wrap2pi } from "./geometry.js";
 import {
@@ -25,14 +29,45 @@ import {
   uniformInt,
 } from "./prng.js";
 
-export const GENERATOR_VERSION = "0.4.0";
+export const GENERATOR_VERSION = "0.5.0";
 const MAX_REDRAWS = 1000;
 
 const draw = (s: RngState, r: FloatRange): number => uniform(s, r.min, r.max);
 
 /** Draw one parameter set; every value float32-rounded so metadata describes the data exactly. */
-export function drawParameters(s: RngState, ranges: ParameterRanges): ScenarioParameters {
-  return drawScenario(s, ranges).parameters;
+export function drawParameters(
+  s: RngState,
+  ranges: ParameterRanges,
+  count?: ManoeuvreCount,
+): ScenarioParameters {
+  return drawScenario(s, ranges, count).parameters;
+}
+
+/** Generator 0.5.0: how many target course changes, and whether there is a speed change. */
+export interface ManoeuvreCount {
+  courseChanges: number;
+  speedChange: boolean;
+}
+
+/**
+ * The manoeuvre count of a scenario (generator 0.5.0), drawn once from its own stream (scenario
+ * seed, sub-index 1) so that redrawing a geometry that cannot fit the manoeuvres never changes
+ * how many there are: the realised count distribution is the declared one.
+ */
+export function drawManoeuvreCount(scenarioSeed: bigint, ranges: ParameterRanges): ManoeuvreCount {
+  const weights = ranges.target_course_change_count_weights ?? [1];
+  const s = createRng(deriveSeed(scenarioSeed, 1));
+  const u = uniform01(s);
+  let courseChanges = weights.length - 1;
+  let acc = 0;
+  for (let k = 0; k < weights.length; k++) {
+    acc += weights[k] ?? 0;
+    if (u < acc) {
+      courseChanges = k;
+      break;
+    }
+  }
+  return { courseChanges, speedChange: uniform01(s) < (ranges.target_speed_change_fraction ?? 0) };
 }
 
 /**
@@ -43,6 +78,7 @@ export function drawParameters(s: RngState, ranges: ParameterRanges): ScenarioPa
 function drawScenario(
   s: RngState,
   ranges: ParameterRanges,
+  count?: ManoeuvreCount,
 ): { parameters: ScenarioParameters; fits: boolean } {
   const dt = ranges.dt_s;
   const minSamples = Math.ceil(ranges.window_s.min / dt);
@@ -81,8 +117,112 @@ function drawScenario(
     dropout_fraction: f32(dropout),
     ...turn,
   };
-  return planTargetManoeuvre(s, ranges, planManoeuvres(s, ranges, base));
+  const one = planTargetManoeuvre(s, ranges, planManoeuvres(s, ranges, base));
+  if (!one.fits) return one;
+  return planTargetManoeuvres(s, ranges, one.parameters, count);
 }
+
+/**
+ * Generator 0.5.0 draws (SRD Annex C §C.2), after every 0.4.0 draw (the count is given, from
+ * `drawManoeuvreCount`): for every possible course change its sign, size and rate, the speed change's sign, size and rate, the
+ * speed change's place in the order, and one uniform per possible manoeuvre for the timing. All
+ * are drawn for every scenario, so the PRNG is consumed alike whatever is used.
+ *
+ * Timing: manoeuvres never overlap. The first starts at least `target_manoeuvre_after_zig_s`
+ * after the first sample on leg 2, each starts at least `target_manoeuvre_spacing_s` after the
+ * previous one ends, and the last ends at least `target_manoeuvre_margin_s` before the window
+ * ends. The slack is shared out uniformly (sorted uniforms). A window that cannot fit the drawn
+ * manoeuvres, or a speed change that would leave `target_speed_mps` either way, does not fit.
+ */
+function planTargetManoeuvres(
+  s: RngState,
+  ranges: ParameterRanges,
+  p: ScenarioParameters,
+  count?: ManoeuvreCount,
+): { parameters: ScenarioParameters; fits: boolean } {
+  const weights = ranges.target_course_change_count_weights;
+  if (weights == null) return { parameters: p, fits: true };
+  if (count === undefined) throw new Error("generator 0.5.0 ranges need a manoeuvre count");
+  const angleRange = ranges.target_manoeuvre_angle_abs_rad;
+  const rateRange = ranges.target_turn_rate_rad_s;
+  const after = ranges.target_manoeuvre_after_zig_s;
+  const margin = ranges.target_manoeuvre_margin_s;
+  const spacing = ranges.target_manoeuvre_spacing_s;
+  const speedFraction = ranges.target_speed_change_fraction ?? 0;
+  const dvRange = ranges.target_speed_change_abs_mps;
+  const accRange = ranges.target_speed_change_rate_mps2;
+  if (
+    angleRange == null ||
+    rateRange == null ||
+    after == null ||
+    margin == null ||
+    spacing == null ||
+    (speedFraction > 0 && (dvRange == null || accRange == null))
+  )
+    throw new Error(
+      "target_course_change_count_weights needs target_manoeuvre_angle_abs_rad, " +
+        "target_turn_rate_rad_s, target_manoeuvre_after_zig_s, target_manoeuvre_margin_s and " +
+        "target_manoeuvre_spacing_s (and the speed-change ranges when there are speed changes)",
+    );
+  if (ranges.target_manoeuvre_fraction != null)
+    throw new Error(
+      "target_manoeuvre_fraction and target_course_change_count_weights are exclusive",
+    );
+  const maxCourse = weights.length - 1;
+  const nCourse = count.courseChanges;
+  const speedChange = count.speedChange;
+  const courses: TargetManoeuvre[] = [];
+  for (let k = 0; k < maxCourse; k++) {
+    const sign = uniform01(s) < 0.5 ? -1 : 1;
+    const change = f32(sign * draw(s, angleRange));
+    const rate = f32(draw(s, rateRange));
+    courses.push({ kind: "course", start_time_s: 0, change, rate });
+  }
+  let speed: TargetManoeuvre | null = null;
+  let speedFits = true;
+  if (dvRange != null && accRange != null) {
+    const sign = uniform01(s) < 0.5 ? -1 : 1;
+    const dv = draw(s, dvRange);
+    const rate = f32(draw(s, accRange));
+    const lo = ranges.target_speed_mps.min;
+    const hi = ranges.target_speed_mps.max;
+    const v = p.target_speed_mps;
+    const inside = (d: number): boolean => v + d >= lo && v + d <= hi;
+    const change = inside(sign * dv) ? sign * dv : inside(-sign * dv) ? -sign * dv : null;
+    if (change === null) speedFits = !speedChange;
+    else speed = { kind: "speed", start_time_s: 0, change: f32(change), rate };
+  }
+  const place = uniform01(s);
+  const slack: number[] = [];
+  for (let k = 0; k <= maxCourse; k++) slack.push(uniform01(s));
+  if (!speedFits) return { parameters: p, fits: false };
+  const plan = courses.slice(0, nCourse);
+  if (speedChange && speed !== null)
+    plan.splice(Math.min(plan.length, Math.floor(place * (plan.length + 1))), 0, speed);
+  const dt = p.dt_s;
+  const samples = Math.round(p.window_s / dt);
+  const lo = simulateTruth(p).zigIndex + Math.ceil(after / dt);
+  const hiEnd = samples - 1 - Math.ceil(margin / dt);
+  const gap = Math.ceil(spacing / dt);
+  const rows = plan.map((m) => turnRows(manoeuvreSeconds(m), dt));
+  const total = rows.reduce((a, b) => a + b, 0) + Math.max(0, plan.length - 1) * gap;
+  const free = hiEnd - lo - total;
+  if (plan.length > 0 && free < 0) return { parameters: p, fits: false };
+  const offsets = slack
+    .slice(0, plan.length)
+    .map((u) => Math.min(free, Math.floor(u * (free + 1))))
+    .sort((a, b) => a - b);
+  let used = 0;
+  const target_manoeuvres = plan.map((m, j) => {
+    const start = lo + (offsets[j] ?? 0) + used;
+    used += (rows[j] ?? 0) + gap;
+    return { ...m, start_time_s: f32(start * dt) };
+  });
+  return { parameters: { ...p, target_manoeuvres }, fits: true };
+}
+
+/** Duration of a manoeuvre (s): |change| / rate. */
+export const manoeuvreSeconds = (m: TargetManoeuvre): number => Math.abs(m.change) / m.rate;
 
 /**
  * Generator 0.4.0 draws, after every 0.3.0 draw so older ranges consume the PRNG unchanged: whether
@@ -253,6 +393,9 @@ export interface Truth {
   tgtX: Float64Array;
   tgtY: Float64Array;
   tgtCourse: Float64Array;
+  tgtSpeed: Float64Array;
+  /** Generator 0.5.0: each target manoeuvre's span; null under older ranges. */
+  manoeuvres: { kind: ManoeuvreKind; startIndex: number; endIndex: number }[] | null;
 }
 
 /**
@@ -314,6 +457,8 @@ function simulateTwoLegs(p: ScenarioParameters): Truth {
     tgtX: new Float64Array(samples),
     tgtY: new Float64Array(samples),
     tgtCourse: new Float64Array(samples).fill(p.target_course_rad),
+    tgtSpeed: new Float64Array(samples).fill(p.target_speed_mps),
+    manoeuvres: null,
   };
   for (let i = 0; i < samples; i++) {
     const t = i * p.dt_s;
@@ -407,7 +552,81 @@ export function observe(s: RngState, p: ScenarioParameters, truth: Truth): Obser
  * gives zig2Index ≥ samples (the caller redraws).
  */
 export function simulateTruth(p: ScenarioParameters): Truth {
-  return targetManoeuvre(p, ownshipZig2(p, simulateTwoLegs(p)));
+  return targetManoeuvres(p, targetManoeuvre(p, ownshipZig2(p, simulateTwoLegs(p))));
+}
+
+/**
+ * The target's manoeuvres (generator 0.5.0), in order: straight at constant speed up to each
+ * manoeuvre's start sample k, then for |change| / rate seconds either a constant-rate arc at
+ * constant speed (`arcPosition`) or constant acceleration along the course, then straight from the
+ * first sample after it ends. Each segment is closed-form from the state where it starts.
+ */
+function targetManoeuvres(p: ScenarioParameters, truth: Truth): Truth {
+  const plan = p.target_manoeuvres;
+  if (plan == null) return truth;
+  truth.manoeuvres = [];
+  const dt = p.dt_s;
+  let x = truth.tgtX[0] ?? 0;
+  let y = truth.tgtY[0] ?? 0;
+  let c = p.target_course_rad;
+  let v = p.target_speed_mps;
+  let t0 = 0;
+  let from = 0;
+  const straight = (i: number): void => {
+    const tau = i * dt - t0;
+    truth.tgtX[i] = x + v * Math.sin(c) * tau;
+    truth.tgtY[i] = y + v * Math.cos(c) * tau;
+    truth.tgtCourse[i] = c;
+    truth.tgtSpeed[i] = v;
+  };
+  for (const m of plan) {
+    const k = Math.round(m.start_time_s / dt);
+    if (k >= truth.samples) break;
+    for (let i = from; i <= k; i++) straight(i);
+    const ts = k * dt;
+    const xs = x + v * Math.sin(c) * (ts - t0);
+    const ys = y + v * Math.cos(c) * (ts - t0);
+    const dur = manoeuvreSeconds(m);
+    const end = k + turnRows(dur, dt);
+    truth.manoeuvres.push({ kind: m.kind, startIndex: k + 1, endIndex: end });
+    const sign = m.change < 0 ? -1 : 1;
+    for (let i = k + 1; i < Math.min(end, truth.samples); i++) {
+      const tau = (i - k) * dt;
+      if (m.kind === "course") {
+        const a = arcPosition(xs, ys, c, v, sign * m.rate, tau);
+        truth.tgtX[i] = a.x;
+        truth.tgtY[i] = a.y;
+        truth.tgtCourse[i] = a.course;
+        truth.tgtSpeed[i] = v;
+      } else {
+        const d = v * tau + 0.5 * sign * m.rate * tau * tau;
+        truth.tgtX[i] = xs + Math.sin(c) * d;
+        truth.tgtY[i] = ys + Math.cos(c) * d;
+        truth.tgtCourse[i] = c;
+        truth.tgtSpeed[i] = v + sign * m.rate * tau;
+      }
+    }
+    // The state where the manoeuvre ends, exactly.
+    if (m.kind === "course") {
+      const a = arcPosition(xs, ys, c, v, sign * m.rate, dur);
+      x = a.x;
+      y = a.y;
+      c = wrap2pi(c + m.change);
+    } else {
+      x = xs + Math.sin(c) * (v * dur + 0.5 * m.change * dur);
+      y = ys + Math.cos(c) * (v * dur + 0.5 * m.change * dur);
+      v = v + m.change;
+    }
+    t0 = ts + dur;
+    from = end;
+  }
+  for (let i = from; i < truth.samples; i++) straight(i);
+  const spans = truth.manoeuvres;
+  const first = spans[0];
+  const last = spans[spans.length - 1];
+  truth.manoeuvreStartIndex = first === undefined ? null : first.startIndex;
+  truth.manoeuvreIndex = last === undefined ? null : last.endIndex;
+  return truth;
 }
 
 /**
@@ -514,8 +733,10 @@ export function generateScenario(
 ): GeneratedScenario {
   const seed = deriveSeed(datasetSeed, index);
   const s = createRng(seed);
+  const count =
+    r.target_course_change_count_weights == null ? undefined : drawManoeuvreCount(seed, r);
   for (let redraws = 0; redraws <= MAX_REDRAWS; redraws++) {
-    const { parameters: p, fits } = drawScenario(s, r);
+    const { parameters: p, fits } = drawScenario(s, r, count);
     if (!fits) continue;
     const truth = simulateTruth(p);
     if (truth.turnStartIndex !== null && truth.zigIndex >= truth.samples) continue;
@@ -539,7 +760,7 @@ export function generateScenario(
         x_m: f32(truth.tgtX[i] ?? 0),
         y_m: f32(truth.tgtY[i] ?? 0),
         course_rad: f32Angle(truth.tgtCourse[i] ?? p.target_course_rad),
-        speed_mps: p.target_speed_mps,
+        speed_mps: f32(truth.tgtSpeed[i] ?? p.target_speed_mps),
       });
     }
     const scenario: Scenario = {
@@ -558,6 +779,15 @@ export function generateScenario(
           : {
               manoeuvre_start_index: truth.manoeuvreStartIndex ?? truth.manoeuvreIndex,
               manoeuvre_index: truth.manoeuvreIndex,
+            }),
+        ...(truth.manoeuvres === null
+          ? {}
+          : {
+              manoeuvres: truth.manoeuvres.map((m) => ({
+                kind: m.kind,
+                start_index: m.startIndex,
+                end_index: m.endIndex,
+              })),
             }),
         zig_time_s: f32(truth.zigIndex * p.dt_s),
         mean_range_m: f32(rg.mean),

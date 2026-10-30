@@ -100,6 +100,8 @@ export const ParameterRanges = z.strictObject({
   /** Turn rate drawn uniformly per scenario; absent means an instantaneous zig. */
   ownship_turn_rate_rad_s: FloatRange.nullish(),
   range_distribution: RangeDistribution,
+  /** Generator 0.5.0 (SRD Annex C §C.2): probabilities of 0, 1, 2, … target course changes (summing to 1). Present: every scenario draws its manoeuvres this way, with target_manoeuvre_angle_abs_rad, target_turn_rate_rad_s, target_manoeuvre_after_zig_s and target_manoeuvre_margin_s, and target_manoeuvre_fraction must be absent. */
+  target_course_change_count_weights: z.array(z.number()).nullish(),
   /** Earliest start of the target's turn, after the first sample on leg 2. */
   target_manoeuvre_after_zig_s: z.number().nullish(),
   /** Absolute target course change; the sign is uniform ±. */
@@ -108,7 +110,15 @@ export const ParameterRanges = z.strictObject({
   target_manoeuvre_fraction: z.number().nullish(),
   /** Least time from the end of the target's turn to the end of the window, so the gate point (manoeuvre + 5 min) is reached. */
   target_manoeuvre_margin_s: z.number().nullish(),
+  /** Least time from the end of one target manoeuvre to the start of the next. */
+  target_manoeuvre_spacing_s: z.number().nullish(),
   target_range0_m: FloatRange,
+  /** Absolute speed change; its sign is uniform ±, flipped if the new speed would leave target_speed_mps (redrawn if both signs would). */
+  target_speed_change_abs_mps: FloatRange.nullish(),
+  /** Probability of one target speed change (generator 0.5.0). */
+  target_speed_change_fraction: z.number().nullish(),
+  /** Magnitude of the target's acceleration during a speed change. */
+  target_speed_change_rate_mps2: FloatRange.nullish(),
   target_speed_mps: FloatRange,
   /** Target turn rate, drawn uniformly per scenario. */
   target_turn_rate_rad_s: FloatRange.nullish(),
@@ -257,6 +267,20 @@ export const GateVerdict = z.strictObject({
   result: GateResult,
 });
 export type GateVerdict = z.infer<typeof GateVerdict>;
+
+/** What a target manoeuvre changes (generator 0.5.0, SRD Annex C §C.2). */
+export const ManoeuvreKind = z.enum(["course", "speed"]);
+export type ManoeuvreKind = z.infer<typeof ManoeuvreKind>;
+
+/** Where one target manoeuvre lies in a scenario's samples (generator 0.5.0). */
+export const ManoeuvreSpan = z.strictObject({
+  /** First timestep after it completes. */
+  end_index: z.number().int(),
+  kind: ManoeuvreKind,
+  /** First timestep after it starts. */
+  start_index: z.number().int(),
+});
+export type ManoeuvreSpan = z.infer<typeof ManoeuvreSpan>;
 
 /** Metric values for one estimator on one slice at one evaluation point. */
 export const MetricsRecord = z.strictObject({
@@ -483,6 +507,18 @@ export const PredictionHeader = z.strictObject({
 });
 export type PredictionHeader = z.infer<typeof PredictionHeader>;
 
+/** One target manoeuvre (generator 0.5.0). A course change is an arc at constant speed; a speed change is constant acceleration on a constant course. */
+export const TargetManoeuvre = z.strictObject({
+  /** Signed change: course in rad (positive clockwise) or speed in m/s (positive faster). */
+  change: z.number(),
+  kind: ManoeuvreKind,
+  /** Magnitude of the rate of change, rad/s (course) or m/s² (speed). */
+  rate: z.number(),
+  /** Time the manoeuvre starts, a whole number of samples. */
+  start_time_s: z.number(),
+});
+export type TargetManoeuvre = z.infer<typeof TargetManoeuvre>;
+
 /** The random draws that define one scenario. */
 export const ScenarioParameters = z.strictObject({
   /** Probability each bearing is missing. */
@@ -503,6 +539,8 @@ export const ScenarioParameters = z.strictObject({
   target_manoeuvre_angle_rad: z.number().nullish(),
   /** Target course change (generator 0.4.0, SRD Annex B §B.2): time the target's turn starts, a whole number of samples. Absent: the target holds course. */
   target_manoeuvre_time_s: z.number().nullish(),
+  /** Target manoeuvres in time order (generator 0.5.0, SRD Annex C §C.2), none overlapping. Present (possibly empty) only under generator 0.5.0 ranges; then the single-turn fields above are absent. */
+  target_manoeuvres: z.array(TargetManoeuvre).nullish(),
   /** Range at window start. */
   target_range0_m: z.number(),
   target_speed_mps: z.number(),
@@ -525,10 +563,12 @@ export type ScenarioParameters = z.infer<typeof ScenarioParameters>;
 export const ScenarioMetadata = z.strictObject({
   /** Scenario index within the dataset. */
   index: z.number().int(),
-  /** First timestep after the target's turn completes (generator 0.4.0; absent when the target holds course). Gate G4 counts time from here, as earlier gates count from zig_index. */
+  /** First timestep after the target's turn completes (generator 0.4.0; absent when the target holds course). Gate G4 counts time from here, as earlier gates count from zig_index. Under generator 0.5.0, after the last manoeuvre completes. */
   manoeuvre_index: z.number().int().nullish(),
-  /** First timestep after the target's turn starts (generator 0.4.0; absent when the target holds course). */
+  /** First timestep after the target's turn starts (generator 0.4.0; absent when the target holds course). Under generator 0.5.0, after the first manoeuvre starts. */
   manoeuvre_start_index: z.number().int().nullish(),
+  /** Generator 0.5.0: each target manoeuvre's sample span, in time order (present, possibly empty, only under 0.5.0). */
+  manoeuvres: z.array(ManoeuvreSpan).nullish(),
   mean_range_m: z.number(),
   min_range_m: z.number(),
   parameters: ScenarioParameters,
