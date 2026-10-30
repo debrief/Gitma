@@ -1,0 +1,2 @@
+train	seed=42	index=[0, 80000)	data/g0-p4/train.f32pack
+test	seed=42	index=[90000, 100000)	data/g0-p4/test.f32pack
