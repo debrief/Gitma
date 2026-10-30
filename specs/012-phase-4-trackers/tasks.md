@@ -4,7 +4,7 @@
 - [x] T002 Schema 0.15.0: `TargetManoeuvre`, `ManoeuvreSpan`, `ManoeuvreKind`, 0.5.0 ranges fields
 - [x] T003 Generator 0.5.0: count stream, planning, closed-form segments; `configs/phase4-ranges.json`
 - [x] T004 G0 checks: known answers, `targetManoeuvresFailure`, `manoeuvreTimingFailure`; tests
-- [ ] T005 G0 re-run on 0.5.0 (seed 42, 100,000, noise-free); agent panel; `review.md`
+- [x] T005 G0 re-run on 0.5.0 (seed 42, 100,000, noise-free); agent panel; `review.md` — passed, panel rounds 1–3 (`experiments/20261030-g0-p4-r3/`)
 - [ ] T006 References re-tuned on phase-4 validation (seed 211); EKF/IMM grid; frozen reference
 - [ ] T007 T1 learned-gain filter layer (algorithm note; fixed-gain = EKF test); T2 NLL head
   (prerequisites found by the G0 panel: `features` `ROWS = 240` must grow to the 361 samples of a
