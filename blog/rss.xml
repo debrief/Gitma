@@ -117,6 +117,57 @@ and dominating it is what gate G4 asks.</li>
 <p>Real or recorded data stay deferred either way.</p>]]></content:encoded>
         </item>
         <item>
+            <title><![CDATA[Phase 4 plan: two learned trackers, judged on manoeuvring targets]]></title>
+            <link>https://debrief.github.io/Gitma/blog/2026/10/30/phase-4-plan</link>
+            <guid>https://debrief.github.io/Gitma/blog/2026/10/30/phase-4-plan</guid>
+            <pubDate>Fri, 30 Oct 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Phases 3 and 3b ended the same way. A network beats a tuned IMM tracker after a target turns,]]></description>
+            <content:encoded><![CDATA[<p>Phases 3 and 3b ended the same way. A network beats a tuned IMM tracker after a target turns,
+but gives that back on targets that hold course. SRD Annex B left the next step to the owner,
+who chose the separate project it names: <strong>an end-to-end learned tracker</strong>.</p>
+<p><a href="https://github.com/debrief/Gitma/blob/main/docs/SRD-annex-C.md" target="_blank" rel="noopener noreferrer" class="">SRD Annex C</a> fixes the design
+before any code is written.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="two-trackers-one-gate">Two trackers, one gate<a href="https://debrief.github.io/Gitma/blog/2026/10/30/phase-4-plan#two-trackers-one-gate" class="hash-link" aria-label="Direct link to Two trackers, one gate" title="Direct link to Two trackers, one gate" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>A learned-gain filter</strong> (KalmanNet-style). The bearing and motion physics stay explicit, and a
+recurrent network learns the gain: how fast to adapt when the bearings stop fitting a straight
+track. The hope is filter accuracy on straight legs and network agility after a manoeuvre.</li>
+<li class=""><strong>A pure recurrent tracker.</strong> The LSTM family we already have, outputting position, velocity
+and its own uncertainty at every step. It is the simpler bet, carrying the known weakness: on
+straight-leg speed it has stayed at about 3 × classical for six iterations.</li>
+</ul>
+<p>Both are trained from scratch on the same data and judged on the same rows.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="a-harder-problem">A harder problem<a href="https://debrief.github.io/Gitma/blog/2026/10/30/phase-4-plan#a-harder-problem" class="hash-link" aria-label="Direct link to A harder problem" title="Direct link to A harder problem" translate="no">​</a></h2>
+<p>Generator 0.5.0 gives the target 0–3 course changes and, in 30% of scenarios, a speed change.
+Manoeuvres become the norm, which is where a constant-velocity model should struggle most. The
+IMM and EKF are re-tuned for it, and the better one is frozen before training.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="gate-g5">Gate G5<a href="https://debrief.github.io/Gitma/blog/2026/10/30/phase-4-plan#gate-g5" class="hash-link" aria-label="Direct link to Gate G5" title="Direct link to Gate G5" translate="no">​</a></h2>
+<p>A tracker passes if:</p>
+<ul>
+<li class=""><strong>it is better overall:</strong> its median range and course error, over rows at 5, 10, 15 and
+20 minutes after the zig, is below the reference's;</li>
+<li class=""><strong>and it does not lose much once things settle:</strong> on rows more than 5 minutes after the last
+manoeuvre, it is within 1.1 × the reference on range, course and speed.</li>
+</ul>
+<p>The second condition stops phase 3's trade, winning after turns by losing on straight legs, from
+counting as a pass.</p>
+<p>The statistics are stricter than before:</p>
+<ul>
+<li class=""><strong>The bootstrap resamples whole scenarios</strong>, because one scenario contributes several rows.</li>
+<li class=""><strong>Each tracker's intervals are 97.5%,</strong> because two trackers get a shot at the gate.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reading-it-critically">Reading it critically<a href="https://debrief.github.io/Gitma/blog/2026/10/30/phase-4-plan#reading-it-critically" class="hash-link" aria-label="Direct link to Reading it critically" title="Direct link to Reading it critically" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>What follows a failure is not fixed in advance.</strong> If G5 fails, the owner decides what follows
+then. That is weaker than Annex B, where both branches were set before the result. The write-up
+will say so.</li>
+<li class=""><strong>The speed bar is demanding.</strong> The settled-speed check asks the trackers to come within 10% of
+a reference that is already about 2 × least squares on straight-leg speed.</li>
+<li class=""><strong>The learned-gain filter is a risk.</strong> Backpropagation through about 300 filter steps may be
+slow or unstable in tfjs. Its cost is measured before the decision record commits to it.</li>
+</ul>]]></content:encoded>
+        </item>
+        <item>
             <title><![CDATA[Phase 3: better than the tracker after a turn, worse when there is none]]></title>
             <link>https://debrief.github.io/Gitma/blog/2026/10/29/phase-3</link>
             <guid>https://debrief.github.io/Gitma/blog/2026/10/29/phase-3</guid>
