@@ -14,7 +14,16 @@
 // header digest; the plan's content digests already pinned the scenarios) and then records these
 // files' digests, so tma-train's resume check compares against them.
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  closeSync,
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  readSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 
 import { parseArgs } from "node:util";
@@ -37,7 +46,18 @@ if (existsSync(join(out, "manifest.json"))) {
 }
 const manifest = JSON.parse(readFileSync(join(src, "manifest.json"), "utf8"));
 const config = JSON.parse(readFileSync(configPath, "utf8"));
-const sha = (p) => createHash("sha256").update(readFileSync(p)).digest("hex");
+// Streamed: phase-4 derived features exceed readFileSync's 2 GiB limit.
+const sha = (p) => {
+  const h = createHash("sha256");
+  const fd = openSync(p, "r");
+  try {
+    const buf = Buffer.alloc(1 << 22);
+    for (let n; (n = readSync(fd, buf, 0, buf.length, null)) > 0;) h.update(buf.subarray(0, n));
+  } finally {
+    closeSync(fd);
+  }
+  return h.digest("hex");
+};
 const fail = (msg) => {
   console.error(msg);
   process.exit(1);
