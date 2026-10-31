@@ -1,0 +1,77 @@
+{
+  "checks": [
+    {
+      "ci_high": 2.262567199817046,
+      "ci_level": 0.975,
+      "ci_low": 2.085159210289426,
+      "detail": "learned-gain-filter:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8:per_timestep median range_rel on σ = 1° rows at zig + 5/10/15/20 min 2.1746 vs limit 1; 97.5% CI [2.0852, 2.2626] (scenario-clustered paired bootstrap, 2000 resamples, 16500 rows in 4951 scenarios)",
+      "name": "learned-gain-filter:per_timestep:g5-range",
+      "result": "fail",
+      "threshold": 1,
+      "value": 2.174646193633453
+    },
+    {
+      "ci_high": 1.3773012391188637,
+      "ci_level": 0.975,
+      "ci_low": 1.2642784169404553,
+      "detail": "learned-gain-filter:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8:per_timestep median course_deg on σ = 1° rows at zig + 5/10/15/20 min 1.3167 vs limit 1; 97.5% CI [1.2643, 1.3773] (scenario-clustered paired bootstrap, 2000 resamples, 16500 rows in 4951 scenarios)",
+      "name": "learned-gain-filter:per_timestep:g5-course",
+      "result": "fail",
+      "threshold": 1,
+      "value": 1.3167027066309294
+    },
+    {
+      "ci_high": 1.8937429182288097,
+      "ci_level": 0.975,
+      "ci_low": 1.7385475094800529,
+      "detail": "reported, not gated: learned-gain-filter:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8:per_timestep median speed_kt on σ = 1° rows at zig + 5/10/15/20 min 1.8072 vs limit 1; 97.5% CI [1.7385, 1.8937] (scenario-clustered paired bootstrap, 2000 resamples, 16500 rows in 4951 scenarios)",
+      "name": "learned-gain-filter:per_timestep:g5-speed-reported",
+      "result": "fail",
+      "threshold": 1,
+      "value": 1.8072181149768443
+    },
+    {
+      "ci_high": 2.9912817390775763,
+      "ci_level": 0.975,
+      "ci_low": 2.621151053981923,
+      "detail": "learned-gain-filter:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8:per_timestep median range_rel on settled σ = 1° rows at zig + 5/10/15/20 min 2.8012 vs limit 1.1; 97.5% CI [2.6212, 2.9913] (scenario-clustered paired bootstrap, 2000 resamples, 7222 rows in 3793 scenarios)",
+      "name": "learned-gain-filter:per_timestep:g5-settled-range",
+      "result": "fail",
+      "threshold": 1.1,
+      "value": 2.8012267644009263
+    },
+    {
+      "ci_high": 2.268855393634969,
+      "ci_level": 0.975,
+      "ci_low": 1.9872958481780658,
+      "detail": "learned-gain-filter:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8:per_timestep median course_deg on settled σ = 1° rows at zig + 5/10/15/20 min 2.1166 vs limit 1.1; 97.5% CI [1.9873, 2.2689] (scenario-clustered paired bootstrap, 2000 resamples, 7222 rows in 3793 scenarios)",
+      "name": "learned-gain-filter:per_timestep:g5-settled-course",
+      "result": "fail",
+      "threshold": 1.1,
+      "value": 2.116604608037205
+    },
+    {
+      "ci_high": 2.4719873812870827,
+      "ci_level": 0.975,
+      "ci_low": 2.1481059475136943,
+      "detail": "learned-gain-filter:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8:per_timestep median speed_kt on settled σ = 1° rows at zig + 5/10/15/20 min 2.2997 vs limit 1.1; 97.5% CI [2.1481, 2.4720] (scenario-clustered paired bootstrap, 2000 resamples, 7222 rows in 3793 scenarios)",
+      "name": "learned-gain-filter:per_timestep:g5-settled-speed",
+      "result": "fail",
+      "threshold": 1.1,
+      "value": 2.2997016397695798
+    },
+    {
+      "ci_high": 0.026938676675343543,
+      "ci_level": 0.975,
+      "ci_low": 0.010770906450441728,
+      "detail": "reported, not gated: gross-error rate (range error > 50% or no converged estimate) learned-gain-filter:per_timestep 8.018% vs imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8:per_timestep 6.152% on σ = 1° rows at zig + 5/10/15/20 min; difference 1.867 pp, 97.5% CI [1.077, 2.694] pp",
+      "name": "learned-gain-filter:per_timestep:g5-gross-reported",
+      "result": "fail",
+      "threshold": 0,
+      "value": 0.018666666666666668
+    }
+  ],
+  "decided_by": "validation diagnostic (spec 012 FR-005): not a gate decision",
+  "gate": "G5",
+  "result": "fail"
+}
