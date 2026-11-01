@@ -1,0 +1,28 @@
+{
+  "id": "p4h",
+  "description": "Spec 013 (phase 4b, SRD Annex C §C.10, owner decision 30): the tracker hybrid of the frozen IMM reference and the frozen T2 (experiments/20261101-p4b-models), judged at G5 unchanged on fresh seed 213 (400,000; its 40,000-scenario test split, generated alone). Nothing is trained: the dataset (seed 211) supplies the normalisation for T2's derived features, and the plan pins the fresh test digest that tma-g5 checks.",
+  "dataset": {
+    "seed": "211",
+    "count": 100000,
+    "ranges": "configs/phase4-ranges.json",
+    "heldout_ranges": "configs/phase4-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "870aff4e5f14d76b9da8b39e68c32cc64a9344ba97c2b535ef468c707db59208",
+      "validation.f32pack": "afefe28892e1e361029d799414f3637ea0211c500ed75acb85c79f1592d3c127",
+      "test.f32pack": "05f1ce53be676c9b4b1a597396f01af35b55fa048cad8fa751b2bb262fd70d77",
+      "heldout.f32pack": "9fb7293ab9fae55389789082bc4bc4d5673d3fd56de7c90362de873919e69510"
+    },
+    "fresh_test": {
+      "seed": "213",
+      "count": 400000,
+      "digest": "PLACEHOLDER: pinned once generated from a clean tree"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/phase4/b",
+  "models": ["tracker"],
+  "evaluate": {
+    "command": "models",
+    "split": "validation"
+  }
+}

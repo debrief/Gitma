@@ -42,3 +42,25 @@ bootstrap 95% intervals and FR-015:
 - the median and P90 ratios of range and course error at zig + 300 s, and of speed error at
   zig + 600 s, against 1.2;
 - the gross-error-rate difference at zig + 300 s, against 0.
+
+## The tracker hybrid (phase 4b, spec 013)
+
+Source: `trackerHybrid` in `packages/classical/src/hybrid.ts`; CLI `tma-hybrid-track`.
+Requirements: SRD Annex C §C.10 (owner decision 30).
+
+Phase 4's recurrent tracker T2 beats the tuned IMM on range everywhere and on velocity after a
+manoeuvre, but loses on velocity on straight segments. The tracker hybrid keeps each one's strength:
+
+- **Range** is always T2's.
+- **Course and speed** are T2's only where the two estimators' courses differ by more than
+  θ = 45°; elsewhere they are the IMM's. The IMM lags a manoeuvre, so a large disagreement means a
+  manoeuvre is in progress or recent.
+- **Causal.** The rule reads only both estimators' outputs at the same row.
+- **θ** was chosen on seed-211 validation by a criterion declared in advance (the largest smallest
+  margin over G5's five checks) and frozen; it is part of the estimator name
+  (`hybrid-<network>-<tracker>-c45`).
+- **Uncertainty.** The hybrid keeps T2's stated range sd; its velocity sd is reported only where
+  T2's velocity is used.
+
+On validation (in-sample) it is 0.85 × the IMM on overall range and 0.90 × on course, and
+0.97–0.99 × on settled range, course and speed (spec 013 R2). It is judged at G5 on fresh seed 213.
