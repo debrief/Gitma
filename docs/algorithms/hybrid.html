@@ -5,8 +5,8 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Hybrid estimator (classical with a network fallback) | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/docs/algorithms/hybrid"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Hybrid estimator (classical with a network fallback) | TMA via ML"><meta data-rh="true" name="description" content="Source: packages/classical/src/hybrid.ts (hybridSwitch), CLIs tma-hybrid and tma-g3"><meta data-rh="true" property="og:description" content="Source: packages/classical/src/hybrid.ts (hybridSwitch), CLIs tma-hybrid and tma-g3"><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/docs/algorithms/hybrid"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/algorithms/hybrid" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/docs/algorithms/hybrid" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Hybrid estimator (classical with a network fallback)","item":"https://debrief.github.io/Gitma/docs/algorithms/hybrid"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/assets/css/styles.d219d845.css">
-<script src="/Gitma/assets/js/runtime~main.f4e8ccf7.js" defer="defer"></script>
-<script src="/Gitma/assets/js/main.ab1e0001.js" defer="defer"></script>
+<script src="/Gitma/assets/js/runtime~main.7bd12460.js" defer="defer"></script>
+<script src="/Gitma/assets/js/main.6a736152.js" defer="defer"></script>
 </head>
 <body>
 <svg style="display: none;"><defs>
@@ -51,6 +51,38 @@ bootstrap 95% intervals and FR-015:</p>
 <li class="">the median and P90 ratios of range and course error at zig + 300 s, and of speed error at
 zig + 600 s, against 1.2;</li>
 <li class="">the gross-error-rate difference at zig + 300 s, against 0.</li>
-</ul></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/algorithms/hybrid.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/docs/algorithms/learned-gain-filter"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Learned-gain filter (tracker T1)</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/docs/algorithms/viewer"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Engagement viewer</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_kFBU thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#why-a-hybrid" class="table-of-contents__link toc-highlight">Why a hybrid</a></li><li><a href="#rule" class="table-of-contents__link toc-highlight">Rule</a></li><li><a href="#what-it-claims" class="table-of-contents__link toc-highlight">What it claims</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-tracker-hybrid-phase-4b-spec-013">The tracker hybrid (phase 4b, spec 013)<a href="#the-tracker-hybrid-phase-4b-spec-013" class="hash-link" aria-label="Direct link to The tracker hybrid (phase 4b, spec 013)" title="Direct link to The tracker hybrid (phase 4b, spec 013)" translate="no">​</a></h2>
+<p>Source: <code>trackerHybrid</code> in <code>packages/classical/src/hybrid.ts</code>; CLI <code>tma-hybrid-track</code>.
+Requirements: SRD Annex C §C.10 (owner decision 30).</p>
+<p>Phase 4&#x27;s recurrent tracker T2 beats the tuned IMM on range overall and on velocity after a
+manoeuvre, but loses on velocity on straight segments (and on range before any manoeuvre). The tracker hybrid keeps each one&#x27;s strength:</p>
+<ul>
+<li class=""><strong>Range</strong> is always T2&#x27;s.</li>
+<li class=""><strong>Course and speed</strong> are T2&#x27;s only where the two estimators&#x27; courses differ by more than
+θ = 45°; elsewhere they are the IMM&#x27;s. The IMM lags a manoeuvre, so a large disagreement means a
+manoeuvre is in progress or recent.</li>
+<li class=""><strong>Causal.</strong> The rule reads only both estimators&#x27; outputs at the same row.</li>
+<li class=""><strong>θ</strong> was chosen on seed-211 validation by a criterion declared in advance (the largest smallest
+margin over G5&#x27;s five checks) and frozen; it is part of the estimator name
+(<code>hybrid-&lt;network&gt;-&lt;tracker&gt;-c45</code>).</li>
+<li class=""><strong>Uncertainty.</strong> The hybrid keeps T2&#x27;s stated range sd; its velocity sd is reported only where
+T2&#x27;s velocity is used.</li>
+</ul>
+<p>On validation (in-sample) it is 0.85 × the IMM on overall range and 0.90 × on course, and
+0.97–0.99 × on settled range, course and speed (spec 013 R2). It passed G5 on fresh seed 213
+(<code>experiments/20261101-p4h-g5/</code>).</p>
+<p><strong>Provenance (schema 0.17.0).</strong> A network&#x27;s prediction file names the SHA-256 of the weights it was
+made with (<code>model_weights_sha256</code>), and the hybrid&#x27;s file names the SHA-256 of both input files
+(<code>inputs</code>). On a test split, <code>tma-g5</code> refuses a carried file unless it traces to a <code>--model</code>&#x27;s
+weights, directly or through inputs that are, byte for byte, files given to the gate.</p>
+<p><strong>Not one track state.</strong> Range (with position) comes from T2 and velocity mostly from the IMM, so the
+bearing rate they imply is neither estimator&#x27;s. On seed 213&#x27;s G5 rows (<code>bearing-rate.json</code>, from
+<code>scripts/research/spec013-bearing-rate.mjs</code>), the error of the implied bearing rate against truth
+is a median of 0.24°/min for the hybrid, against 0.20 for the IMM and 0.23 for T2. On settled rows
+it is 0.13, against 0.10 and 0.14. Propagated 5 min at constant velocity, the hybrid&#x27;s settled
+bearing is off by a median of 1.5°, against 1.0° for the IMM, 0.9° for the EKF and 1.6° for T2.
+Mixing the two estimators adds little inconsistency beyond T2&#x27;s own. On settled rows, though, its
+state is less consistent with the bearings than either tracker&#x27;s.</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/algorithms/hybrid.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/docs/algorithms/learned-gain-filter"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Learned-gain filter (tracker T1)</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/docs/algorithms/viewer"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Engagement viewer</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_kFBU thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#why-a-hybrid" class="table-of-contents__link toc-highlight">Why a hybrid</a></li><li><a href="#rule" class="table-of-contents__link toc-highlight">Rule</a></li><li><a href="#what-it-claims" class="table-of-contents__link toc-highlight">What it claims</a></li><li><a href="#the-tracker-hybrid-phase-4b-spec-013" class="table-of-contents__link toc-highlight">The tracker hybrid (phase 4b, spec 013)</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
 </body>
 </html>
