@@ -1,13 +1,12 @@
-import { renameSync, writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { predictionHeader, predictionLines } from "@tma/classical";
+import { openPredictionStream, predictionHeader } from "@tma/classical";
 import { isMain, readDataset, UsageError } from "@tma/data";
 import { openFeatures, outputSpec } from "@tma/features";
 import { runAsyncCli } from "./cli-run.js";
 import { readModelManifest } from "./manifest-io.js";
 import {
   loadModel,
-  predictScenarios,
+  predictEach,
   requireSameFeatureSet,
   requireSameNormalisation,
 } from "./predict.js";
@@ -49,26 +48,35 @@ export async function main(argv: string[]): Promise<unknown> {
     );
     if (note !== undefined) process.stderr.write(`${note}\n`);
     const ds = readDataset(values.truth);
-    const preds = predictScenarios(
-      model,
-      features,
-      ds.scenarios(),
-      manifest.normalisation,
-      manifest.id,
-      outputSpec(manifest.config),
-    );
-    const lines = predictionLines(
+    // Streamed: a 40,000-scenario split's predictions exceed V8's string limit as one file.
+    const w = openPredictionStream(
+      values.out,
       predictionHeader(manifest.id, "per_timestep", values.truth),
-      preds,
     );
-    const tmp = `${values.out}.tmp-${String(process.pid)}`;
-    writeFileSync(tmp, `${lines.join("\n")}\n`);
-    renameSync(tmp, values.out);
-    const nonConverged = preds.filter((p) => p.rows.some((r) => !r.converged)).length;
+    let nonConverged = 0;
+    try {
+      predictEach(
+        model,
+        features,
+        ds.scenarios(),
+        manifest.normalisation,
+        manifest.id,
+        outputSpec(manifest.config),
+        256,
+        (p) => {
+          if (p.rows.some((r) => !r.converged)) nonConverged++;
+          w.write(p);
+        },
+      );
+      w.commit();
+    } catch (e) {
+      w.abort();
+      throw e;
+    }
     return {
       out: values.out,
       estimator: manifest.id,
-      scenarios: preds.length,
+      scenarios: w.count,
       non_converged: nonConverged,
     };
   } finally {

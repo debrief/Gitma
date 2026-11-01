@@ -3,7 +3,7 @@ import { parseArgs } from "node:util";
 import { canonicalJson, isMain, readDataset, runCli, UsageError } from "@tma/data";
 import { NaiveModel, parseRecord } from "@tma/types";
 import { fitNaive, NAIVE, naivePredict } from "./naive.js";
-import { fileDigest, predictionHeader, predictionLines } from "./predictions.js";
+import { fileDigest, openPredictionStream, predictionHeader } from "./predictions.js";
 
 function writeAtomic(path: string, text: string): void {
   const tmp = `${path}.tmp-${String(process.pid)}`;
@@ -42,10 +42,15 @@ export function main(argv: string[]): unknown {
     const model = loadNaive(values.model);
     const mode = values["per-timestep"] ? "per_timestep" : "final";
     const ds = readDataset(values.in);
-    const preds = [...ds.scenarios()].map((s) => naivePredict(s, model, mode));
-    const lines = predictionLines(predictionHeader(NAIVE, mode, values.in), preds);
-    writeAtomic(values.out, `${lines.join("\n")}\n`);
-    return { out: values.out, mode, scenarios: preds.length };
+    const w = openPredictionStream(values.out, predictionHeader(NAIVE, mode, values.in));
+    try {
+      for (const s of ds.scenarios()) w.write(naivePredict(s, model, mode));
+      w.commit();
+    } catch (e) {
+      w.abort();
+      throw e;
+    }
+    return { out: values.out, mode, scenarios: w.count };
   }
   throw new UsageError(
     "usage: tma-naive fit --train <train> --out <naive.json>\n" +
