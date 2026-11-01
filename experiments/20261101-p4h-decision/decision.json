@@ -1,0 +1,26 @@
+{
+  "carried_models": [
+    "hybrid-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-c45"
+  ],
+  "carried_set_rule": "One estimator is judged: the tracker hybrid named in carried_models, with the frozen T2 bound by model_digests. G5 exactly as Annex C §C.5 (97.5% intervals kept); pass if every gated check passes, fail if any fails, otherwise inconclusive, with one re-score on a larger fresh seed.",
+  "change": "Phase 4b (SRD Annex C §C.10, owner decision 30): judge the tracker hybrid of the frozen IMM reference and the frozen T2 at G5 unchanged. The hybrid reports T2's range always and T2's course and speed only where the two estimators' courses differ by more than 45°; elsewhere the IMM's. Nothing is trained.",
+  "decided_at": "2026-11-01T16:30:00Z",
+  "fresh_test_count": 400000,
+  "git_commit": "280d2768f02dc99909d1cc0d814e4e5fa6887386",
+  "model_digests": [
+    {
+      "manifest_sha256": "b951f8c848b08b34f27f517e1d9f16ec4b79b69d055c3a0466f90ed0b4f59e96",
+      "model": "lstm-gaussian",
+      "model_json_sha256": "c5ab6e3fd71bb08dae18df56e64f89269b174d72eb7440894f323368a0ac1310",
+      "weights_sha256": "05e36db5cf1225e9b38c1608e924d3cda4debc217949f5305a0a9f24d1f971f2"
+    }
+  ],
+  "phase_a_experiment": "20261101-p4h-research",
+  "plans": [
+    "configs/phase4/h/plan.json"
+  ],
+  "rationale": "Phase 4 validation: T2 beat the IMM overall (range 0.85x, course 0.84x) and matched it on settled range (0.97x) but lost on settled course (1.44x) and speed (1.66x). The IMM lags a manoeuvre, so a large course disagreement marks rows where T2's velocity is better. θ = 45° was chosen on seed-211 validation by the criterion declared in Annex C §C.10 (largest smallest margin over the five gated checks; spec 013 R2): in-sample the hybrid passes all five, 0.847 / 0.897 / 0.973 / 0.982 / 0.991 x the IMM. Forecast before scoring: P(G5 pass on seed 213) about 85%; the weakest checks are settled range (rests on T2 alone) and overall course.",
+  "reference_estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8",
+  "stalled": false,
+  "test_seed": "213"
+}

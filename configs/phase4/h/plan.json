@@ -15,7 +15,7 @@
     "fresh_test": {
       "seed": "213",
       "count": 400000,
-      "digest": "PLACEHOLDER: pinned once generated from a clean tree"
+      "digest": "0b1288663842054abf0f5d454f668f1e0816450c72e31ab93ec77ff9365ebddb"
     }
   },
   "feature_set": "derived",
