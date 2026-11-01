@@ -130,7 +130,7 @@ The other reading, more than 5 min after the scenario's last manoeuvre, gives 27
 meant.
 
 **The verdict.**
-- **Pass** if all six gated checks pass for at least one tracker.
+- **Pass** if all five gated checks pass for at least one tracker.
 - **Fail** if, for each tracker, at least one gated check fails.
 - **Inconclusive** otherwise. The FR-015 rule applies to each check. One re-score of the same
   frozen models on a larger fresh seed is allowed, as for G2 and G4; then the result is final.
