@@ -1,5 +1,6 @@
+import { join } from "node:path";
 import { parseArgs } from "node:util";
-import { openPredictionStream, predictionHeader } from "@tma/classical";
+import { fileDigest, openPredictionStream, predictionHeader } from "@tma/classical";
 import { isMain, readDataset, UsageError } from "@tma/data";
 import { openFeatures, outputSpec } from "@tma/features";
 import { runAsyncCli } from "./cli-run.js";
@@ -51,7 +52,10 @@ export async function main(argv: string[]): Promise<unknown> {
     // Streamed: a 40,000-scenario split's predictions exceed V8's string limit as one file.
     const w = openPredictionStream(
       values.out,
-      predictionHeader(manifest.id, "per_timestep", values.truth),
+      // The weights' digest lets a gate tie these predictions to the model it binds (schema 0.17.0).
+      predictionHeader(manifest.id, "per_timestep", values.truth, {
+        model_weights_sha256: fileDigest(join(values.model, "weights.bin")),
+      }),
     );
     let nonConverged = 0;
     try {

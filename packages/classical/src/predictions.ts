@@ -28,10 +28,14 @@ export function fileDigest(path: string): string {
   return h.digest("hex");
 }
 
+/** Provenance a prediction file may carry beyond its truth digest (schema 0.17.0). */
+export type PredictionProvenance = Pick<PredictionHeader, "model_weights_sha256" | "inputs">;
+
 export function predictionHeader(
   estimator: string,
   mode: PredictionMode,
   truthPath: string,
+  provenance: PredictionProvenance = {},
 ): PredictionHeader {
   return {
     record: "header",
@@ -39,6 +43,10 @@ export function predictionHeader(
     estimator,
     mode,
     dataset_digest: fileDigest(truthPath),
+    ...(provenance.model_weights_sha256 == null
+      ? {}
+      : { model_weights_sha256: provenance.model_weights_sha256 }),
+    ...(provenance.inputs == null ? {} : { inputs: provenance.inputs }),
   };
 }
 

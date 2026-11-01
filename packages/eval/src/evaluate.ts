@@ -1,5 +1,5 @@
 // Scores prediction files against a truth split: metrics by slice and point, plus curves.
-import type { CurvePoint, MetricsRecord, Prediction, Scenario } from "@tma/types";
+import type { CurvePoint, MetricsRecord, Prediction, PredictionHeader, Scenario } from "@tma/types";
 import { type RowError, rowError } from "./errors.js";
 import { sliceKeys } from "./slices.js";
 import { ascending, mean, median, percentile } from "./stats.js";
@@ -20,6 +20,9 @@ export interface PredictionSet {
   label: string;
   estimator: string;
   byIndex: PredictionLookup;
+  /** The file's header and path, when it was opened from a file (provenance checks). */
+  header?: PredictionHeader;
+  path?: string;
 }
 
 export interface EvaluateOptions {

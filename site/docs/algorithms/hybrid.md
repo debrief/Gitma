@@ -48,8 +48,8 @@ bootstrap 95% intervals and FR-015:
 Source: `trackerHybrid` in `packages/classical/src/hybrid.ts`; CLI `tma-hybrid-track`.
 Requirements: SRD Annex C §C.10 (owner decision 30).
 
-Phase 4's recurrent tracker T2 beats the tuned IMM on range everywhere and on velocity after a
-manoeuvre, but loses on velocity on straight segments. The tracker hybrid keeps each one's strength:
+Phase 4's recurrent tracker T2 beats the tuned IMM on range overall and on velocity after a
+manoeuvre, but loses on velocity on straight segments (and on range before any manoeuvre). The tracker hybrid keeps each one's strength:
 
 - **Range** is always T2's.
 - **Course and speed** are T2's only where the two estimators' courses differ by more than
@@ -63,4 +63,19 @@ manoeuvre, but loses on velocity on straight segments. The tracker hybrid keeps 
   T2's velocity is used.
 
 On validation (in-sample) it is 0.85 × the IMM on overall range and 0.90 × on course, and
-0.97–0.99 × on settled range, course and speed (spec 013 R2). It is judged at G5 on fresh seed 213.
+0.97–0.99 × on settled range, course and speed (spec 013 R2). It passed G5 on fresh seed 213
+(`experiments/20261101-p4h-g5/`).
+
+**Provenance (schema 0.17.0).** A network's prediction file names the SHA-256 of the weights it was
+made with (`model_weights_sha256`), and the hybrid's file names the SHA-256 of both input files
+(`inputs`). On a test split, `tma-g5` refuses a carried file unless it traces to a `--model`'s
+weights, directly or through inputs that are, byte for byte, files given to the gate.
+
+**Not one track state.** Range (with position) comes from T2 and velocity mostly from the IMM, so the
+bearing rate they imply is neither estimator's. On seed 213's G5 rows (`bearing-rate.json`, from
+`scripts/research/spec013-bearing-rate.mjs`), the error of the implied bearing rate against truth
+is a median of 0.24°/min for the hybrid, against 0.20 for the IMM and 0.23 for T2. On settled rows
+it is 0.13, against 0.10 and 0.14. Propagated 5 min at constant velocity, the hybrid's settled
+bearing is off by a median of 1.5°, against 1.0° for the IMM, 0.9° for the EKF and 1.6° for T2.
+Mixing the two estimators adds little inconsistency beyond T2's own. On settled rows, though, its
+state is less consistent with the bearings than either tracker's.

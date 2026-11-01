@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.16.0
+version: 0.17.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -541,6 +541,27 @@ classes:
       estimator: { range: string, required: true }
       mode: { range: PredictionMode, required: true }
       dataset_digest: { range: string, required: true, description: SHA-256 of the truth file. }
+      model_weights_sha256:
+        range: string
+        description: >-
+          SHA-256 (hex) of the weights.bin of the model that made these predictions (schema 0.17.0;
+          written by tma-model-predict). Gates check it against the bound model.
+      inputs:
+        range: PredictionInput
+        multivalued: true
+        inlined_as_list: true
+        description: >-
+          The prediction files a derived estimator was built from, such as a hybrid's tracker and
+          network files (schema 0.17.0; written by tma-hybrid-track). Gates check each against the
+          files they are given.
+
+  PredictionInput:
+    description: >-
+      One input file of a derived prediction file: its estimator and the SHA-256 of the whole file
+      (schema 0.17.0).
+    attributes:
+      estimator: { range: string, required: true }
+      sha256: { range: string, required: true, description: SHA-256 (hex) of the input file. }
 
   MetricsRecord:
     description: Metric values for one estimator on one slice at one evaluation point.

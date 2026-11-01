@@ -506,12 +506,24 @@ export const Prediction = z.strictObject({
 });
 export type Prediction = z.infer<typeof Prediction>;
 
+/** One input file of a derived prediction file: its estimator and the SHA-256 of the whole file (schema 0.17.0). */
+export const PredictionInput = z.strictObject({
+  estimator: z.string(),
+  /** SHA-256 (hex) of the input file. */
+  sha256: z.string(),
+});
+export type PredictionInput = z.infer<typeof PredictionInput>;
+
 /** First record of every prediction file. */
 export const PredictionHeader = z.strictObject({
   /** SHA-256 of the truth file. */
   dataset_digest: z.string(),
   estimator: z.string(),
+  /** The prediction files a derived estimator was built from, such as a hybrid's tracker and network files (schema 0.17.0; written by tma-hybrid-track). Gates check each against the files they are given. */
+  inputs: z.array(PredictionInput).nullish(),
   mode: PredictionMode,
+  /** SHA-256 (hex) of the weights.bin of the model that made these predictions (schema 0.17.0; written by tma-model-predict). Gates check it against the bound model. */
+  model_weights_sha256: z.string().nullish(),
   record: RecordKind,
   schema_version: z.string(),
 });
