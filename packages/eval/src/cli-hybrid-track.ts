@@ -2,7 +2,12 @@
 // predictions (trackerHybrid in @tma/classical), written as a prediction file. A pipeline stage of
 // its own; the threshold is part of the estimator name, so a gate binds it with the decision.
 import { parseArgs } from "node:util";
-import { TRACKER_SWITCH_COURSE_DEG, trackerHybrid, trackerHybridName } from "@tma/classical";
+import {
+  fileDigest,
+  TRACKER_SWITCH_COURSE_DEG,
+  trackerHybrid,
+  trackerHybridName,
+} from "@tma/classical";
 import { isMain, runCli, UsageError } from "@tma/data";
 import { openPredictionSet, openPredictionWriter, scenarioSource } from "./prediction-file.js";
 
@@ -29,7 +34,13 @@ export function main(argv: string[]): unknown {
   const t = openPredictionSet(tracker, truth);
   const n = openPredictionSet(network, truth);
   const name = trackerHybridName(n.estimator, t.estimator, deg);
-  const w = openPredictionWriter(out, name, "per_timestep", truth);
+  // The inputs' digests let a gate tie the hybrid to the files it was built from (schema 0.17.0).
+  const w = openPredictionWriter(out, name, "per_timestep", truth, {
+    inputs: [
+      { estimator: t.estimator, sha256: fileDigest(tracker) },
+      { estimator: n.estimator, sha256: fileDigest(network) },
+    ],
+  });
   let velocityFromNetwork = 0;
   let rows = 0;
   try {

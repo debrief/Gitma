@@ -4,7 +4,7 @@
 // holds a split's predictions in memory, so evaluation memory no longer grows with every estimator
 // × scenario × row. Bytes written are identical to `predictionLines(...).join("\n") + "\n"`.
 import { closeSync, fstatSync, openSync, readSync } from "node:fs";
-import { fileDigest, predictionHeader } from "@tma/classical";
+import { fileDigest, type PredictionProvenance, predictionHeader } from "@tma/classical";
 import { canonicalJson, openAtomic, readDataset, writeAll } from "@tma/data";
 import {
   parseRecord,
@@ -41,8 +41,9 @@ export function openPredictionWriter(
   estimator: string,
   mode: PredictionMode,
   truthPath: string,
+  provenance: PredictionProvenance = {},
 ): PredictionWriter {
-  const header = predictionHeader(estimator, mode, truthPath);
+  const header = predictionHeader(estimator, mode, truthPath, provenance);
   const f = openAtomic(path);
   let pending: string[] = [`${canonicalJson(header)}\n`];
   let bytes = 0;
@@ -252,5 +253,7 @@ export function openPredictionSet(path: string, truthPath: string): PredictionSe
     label,
     estimator: header.estimator,
     byIndex: new FileLookup(path, lines, stamp.size, stamp.mtimeMs),
+    header,
+    path,
   };
 }

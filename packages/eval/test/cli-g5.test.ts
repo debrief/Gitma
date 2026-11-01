@@ -7,7 +7,13 @@ import { readDataset, runCli } from "@tma/data";
 import type { PredictionRow } from "@tma/types";
 import { describe, expect, it, vi } from "vitest";
 import { main as generate } from "../../data/src/cli-generate.js";
-import { main as g5, requireFrozenModels, requireG5Binding } from "../src/cli-g5.js";
+import {
+  main as g5,
+  requireFrozenModels,
+  requireG5Binding,
+  requirePredictionChain,
+} from "../src/cli-g5.js";
+import type { PredictionSet } from "../src/evaluate.js";
 import { openPredictionWriter, scenarioSource } from "../src/prediction-file.js";
 import { truthRow } from "./helpers.js";
 
@@ -86,6 +92,18 @@ describe("tma-g5", () => {
     expect(v.result).toBe("pass");
     expect(v.decided_by).toMatch(/not a gate decision/);
     expect(existsSync(join(exp, "report.json"))).toBe(true);
+    // The settled rows split into before and after any manoeuvre (reported, not gated).
+    const report = JSON.parse(readFileSync(join(exp, "report.json"), "utf8")) as {
+      estimator: string;
+      rows: string;
+      metric: string;
+      n: number;
+    }[];
+    const n = (rows: string): number =>
+      report.find(
+        (x) => x.rows === rows && x.metric === "range_rel" && x.estimator.startsWith("imm-ref"),
+      )?.n ?? -1;
+    expect(n("settled, before any manoeuvre") + n("settled, after a manoeuvre")).toBe(n("settled"));
     expect(runCli(g5, args)).not.toBe(0);
   });
 
@@ -206,6 +224,69 @@ describe("tma-g5", () => {
           { ...ok, precedes: () => false },
         ),
       ).not.toThrow(/was not committed before/);
+    });
+
+    it("traces carried predictions to bound weights through their inputs (schema 0.17.0)", () => {
+      const m = join(dir, "chain-model");
+      mkdirSync(m, { recursive: true });
+      writeFileSync(join(m, "weights.bin"), "w");
+      const hex = (b: string): string => createHash("sha256").update(b).digest("hex");
+      const file = (name: string, body: string): string => {
+        const p = join(dir, name);
+        writeFileSync(p, body);
+        return p;
+      };
+      const set = (estimator: string, path: string, header: object): PredictionSet =>
+        ({
+          label: estimator,
+          estimator,
+          byIndex: () => undefined,
+          path,
+          header: { record: "header", estimator, ...header },
+        }) as unknown as PredictionSet;
+      const t2 = set("lstm-gaussian", file("t2.ndjson", "t2"), {
+        model_weights_sha256: hex("w"),
+      });
+      const imm = set("imm-ref", file("imm.ndjson", "imm"), {});
+      const inputs = [
+        { estimator: "imm-ref", sha256: hex("imm") },
+        { estimator: "lstm-gaussian", sha256: hex("t2") },
+      ];
+      const hybrid = set("hybrid", file("h.ndjson", "h"), { inputs });
+      // A network's own file, and a hybrid of files given to the gate.
+      expect(() => {
+        requirePredictionChain([t2], [imm], [m]);
+      }).not.toThrow();
+      expect(() => {
+        requirePredictionChain([hybrid], [imm, t2], [m]);
+      }).not.toThrow();
+      // An input file not given to the gate, or changed since the hybrid was built.
+      expect(() => {
+        requirePredictionChain([hybrid], [imm], [m]);
+      }).toThrow(/input lstm-gaussian .* is not among the files/);
+      const changed = set("lstm-gaussian", file("t2b.ndjson", "t2 changed"), {
+        model_weights_sha256: hex("w"),
+      });
+      expect(() => {
+        requirePredictionChain([hybrid], [imm, changed], [m]);
+      }).toThrow(/is not among the files/);
+      // Weights other than the bound model's.
+      const other = set("lstm-gaussian", file("t2c.ndjson", "t2"), {
+        model_weights_sha256: hex("x"),
+      });
+      expect(() => {
+        requirePredictionChain([other], [imm], [m]);
+      }).toThrow(/not a --model's/);
+      // A hybrid of two unbound files, and a file with no provenance at all.
+      const unbound = set("hybrid", file("h2.ndjson", "h2"), {
+        inputs: [{ estimator: "imm-ref", sha256: hex("imm") }],
+      });
+      expect(() => {
+        requirePredictionChain([unbound], [imm], [m]);
+      }).toThrow(/none of its inputs/);
+      expect(() => {
+        requirePredictionChain([imm], [], [m]);
+      }).toThrow(/names neither/);
     });
 
     it("refuses data from a dirty tree (these test data were generated with --allow-dirty)", () => {

@@ -1,0 +1,119 @@
+{
+  "truth": "data/p4h/test.f32pack",
+  "ahead_s": 300,
+  "g5_rows": 66617,
+  "estimators": {
+    "hybrid": {
+      "file": "data/p4h/pred/test.hybrid.ndjson",
+      "non_converged": 0,
+      "bearing_rate_error_deg_per_min": {
+        "all": {
+          "n": 66617,
+          "median": 0.235,
+          "p90": 1.1603
+        },
+        "settled": {
+          "n": 29706,
+          "median": 0.1279,
+          "p90": 0.5117
+        }
+      },
+      "dead_reckoning_bearing_error_deg": {
+        "all": {
+          "n": 51211,
+          "median": 2.3019,
+          "p90": 9.0426
+        },
+        "settled": {
+          "n": 20158,
+          "median": 1.4813,
+          "p90": 5.916
+        }
+      }
+    },
+    "imm": {
+      "file": "data/p4h/pred/test.imm.ndjson",
+      "non_converged": 147,
+      "bearing_rate_error_deg_per_min": {
+        "all": {
+          "n": 66470,
+          "median": 0.2024,
+          "p90": 1.0863
+        },
+        "settled": {
+          "n": 29653,
+          "median": 0.1047,
+          "p90": 0.3547
+        }
+      },
+      "dead_reckoning_bearing_error_deg": {
+        "all": {
+          "n": 51117,
+          "median": 2.2579,
+          "p90": 9.8702
+        },
+        "settled": {
+          "n": 20132,
+          "median": 1.0472,
+          "p90": 5.8033
+        }
+      }
+    },
+    "t2": {
+      "file": "data/p4h/pred/test.t2.ndjson",
+      "non_converged": 0,
+      "bearing_rate_error_deg_per_min": {
+        "all": {
+          "n": 66617,
+          "median": 0.2256,
+          "p90": 0.9661
+        },
+        "settled": {
+          "n": 29706,
+          "median": 0.1415,
+          "p90": 0.5091
+        }
+      },
+      "dead_reckoning_bearing_error_deg": {
+        "all": {
+          "n": 51211,
+          "median": 2.2149,
+          "p90": 8.4756
+        },
+        "settled": {
+          "n": 20158,
+          "median": 1.5772,
+          "p90": 6.0361
+        }
+      }
+    },
+    "ekf": {
+      "file": "data/p4h/pred/test.ekf.ndjson",
+      "non_converged": 91,
+      "bearing_rate_error_deg_per_min": {
+        "all": {
+          "n": 66526,
+          "median": 0.2302,
+          "p90": 1.3293
+        },
+        "settled": {
+          "n": 29674,
+          "median": 0.0795,
+          "p90": 0.3846
+        }
+      },
+      "dead_reckoning_bearing_error_deg": {
+        "all": {
+          "n": 51141,
+          "median": 2.563,
+          "p90": 11.0235
+        },
+        "settled": {
+          "n": 20139,
+          "median": 0.9266,
+          "p90": 5.7698
+        }
+      }
+    }
+  }
+}

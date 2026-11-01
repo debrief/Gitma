@@ -1430,8 +1430,25 @@
         "estimator": {
           "type": "string"
         },
+        "inputs": {
+          "description": "The prediction files a derived estimator was built from, such as a hybrid's tracker and network files (schema 0.17.0; written by tma-hybrid-track). Gates check each against the files they are given.",
+          "items": {
+            "$ref": "#/$defs/PredictionInput"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "mode": {
           "$ref": "#/$defs/PredictionMode"
+        },
+        "model_weights_sha256": {
+          "description": "SHA-256 (hex) of the weights.bin of the model that made these predictions (schema 0.17.0; written by tma-model-predict). Gates check it against the bound model.",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "record": {
           "$ref": "#/$defs/RecordKind"
@@ -1448,6 +1465,25 @@
         "dataset_digest"
       ],
       "title": "PredictionHeader",
+      "type": "object"
+    },
+    "PredictionInput": {
+      "additionalProperties": false,
+      "description": "One input file of a derived prediction file: its estimator and the SHA-256 of the whole file (schema 0.17.0).",
+      "properties": {
+        "estimator": {
+          "type": "string"
+        },
+        "sha256": {
+          "description": "SHA-256 (hex) of the input file.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "estimator",
+        "sha256"
+      ],
+      "title": "PredictionInput",
       "type": "object"
     },
     "PredictionMode": {
@@ -2066,5 +2102,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.16.0"
+  "version": "0.17.0"
 }

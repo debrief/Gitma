@@ -4,18 +4,10 @@
 // batch least squares, naive) on the G5 rows, medians and P90s overall, settled and unsettled, by
 // gate time and by manoeuvre mix (FR-006). On a test split (the gate) every binding of
 // `requireG5Binding` must hold, and it writes verdict.json (exit 3 unless pass).
-import { createHash } from "node:crypto";
-import {
-  closeSync,
-  existsSync,
-  mkdirSync,
-  openSync,
-  readFileSync,
-  readSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { parseArgs } from "node:util";
+import { fileDigest } from "@tma/classical";
 import { isMain, readDataset, runCli, UsageError } from "@tma/data";
 import { ChangeDecision, parseRecord, type Scenario } from "@tma/types";
 import { defaultDeps, type G4BindingDeps } from "./cli-g4.js";
@@ -106,24 +98,6 @@ export function requireG5Binding(b: G5Binding, deps: G4BindingDeps = defaultDeps
   return d;
 }
 
-/** SHA-256 of a file, streamed. */
-function sha256File(path: string): string {
-  const h = createHash("sha256");
-  const fd = openSync(path, "r");
-  try {
-    const buf = Buffer.alloc(1 << 22);
-    for (
-      let n = readSync(fd, buf, 0, buf.length, null);
-      n > 0;
-      n = readSync(fd, buf, 0, buf.length, null)
-    )
-      h.update(buf.subarray(0, n));
-  } finally {
-    closeSync(fd);
-  }
-  return h.digest("hex");
-}
-
 /** The --model directories are exactly the decision's `model_digests`, file for file. */
 export function requireFrozenModels(
   d: ChangeDecision,
@@ -146,7 +120,7 @@ export function requireFrozenModels(
       ["model.json", want.model_json_sha256],
     ];
     for (const [f, sha] of files)
-      if (sha256File(join(dir, f)) !== sha)
+      if (fileDigest(join(dir, f)) !== sha)
         throw new UsageError(`${join(dir, f)}: SHA-256 differs from ${decisionPath} model_digests`);
     return id;
   });
@@ -154,6 +128,61 @@ export function requireFrozenModels(
     throw new UsageError(
       `--model directories hold ${ids.join(", ")}, ${decisionPath} freezes ${[...byId.keys()].join(", ")}`,
     );
+}
+
+/**
+ * Every carried tracker's predictions trace to a bound model (schema 0.17.0): its file names the
+ * weights it was made with (`model_weights_sha256`, one of the --model directories' weights.bin),
+ * or it names its input files (`inputs`, e.g. a hybrid), each of which must be one of the files
+ * given to tma-g5, byte for byte, and one of which must name bound weights. Closes the gap where a
+ * prediction file was accepted on the estimator name in its own header.
+ */
+export function requirePredictionChain(
+  trackers: PredictionSet[],
+  others: PredictionSet[],
+  modelDirs: string[],
+): void {
+  const weights = new Set(modelDirs.map((dir) => fileDigest(join(dir, "weights.bin"))));
+  const digests = new Map<PredictionSet, string>();
+  const digestOf = (s: PredictionSet): string => {
+    let d = digests.get(s);
+    if (d === undefined) {
+      if (s.path === undefined) throw new UsageError(`${s.label}: not opened from a file`);
+      d = fileDigest(s.path);
+      digests.set(s, d);
+    }
+    return d;
+  };
+  for (const t of trackers) {
+    const h = t.header;
+    const where = t.path ?? t.label;
+    if (h?.model_weights_sha256 != null) {
+      if (!weights.has(h.model_weights_sha256))
+        throw new UsageError(
+          `${where}: made with weights ${h.model_weights_sha256}, not a --model's`,
+        );
+      continue;
+    }
+    const inputs = h?.inputs ?? [];
+    if (inputs.length === 0)
+      throw new UsageError(
+        `${where}: names neither its model's weights nor its inputs (prediction files from schema 0.17.0 do)`,
+      );
+    let bound = false;
+    for (const input of inputs) {
+      const match = others.find(
+        (o) => o.estimator === input.estimator && digestOf(o) === input.sha256,
+      );
+      if (match === undefined)
+        throw new UsageError(
+          `${where}: input ${input.estimator} (SHA-256 ${input.sha256}) is not among the files given to tma-g5`,
+        );
+      const w = match.header?.model_weights_sha256;
+      if (w != null && weights.has(w)) bound = true;
+    }
+    if (!bound)
+      throw new UsageError(`${where}: none of its inputs was made with a --model's weights`);
+  }
 }
 
 interface Summary {
@@ -166,6 +195,11 @@ interface Summary {
   non_converged: number;
 }
 
+/** A target manoeuvre has ended at or before this row. */
+export function afterManoeuvre(r: G5Row): boolean {
+  return (r.s.metadata.manoeuvres ?? []).some((m) => m.end_index <= r.k);
+}
+
 /** Medians and P90s of every set on the G5 rows and their slices (FR-006). */
 export function g5Report(truth: Scenario[], sets: PredictionSet[]): Summary[] {
   const all = g5Rows(truth);
@@ -173,6 +207,9 @@ export function g5Report(truth: Scenario[], sets: PredictionSet[]): Summary[] {
     ["all G5 rows", all],
     ["settled", all.filter((r) => r.settled)],
     ["not settled", all.filter((r) => !r.settled)],
+    // Reported, not gated: the pooled settled check averages two regimes (spec 013 panel round 1).
+    ["settled, before any manoeuvre", all.filter((r) => r.settled && !afterManoeuvre(r))],
+    ["settled, after a manoeuvre", all.filter((r) => r.settled && afterManoeuvre(r))],
     ...G5_GATE_MIN.map((t): [string, G5Row[]] => [
       `zig+${String(t)}min`,
       all.filter((r) => r.minutes === t),
@@ -247,6 +284,7 @@ export function main(argv: string[]): unknown {
       trackers: sets.map((t) => t.estimator),
       reference: ref.estimator,
     });
+    requirePredictionChain(sets, [ref, ...also], values.model);
   }
   const out = join(experiment, gate ? "verdict.json" : "diagnostic.json");
   if (existsSync(out)) throw new UsageError(`${out} exists: a G5 split is scored once`);
