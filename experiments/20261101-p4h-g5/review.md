@@ -125,3 +125,59 @@ majors are about what the pass may be said to show, and are answered with eviden
   pinned digest and the clean test header.
 - **Re-score clause** (statistics): not triggered.
 - **`velocity_from_network` count** (numerics): cosmetic; noted.
+
+## Round 2
+
+### TMA geometry
+
+VERDICT: approve-with-findings
+Both round-1 majors addressed. (1) Pre-manoeuvre regression disclosed (settled before any manoeuvre 6.0% vs IMM 4.1%, 1.47×; after 10.3% vs 15.2%, 0.68×). Make explicit that the before-manoeuvre rows are the larger share of the settled population (55%) and the pooled check passes only because post-manoeuvre rows carry it. Velocity before any manoeuvre is effectively the IMM's (4.0°, 0.70 kt for both). (2) Track-state inconsistency described (g5.md:6, :66); bearing-rate diagnostic as follow-up acceptable. Minors addressed.
+[minor] Keep the claim as "T2's range plus the IMM's velocity beats the IMM overall"; the EKF (settled course 1.44×, speed 1.21×) and batch least squares (6.6% settled range) both beat it on straight legs; the write-up must not suggest otherwise.
+
+### Estimation and numerics
+
+VERDICT: approve
+Major 2 (hybrid file provenance) addressed: T2 regeneration byte-identical (fed1c535…), hybrid rebuild byte-identical (1a94895f…), independently confirmed by reproducibility; run.sh and predictions.sha256 committed; tma-g5 input-digest check is a recorded follow-up (as tma-g3), not blocking. Major 1 (EKF) addressed in g5.md with figures and claim wording. Minors answered.
+[note] "84% of rows" counts all per-timestep rows; on G5 rows the IMM-velocity share is ~87% (13.4% T2 on validation) — say which population.
+[note] decided_by must be set when the panel closes.
+
+### Evaluation statistics
+
+VERDICT: approve
+All round-1 findings addressed (ordering claim scoped; forecast miss recorded with θ-independence and 1.6 SE; IMM non-converged disclosed; EKF comparison and claim scope; reported-only rows labelled; batch least squares added on the same rows).
+[minor] Pooled settled range (1.022) mixes two regimes (1.47× before any manoeuvre, 0.68× after); disclosed; the pre-registered statistic is pooled, so the gate stands; a future gate should consider a separate before-manoeuvre check.
+[minor] "84% IMM velocity" is over all per-timestep rows (782,642 of 4,929,538); validation's 13% is over G5 rows; state the population or give the seed-213 G5-row share.
+[minor] decided_by must be set from "harness (pending agent panel review)" to the approving round.
+No remaining or new blocker or major on statistical grounds.
+
+### Reproducibility
+
+VERDICT: approve
+sha256sum -c predictions.sha256: all seven files OK (test.t2 fed1c535…, test.hybrid 1a94895f… = the round-1 rebuild); test.f32pack 5bbd9fb1… equals T2's prediction-header dataset_digest. run.sh records the predict command with --train and the full chain. decided_at correction recorded (g5.md, review.md); leaving decision.json unchanged is reasonable. gen.log answer acceptable. Two validation populations explained (≤ 0.006 in any ratio). Changes after e5307f8 are evidence and records only; no gate, hybrid or model code changed.
+[minor] Neither the hybrid file nor tma-g5 checks its IMM and T2 input digests; acknowledged follow-up, as for tma-g3.
+
+### Red team
+
+VERDICT: approve
+All three round-1 majors addressed: pre-manoeuvre regression quantified and disclosed (settled before any manoeuvre 6.01% vs IMM 4.10%, EKF 3.7%; after 10.29% vs 15.15%); EKF comparison and the "by construction" point disclosed with the claim worded "T2's range plus the IMM's velocity beats the IMM overall"; provenance — run.sh, predictions.sha256, T2 regeneration and hybrid rebuild byte-identical, independent rebuild, streamed predictor byte-identical. tma-g5 accepting files on their estimator name is a reasonable follow-up.
+[minor] g5.md says the test header records commit 3dd8c29 while the decision says the split was generated at 280d276: state that the plan's data step regenerated it at the decision commit with the same content digest (0b128866…; file SHA-256 5bbd9fb1…).
+[minor] decided_at left in decision.json, corrected in review.md and g5.md: acceptable.
+[minor] decided_by must be set to the approving round.
+
+## Outcome
+
+Round 2: four reviewers approve and one approves with minor findings. None rejects, and no blocker or
+major finding is open. **G5 passes for the hybrid, decided by the agent review panel, round 2.**
+
+Round-2 minors, all addressed in `g5.md` without changing any result:
+- The before-manoeuvre rows are 55% of settled rows, and the pooled settled-range check passes only
+  because post-manoeuvre rows carry it (geometry, statistics).
+- The 84% IMM-velocity share is over all per-timestep rows; on validation's G5 rows the T2 share was
+  13% (statistics, numerics).
+- The test header's commit (3dd8c29) is the data step's regeneration at the decision commit, with the
+  same content digest (red team).
+- The claim stays "T2's range plus the IMM's velocity beats the IMM overall"; the EKF and batch least
+  squares are better on straight legs (geometry).
+- `tma-g5` checking prediction-file input digests is a follow-up, as for `tma-g3` (reproducibility,
+  red team, numerics).
+- A future gate should consider a separate check on settled rows before any manoeuvre (statistics).
