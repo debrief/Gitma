@@ -1,0 +1,47 @@
+{
+  "all G5 rows|course_deg": {
+    "median": 88.9116,
+    "n": 16500,
+    "p90": 161.5993
+  },
+  "all G5 rows|range_rel": {
+    "median": 0.3946,
+    "n": 16500,
+    "p90": 1.5112
+  },
+  "all G5 rows|speed_kt": {
+    "median": 3.9994,
+    "n": 16500,
+    "p90": 7.5842
+  },
+  "manoeuvre=held|course_deg": {
+    "median": 90.4258,
+    "n": 1979,
+    "p90": 163.0348
+  },
+  "manoeuvre=held|range_rel": {
+    "median": 0.3883,
+    "n": 1979,
+    "p90": 1.2617
+  },
+  "manoeuvre=held|speed_kt": {
+    "median": 4.3486,
+    "n": 1979,
+    "p90": 7.5477
+  },
+  "settled|course_deg": {
+    "median": 88.5696,
+    "n": 7222,
+    "p90": 161.3457
+  },
+  "settled|range_rel": {
+    "median": 0.3998,
+    "n": 7222,
+    "p90": 1.4368
+  },
+  "settled|speed_kt": {
+    "median": 4.1416,
+    "n": 7222,
+    "p90": 7.6033
+  }
+}

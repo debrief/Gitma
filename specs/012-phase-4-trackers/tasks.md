@@ -17,6 +17,8 @@
   as well as pooled; and it states that the count–window correlation, which over-weights busy
   scenarios at later gate times, is the intended estimand, and that the speed-change side prior
   favours learned trackers — all done: research R1, R3; decision 29)
-- [ ] T009 Training on CI, both trackers
-- [ ] T010 Validation diagnostic; G5 on the fresh test seed for each tracker carried; panel
-- [ ] T011 Write-up
+- [x] T009 Training on CI, both trackers (T1 `results/p4a-41194775176`, after the #69 fix; T2
+  `results/p4b-41269549428`, restarted after #70)
+- [x] T010 Validation diagnostic; G5 on the fresh test seed for each tracker carried; panel —
+  neither carried (`experiments/20261031-p4-val/validation.md`); G5 not run, seed 212 unscored
+- [x] T011 Write-up (`site/blog/2026-11-01-phase-4.md`)
