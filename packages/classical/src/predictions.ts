@@ -1,7 +1,7 @@
 // Prediction files (contracts/file-formats.md): line 1 PredictionHeader, then one Prediction per line.
 import { createHash } from "node:crypto";
 import { closeSync, openSync, readSync } from "node:fs";
-import { canonicalJson } from "@tma/data";
+import { canonicalJson, openAtomic, writeAll } from "@tma/data";
 import {
   parseRecord,
   Prediction,
@@ -49,6 +49,45 @@ export function predictionLines(
   const lines = [canonicalJson(header)];
   for (const p of predictions) lines.push(canonicalJson(p));
   return lines;
+}
+
+/**
+ * A prediction file written as it is made: the header line, then one line per prediction, renamed
+ * into place on commit. Byte-identical to `predictionLines(...).join("\n") + "\n"`, without
+ * holding the file in memory (a 40,000-scenario per-timestep file exceeds V8's string limit).
+ */
+export function openPredictionStream(
+  path: string,
+  header: PredictionHeader,
+): { write(p: Prediction): void; commit(): void; abort(): void; readonly count: number } {
+  const f = openAtomic(path);
+  let pending: string[] = [`${canonicalJson(header)}\n`];
+  let bytes = 0;
+  let count = 0;
+  const flush = (): void => {
+    writeAll(f.fd, Buffer.from(pending.join(""), "utf8"));
+    pending = [];
+    bytes = 0;
+  };
+  return {
+    write(p) {
+      const line = `${canonicalJson(p)}\n`;
+      pending.push(line);
+      bytes += line.length;
+      count++;
+      if (bytes >= 1 << 24) flush();
+    },
+    commit() {
+      flush();
+      f.commit();
+    },
+    abort() {
+      f.abort();
+    },
+    get count() {
+      return count;
+    },
+  };
 }
 
 export function parsePredictions(

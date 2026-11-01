@@ -46,6 +46,7 @@ export const RESERVED_SEEDS = {
   209: "the phase-3 G4 test (fresh test only; spec 010)",
   210: "the phase-3b G4 test (fresh test only; spec 011)",
   212: "the phase-4 G5 test (fresh test only; spec 012)",
+  213: "the phase-4b hybrid G5 test (fresh test only; spec 013)",
 };
 /** Dataset seeds owned by one iteration's plans: its test split decided that iteration's gate. */
 export const ITERATION_DATASET_SEEDS = { 201: "2", 204: "3", 205: "4" };
@@ -72,6 +73,7 @@ export const RESERVED_TEST_SEEDS = {
     for: "phase 4 G5 (spec 012, fresh test)",
     plans: ["configs/phase4/a/plan.json", "configs/phase4/b/plan.json"],
   },
+  213: { for: "phase 4b hybrid G5 (spec 013, fresh test)", plan: "configs/phase4/h/plan.json" },
 };
 
 class PlanError extends Error {}

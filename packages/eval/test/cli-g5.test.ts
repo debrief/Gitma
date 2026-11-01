@@ -1,4 +1,5 @@
 // tma-g5 (spec 012 FR-005): a validation diagnostic end to end, and the test-split bindings.
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -6,7 +7,7 @@ import { readDataset, runCli } from "@tma/data";
 import type { PredictionRow } from "@tma/types";
 import { describe, expect, it, vi } from "vitest";
 import { main as generate } from "../../data/src/cli-generate.js";
-import { main as g5, requireG5Binding } from "../src/cli-g5.js";
+import { main as g5, requireFrozenModels, requireG5Binding } from "../src/cli-g5.js";
 import { openPredictionWriter, scenarioSource } from "../src/prediction-file.js";
 import { truthRow } from "./helpers.js";
 
@@ -150,6 +151,61 @@ describe("tma-g5", () => {
       );
       writeDecision({ test_seed: "999" });
       expect(() => requireG5Binding(binding, ok)).toThrow(/test seed 999/);
+    });
+
+    it("binds frozen models by digest when the decision lists model_digests (spec 013)", () => {
+      const frozen = join(dir, "frozen");
+      mkdirSync(frozen, { recursive: true });
+      writeFileSync(join(frozen, "manifest.json"), JSON.stringify({ id: "lstm-gaussian" }));
+      writeFileSync(join(frozen, "model.json"), "{}");
+      writeFileSync(join(frozen, "weights.bin"), "w");
+      const sha = (f: string): string =>
+        createHash("sha256")
+          .update(readFileSync(join(frozen, f)))
+          .digest("hex");
+      const digest = {
+        model: "lstm-gaussian",
+        weights_sha256: sha("weights.bin"),
+        manifest_sha256: sha("manifest.json"),
+        model_json_sha256: sha("model.json"),
+      };
+      const hybrid = "hybrid-lstm-gaussian-imm-ref-c45";
+      const d = (over: Record<string, unknown>) =>
+        ({
+          phase_a_experiment: "x",
+          stalled: false,
+          change: "x",
+          rationale: "x",
+          carried_set_rule: "x",
+          decided_at: "2026-11-01T00:00:00Z",
+          git_commit: "abc",
+          carried_models: [hybrid],
+          model_digests: [digest],
+          ...over,
+        }) as Parameters<typeof requireFrozenModels>[0];
+      expect(() => {
+        requireFrozenModels(d({}), [frozen], "decision.json");
+      }).not.toThrow();
+      writeFileSync(join(frozen, "weights.bin"), "tampered");
+      expect(() => {
+        requireFrozenModels(d({}), [frozen], "decision.json");
+      }).toThrow(/SHA-256 differs/);
+      writeFileSync(join(frozen, "weights.bin"), "w");
+      expect(() => {
+        requireFrozenModels(
+          d({ model_digests: [{ ...digest, model: "other" }] }),
+          [frozen],
+          "decision.json",
+        );
+      }).toThrow(/not in decision.json model_digests/);
+      // In a full binding, a frozen decision skips the training-ancestry check.
+      writeDecision({ carried_models: [hybrid], model_digests: [digest] });
+      expect(() =>
+        requireG5Binding(
+          { ...binding, modelDirs: [frozen], trackers: [hybrid] },
+          { ...ok, precedes: () => false },
+        ),
+      ).not.toThrow(/was not committed before/);
     });
 
     it("refuses data from a dirty tree (these test data were generated with --allow-dirty)", () => {

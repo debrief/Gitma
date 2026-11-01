@@ -4,7 +4,16 @@
 // batch least squares, naive) on the G5 rows, medians and P90s overall, settled and unsettled, by
 // gate time and by manoeuvre mix (FR-006). On a test split (the gate) every binding of
 // `requireG5Binding` must hold, and it writes verdict.json (exit 3 unless pass).
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import {
+  closeSync,
+  existsSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  readSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 import { parseArgs } from "node:util";
 import { isMain, readDataset, runCli, UsageError } from "@tma/data";
@@ -39,7 +48,10 @@ const sameSet = (a: readonly string[], b: readonly string[]): boolean => {
  * Every binding a G5 test split needs (spec 012 FR-005, as G4's): the decision is committed; it
  * names this test seed, these plans (whose digests the data must match), this reference and these
  * carried trackers; the data come from a clean tree; and every carried tracker was trained after
- * the decision was committed. Returns the decision, or throws naming the first failure.
+ * the decision was committed. A decision with `model_digests` (spec 013: a hybrid of frozen
+ * models) binds the models by file digest in place of training ancestry: the --model directories
+ * must be exactly those models, byte for byte, and the carried trackers are the estimators the
+ * decision names. Returns the decision, or throws naming the first failure.
  */
 export function requireG5Binding(b: G5Binding, deps: G4BindingDeps = defaultDeps): ChangeDecision {
   if (!deps.isCommitted(b.decisionPath))
@@ -72,6 +84,10 @@ export function requireG5Binding(b: G5Binding, deps: G4BindingDeps = defaultDeps
     throw new UsageError(
       `${b.decisionPath} carries ${carried.join(", ")}, the tracker predictions are ${b.trackers.join(", ")}`,
     );
+  if ((d.model_digests ?? []).length > 0) {
+    requireFrozenModels(d, b.modelDirs, b.decisionPath);
+    return d;
+  }
   const ids = b.modelDirs.map((dir) => {
     const m = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8")) as {
       id?: string;
@@ -88,6 +104,56 @@ export function requireG5Binding(b: G5Binding, deps: G4BindingDeps = defaultDeps
       `--model directories hold ${ids.join(", ")}, not ${b.trackers.join(", ")}`,
     );
   return d;
+}
+
+/** SHA-256 of a file, streamed. */
+function sha256File(path: string): string {
+  const h = createHash("sha256");
+  const fd = openSync(path, "r");
+  try {
+    const buf = Buffer.alloc(1 << 22);
+    for (
+      let n = readSync(fd, buf, 0, buf.length, null);
+      n > 0;
+      n = readSync(fd, buf, 0, buf.length, null)
+    )
+      h.update(buf.subarray(0, n));
+  } finally {
+    closeSync(fd);
+  }
+  return h.digest("hex");
+}
+
+/** The --model directories are exactly the decision's `model_digests`, file for file. */
+export function requireFrozenModels(
+  d: ChangeDecision,
+  modelDirs: string[],
+  decisionPath: string,
+): void {
+  const digests = d.model_digests ?? [];
+  const byId = new Map(digests.map((m) => [m.model, m]));
+  if (byId.size !== digests.length)
+    throw new UsageError(`${decisionPath}: model_digests names a model twice`);
+  const ids = modelDirs.map((dir) => {
+    const m = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8")) as { id?: string };
+    const id = String(m.id);
+    const want = byId.get(id);
+    if (want === undefined)
+      throw new UsageError(`${dir}: model ${id} is not in ${decisionPath} model_digests`);
+    const files: [string, string][] = [
+      ["weights.bin", want.weights_sha256],
+      ["manifest.json", want.manifest_sha256],
+      ["model.json", want.model_json_sha256],
+    ];
+    for (const [f, sha] of files)
+      if (sha256File(join(dir, f)) !== sha)
+        throw new UsageError(`${join(dir, f)}: SHA-256 differs from ${decisionPath} model_digests`);
+    return id;
+  });
+  if (!sameSet(ids, [...byId.keys()]))
+    throw new UsageError(
+      `--model directories hold ${ids.join(", ")}, ${decisionPath} freezes ${[...byId.keys()].join(", ")}`,
+    );
 }
 
 interface Summary {

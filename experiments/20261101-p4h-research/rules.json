@@ -1,0 +1,425 @@
+{
+  "rows": 16463,
+  "rules": {
+    "imm": {
+      "velocity_from_t2": 0,
+      "overall": {
+        "range": 1,
+        "course": 1,
+        "speed": 1
+      },
+      "settled": {
+        "range": 1,
+        "course": 1,
+        "speed": 1
+      },
+      "min_margin": 0
+    },
+    "t2": {
+      "velocity_from_t2": 1,
+      "overall": {
+        "range": 0.848,
+        "course": 0.845,
+        "speed": 1.331
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 1.445,
+        "speed": 1.667
+      },
+      "min_margin": -0.515
+    },
+    "range-t2": {
+      "velocity_from_t2": 0,
+      "overall": {
+        "range": 0.848,
+        "course": 1,
+        "speed": 1
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 1,
+        "speed": 1
+      },
+      "min_margin": 0
+    },
+    "switch-course-10": {
+      "velocity_from_t2": 0.652,
+      "overall": {
+        "range": 0.855,
+        "course": 0.839,
+        "speed": 1.184
+      },
+      "settled": {
+        "range": 0.955,
+        "course": 1.349,
+        "speed": 1.301
+      },
+      "min_margin": -0.226
+    },
+    "range-t2-vel-course-10": {
+      "velocity_from_t2": 0.652,
+      "overall": {
+        "range": 0.848,
+        "course": 0.839,
+        "speed": 1.184
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 1.349,
+        "speed": 1.301
+      },
+      "min_margin": -0.226
+    },
+    "switch-course-15": {
+      "velocity_from_t2": 0.541,
+      "overall": {
+        "range": 0.857,
+        "course": 0.83,
+        "speed": 1.135
+      },
+      "settled": {
+        "range": 0.941,
+        "course": 1.168,
+        "speed": 1.19
+      },
+      "min_margin": -0.082
+    },
+    "range-t2-vel-course-15": {
+      "velocity_from_t2": 0.541,
+      "overall": {
+        "range": 0.848,
+        "course": 0.83,
+        "speed": 1.135
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 1.168,
+        "speed": 1.19
+      },
+      "min_margin": -0.082
+    },
+    "switch-course-20": {
+      "velocity_from_t2": 0.45,
+      "overall": {
+        "range": 0.869,
+        "course": 0.825,
+        "speed": 1.093
+      },
+      "settled": {
+        "range": 0.942,
+        "course": 1.091,
+        "speed": 1.113
+      },
+      "min_margin": -0.012
+    },
+    "range-t2-vel-course-20": {
+      "velocity_from_t2": 0.45,
+      "overall": {
+        "range": 0.848,
+        "course": 0.825,
+        "speed": 1.093
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 1.091,
+        "speed": 1.113
+      },
+      "min_margin": -0.012
+    },
+    "switch-course-25": {
+      "velocity_from_t2": 0.369,
+      "overall": {
+        "range": 0.872,
+        "course": 0.818,
+        "speed": 1.048
+      },
+      "settled": {
+        "range": 0.933,
+        "course": 1.027,
+        "speed": 1.056
+      },
+      "min_margin": 0.04
+    },
+    "range-t2-vel-course-25": {
+      "velocity_from_t2": 0.369,
+      "overall": {
+        "range": 0.848,
+        "course": 0.818,
+        "speed": 1.048
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 1.027,
+        "speed": 1.056
+      },
+      "min_margin": 0.04
+    },
+    "switch-course-30": {
+      "velocity_from_t2": 0.297,
+      "overall": {
+        "range": 0.888,
+        "course": 0.836,
+        "speed": 1.017
+      },
+      "settled": {
+        "range": 0.937,
+        "course": 1.003,
+        "speed": 1.018
+      },
+      "min_margin": 0.075
+    },
+    "range-t2-vel-course-30": {
+      "velocity_from_t2": 0.297,
+      "overall": {
+        "range": 0.848,
+        "course": 0.836,
+        "speed": 1.017
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 1.003,
+        "speed": 1.018
+      },
+      "min_margin": 0.075
+    },
+    "switch-course-35": {
+      "velocity_from_t2": 0.232,
+      "overall": {
+        "range": 0.902,
+        "course": 0.856,
+        "speed": 1
+      },
+      "settled": {
+        "range": 0.943,
+        "course": 0.988,
+        "speed": 1.006
+      },
+      "min_margin": 0.085
+    },
+    "range-t2-vel-course-35": {
+      "velocity_from_t2": 0.232,
+      "overall": {
+        "range": 0.848,
+        "course": 0.856,
+        "speed": 1
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 0.988,
+        "speed": 1.006
+      },
+      "min_margin": 0.085
+    },
+    "switch-course-40": {
+      "velocity_from_t2": 0.179,
+      "overall": {
+        "range": 0.918,
+        "course": 0.881,
+        "speed": 0.992
+      },
+      "settled": {
+        "range": 0.953,
+        "course": 0.979,
+        "speed": 0.997
+      },
+      "min_margin": 0.082
+    },
+    "range-t2-vel-course-40": {
+      "velocity_from_t2": 0.179,
+      "overall": {
+        "range": 0.848,
+        "course": 0.881,
+        "speed": 0.992
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 0.979,
+        "speed": 0.997
+      },
+      "min_margin": 0.094
+    },
+    "switch-course-45": {
+      "velocity_from_t2": 0.134,
+      "overall": {
+        "range": 0.936,
+        "course": 0.903,
+        "speed": 0.993
+      },
+      "settled": {
+        "range": 0.96,
+        "course": 0.983,
+        "speed": 0.992
+      },
+      "min_margin": 0.064
+    },
+    "range-t2-vel-course-45": {
+      "velocity_from_t2": 0.134,
+      "overall": {
+        "range": 0.848,
+        "course": 0.903,
+        "speed": 0.993
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 0.983,
+        "speed": 0.992
+      },
+      "min_margin": 0.097
+    },
+    "switch-course-50": {
+      "velocity_from_t2": 0.106,
+      "overall": {
+        "range": 0.95,
+        "course": 0.92,
+        "speed": 0.989
+      },
+      "settled": {
+        "range": 0.965,
+        "course": 0.983,
+        "speed": 0.986
+      },
+      "min_margin": 0.05
+    },
+    "range-t2-vel-course-50": {
+      "velocity_from_t2": 0.106,
+      "overall": {
+        "range": 0.848,
+        "course": 0.92,
+        "speed": 0.989
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 0.983,
+        "speed": 0.986
+      },
+      "min_margin": 0.08
+    },
+    "switch-course-60": {
+      "velocity_from_t2": 0.073,
+      "overall": {
+        "range": 0.965,
+        "course": 0.939,
+        "speed": 0.989
+      },
+      "settled": {
+        "range": 0.98,
+        "course": 0.987,
+        "speed": 0.993
+      },
+      "min_margin": 0.035
+    },
+    "range-t2-vel-course-60": {
+      "velocity_from_t2": 0.073,
+      "overall": {
+        "range": 0.848,
+        "course": 0.939,
+        "speed": 0.989
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 0.987,
+        "speed": 0.993
+      },
+      "min_margin": 0.061
+    },
+    "switch-course-90": {
+      "velocity_from_t2": 0.037,
+      "overall": {
+        "range": 0.979,
+        "course": 0.961,
+        "speed": 0.992
+      },
+      "settled": {
+        "range": 0.989,
+        "course": 0.989,
+        "speed": 0.995
+      },
+      "min_margin": 0.021
+    },
+    "range-t2-vel-course-90": {
+      "velocity_from_t2": 0.037,
+      "overall": {
+        "range": 0.848,
+        "course": 0.961,
+        "speed": 0.992
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 0.989,
+        "speed": 0.995
+      },
+      "min_margin": 0.039
+    },
+    "range-t2-vel-sd-0.5": {
+      "velocity_from_t2": 1,
+      "overall": {
+        "range": 0.848,
+        "course": 0.845,
+        "speed": 1.331
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 1.445,
+        "speed": 1.667
+      },
+      "min_margin": -0.515
+    },
+    "range-t2-vel-sd-0.75": {
+      "velocity_from_t2": 1,
+      "overall": {
+        "range": 0.848,
+        "course": 0.845,
+        "speed": 1.331
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 1.445,
+        "speed": 1.667
+      },
+      "min_margin": -0.515
+    },
+    "range-t2-vel-sd-1": {
+      "velocity_from_t2": 1,
+      "overall": {
+        "range": 0.848,
+        "course": 0.845,
+        "speed": 1.331
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 1.445,
+        "speed": 1.667
+      },
+      "min_margin": -0.515
+    },
+    "range-t2-vel-sd-1.5": {
+      "velocity_from_t2": 0.984,
+      "overall": {
+        "range": 0.848,
+        "course": 0.844,
+        "speed": 1.333
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 1.436,
+        "speed": 1.667
+      },
+      "min_margin": -0.515
+    },
+    "range-t2-vel-sd-2": {
+      "velocity_from_t2": 0.889,
+      "overall": {
+        "range": 0.848,
+        "course": 0.831,
+        "speed": 1.32
+      },
+      "settled": {
+        "range": 0.976,
+        "course": 1.384,
+        "speed": 1.641
+      },
+      "min_margin": -0.492
+    }
+  }
+}

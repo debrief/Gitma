@@ -1,0 +1,10 @@
+# Tasks: Phase 4b — the tracker hybrid
+
+- [x] T001 SRD Annex C §C.10 (owner decision 30)
+- [x] T002 `trackerHybrid` and `tma-hybrid-track`; tests
+- [x] T003 `tma-g5` frozen-model binding (`model_digests`); tests
+- [x] T004 Research on seed-211 validation: rule family, θ by the declared criterion (R1–R2)
+- [x] T005 Seed 213 generated from a clean tree; digest pinned in `configs/phase4/h/plan.json`
+- [x] T006 Decision 30 committed (θ, model digests, reference, test seed, forecast)
+- [x] T007 G5 on seed 213; agent panel; `review.md` — **pass**, panel rounds 1–2 (`experiments/20261101-p4h-g5/`)
+- [x] T008 Write-up (`site/blog/2026-11-01-phase-4b.md`)

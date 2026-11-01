@@ -1,0 +1,7 @@
+5bbd9fb1d62ee80e49ad82022615ddf46dbf20aabbb1abe3bdd5c697e58009d1  data/p4h/test.f32pack
+56a16a2262d12136263aea46d6085c7e1fbc2e4953f5669d165c108e68fa3274  data/p4h/test.features.bin
+e5728e6ab83c71b8615c1347e856facce5edc6bc077b2a5bbf455c0d6227ccb7  data/p4h/pred/test.imm.ndjson
+fed1c535e7786c1f1dd1d4beeee6f03d418ce3eba46003fca495a17d38b16c08  data/p4h/pred/test.t2.ndjson
+13158874de601cbfd4fabc43f40ff50c60eb2e38e09f455e18908e8502f16f15  data/p4h/pred/test.ekf.ndjson
+878f940c4b3aa6c54428f712ff0c3fe64e1b6103331623fa905073f70f5e4a0d  data/p4h/pred/test.naive.ndjson
+1a94895f34abfc55de110b9bddc96971be3b74618137a09ff857eefb4bedfedf  data/p4h/pred/test.hybrid.ndjson

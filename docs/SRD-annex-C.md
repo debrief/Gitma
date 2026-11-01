@@ -130,7 +130,7 @@ The other reading, more than 5 min after the scenario's last manoeuvre, gives 27
 meant.
 
 **The verdict.**
-- **Pass** if all six gated checks pass for at least one tracker.
+- **Pass** if all five gated checks pass for at least one tracker.
 - **Fail** if, for each tracker, at least one gated check fails.
 - **Inconclusive** otherwise. The FR-015 rule applies to each check. One re-score of the same
   frozen models on a larger fresh seed is allowed, as for G2 and G4; then the result is final.
@@ -216,3 +216,33 @@ operations: matrix products, elementwise maths, and `atan2` for bearings.
 4. **Training on CI**, both trackers.
 5. **The validation diagnostic**, then G5 on the fresh test seed for each tracker carried.
 6. **The agent panel**, `review.md`, and the write-up.
+
+## C.10 Phase 4b: the tracker hybrid (owner decision 30, 2026-11-01)
+
+Phase 4 stopped at validation (`experiments/20261031-p4-val/validation.md`). T2 beat the IMM
+overall but lost on settled course and speed; T1 did not converge in range. Under C.6 the owner
+chose the follow-on: a **hybrid** of the two frozen estimators, judged by **G5 unchanged**.
+
+- **What is judged.** The hybrid of the frozen reference IMM and the frozen T2
+  (`experiments/20261101-p4b-models`), reported as a hybrid, never as T2 alone. Nothing is trained.
+- **The rule family** is declared here: the hybrid reports T2's range always, and T2's course and
+  speed only where the two estimators' courses differ by more than θ; elsewhere the IMM's. It reads
+  only the two estimators' outputs at the same row, so it is causal.
+- **θ is chosen on seed-211 validation** by a criterion declared before the choice: the θ in
+  {10, 15, …, 60, 90}° that maximises the smallest relative margin over the five gated checks
+  (spec 013 R2). It is then frozen in the decision record.
+- **The gate.** G5 exactly as in C.5: the same rows, checks, limits, bootstrap and 97.5% intervals
+  (one estimator is judged, but the level is kept so that the gate is unchanged).
+- **The test.** A fresh seed, 213 (400,000 scenarios; its 40,000-scenario test split, generated
+  alone), committed in the decision before it is scored. The frozen models are bound by file
+  digest (`model_digests`), since they were trained before this decision.
+- **Re-score.** As C.5: one re-score on a larger fresh seed if the result is inconclusive.
+- **Reported beside it.** T2 alone, the EKF, batch least squares and naive, on the same rows.
+- **If it fails,** the owner decides the follow-on, as in C.6.
+- **Known weaknesses, stated in advance.**
+  - θ is chosen on the same validation split that showed T2's pattern, so the validation result
+    is in-sample; only the fresh seed decides.
+  - The hybrid's range is T2's alone, so the settled-range check rests entirely on T2 (0.97 × on
+    validation, interval [0.92, 1.03]).
+  - The IMM's velocity carries no stated uncertainty, so the hybrid's velocity sd is reported only
+    where T2's velocity is used.
