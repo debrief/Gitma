@@ -1,0 +1,58 @@
+{
+  "hybrid": {
+    "before": {
+      "n": 16231,
+      "range": 0.0601,
+      "course_deg": 4.02,
+      "speed_kt": 0.7
+    },
+    "after": {
+      "n": 13475,
+      "range": 0.1029,
+      "course_deg": 17.17,
+      "speed_kt": 2.722
+    }
+  },
+  "imm": {
+    "before": {
+      "n": 16231,
+      "range": 0.041,
+      "course_deg": 4.04,
+      "speed_kt": 0.697
+    },
+    "after": {
+      "n": 13475,
+      "range": 0.1515,
+      "course_deg": 18.64,
+      "speed_kt": 2.798
+    }
+  },
+  "ekf": {
+    "before": {
+      "n": 16231,
+      "range": 0.0367,
+      "course_deg": 1.91,
+      "speed_kt": 0.521
+    },
+    "after": {
+      "n": 13475,
+      "range": 0.1686,
+      "course_deg": 21.99,
+      "speed_kt": 2.707
+    }
+  },
+  "t2": {
+    "before": {
+      "n": 16231,
+      "range": 0.0601,
+      "course_deg": 8.12,
+      "speed_kt": 1.959
+    },
+    "after": {
+      "n": 13475,
+      "range": 0.1029,
+      "course_deg": 16.71,
+      "speed_kt": 2.584
+    }
+  }
+}
