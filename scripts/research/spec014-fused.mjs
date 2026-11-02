@@ -127,8 +127,8 @@ function run(s, t2ByK, v, last, nis) {
         }
         nis.n++;
       }
-      const est = immEstimate(st).x;
-      if (plausible(d, est, i)) {
+      const est = immEstimate(st);
+      if (plausible(d, est.x, i)) {
         out.set(i, est);
         continue;
       }
@@ -159,6 +159,41 @@ const errs = Object.fromEntries(
   names.map((n) => [n, Object.fromEntries(Object.keys(SLICES).map((s) => [s, [[], [], []]]))]),
 );
 const nisBy = Object.fromEntries(variants.map((v) => [v.name, { sum: 0, n: 0 }]));
+
+/**
+ * NEES of (x, y, vx, vy) against truth with the combined covariance: about 4 on average (median
+ * 3.36, 95% below 9.49) if the stated covariance is honest.
+ */
+const neesBy = {};
+function neesOf(name, r, g) {
+  const t = r.s.target.states[r.k];
+  const [tvx, tvy] = [t.speed_mps * Math.sin(t.course_rad), t.speed_mps * Math.cos(t.course_rad)];
+  const e = [g.x[0] - t.x_m, g.x[1] - t.y_m, g.x[2] - tvx, g.x[3] - tvy];
+  const a = [0, 1, 2, 3].map((i) => [0, 1, 2, 3].map((j) => g.p[5 * i + j]));
+  // Solve a·y = e by Gaussian elimination with partial pivoting.
+  const m = a.map((row, i) => [...row, e[i]]);
+  for (let c = 0; c < 4; c++) {
+    let piv = c;
+    for (let r2 = c + 1; r2 < 4; r2++) if (Math.abs(m[r2][c]) > Math.abs(m[piv][c])) piv = r2;
+    [m[c], m[piv]] = [m[piv], m[c]];
+    for (let r2 = c + 1; r2 < 4; r2++) {
+      const f = m[r2][c] / m[c][c];
+      for (let k = c; k < 5; k++) m[r2][k] -= f * m[c][k];
+    }
+  }
+  const y = [0, 0, 0, 0];
+  for (let c = 3; c >= 0; c--) {
+    let v = m[c][4];
+    for (let k = c + 1; k < 4; k++) v -= m[c][k] * y[k];
+    y[c] = v / m[c][c];
+  }
+  const q = e.reduce((acc, v, i) => acc + v * y[i], 0);
+  const b = (neesBy[name] ??= { all: [], settled: [] });
+  if (Number.isFinite(q)) {
+    b.all.push(q);
+    if (r.settled) b.settled.push(q);
+  }
+}
 
 function score(name, r, est) {
   const o = r.s.ownship.states[r.k];
@@ -198,8 +233,9 @@ for await (const line of createInterface({ input: createReadStream(t2Path) })) {
     const out = run(s, t2ByK, v, last, nisBy[v.name]);
     if (v.k === 0) immRows = out;
     for (const r of list) {
-      const x = out.get(r.k);
-      score(v.name, r, x === undefined ? null : fromState(d, x, r.k));
+      const g = out.get(r.k);
+      score(v.name, r, g === undefined ? null : fromState(d, g.x, r.k));
+      if (g !== undefined) neesOf(v.name, r, g);
     }
   }
   for (const r of list) {
@@ -209,7 +245,7 @@ for await (const line of createInterface({ input: createReadStream(t2Path) })) {
       : null;
     score("t2", r, tEst);
     if (immRows !== null) {
-      const x = immRows.get(r.k);
+      const x = immRows.get(r.k)?.x;
       const immRow =
         x === undefined
           ? {
@@ -258,6 +294,27 @@ for (const n of names) {
     };
   const v = nisBy[n];
   if (v !== undefined && v.n > 0) e.range_nis = +(v.sum / v.n).toFixed(3);
+  const nb = neesBy[n];
+  if (nb !== undefined)
+    e.nees = Object.fromEntries(
+      ["all", "settled"].map((k) => {
+        const xs = nb[k];
+        const mean = xs.reduce((a, b) => a + b, 0) / xs.length;
+        return [
+          k,
+          {
+            n: xs.length,
+            mean: +mean.toFixed(2),
+            median: +median(xs).toFixed(2),
+            within_95: +(xs.filter((x) => x <= 9.488).length / xs.length).toFixed(3),
+          },
+        ];
+      }),
+    );
+  if (e.nees !== undefined)
+    console.log(
+      `${n.padEnd(16)} NEES all mean ${e.nees.all.mean} median ${e.nees.all.median} in95 ${e.nees.all.within_95} | settled mean ${e.nees.settled.mean} median ${e.nees.settled.median} in95 ${e.nees.settled.within_95}`,
+    );
   out.estimators[n] = e;
 }
 // Ratios to the IMM (G5's five checks: overall range, course < 1; settled range, course, speed < 1.1).
