@@ -1,0 +1,26 @@
+{
+  "carried_models": [
+    "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-k4-m6"
+  ],
+  "carried_set_rule": "One estimator is judged: the fused tracker named in carried_models (the frozen IMM reference with the frozen T2's range fused in, k 4, every 6 samples), with T2 bound by model_digests and the fused file tied to T2's prediction file by tma-g5's prediction chain. G5 exactly as Annex C \u00a7C.5 (97.5% intervals kept); pass if every gated check passes, fail if any fails, otherwise inconclusive, with one re-score on a larger fresh seed.",
+  "change": "Phase 4c (SRD Annex C \u00a7C.11, owner decision 31): judge the fused tracker at G5 unchanged. The frozen reference IMM takes, after each bearing update and every 6 samples from zig_index + 1, T2's range as a log-range measurement with sd 4 \u00d7 T2's stated log-range sd. One state carries range and velocity. Nothing is trained.",
+  "decided_at": "2026-11-02T09:14:29Z",
+  "fresh_test_count": 400000,
+  "git_commit": "1e69617adcf35fa9a3954938ee31ea4dc149d372",
+  "model_digests": [
+    {
+      "manifest_sha256": "b951f8c848b08b34f27f517e1d9f16ec4b79b69d055c3a0466f90ed0b4f59e96",
+      "model": "lstm-gaussian",
+      "model_json_sha256": "c5ab6e3fd71bb08dae18df56e64f89269b174d72eb7440894f323368a0ac1310",
+      "weights_sha256": "05e36db5cf1225e9b38c1608e924d3cda4debc217949f5305a0a9f24d1f971f2"
+    }
+  ],
+  "phase_a_experiment": "20261102-fused-research",
+  "plans": [
+    "configs/phase4/f/plan.json"
+  ],
+  "rationale": "Phase 4b's hybrid passed G5 but reports range and velocity from different estimators; before any manoeuvre its range is 1.47 x the IMM's and its settled velocity passes largely by copying the IMM's. Fusing T2's range into the IMM keeps one state. k and M were chosen on seed-211 validation from a 12-variant grid as the middle of the plateau of the smallest G5 margin (u = M k^2 from 48 to 192; spec 014 R2). In-sample, tma-g5 on validation: overall range 0.806 [0.780, 0.829], overall course 0.930 [0.907, 0.960], settled range 0.846 [0.801, 0.889], course 0.908 [0.873, 0.952], speed 0.882 [0.836, 0.933] x the IMM; before any manoeuvre range 0.94 x. NEES is no worse than the IMM's. Forecast before scoring: P(G5 pass on seed 214) about 85%; the weakest check is overall course.",
+  "reference_estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8",
+  "stalled": false,
+  "test_seed": "214"
+}

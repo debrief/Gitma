@@ -19,6 +19,7 @@
     "tma-g0": "./dist/cli-g0.js",
     "tma-hybrid": "./dist/cli-hybrid.js",
     "tma-hybrid-track": "./dist/cli-hybrid-track.js",
+    "tma-fuse-track": "./dist/cli-fuse-track.js",
     "tma-g3": "./dist/cli-g3.js",
     "tma-g4": "./dist/cli-g4.js",
     "tma-g5": "./dist/cli-g5.js"

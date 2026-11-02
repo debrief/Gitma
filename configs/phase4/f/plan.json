@@ -1,0 +1,28 @@
+{
+  "id": "p4f",
+  "description": "Spec 014 (phase 4c, SRD Annex C \u00a7C.11, owner decision 31): the fused tracker, the frozen IMM reference with the frozen T2's range (experiments/20261101-p4b-models) fused in as a log-range measurement (k 4, every 6 samples), judged at G5 unchanged on fresh seed 214 (400,000; its 40,000-scenario test split, generated alone). Nothing is trained: the dataset (seed 211) supplies the normalisation for T2's derived features, and the plan pins the fresh test digest that tma-g5 checks.",
+  "dataset": {
+    "seed": "211",
+    "count": 100000,
+    "ranges": "configs/phase4-ranges.json",
+    "heldout_ranges": "configs/phase4-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "870aff4e5f14d76b9da8b39e68c32cc64a9344ba97c2b535ef468c707db59208",
+      "validation.f32pack": "afefe28892e1e361029d799414f3637ea0211c500ed75acb85c79f1592d3c127",
+      "test.f32pack": "05f1ce53be676c9b4b1a597396f01af35b55fa048cad8fa751b2bb262fd70d77",
+      "heldout.f32pack": "9fb7293ab9fae55389789082bc4bc4d5673d3fd56de7c90362de873919e69510"
+    },
+    "fresh_test": {
+      "seed": "214",
+      "count": 400000,
+      "digest": "6f63adcac6d08dc8f8aaa859180fc95f412a184f9f0d678d2d430b6239c9c258"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/phase4/b",
+  "models": ["tracker"],
+  "evaluate": {
+    "command": "models",
+    "split": "validation"
+  }
+}
