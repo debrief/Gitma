@@ -259,7 +259,7 @@ first, then judge it.
   after the bearing update. It is reported as a fused tracker, a filter combined with a frozen
   network, never as T2 alone. Nothing is trained.
 - **k and M** were chosen on seed-211 validation (`experiments/20261102-fused-research/`), from a
-  12-variant grid, as the middle of the plateau of the smallest G5 margin: **k = 4, M = 6**. They
+  grid, as the middle of the region with the largest smallest G5 margin: **k = 4, M = 6**. (Corrected after decision 31, G5 panel round 1: the grid had 18 variants in two adaptive stages, not 12.) They
   are frozen in decision 31. The validation result is in-sample.
 - **The gate.** G5 exactly as in C.5: the same rows, checks, limits, bootstrap and 97.5% intervals.
 - **The test.** A fresh seed, 214 (400,000 scenarios; its 40,000-scenario test split, generated

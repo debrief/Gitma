@@ -4,7 +4,7 @@ import { generateScenario } from "@tma/sim";
 import type { ParameterRanges, Prediction, PredictionRow, Scenario } from "@tma/types";
 import { describe, expect, it } from "vitest";
 import { FUSION_DEFAULT, fusedName, fusedPredict } from "../src/fused.js";
-import { type ImmParams, immPredict } from "../src/imm.js";
+import { type ImmParams, immPredict, immRangeUpdate } from "../src/imm.js";
 import { truthAt } from "./helpers.js";
 
 const PHASE4 = JSON.parse(
@@ -96,6 +96,35 @@ describe("fused tracker", () => {
       if (r.converged)
         expect(Math.abs((q?.range_m ?? 0) - r.range_m) / r.range_m).toBeLessThan(1e-4);
     });
+  });
+
+  it("the range Jacobian matches a finite difference of ln ρ, with ownship off the origin", () => {
+    // One model with a tiny covariance in x only: the update moves x by K·ν with K = P_xx H_x / S,
+    // so the sign and size of H_x = dx/ρ² show in the change of x.
+    const p = new Float64Array(25);
+    p[0] = 1e-6;
+    p[6] = 1e-12;
+    p[12] = 1e-12;
+    p[18] = 1e-12;
+    p[24] = 1e-12;
+    const st = {
+      t: 0,
+      models: [
+        { x: Float64Array.from([3000, -4000, 0, 0, 0]), p: Float64Array.from(p) },
+        { x: Float64Array.from([3000, -4000, 0, 0, 0]), p: Float64Array.from(p) },
+      ] as const,
+      mu: [0.5, 0.5] as [number, number],
+    };
+    const ox = 1000;
+    const oy = 500;
+    const rho = (x: number, y: number): number => Math.hypot(x - ox, y - oy);
+    const z = rho(3000, -4000) * 1.001;
+    const out = immRangeUpdate({ ...st, models: [st.models[0], st.models[1]] }, z, 0.01, ox, oy).st;
+    const h = 1e-3;
+    const fd = (Math.log(rho(3000 + h, -4000)) - Math.log(rho(3000 - h, -4000))) / (2 * h);
+    const s = 1e-4 + fd * fd * 1e-6;
+    const expected = 3000 + ((1e-6 * fd) / s) * Math.log(1.001);
+    expect(out.models[0].x[0]).toBeCloseTo(expected, 6);
   });
 
   it("is deterministic and refuses bad inputs", () => {

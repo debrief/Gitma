@@ -22,7 +22,9 @@ node packages/eval/dist/cli-fuse-track.js --truth $D/test.f32pack --network $D/p
   --out $D/pred/test.fused.ndjson $IMM
 node packages/eval/dist/cli-hybrid-track.js --truth $D/test.f32pack --tracker $D/pred/test.imm.ndjson \
   --network $D/pred/test.t2.ndjson --out $D/pred/test.hybrid.ndjson
-# 4. The gate, with every binding (the prediction chain needs T2's file among --also).
+# 4. The gate, with every binding (the prediction chain needs T2's file among --also). verdict.json
+#    comes after about 8 min; report.json takes about 40 min more (FileLookup re-parses rows). A heap
+#    of 6000 MB is enough (peak RSS about 5 GB).
 node --max-old-space-size=12288 packages/eval/dist/cli-g5.js --truth $D/test.f32pack \
   --tracker $D/pred/test.fused.ndjson --reference $D/pred/test.imm.ndjson \
   --also $D/pred/test.t2.ndjson --also $D/pred/test.hybrid.ndjson --also $D/pred/test.ekf.ndjson \

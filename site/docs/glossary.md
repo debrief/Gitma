@@ -58,7 +58,8 @@ the best epoch's weights are kept.
 **Fused tracker** — The reference IMM with a learned tracker's range added as a second, log-range
 measurement whose sd is the network's own stated sd × k, applied every M samples (spec 014,
 [note](algorithms/fused-tracker.md)). Unlike the tracker hybrid, one state carries range and
-velocity. Judged at G5 as a combination of a filter and a frozen network, not as a network alone.
+velocity, though the network's range is correlated with the same bearings. Judged at G5 as a
+combination of a filter and a frozen network, not as a network alone.
 
 **Gate** — A pass/fail decision at the end of an iteration (G0–G3), judged on fixed metrics. See
 [evaluation](evaluation.md).

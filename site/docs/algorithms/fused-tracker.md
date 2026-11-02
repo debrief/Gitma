@@ -37,29 +37,41 @@ only T2's row at sample i.
 
 T2's range errors are correlated from one sample to the next, and with the bearings the IMM already
 uses. Fusing every sample at T2's stated sd counts the same information many times. Two settings
-control this:
+temper this, empirically rather than by modelling the correlation:
 - **k** inflates T2's stated sd.
 - **M** thins the updates to one every M samples.
 
-Their effect is roughly through u = M · k². On seed-211 validation, every variant with u from 48
-to 192 is within 0.02 of the best smallest margin over G5's five checks
-(`experiments/20261102-fused-research/`). The frozen choice is k = 4, M = 6 (u = 96, one update a
-minute), the middle of that plateau.
+On seed-211 validation, 18 variants were scored (`experiments/20261102-fused-research/`). The best
+region is k = 4 with M from 1 to 12, together with k = 8, M = 3, at a smallest G5 margin of
+0.056–0.075. The frozen choice is k = 4, M = 6 (one update a minute), in the middle of that region.
+Thinning and inflating are not interchangeable: no single combination such as M·k² orders the
+variants.
 
-## What it claims (validation, in-sample)
+## Result: G5 passed on seed 214 (in-sample validation beside it)
 
 | Ratio to the IMM | Overall range | Overall course | Settled range | Settled course | Settled speed | Settled, before any manoeuvre: range |
 | --- | --- | --- | --- | --- | --- | --- |
-| Fused, k4 M6 | 0.81 | 0.93 | 0.85 | 0.91 | 0.88 | 0.94 |
-| Tracker hybrid | 0.85 | 0.90 | 0.97 | 0.98 | 0.99 | 1.35 |
+| Fused, test (seed 214) | 0.82 | 0.95 | 0.86 | 0.95 | 0.90 | 1.03 |
+| Fused, validation | 0.81 | 0.93 | 0.85 | 0.91 | 0.88 | 0.94 |
+| Tracker hybrid, test | 0.86 | 0.91 | 0.99 | 0.98 | 1.00 | 1.43 |
+
+Record: `experiments/20261102-p4f-g5/g5.md`.
 
 ## Limits
 
-- **Uncertainty is not calibrated.** Its stated covariance is too wide on typical rows and too
-  narrow when it lags a manoeuvre. The reference IMM's covariance has the same pattern (mean NEES
-  50–100, median about 1, where 4 and 3.4 are expected). The fusion does not make it worse, but
-  the covariance should not be reported as calibrated.
-- **Course after a manoeuvre.** It gives up some overall course accuracy (0.93 × against the
-  hybrid's 0.90 ×), and some range accuracy after a manoeuvre.
-- **Against the EKF** it is still worse on settled course (about 1.3 ×).
+- **One state, two sources of information.** The fused state is a single IMM state, so its range
+  and velocity agree with each other. On test, its implied bearing rate is as accurate as the IMM's.
+  But it takes a second estimator's range, and that estimator saw the same bearings; k and M are an
+  empirical correction for that, not a model of it.
+- **Before any target manoeuvre it only matches the IMM** (range 1.03 × on test, interval
+  [0.99, 1.07]). The gains come after manoeuvres.
+- **Uncertainty is not calibrated.** Like the reference IMM's, its covariance is too wide on typical
+  rows and has an overconfident tail. On test, the median NEES is 1.10 against the IMM's 0.98, where
+  3.36 is expected; 94.1% of rows are within the 95% bound, against the IMM's 92.7%. Against the
+  nominal bounds it is no worse than the IMM, but the reference's inflation could mask double
+  counting.
+- **Course.** On overall course it is worse than the phase-4b hybrid: on test, 1.04 × the hybrid,
+  interval [1.03, 1.06].
+- **Against the EKF and batch least squares**, before any target manoeuvre it is still worse:
+  settled course is 1.41 × the EKF's.
 - **It needs T2's stated sd.** A network that states no uncertainty cannot be fused this way.
