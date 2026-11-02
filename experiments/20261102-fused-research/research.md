@@ -62,8 +62,25 @@ It matches decision 29's medians to within float32 storage rounding: 9.24% range
   1.06 × and range 0.86 ×.
 - **The range NIS is far below 1** (0.054 for k4 M6), so the NIS does not show that R is right. T2's
   errors are correlated in time and with the bearings, so the innovations are small by
-  construction. A pass would need a NEES check (state error against the stated covariance) before
-  anyone calls the fused covariance honest.
+  construction.
+- **NEES** (`nees-*.json`): the 4-state error (x, y, vx, vy) against the stated covariance, on the
+  same G5 rows. If the covariance is honest, the mean is 4, the median 3.36 and 95% of rows fall
+  below 9.49.
+
+  | Estimator | Mean | Median | Within 95% | Settled: mean | median | within 95% |
+  | --- | --- | --- | --- | --- | --- | --- |
+  | IMM (reference) | 94.2 | 0.99 | 92.5% | 74.6 | 0.35 | 96.2% |
+  | Fused k4 M6 | 69.9 | 1.12 | 94.0% | 70.2 | 0.44 | 97.4% |
+  | Fused k4 M3 | 52.7 | 1.34 | 93.6% | 38.7 | 0.57 | 97.0% |
+  | Fused k8 M3 | 64.1 | 1.02 | 94.1% | 68.1 | 0.38 | 97.4% |
+
+  Neither filter's covariance is a calibrated uncertainty. It is too wide on typical rows (the
+  median is about a third of 3.36), and it has an overconfident tail: a mean of 50–100, from rows
+  where the filter lags a manoeuvre. This comes from the reference's tuning (measurement variance
+  × 8, initial covariance × 4). The fusion does not make it worse: on every measure the fused
+  filter is at least as consistent as the IMM. So there is no sign that counting T2's range twice
+  makes the filter overconfident. Its stated uncertainty should still not be reported as
+  calibrated.
 - **Plateau, not a spike.** Variants with u from 48 to 192 all have a margin of 0.056–0.075 and
   settled ratios of 0.84–0.93. The choice of variant matters less than the design.
 - **In-sample.** Twelve variants were scored on the same rows. Only a fresh seed (214) under G5
