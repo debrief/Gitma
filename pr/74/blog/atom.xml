@@ -2,10 +2,100 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://debrief.github.io/Gitma/pr/74/blog</id>
     <title>TMA via ML Blog</title>
-    <updated>2026-11-01T00:00:00.000Z</updated>
+    <updated>2026-11-02T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://debrief.github.io/Gitma/pr/74/blog"/>
     <subtitle>TMA via ML Blog</subtitle>
+    <entry>
+        <title type="html"><![CDATA[Phase 4c: one track, a tracker that listens to a network's range]]></title>
+        <id>https://debrief.github.io/Gitma/pr/74/blog/2026/11/02/phase-4c</id>
+        <link href="https://debrief.github.io/Gitma/pr/74/blog/2026/11/02/phase-4c"/>
+        <updated>2026-11-02T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Phase 4b's hybrid passed G5, but it was two estimators stitched together: T2's range beside the]]></summary>
+        <content type="html"><![CDATA[<p>Phase 4b's hybrid passed G5, but it was two estimators stitched together: T2's range beside the
+IMM's velocity. Phase 4c keeps <strong>one filter</strong>. The frozen IMM takes the frozen network T2's range
+as an extra measurement, weighted by T2's own stated uncertainty and inflated four-fold, once a
+minute. Nothing was trained.</p>
+<p><strong>It passed G5</strong> on a fresh 40,000-scenario test split (seed 214), decided by the agent review
+panel:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Fused tracker / IMM, 97.5% interval</th><th>Limit</th><th>Result</th></tr></thead><tbody><tr><td>Range, all gate rows</td><td>&lt; 1</td><td>0.82 [0.81, 0.84]</td></tr><tr><td>Course, all gate rows</td><td>&lt; 1</td><td>0.95 [0.94, 0.96]</td></tr><tr><td>Range, settled rows</td><td>&lt; 1.1</td><td>0.86 [0.84, 0.89]</td></tr><tr><td>Course, settled rows</td><td>&lt; 1.1</td><td>0.95 [0.93, 0.97]</td></tr><tr><td>Speed, settled rows</td><td>&lt; 1.1</td><td>0.90 [0.87, 0.92]</td></tr></tbody></table>
+<p>Records: the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261102-p4f-g5/g5.md" target="_blank" rel="noopener noreferrer" class="">gate record</a> and the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261102-p4f-g5/review.md" target="_blank" rel="noopener noreferrer" class="">panel review</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-improved-on-phase-4b">What improved on phase 4b<a href="https://debrief.github.io/Gitma/pr/74/blog/2026/11/02/phase-4c#what-improved-on-phase-4b" class="hash-link" aria-label="Direct link to What improved on phase 4b" title="Direct link to What improved on phase 4b" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>One state.</strong> Range, course and speed come from one filter. Projected forward, its bearing stays
+as close to the truth as the IMM's own (1.02° after 5 min against 1.06°), where the hybrid's
+drifted to 1.49°.</li>
+<li class=""><strong>Settled rows improved because of estimation, not copying.</strong> Settled range, course and speed are
+all better than the IMM's and the hybrid's. The hybrid's settled velocity was mostly the IMM's.</li>
+<li class=""><strong>The hybrid's worst case is gone.</strong> Before any target manoeuvre the hybrid's range was 1.43 × the
+IMM's. The fused tracker's is 1.03 × [0.99, 1.07]: parity.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-it-does-not-show">What it does not show<a href="https://debrief.github.io/Gitma/pr/74/blog/2026/11/02/phase-4c#what-it-does-not-show" class="hash-link" aria-label="Direct link to What it does not show" title="Direct link to What it does not show" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>It does not beat the IMM before a target manoeuvres.</strong> On validation it seemed to (0.94 ×), but
+on the fresh seed it only matches it. The gains come after manoeuvres: 0.74 × the IMM's range
+error there.</li>
+<li class=""><strong>The EKF and batch least squares are still better before any manoeuvre.</strong> Against the EKF it
+would fail settled course (1.41 ×). Overall it beats the EKF by a wide margin (range 0.80 ×,
+course 0.78 ×).</li>
+<li class=""><strong>The hybrid is still better on overall course</strong> (fused 1.04 × the hybrid).</li>
+<li class=""><strong>The settings were chosen in-sample</strong>, from 18 variants on validation. The decision record says
+12; the panel found the error after scoring, and it is corrected around the frozen record.
+Only the fresh seed decides, and it did.</li>
+<li class=""><strong>Its uncertainty is not calibrated.</strong> Like the IMM's, its covariance is too wide on typical rows
+and too narrow in a small tail.</li>
+<li class=""><strong>It is not a learned tracker.</strong> It is a filter that listens to a frozen network. Phases 4b and 4c
+use the same T2 and IMM, so they are not independent replications. Both show that T2's range helps
+this IMM. Neither shows that a network alone tracks better.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-long-view">The long view<a href="https://debrief.github.io/Gitma/pr/74/blog/2026/11/02/phase-4c#the-long-view" class="hash-link" aria-label="Direct link to The long view" title="Direct link to The long view" translate="no">​</a></h2>
+<p>After G0 to G5 and three phase-4 attempts:</p>
+<ul>
+<li class=""><strong>What networks add.</strong> A learned range estimate is genuinely useful to a tuned tracker, mostly
+after the target manoeuvres. Folded into the filter as a measurement, it gives one consistent track
+that beats the tuned IMM on every G5 check.</li>
+<li class=""><strong>What they do not do.</strong> On clean, straight-leg geometry the classical tools (an EKF, a batch fit)
+remain better.</li>
+</ul>
+<p>Real or recorded data are still the untested step.</p>]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Phase 4: an end-to-end learned tracker wins overall, loses on straight legs]]></title>
         <id>https://debrief.github.io/Gitma/pr/74/blog/2026/11/01/phase-4</id>
