@@ -35,7 +35,7 @@ Smallest margin over the five G5 checks: limits 1 for the overall checks, 1.1 fo
 | T2 alone | | 0.847 | 0.840 | 0.971 | 1.443 | 1.662 | 1.347 | −0.511 |
 
 All variants are in the `grid-*.json` files. The IMM recomputed by the script is the "imm" entry.
-It reproduces decision 29's medians: 9.24% range, 23.0° course, 1.91 kt speed.
+It matches decision 29's medians to within float32 storage rounding: 9.24% range, 23.05° against 23.04° course, 1.912 against 1.911 kt speed.
 
 ## Medians (k4 M6)
 
