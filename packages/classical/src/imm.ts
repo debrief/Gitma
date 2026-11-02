@@ -248,6 +248,46 @@ export function immStep(
   return { t, models: [cv, ct], mu: [u0, u1], nis };
 }
 
+/**
+ * Log-range update of every model (phase 4c, spec 014): a range measurement `range` with a
+ * log-range standard deviation `sdLog`, z = ln(range), h(x) = ln ρ, H = [dx/ρ², dy/ρ², 0, 0, 0],
+ * R = sdLog², Joseph form. Model probabilities are left to the bearings. Returns the new state and
+ * the innovation's ν²/S averaged over the models.
+ */
+export function immRangeUpdate(
+  st: ImmState,
+  range: number,
+  sdLog: number,
+  ox: number,
+  oy: number,
+): { st: ImmState; nis: number } {
+  const r2 = sdLog * sdLog;
+  const z = Math.log(range);
+  let nis = 0;
+  const models = st.models.map((g): Gaussian => {
+    const dx = (g.x[0] ?? 0) - ox;
+    const dy = (g.x[1] ?? 0) - oy;
+    const rho2 = dx * dx + dy * dy;
+    const h = [dx / rho2, dy / rho2, 0, 0, 0];
+    const ph = new Float64Array(N);
+    for (let i = 0; i < N; i++)
+      for (let k = 0; k < 2; k++) ph[i] = (ph[i] ?? 0) + at(g.p, i, k) * (h[k] ?? 0);
+    const s = r2 + (h[0] ?? 0) * (ph[0] ?? 0) + (h[1] ?? 0) * (ph[1] ?? 0);
+    const kg = ph.map((v) => v / s);
+    const nu = z - 0.5 * Math.log(rho2);
+    nis += (nu * nu) / s / st.models.length;
+    const xn = g.x.map((v, i) => v + (kg[i] ?? 0) * nu);
+    const ikh = new Float64Array(N * N);
+    for (let i = 0; i < N; i++)
+      for (let j = 0; j < N; j++) ikh[N * i + j] = (i === j ? 1 : 0) - (kg[i] ?? 0) * (h[j] ?? 0);
+    const p = mul(mul(ikh, g.p), transpose(ikh)).map(
+      (v, k) => v + r2 * (kg[Math.floor(k / N)] ?? 0) * (kg[k % N] ?? 0),
+    );
+    return { x: xn, p: symmetrise(p) };
+  }) as [Gaussian, Gaussian];
+  return { st: { ...st, models }, nis };
+}
+
 /** The combined estimate (x, y, vx, vy, ω). */
 export function immEstimate(st: ImmState): Gaussian {
   return mix(st.models, st.mu);
@@ -304,12 +344,14 @@ function row(d: BearingData, x: Float64Array, i: number, converged: boolean): Pr
  * implausible combined estimate is reported non-converged and the tracker re-initialises from the
  * batch solution, at once and then every `EKF_REINIT_EVERY` samples until it succeeds.
  * `onStep`, if given, sees the state after each update (G0's NIS check reads it there, so it tests
- * this code path, measurement variance and scales included).
+ * this code path, measurement variance and scales included). `extra`, if given, applies further
+ * measurements after the bearing update at sample i (the fused tracker's range, spec 014).
  */
 export function immPredict(
   s: Scenario,
   params: ImmParams,
   onStep?: (i: number, st: ImmState) => void,
+  extra?: (i: number, st: ImmState) => ImmState,
 ): Prediction {
   for (const [k, v] of Object.entries(params))
     if (!(typeof v === "number" && v >= 0)) throw new Error(`IMM ${k} must be ≥ 0`);
@@ -330,6 +372,7 @@ export function immPredict(
           ? { bearing: d.bearing[i] ?? 0, ox: d.ownX[i] ?? 0, oy: d.ownY[i] ?? 0, r2 }
           : null;
       st = immStep(st, d.t[i] ?? 0, z, params);
+      if (extra !== undefined) st = extra(i, st);
       onStep?.(i, st);
       const est = immEstimate(st).x;
       if (plausible(d, est, i)) {
