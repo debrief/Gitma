@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Fused tracker (the IMM with a learned range measurement) | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/pr/74/docs/algorithms/fused-tracker"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Fused tracker (the IMM with a learned range measurement) | TMA via ML"><meta data-rh="true" name="description" content="Source: fusedPredict in packages/classical/src/fused.ts, and immRangeUpdate in"><meta data-rh="true" property="og:description" content="Source: fusedPredict in packages/classical/src/fused.ts, and immRangeUpdate in"><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/pr/74/docs/algorithms/fused-tracker"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/74/docs/algorithms/fused-tracker" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/74/docs/algorithms/fused-tracker" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Fused tracker (the IMM with a learned range measurement)","item":"https://debrief.github.io/Gitma/pr/74/docs/algorithms/fused-tracker"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/pr/74/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/pr/74/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/pr/74/assets/css/styles.d219d845.css">
-<script src="/Gitma/pr/74/assets/js/runtime~main.3c4e99f0.js" defer="defer"></script>
+<script src="/Gitma/pr/74/assets/js/runtime~main.2e81e5c7.js" defer="defer"></script>
 <script src="/Gitma/pr/74/assets/js/main.375605af.js" defer="defer"></script>
 </head>
 <body>
@@ -44,16 +44,17 @@ only T2&#x27;s row at sample i.</p>
 <h2 class="anchor anchorTargetStickyNavbar_FE5u" id="why-k-and-m">Why k and M<a href="#why-k-and-m" class="hash-link" aria-label="Direct link to Why k and M" title="Direct link to Why k and M" translate="no">​</a></h2>
 <p>T2&#x27;s range errors are correlated from one sample to the next, and with the bearings the IMM already
 uses. Fusing every sample at T2&#x27;s stated sd counts the same information many times. Two settings
-control this:</p>
+temper this, empirically rather than by modelling the correlation:</p>
 <ul>
 <li class=""><strong>k</strong> inflates T2&#x27;s stated sd.</li>
 <li class=""><strong>M</strong> thins the updates to one every M samples.</li>
 </ul>
-<p>Their effect is roughly through u = M · k². On seed-211 validation, every variant with u from 48
-to 192 is within 0.02 of the best smallest margin over G5&#x27;s five checks
-(<code>experiments/20261102-fused-research/</code>). The frozen choice is k = 4, M = 6 (u = 96, one update a
-minute), the middle of that plateau.</p>
-<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-it-claims-validation-in-sample">What it claims (validation, in-sample)<a href="#what-it-claims-validation-in-sample" class="hash-link" aria-label="Direct link to What it claims (validation, in-sample)" title="Direct link to What it claims (validation, in-sample)" translate="no">​</a></h2>
+<p>On seed-211 validation, 18 variants were scored (<code>experiments/20261102-fused-research/</code>). The best
+region is k = 4 with M from 1 to 12, together with k = 8, M = 3, at a smallest G5 margin of
+0.056–0.075. The frozen choice is k = 4, M = 6 (one update a minute), in the middle of that region.
+Thinning and inflating are not interchangeable: no single combination such as M·k² orders the
+variants.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-g5-passed-on-seed-214-in-sample-validation-beside-it">Result: G5 passed on seed 214 (in-sample validation beside it)<a href="#result-g5-passed-on-seed-214-in-sample-validation-beside-it" class="hash-link" aria-label="Direct link to Result: G5 passed on seed 214 (in-sample validation beside it)" title="Direct link to Result: G5 passed on seed 214 (in-sample validation beside it)" translate="no">​</a></h2>
 
 
 
@@ -86,17 +87,35 @@ minute), the middle of that plateau.</p>
 
 
 
-<table><thead><tr><th>Ratio to the IMM</th><th>Overall range</th><th>Overall course</th><th>Settled range</th><th>Settled course</th><th>Settled speed</th><th>Settled, before any manoeuvre: range</th></tr></thead><tbody><tr><td>Fused, k4 M6</td><td>0.81</td><td>0.93</td><td>0.85</td><td>0.91</td><td>0.88</td><td>0.94</td></tr><tr><td>Tracker hybrid</td><td>0.85</td><td>0.90</td><td>0.97</td><td>0.98</td><td>0.99</td><td>1.35</td></tr></tbody></table>
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Ratio to the IMM</th><th>Overall range</th><th>Overall course</th><th>Settled range</th><th>Settled course</th><th>Settled speed</th><th>Settled, before any manoeuvre: range</th></tr></thead><tbody><tr><td>Fused, test (seed 214)</td><td>0.82</td><td>0.95</td><td>0.86</td><td>0.95</td><td>0.90</td><td>1.03</td></tr><tr><td>Fused, validation</td><td>0.81</td><td>0.93</td><td>0.85</td><td>0.91</td><td>0.88</td><td>0.94</td></tr><tr><td>Tracker hybrid, test</td><td>0.86</td><td>0.91</td><td>0.99</td><td>0.98</td><td>1.00</td><td>1.43</td></tr></tbody></table>
+<p>Record: <code>experiments/20261102-p4f-g5/g5.md</code>.</p>
 <h2 class="anchor anchorTargetStickyNavbar_FE5u" id="limits">Limits<a href="#limits" class="hash-link" aria-label="Direct link to Limits" title="Direct link to Limits" translate="no">​</a></h2>
 <ul>
-<li class=""><strong>Uncertainty is not calibrated.</strong> Its stated covariance is too wide on typical rows and too
-narrow when it lags a manoeuvre. The reference IMM&#x27;s covariance has the same pattern (mean NEES
-50–100, median about 1, where 4 and 3.4 are expected). The fusion does not make it worse, but
-the covariance should not be reported as calibrated.</li>
-<li class=""><strong>Course after a manoeuvre.</strong> It gives up some overall course accuracy (0.93 × against the
-hybrid&#x27;s 0.90 ×), and some range accuracy after a manoeuvre.</li>
-<li class=""><strong>Against the EKF</strong> it is still worse on settled course (about 1.3 ×).</li>
+<li class=""><strong>One state, two sources of information.</strong> The fused state is a single IMM state, so its range
+and velocity agree with each other. On test, its implied bearing rate is as accurate as the IMM&#x27;s.
+But it takes a second estimator&#x27;s range, and that estimator saw the same bearings; k and M are an
+empirical correction for that, not a model of it.</li>
+<li class=""><strong>Before any target manoeuvre it only matches the IMM</strong> (range 1.03 × on test, interval
+[0.99, 1.07]). The gains come after manoeuvres.</li>
+<li class=""><strong>Uncertainty is not calibrated.</strong> Like the reference IMM&#x27;s, its covariance is too wide on typical
+rows and has an overconfident tail. On test, the median NEES is 1.10 against the IMM&#x27;s 0.98, where
+3.36 is expected; 94.1% of rows are within the 95% bound, against the IMM&#x27;s 92.7%. Against the
+nominal bounds it is no worse than the IMM, but the reference&#x27;s inflation could mask double
+counting.</li>
+<li class=""><strong>Course.</strong> On overall course it is worse than the phase-4b hybrid: on test, 1.04 × the hybrid,
+interval [1.03, 1.06].</li>
+<li class=""><strong>Against the EKF and batch least squares</strong>, before any target manoeuvre it is still worse:
+settled course is 1.41 × the EKF&#x27;s.</li>
 <li class=""><strong>It needs T2&#x27;s stated sd.</strong> A network that states no uncertainty cannot be fused this way.</li>
-</ul></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/algorithms/fused-tracker.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/pr/74/docs/algorithms/hybrid"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Hybrid estimator (classical with a network fallback)</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/pr/74/docs/algorithms/viewer"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Engagement viewer</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_kFBU thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#why" class="table-of-contents__link toc-highlight">Why</a></li><li><a href="#equations" class="table-of-contents__link toc-highlight">Equations</a></li><li><a href="#why-k-and-m" class="table-of-contents__link toc-highlight">Why k and M</a></li><li><a href="#what-it-claims-validation-in-sample" class="table-of-contents__link toc-highlight">What it claims (validation, in-sample)</a></li><li><a href="#limits" class="table-of-contents__link toc-highlight">Limits</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
+</ul></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/algorithms/fused-tracker.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/pr/74/docs/algorithms/hybrid"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Hybrid estimator (classical with a network fallback)</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/pr/74/docs/algorithms/viewer"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Engagement viewer</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_kFBU thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#why" class="table-of-contents__link toc-highlight">Why</a></li><li><a href="#equations" class="table-of-contents__link toc-highlight">Equations</a></li><li><a href="#why-k-and-m" class="table-of-contents__link toc-highlight">Why k and M</a></li><li><a href="#result-g5-passed-on-seed-214-in-sample-validation-beside-it" class="table-of-contents__link toc-highlight">Result: G5 passed on seed 214 (in-sample validation beside it)</a></li><li><a href="#limits" class="table-of-contents__link toc-highlight">Limits</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
 </body>
 </html>
