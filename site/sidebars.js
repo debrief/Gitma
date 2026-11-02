@@ -15,6 +15,7 @@ const sidebars = {
         "algorithms/models",
         "algorithms/learned-gain-filter",
         "algorithms/hybrid",
+        "algorithms/fused-tracker",
         "algorithms/viewer",
       ],
     },

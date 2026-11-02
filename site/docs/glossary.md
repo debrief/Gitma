@@ -55,6 +55,11 @@ can follow a turn. Reported in phase 3; in Cartesian coordinates it drifts after
 **Early stopping** — Ending training when validation loss has not improved for `patience` epochs;
 the best epoch's weights are kept.
 
+**Fused tracker** — The reference IMM with a learned tracker's range added as a second, log-range
+measurement whose sd is the network's own stated sd × k, applied every M samples (spec 014,
+[note](algorithms/fused-tracker.md)). Unlike the tracker hybrid, one state carries range and
+velocity. Judged at G5 as a combination of a filter and a frozen network, not as a network alone.
+
 **Gate** — A pass/fail decision at the end of an iteration (G0–G3), judged on fixed metrics. See
 [evaluation](evaluation.md).
 
@@ -101,6 +106,11 @@ gate G4 counts time from there, as earlier gates count from `zig_index`.
 
 **Naive baseline** — Predicts training-set means and ignores the bearings. Anything that cannot
 beat it has learned nothing. See [naive baseline](algorithms/naive-baseline.md).
+
+**NEES (normalised estimation error squared)** — The state error against the truth, weighted by
+the filter's stated covariance: eᵀP⁻¹e. For a 4-element state with an honest covariance its mean
+is 4 and 95% of values fall below 9.49. Used to check whether a filter's uncertainty can be taken
+at face value.
 
 **Noise σ** — Standard deviation of the Gaussian error added to each bearing (0.5°, 1° or 2°).
 

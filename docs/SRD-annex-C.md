@@ -246,3 +246,34 @@ chose the follow-on: a **hybrid** of the two frozen estimators, judged by **G5 u
     validation, interval [0.92, 1.03]).
   - The IMM's velocity carries no stated uncertainty, so the hybrid's velocity sd is reported only
     where T2's velocity is used.
+
+## C.11 Phase 4c: the fused tracker (owner decision 31, 2026-11-02)
+
+Phase 4b's hybrid passed G5, but it reports range and velocity from different estimators. Before
+any manoeuvre its range is 1.47 × the IMM's, and its settled velocity passes largely by copying the
+IMM's (`experiments/20261101-p4h-g5/`). The owner chose to research a fused tracker on validation
+first, then judge it.
+
+- **What is judged.** The frozen reference IMM (decision 29), with the frozen T2's range fused in
+  as a log-range measurement whose sd is T2's own stated log-range sd × k, applied every M samples
+  after the bearing update. It is reported as a fused tracker, a filter combined with a frozen
+  network, never as T2 alone. Nothing is trained.
+- **k and M** were chosen on seed-211 validation (`experiments/20261102-fused-research/`), from a
+  12-variant grid, as the middle of the plateau of the smallest G5 margin: **k = 4, M = 6**. They
+  are frozen in decision 31. The validation result is in-sample.
+- **The gate.** G5 exactly as in C.5: the same rows, checks, limits, bootstrap and 97.5% intervals.
+- **The test.** A fresh seed, 214 (400,000 scenarios; its 40,000-scenario test split, generated
+  alone), committed in the decision before it is scored. T2 is bound by `model_digests`. The fused
+  file is tied to T2's prediction file, and through it to T2's weights, by `tma-g5`'s prediction
+  chain (schema 0.17.0).
+- **Re-score.** As C.5: one re-score on a larger fresh seed if the result is inconclusive.
+- **Reported beside it.** The phase-4b hybrid (θ = 45°), T2 alone, the EKF, batch least squares
+  and naive, on the same rows. Also the settled rows before and after any manoeuvre, the NEES and
+  the bearing-rate consistency.
+- **If it fails,** the owner decides the follow-on, as in C.6. Phase 4b's pass stands either way.
+- **Known weaknesses, stated in advance.**
+  - k and M were chosen in-sample on the validation rows that also showed phase 4b's pattern.
+  - On validation it is worse than the hybrid on overall course (0.93 × against 0.90 ×) and on
+    range after a manoeuvre.
+  - Its stated covariance is not calibrated, as the reference IMM's is not.
+  - Against the EKF it is still worse on settled course (about 1.3 × on validation).
