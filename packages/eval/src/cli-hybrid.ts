@@ -1,7 +1,9 @@
 // tma-hybrid (spec 009): the hybrid of classical and a network's per-timestep predictions
 // (hybridSwitch in @tma/classical), written as a prediction file. A pipeline stage of its own.
+// The header records both input files' digests (`inputs`, from schema 0.18.0), so tma-g3 can tie
+// the hybrid to the frozen network's weights (spec 015 FR-005).
 import { parseArgs } from "node:util";
-import { hybridName, hybridSwitch } from "@tma/classical";
+import { fileDigest, hybridName, hybridSwitch } from "@tma/classical";
 import { isMain, runCli, UsageError } from "@tma/data";
 import { openPredictionSet, openPredictionWriter, scenarioSource } from "./prediction-file.js";
 
@@ -24,7 +26,12 @@ export function main(argv: string[]): unknown {
   const c = openPredictionSet(classical, truth);
   const n = openPredictionSet(network, truth);
   if (c.estimator !== "classical") throw new UsageError(`${classical}: not classical predictions`);
-  const w = openPredictionWriter(out, hybridName(n.estimator), "per_timestep", truth);
+  const w = openPredictionWriter(out, hybridName(n.estimator), "per_timestep", truth, {
+    inputs: [
+      { estimator: c.estimator, sha256: fileDigest(classical) },
+      { estimator: n.estimator, sha256: fileDigest(network) },
+    ],
+  });
   let switched = 0;
   let rows = 0;
   try {

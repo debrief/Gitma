@@ -5,7 +5,7 @@
 // state carries range and velocity, unlike the phase-4b tracker hybrid. k and `every` thin and
 // inflate the network's information because its errors are correlated in time and with the
 // bearings the IMM already uses. Causal: sample i reads the network's row at sample i only.
-import type { Prediction, Scenario } from "@tma/types";
+import type { Prediction, PredictionRow, Scenario } from "@tma/types";
 import { type ImmParams, immName, immPredict, immRangeUpdate } from "./imm.js";
 
 /** Fusion settings: every parameter the decision record freezes beside the IMM's. */
@@ -24,9 +24,27 @@ export const fusedName = (network: string, tracker: ImmParams, f: FusionParams):
   `fused-${network}-${immName(tracker)}-k${String(f.k)}-m${String(f.every)}`;
 
 /**
+ * Whether a network row can enter as a log-range measurement: converged, with a positive finite
+ * range and a positive finite stated log-range sd (spec 015 FR-004). ln(range) is undefined at or
+ * below 0, and a zero, negative or non-finite sd would make the update singular or meaningless.
+ * No scored row fails this (spec 015 R4), so the guard leaves every committed result unchanged.
+ */
+export function usableRange(r: PredictionRow): boolean {
+  const sd = r.log_range_sd;
+  return (
+    r.converged &&
+    Number.isFinite(r.range_m) &&
+    r.range_m > 0 &&
+    sd != null &&
+    Number.isFinite(sd) &&
+    sd > 0
+  );
+}
+
+/**
  * Fused-tracker estimate for one scenario: the IMM's rows (`immPredict`, re-initialisation
- * included) with the network's range fused in. A network row that is not converged, or has no
- * stated log-range sd, adds nothing at that sample.
+ * included) with the network's range fused in. A network row that fails `usableRange` (not
+ * converged, range ≤ 0, or no positive finite log-range sd) adds nothing at that sample.
  */
 export function fusedPredict(
   s: Scenario,
@@ -52,8 +70,9 @@ export function fusedPredict(
     if ((i - first) % f.every !== 0) return st;
     const r = rows.get(i);
     const o = own[i];
-    if (r === undefined || o === undefined || !r.converged || r.log_range_sd == null) return st;
-    return immRangeUpdate(st, r.range_m, f.k * r.log_range_sd, o.x_m, o.y_m).st;
+    const sd = r?.log_range_sd;
+    if (r === undefined || o === undefined || sd == null || !usableRange(r)) return st;
+    return immRangeUpdate(st, r.range_m, f.k * sd, o.x_m, o.y_m).st;
   });
   return { ...p, estimator: fusedName(network.estimator, params, f) };
 }

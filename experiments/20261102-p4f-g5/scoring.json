@@ -1,0 +1,7 @@
+{
+  "decision": "experiments/20261102-p4f-decision/decision.json",
+  "decision_sha256": "b01c44ab4d7ba9f8c1bc5bd92386def12ef872dc43ac8371d2c7a99719593b2d",
+  "gate": "G5",
+  "test_seed": "214",
+  "truth_sha256": "1a4111d325b692824c9a227010fc847f3c451e2b4b5907ffb2b5d08e5c8399dc"
+}

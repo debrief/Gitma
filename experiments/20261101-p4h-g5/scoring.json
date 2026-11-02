@@ -1,0 +1,7 @@
+{
+  "decision": "experiments/20261101-p4h-decision/decision.json",
+  "decision_sha256": "215e4b55c71efb8bfdf87582837a78ce62c21805ebfc32d47235736c3cac165b",
+  "gate": "G5",
+  "test_seed": "213",
+  "truth_sha256": "5bbd9fb1d62ee80e49ad82022615ddf46dbf20aabbb1abe3bdd5c697e58009d1"
+}

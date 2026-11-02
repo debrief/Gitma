@@ -121,6 +121,25 @@ class FileLookup implements PredictionLookup {
   }
 
   get(index: number): Prediction | undefined {
+    const text = this.raw(index);
+    if (text === undefined) return undefined;
+    const line = this.lines.get(index);
+    if (line === undefined) return undefined;
+    let raw: unknown;
+    try {
+      raw = JSON.parse(text);
+    } catch {
+      throw new RecordError(this.path, line.lineNo, "malformed JSON");
+    }
+    const p = parseRecord(Prediction, raw, this.path, line.lineNo);
+    if (p.scenario_index !== index) {
+      throw new RecordError(this.path, line.lineNo, `scenario_index is not ${String(index)}`);
+    }
+    return p;
+  }
+
+  /** The line of scenario `index` exactly as stored, without its newline (spec 015 FR-001). */
+  raw(index: number): string | undefined {
     const line = this.lines.get(index);
     if (line === undefined) return undefined;
     const fd = openSync(this.path, "r");
@@ -141,17 +160,7 @@ class FileLookup implements PredictionLookup {
     } finally {
       closeSync(fd);
     }
-    let raw: unknown;
-    try {
-      raw = JSON.parse(text);
-    } catch {
-      throw new RecordError(this.path, line.lineNo, "malformed JSON");
-    }
-    const p = parseRecord(Prediction, raw, this.path, line.lineNo);
-    if (p.scenario_index !== index) {
-      throw new RecordError(this.path, line.lineNo, `scenario_index is not ${String(index)}`);
-    }
-    return p;
+    return text;
   }
 
   *[Symbol.iterator](): Iterator<[number, Prediction]> {
@@ -160,6 +169,16 @@ class FileLookup implements PredictionLookup {
       if (p !== undefined) yield [idx, p];
     }
   }
+}
+
+/**
+ * The stored line of scenario `index` in a set opened by `openPredictionSet`, byte for byte, or
+ * undefined if the file has no such scenario. Throws for a set not read from a file.
+ */
+export function rawPredictionLine(set: PredictionSet, index: number): string | undefined {
+  if (!(set.byIndex instanceof FileLookup))
+    throw new Error(`${set.label}: not opened from a prediction file`);
+  return set.byIndex.raw(index);
 }
 
 /** Calls `onLine(lineNo, offset, bytes)` for each non-empty line of `path`, streamed. */
