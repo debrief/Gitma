@@ -1,0 +1,270 @@
+{
+  "truth": "data/p4/validation.f32pack",
+  "t2": "data/p4/pred/val.t2.ndjson",
+  "reference": {
+    "sigmaCv": 0.01,
+    "sigmaCt": 0.03,
+    "sigmaOmega": 0.01,
+    "switchPerS": 0.001,
+    "p0Scale": 4,
+    "rScale": 8
+  },
+  "g5_rows": 16500,
+  "estimators": {
+    "imm": {
+      "all": {
+        "n": 16500,
+        "range_pct": 9.24,
+        "course_deg": 23.05,
+        "speed_kt": 1.912
+      },
+      "settled": {
+        "n": 7222,
+        "range_pct": 7.22,
+        "course_deg": 7.43,
+        "speed_kt": 1.302
+      },
+      "settled-before": {
+        "n": 3949,
+        "range_pct": 4.15,
+        "course_deg": 3.98,
+        "speed_kt": 0.685
+      },
+      "settled-after": {
+        "n": 3273,
+        "range_pct": 15.08,
+        "course_deg": 18.48,
+        "speed_kt": 2.674
+      },
+      "unsettled": {
+        "n": 9278,
+        "range_pct": 11.03,
+        "course_deg": 43.21,
+        "speed_kt": 2.465
+      },
+      "ratios": {
+        "overall_range": 1,
+        "overall_course": 1,
+        "settled_range": 1,
+        "settled_course": 1,
+        "settled_speed": 1,
+        "settled_before_range": 1,
+        "settled_after_range": 1
+      },
+      "min_margin": 0
+    },
+    "fused-k1-m1": {
+      "all": {
+        "n": 16500,
+        "range_pct": 8.09,
+        "course_deg": 24.51,
+        "speed_kt": 2.113
+      },
+      "settled": {
+        "n": 7222,
+        "range_pct": 7.29,
+        "course_deg": 10.07,
+        "speed_kt": 1.667
+      },
+      "settled-before": {
+        "n": 3949,
+        "range_pct": 5.8,
+        "course_deg": 6,
+        "speed_kt": 1.277
+      },
+      "settled-after": {
+        "n": 3273,
+        "range_pct": 10.14,
+        "course_deg": 19.62,
+        "speed_kt": 2.297
+      },
+      "unsettled": {
+        "n": 9278,
+        "range_pct": 8.73,
+        "course_deg": 42.51,
+        "speed_kt": 2.527
+      },
+      "range_nis": 0.232,
+      "ratios": {
+        "overall_range": 0.876,
+        "overall_course": 1.063,
+        "settled_range": 1.01,
+        "settled_course": 1.355,
+        "settled_speed": 1.28,
+        "settled_before_range": 1.398,
+        "settled_after_range": 0.672
+      },
+      "min_margin": -0.232
+    },
+    "fused-k1-m6": {
+      "all": {
+        "n": 16500,
+        "range_pct": 8.09,
+        "course_deg": 22.85,
+        "speed_kt": 1.849
+      },
+      "settled": {
+        "n": 7222,
+        "range_pct": 7.25,
+        "course_deg": 8.3,
+        "speed_kt": 1.372
+      },
+      "settled-before": {
+        "n": 3949,
+        "range_pct": 5.5,
+        "course_deg": 4.95,
+        "speed_kt": 0.931
+      },
+      "settled-after": {
+        "n": 3273,
+        "range_pct": 10.65,
+        "course_deg": 17.39,
+        "speed_kt": 2.283
+      },
+      "unsettled": {
+        "n": 9278,
+        "range_pct": 8.81,
+        "course_deg": 42.19,
+        "speed_kt": 2.286
+      },
+      "range_nis": 0.337,
+      "ratios": {
+        "overall_range": 0.876,
+        "overall_course": 0.991,
+        "settled_range": 1.004,
+        "settled_course": 1.117,
+        "settled_speed": 1.054,
+        "settled_before_range": 1.325,
+        "settled_after_range": 0.706
+      },
+      "min_margin": -0.015
+    },
+    "fused-k1-m30": {
+      "all": {
+        "n": 16500,
+        "range_pct": 9,
+        "course_deg": 22.39,
+        "speed_kt": 1.921
+      },
+      "settled": {
+        "n": 7222,
+        "range_pct": 7.63,
+        "course_deg": 7.75,
+        "speed_kt": 1.396
+      },
+      "settled-before": {
+        "n": 3949,
+        "range_pct": 5.38,
+        "course_deg": 4.55,
+        "speed_kt": 0.859
+      },
+      "settled-after": {
+        "n": 3273,
+        "range_pct": 11.49,
+        "course_deg": 17.52,
+        "speed_kt": 2.612
+      },
+      "unsettled": {
+        "n": 9278,
+        "range_pct": 10.06,
+        "course_deg": 42.35,
+        "speed_kt": 2.373
+      },
+      "range_nis": 0.498,
+      "ratios": {
+        "overall_range": 0.974,
+        "overall_course": 0.971,
+        "settled_range": 1.057,
+        "settled_course": 1.043,
+        "settled_speed": 1.072,
+        "settled_before_range": 1.296,
+        "settled_after_range": 0.762
+      },
+      "min_margin": 0.025
+    },
+    "t2": {
+      "all": {
+        "n": 16500,
+        "range_pct": 7.83,
+        "course_deg": 19.36,
+        "speed_kt": 2.538
+      },
+      "settled": {
+        "n": 7222,
+        "range_pct": 7.01,
+        "course_deg": 10.72,
+        "speed_kt": 2.164
+      },
+      "settled-before": {
+        "n": 3949,
+        "range_pct": 5.59,
+        "course_deg": 7.73,
+        "speed_kt": 1.931
+      },
+      "settled-after": {
+        "n": 3273,
+        "range_pct": 9.69,
+        "course_deg": 16.2,
+        "speed_kt": 2.52
+      },
+      "unsettled": {
+        "n": 9278,
+        "range_pct": 8.51,
+        "course_deg": 31.79,
+        "speed_kt": 2.875
+      },
+      "ratios": {
+        "overall_range": 0.847,
+        "overall_course": 0.84,
+        "settled_range": 0.971,
+        "settled_course": 1.443,
+        "settled_speed": 1.662,
+        "settled_before_range": 1.347,
+        "settled_after_range": 0.643
+      },
+      "min_margin": -0.511
+    },
+    "hybrid-c45": {
+      "all": {
+        "n": 16500,
+        "range_pct": 7.83,
+        "course_deg": 20.67,
+        "speed_kt": 1.896
+      },
+      "settled": {
+        "n": 7222,
+        "range_pct": 7.01,
+        "course_deg": 7.3,
+        "speed_kt": 1.288
+      },
+      "settled-before": {
+        "n": 3949,
+        "range_pct": 5.59,
+        "course_deg": 4,
+        "speed_kt": 0.687
+      },
+      "settled-after": {
+        "n": 3273,
+        "range_pct": 9.69,
+        "course_deg": 17.07,
+        "speed_kt": 2.636
+      },
+      "unsettled": {
+        "n": 9278,
+        "range_pct": 8.51,
+        "course_deg": 38.34,
+        "speed_kt": 2.448
+      },
+      "ratios": {
+        "overall_range": 0.847,
+        "overall_course": 0.897,
+        "settled_range": 0.971,
+        "settled_course": 0.983,
+        "settled_speed": 0.989,
+        "settled_before_range": 1.347,
+        "settled_after_range": 0.643
+      },
+      "min_margin": 0.101
+    }
+  }
+}
