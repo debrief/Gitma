@@ -51,7 +51,62 @@ or not finite.
 
 ## R5 The reference IMM's CV covariance (report only; the frozen IMM is unchanged)
 
-PHASE4C_PD
+**Reproduced.** The case is seed 214, scenario 360417, three target course changes (samples
+124–129, 152–158, 189–195). Script: `scripts/research/spec015-imm-covariance.mjs` (`count`, `batch`).
+
+- **On the plain reference IMM path, nothing fails** in this scenario. Every model covariance
+  passes a Cholesky test at every stage (mix, predict, bearing update).
+- **On the fused path, the CV covariance is not positive definite** at sample 152, before the
+  range update, as the panel saw. It first fails at the *mix* stage at samples 145, 149, 152, 155
+  and 158. There the CV and CT covariances are identical, with ω variance exactly 0.05²: these
+  are re-initialisations (`immInitialise`) after an implausible estimate. The negative eigenvalue
+  (−3.6 × 10⁻³ to −3.6 × 10⁻², against a largest eigenvalue of 10⁴–10⁵) survives prediction and
+  the Joseph-form updates. Q only adds to velocity and the update cannot repair it. At 158 the
+  condition number reaches 10¹⁴.
+
+**Cause.** `ekfInitialise` sets P₀ = p0Scale · σ² (JᵀJ)⁻¹ at the batch least-squares solution
+over all samples up to i, then propagates it to tᵢ.
+
+- **The fit is wrong.** After the target's manoeuvres the constant-velocity batch fit is badly
+  wrong: 5.1–15.9 km against a true range of about 2.0–2.2 km at samples 144–157.
+- **The fit is degenerate.** The fitted straight track passes through ownship's position at
+  sample 0: its closest approach is 1.6 × 10⁻⁸ to 9.4 × 10⁻⁸ m. That is a degenerate minimum
+  of the bearings-only fit: at zero range one sample's bearing residual is undefined.
+- **One sample dominates JᵀJ.** At that sample ρ² ≈ 0, so the Jacobian row ∝ 1/ρ dominates
+  JᵀJ. Its largest eigenvalue is 10⁹–10¹⁵ and its smallest 10⁻³ or negative: a condition number
+  of about 10¹⁶, at machine precision.
+- **The plausibility check misses it.** `plausibleState` tests only the range at tᵢ (5–16 km
+  here), not along the fitted track.
+- **The inverse is indefinite.** JᵀJ is then computed indefinite. `inverse4` refuses only an
+  exactly zero pivot, so it returns an indefinite (JᵀJ)⁻¹.
+- **Propagation is not the cause.** Re-deriving the same covariance with the fit parameterised
+  at tᵢ is just as bad; the conditioning of JᵀJ is the cause.
+
+**How often (seed 214 test split, plain reference IMM, `immPredict` unchanged):**
+
+- **Overall.** 87 of 44,343 initialisations are not positive definite: 3 of 33,849 first
+  initialisations and 84 of 10,494 re-initialisations.
+- **Scenarios.** 43 of the 40,000 scenarios are affected (0.11%). Only those 43 ever carry a
+  covariance that is not positive definite at any stage.
+- **Rows.** The rows still come out finite; a non-PD state then usually becomes implausible and
+  re-initialises again. The verdicts use only the reported rows, which re-score identically (R6).
+
+**Proposed fix (not applied: the reference is frozen by decisions 29–31).** Any change alters the
+reference's rows, so it needs a new decision and a re-tune before it could be used.
+
+1. **Refuse a degenerate initialisation.** In `ekfInitialise`, return null (retry after
+   `EKF_REINIT_EVERY` samples) in either of two cases:
+   - the fitted track comes closer to ownship than the generator's `min_range_m` (100 m) at any
+     fitted sample;
+   - JᵀJ fails a Cholesky test.
+
+   Then compute P₀ from a Cholesky or QR factor of the whitened Jacobian instead of `inverse4`
+   (square-root form, about twice the precision).
+2. **Re-initialise from recent bearings only.** Use a window since the IMM's last high-CT
+   probability, or a fixed number of samples, rather than a constant-velocity fit through the
+   manoeuvres. That removes the wrong fit that causes the near-pass.
+3. **Assert, cheaply.** In `immStep`, add a Cholesky check after mixing as a diagnostic (G0 could
+   count failures, as `tracker-nis` does).
 
 ## R6 Regression
 
