@@ -71,7 +71,7 @@
       "value": -0.02582971084373099
     }
   ],
-  "decided_by": "harness (pending agent panel review)",
+  "decided_by": "agent review panel, rounds 1-2 (no rejections, no open blocker or major; experiments/20261102-p4f-g5/review.md)",
   "gate": "G5",
   "result": "pass"
 }

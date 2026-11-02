@@ -72,6 +72,6 @@ Record: `experiments/20261102-p4f-g5/g5.md`.
   counting.
 - **Course.** On overall course it is worse than the phase-4b hybrid: on test, 1.04 × the hybrid,
   interval [1.03, 1.06].
-- **Against the EKF and batch least squares**, before any target manoeuvre it is still worse:
-  settled course is 1.41 × the EKF's.
+- **Against the EKF and batch least squares** it is still worse before any target manoeuvre. There
+  its course error is 2.2 × the EKF's (4.09° against 1.88°); over all settled rows it is 1.41 ×.
 - **It needs T2's stated sd.** A network that states no uncertainty cannot be fused this way.

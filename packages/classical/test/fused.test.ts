@@ -125,6 +125,26 @@ describe("fused tracker", () => {
     const s = 1e-4 + fd * fd * 1e-6;
     const expected = 3000 + ((1e-6 * fd) / s) * Math.log(1.001);
     expect(out.models[0].x[0]).toBeCloseTo(expected, 6);
+    // The same with the variance in y instead (dy < 0 here, so the sign of H_y shows).
+    const py = Float64Array.from(p);
+    py[0] = 1e-12;
+    py[6] = 1e-6;
+    const outY = immRangeUpdate(
+      {
+        ...st,
+        models: [
+          { x: Float64Array.from([3000, -4000, 0, 0, 0]), p: Float64Array.from(py) },
+          { x: Float64Array.from([3000, -4000, 0, 0, 0]), p: Float64Array.from(py) },
+        ],
+      },
+      z,
+      0.01,
+      ox,
+      oy,
+    ).st;
+    const fdY = (Math.log(rho(3000, -4000 + h)) - Math.log(rho(3000, -4000 - h))) / (2 * h);
+    const sY = 1e-4 + fdY * fdY * 1e-6;
+    expect(outY.models[0].x[1]).toBeCloseTo(-4000 + ((1e-6 * fdY) / sY) * Math.log(1.001), 6);
   });
 
   it("is deterministic and refuses bad inputs", () => {

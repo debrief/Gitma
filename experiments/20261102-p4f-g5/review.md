@@ -80,3 +80,30 @@ spec 014 and the code. Each reviewer returned a verdict and findings tagged bloc
 | 27 | Reproducibility | minor | verdict.json was committed before report.json was written. | Harmless; both regenerate byte-identical. |
 
 No finding changes a gated number or the verdict.
+
+## Round 2
+
+Each reviewer was given the round-1 response (the commit after e45dcdd) and asked whether their
+findings were resolved.
+
+| Reviewer | Verdict | Open blockers or majors |
+| --- | --- | --- |
+| TMA geometry | approve | none |
+| Estimation and numerics | approve; both majors resolved | none |
+| Evaluation statistics | approve; major resolved | none |
+| Reproducibility | approve; confirmed that no scored file changed (`git diff e45dcdd..HEAD`) | none |
+| Red team | approve; noted that none of the corrections overclaims | none |
+
+### Remaining minors and responses
+
+| Reviewer | Finding | Response |
+| --- | --- | --- |
+| Statistics | "Within selection noise" was the wrong reason: the 0.88–1.19 spread is sensitivity to k and M, not sampling noise. | Reworded in g5.md: the ratio is sensitive to k and M, so the validation value was optimistic, and the test interval includes parity. |
+| Geometry | The new test checks H_x only. | A y-axis assertion was added (variance in y, dy < 0); the test passes. |
+| Estimation | Spec 014 R3 still had the round-1 NEES wording. | Corrected: medians, the share within the bound, and the masking caveat. |
+| Red team | The note mixed slices: 1.41 × is over all settled rows, not before a manoeuvre. | Corrected: before any manoeuvre the course ratio to the EKF is 2.2 × (4.09° against 1.88°); over all settled rows it is 1.41 ×. |
+| Red team | AGENTS.md reported the pass before the panel had decided, and its "one track state" had no caveat. | AGENTS.md now names the panel rounds and carries the caveat. `decided_by` is set below. |
+
+**Decision:** every reviewer approves, and no blocker or major finding is open. `verdict.json`'s
+`decided_by` is set to "agent review panel, rounds 1-2". The gated numbers are unchanged from the
+harness verdict.
