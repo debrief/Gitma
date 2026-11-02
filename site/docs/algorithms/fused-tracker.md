@@ -29,6 +29,14 @@ log-range update:
 - K = P Hᵀ / (H P Hᵀ + R) and x ← x + K (z − ln ρ);
 - P ← (I − KH) P (I − KH)ᵀ + K R Kᵀ (Joseph form).
 
+**Guards (spec 015).** A row adds nothing if any of these holds:
+- it is not converged;
+- its range is ≤ 0 or not finite, where ln r̂ is undefined;
+- its sd is absent, ≤ 0 or not finite, where R would be singular or meaningless.
+
+No row of the phase-4c test split meets these conditions, so the guards leave the committed result
+unchanged (spec 015 R4).
+
 The model probabilities are left to the bearings. The combined estimate and the re-initialisation
 are the IMM's own (`immPredict`, through its `extra` step hook). The rule is causal: sample i reads
 only T2's row at sample i.
