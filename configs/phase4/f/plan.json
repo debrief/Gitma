@@ -15,7 +15,7 @@
     "fresh_test": {
       "seed": "214",
       "count": 400000,
-      "digest": "PLACEHOLDER: recorded when seed 214 is generated"
+      "digest": "6f63adcac6d08dc8f8aaa859180fc95f412a184f9f0d678d2d430b6239c9c258"
     }
   },
   "feature_set": "derived",
