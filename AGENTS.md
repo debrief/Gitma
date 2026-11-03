@@ -289,7 +289,13 @@ the commit that added the decision, frozen models included; (3) writes `scoring.
 `experiments/` unless `--repeat-of <earlier experiment>` (a reproduction; a G5 verdict without
 `scoring.json` also refuses). `fusedPredict` skips rows with range ≤ 0 or a non-positive or
 non-finite log-range sd (`usableRange`). Both committed G5 verdicts re-score with identical checks
-(`specs/015-g5-binding/research.md`). Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+(`specs/015-g5-binding/research.md`). **Spec 015 R5 follow-up, spec 016** (owner 2026-11-03): an
+opt-in guarded (re-)initialisation for both trackers, `guardedInit` 1 or 2 (name suffix `-g1`/`-g2`,
+`--guarded-init` on `tma-track` and `tma-fuse-track`). It refuses a batch fit within 100 m of
+ownship or with an ill-conditioned QR factor, builds P₀ in square-root form, and at level 2
+re-initialises from the last 60 samples first. Level 0 is every frozen reference, byte-identical;
+re-freezing a guarded reference needs a decision record. Validation comparison:
+`experiments/20261103-guarded-init-val/`. Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

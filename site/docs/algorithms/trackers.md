@@ -141,9 +141,22 @@ sample.
 - The initial covariance σ²(JᵀJ)⁻¹ is then not positive definite.
 - On the seed-214 test split this happens in 43 of 40,000 scenarios: 87 of 44,343
   (re-)initialisations.
-- The frozen reference is not changed. The proposed fix is to refuse such a fit, by a closest
-  approach under 100 m or a failed Cholesky test, and to re-initialise from recent bearings. That
-  would need a new decision and re-tune.
+- The frozen reference is not changed.
+
+**Guarded initialisation (spec 016, opt-in: `-g1`, `-g2`).** `--guarded-init 1` on `tma-track`
+(or `guardedInit` in code) refuses a fit that has either fault:
+- its track comes within 100 m of ownship at any fitted sample;
+- its QR factor's conditioning estimate is above 10⁷.
+
+The tracker then retries every 6 samples. Level 1 also builds P₀ in square-root form,
+σ² · p0 · R⁻¹R⁻ᵀ, from a Householder QR of the Jacobian at tᵢ. That is positive definite by
+construction, and equal to the frozen P₀ to rounding on a healthy fit.
+
+Level 2 (`-g2`) does the same, but a re-initialisation first fits only the last 60 samples
+(10 min), falling back to all.
+
+Every frozen reference is level 0 and unchanged. The validation comparison is in
+`specs/016-imm-guarded-init/research.md`.
 
 ## Running it
 
