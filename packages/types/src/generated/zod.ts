@@ -263,6 +263,33 @@ export type GateCheck = z.infer<typeof GateCheck>;
 export const GateId = z.enum(["G0", "G1", "G2", "G3", "G4", "G5"]);
 export type GateId = z.infer<typeof GateId>;
 
+/** One estimator re-computed by a gate on a sample of scenarios (schema 0.18.0). */
+export const GateRecomputation = z.strictObject({
+  estimator: z.string(),
+  /** SHA-256 (hex) of the sampled scenario indices, comma-separated in ascending order. */
+  sample_sha256: z.string(),
+  /** Number of scenarios re-computed. */
+  scenarios: z.number().int(),
+});
+export type GateRecomputation = z.infer<typeof GateRecomputation>;
+
+/** What a test-split gate verdict was scored against (schema 0.18.0; tma-g5 writes it as scoring.json beside verdict.json). tma-g5 refuses to score a decision and test seed that another experiment's scoring.json already records, unless it names that experiment (`repeat_of`). */
+export const GateScoring = z.strictObject({
+  /** Path of the decision record, from the repository root. */
+  decision: z.string(),
+  /** SHA-256 (hex) of the decision record. */
+  decision_sha256: z.string(),
+  gate: GateId,
+  /** The estimators whose rows the gate re-computed on a seeded sample of scenarios from their declared settings, byte-identical to their files (absent in records backfilled for experiments scored before schema 0.18.0). */
+  recomputed: z.array(GateRecomputation).nullish(),
+  /** The earlier experiment that scored the same decision and test seed, named with tma-g5 --repeat-of (a reproduction, not a second chance at the gate). */
+  repeat_of: z.string().nullish(),
+  test_seed: z.string(),
+  /** SHA-256 (hex) of the test split file. */
+  truth_sha256: z.string(),
+});
+export type GateScoring = z.infer<typeof GateScoring>;
+
 /** Machine verdict for a gate; the team review records the final decision. */
 export const GateVerdict = z.strictObject({
   checks: z.array(GateCheck),

@@ -191,3 +191,30 @@ naive. They keep their G1 roles:
 `--slice`, `--point` (range and course) and `--speed-point` exist for diagnostics on the validation
 split; a committed G2 verdict always uses the defaults. The verdict is then decided by the agent
 review panel, as for G0 and G1.
+
+## G5 — test-split bindings
+
+`tma-g5` judges G5 (SRD Annex C §C.5). On a test split it refuses to score unless every binding
+holds. Spec 015 added the last three in the list, which the phase-4b and phase-4c panels recorded
+as follow-ups.
+
+- **The decision came first and names this split.** The committed decision names the test seed,
+  the plans (whose digests the data must match), the reference, and the carried trackers. Its
+  models are bound by training ancestry, or, when frozen, by file digest (`model_digests`).
+- **Each carried file traces to bound weights.** It does so directly (`model_weights_sha256`), or
+  through its `inputs`, which must be files given to the gate, byte for byte.
+- **The data postdate the decision.** The test split was generated from a clean tree, at the
+  commit that added the decision or a later one. This holds for frozen models too.
+- **The settings are re-computed, not trusted from names.** Each carried tracker and the
+  reference is re-run on 200 scenarios drawn with the gate's own seed (20261011). Each runs from
+  the settings its estimator name declares: the IMM's or the EKF's parameters, the fused
+  tracker's k and M, the hybrid's θ. Every stored line must equal the re-computed one, byte for
+  byte.
+  - A name is read only if it is exactly what the namer would print for the settings read back.
+  - A network's own file cannot be re-run without its model runtime. It is used as stored, bound
+    by its weights digest.
+- **Scored once, across experiments.** The gate writes `scoring.json` beside `verdict.json`: the
+  decision (path and digest), the test seed, the split's digest, and what was re-computed.
+  - It refuses when any experiment already records G5 for the same decision and seed.
+  - A reproduction must say so with `--repeat-of <earlier experiment>`. That is not C.5's one
+    re-score, which uses a fresh, larger seed.

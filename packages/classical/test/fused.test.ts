@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { generateScenario } from "@tma/sim";
 import type { ParameterRanges, Prediction, PredictionRow, Scenario } from "@tma/types";
 import { describe, expect, it } from "vitest";
-import { FUSION_DEFAULT, fusedName, fusedPredict } from "../src/fused.js";
+import { FUSION_DEFAULT, fusedName, fusedPredict, usableRange } from "../src/fused.js";
 import { type ImmParams, immPredict, immRangeUpdate } from "../src/imm.js";
 import { truthAt } from "./helpers.js";
 
@@ -56,6 +56,16 @@ function rangeErrors(s: Scenario, rows: PredictionRow[]): number[] {
     });
 }
 
+const ROW: PredictionRow = {
+  timestamp_s: 0,
+  range_m: 5000,
+  course_rad: 0,
+  speed_mps: 3,
+  x_m: 0,
+  y_m: 5000,
+  converged: true,
+};
+
 const scen = Array.from({ length: 12 }, (_, i) => generateScenario(7n, i, PHASE4).scenario);
 
 describe("fused tracker", () => {
@@ -83,6 +93,48 @@ describe("fused tracker", () => {
       expect(JSON.stringify(fusedPredict(s, REF, network(s, 0.01, false)).rows)).toBe(base);
       expect(JSON.stringify(fusedPredict(s, REF, network(s, undefined)).rows)).toBe(base);
     }
+  });
+
+  it("skips rows with range ≤ 0 or a log-range sd that is ≤ 0 or not finite (spec 015 FR-004)", () => {
+    for (const s of scen.slice(0, 3)) {
+      const base = JSON.stringify(immPredict(s, REF).rows);
+      for (const sd of [0, -0.1, Infinity, NaN])
+        expect(JSON.stringify(fusedPredict(s, REF, network(s, sd)).rows)).toBe(base);
+      for (const range of [0, -1000, NaN, Infinity]) {
+        const n = network(s, 0.01);
+        n.rows = n.rows.map((r) => ({ ...r, range_m: range }));
+        expect(JSON.stringify(fusedPredict(s, REF, n).rows)).toBe(base);
+      }
+    }
+    expect(usableRange({ ...ROW, log_range_sd: 0.1 })).toBe(true);
+    expect(usableRange({ ...ROW })).toBe(false);
+    expect(usableRange({ ...ROW, log_range_sd: 0.1, converged: false })).toBe(false);
+  });
+
+  it("the guards are no-ops on rows a network can state: one bad row changes only its own update", () => {
+    const s = scen[1];
+    if (s === undefined) throw new Error("no scenario");
+    const f = { k: 1, every: 1 };
+    const good = network(s, 0.05);
+    const ref = fusedPredict(s, REF, good, f);
+    // Unguarded rows are untouched: the same network with every row valid gives the same answer
+    // as before the guard (here, through a copy).
+    expect(JSON.stringify(fusedPredict(s, REF, structuredClone(good), f))).toBe(
+      JSON.stringify(ref),
+    );
+    // A bad row equals a non-converged row at that sample: skipped, nothing else changes.
+    const at = 30;
+    const bad = structuredClone(good);
+    const skip = structuredClone(good);
+    const b = bad.rows[at];
+    const k = skip.rows[at];
+    if (b === undefined || k === undefined) throw new Error("short scenario");
+    b.range_m = -5;
+    k.converged = false;
+    expect(JSON.stringify(fusedPredict(s, REF, bad, f))).toBe(
+      JSON.stringify(fusedPredict(s, REF, skip, f)),
+    );
+    expect(JSON.stringify(fusedPredict(s, REF, bad, f))).not.toBe(JSON.stringify(ref));
   });
 
   it("a very uncertain range leaves the IMM nearly unchanged", () => {

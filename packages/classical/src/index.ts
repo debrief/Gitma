@@ -6,3 +6,4 @@ export * from "./hybrid.js";
 export * from "./ekf.js";
 export * from "./imm.js";
 export * from "./fused.js";
+export * from "./names.js";
