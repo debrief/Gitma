@@ -76,4 +76,16 @@ describe("tma-track", () => {
       /ekf or imm/,
     );
   });
+
+  it("--guarded-init 1|2 names the guarded tracker (spec 016) and refuses other levels", () => {
+    const out = join(dir, "g2.ndjson");
+    const args = ["--in", truth, "--out", out, "--filter", "ekf", "--sigma-a", "0.03"];
+    expect(runCli(track, [...args, "--guarded-init", "2"])).toBe(0);
+    const head = JSON.parse(readFileSync(out, "utf8").split("\n")[0] ?? "{}") as {
+      estimator?: string;
+    };
+    expect(head.estimator).toBe("ekf-sa0.03-g2");
+    expect(() => track([...args, "--guarded-init", "0"])).toThrow(/1 or 2/);
+    expect(() => track([...args, "--guarded-init", "3"])).toThrow(/1 or 2/);
+  });
 });

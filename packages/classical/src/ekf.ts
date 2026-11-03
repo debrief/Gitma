@@ -15,19 +15,32 @@ export const ekfName = (sigmaA: number, scales: TrackerScales = {}): string =>
   `${EKF}-sa${String(sigmaA)}${scaleSuffix(scales)}`;
 
 /**
- * Tuning scales shared by both trackers (spec 010 FR-011, G0 panel): `p0Scale` multiplies the
- * initial covariance σ²(JᵀJ)⁻¹, `rScale` the measurement variance σ². Both default to 1.
+ * Initialisation of both trackers (spec 016). 0 (the default, every frozen reference): the batch
+ * solution with σ²(JᵀJ)⁻¹ (`ekfInitialise`). 1: the same fit, refused when degenerate, with the
+ * covariance in square-root form (`ekfInitialiseGuarded`). 2: as 1, but a re-initialisation first
+ * fits only the last `REINIT_WINDOW` samples, falling back to all of them.
+ */
+export type GuardedInit = 0 | 1 | 2;
+
+/**
+ * Tuning shared by both trackers (spec 010 FR-011, G0 panel): `p0Scale` multiplies the initial
+ * covariance σ²(JᵀJ)⁻¹, `rScale` the measurement variance σ². Both default to 1. `guardedInit`
+ * (spec 016) selects the initialisation; it defaults to 0.
  */
 export interface TrackerScales {
   p0Scale?: number;
   rScale?: number;
+  guardedInit?: GuardedInit;
 }
 
-/** Name suffix for scales other than 1 (so names without scales are unchanged). */
+/**
+ * Name suffix for scales other than 1 and a guarded initialisation (so names without them are
+ * unchanged, and every frozen reference keeps its name and rows).
+ */
 export const scaleSuffix = (s: TrackerScales): string =>
   `${s.p0Scale !== undefined && s.p0Scale !== 1 ? `-p${String(s.p0Scale)}` : ""}${
     s.rScale !== undefined && s.rScale !== 1 ? `-r${String(s.rScale)}` : ""
-  }`;
+  }${s.guardedInit !== undefined && s.guardedInit !== 0 ? `-g${String(s.guardedInit)}` : ""}`;
 
 /**
  * Floor on the measurement standard deviation (rad). Only noise-free data (σ = 0) reach it; it
@@ -56,6 +69,13 @@ function mul(a: Float64Array, b: Float64Array): Float64Array {
 
 const transpose = (a: Float64Array): Float64Array =>
   Float64Array.from({ length: 16 }, (_, k) => a[4 * (k % 4) + Math.floor(k / 4)] ?? 0);
+
+/** Closest approach of a guarded batch fit to ownship, at any fitted sample (spec 016, R1). */
+export const MIN_FIT_RANGE_M = 100;
+/** Largest |R_kk| / smallest |R_kk| of the fit's QR factor a guarded initialisation accepts. */
+export const MAX_FIT_CONDITION = 1e7;
+/** Samples a level-2 re-initialisation fits first (10 min at 10 s). */
+export const REINIT_WINDOW = 60;
 
 /** Constant-velocity transition over τ seconds. */
 function transition(tau: number): Float64Array {
@@ -110,6 +130,143 @@ export function ekfInitialise(
     transpose(f),
   );
   return { t, x, p: symmetrise(p0) };
+}
+
+/**
+ * Guarded initial state at sample `i` (spec 016) from the batch solution on samples [from, i].
+ * - **Refusals.** Null when there is no batch solution or it is implausible at tᵢ, as
+ *   `ekfInitialise`. Also null when the fitted straight track passes within `MIN_FIT_RANGE_M` of
+ *   ownship at any fitted sample (a degenerate minimum: one bearing's Jacobian row ∝ 1/ρ then
+ *   swamps the rest), or when the fit's QR factor is too ill-conditioned (`MAX_FIT_CONDITION`).
+ * - **Covariance.** It comes from a Householder QR factor R of the Jacobian, parameterised at tᵢ
+ *   (columns ∂h/∂x_i, ∂h/∂y_i, (t − tᵢ)·∂h/∂x_i, (t − tᵢ)·∂h/∂y_i): P = σ²·p0Scale · R⁻¹R⁻ᵀ.
+ *   There JᵀJ is never formed or inverted, and P is S Sᵀ, symmetric and positive definite by
+ *   construction.
+ */
+export function ekfInitialiseGuarded(
+  d: BearingData,
+  i: number,
+  sigma: number,
+  p0Scale = 1,
+  from = 0,
+): EkfState | null {
+  const w = windowOf(d, from, i);
+  const sol = solveBatch(w, i - from + 1);
+  if (sol === null) return null;
+  const ti = d.t[i] ?? 0;
+  const [x0 = 0, y0 = 0, vx = 0, vy = 0] = sol.theta;
+  const x = Float64Array.from([x0 + vx * ti, y0 + vy * ti, vx, vy]);
+  if (!plausibleState(d, x, i)) return null;
+  // Jacobian rows at tᵢ, and the closest approach of the fitted track.
+  const rows: number[][] = [];
+  for (let k = from; k <= i; k++) {
+    if (d.valid[k] !== 1) continue;
+    const t = d.t[k] ?? 0;
+    const dx = x0 + vx * t - (d.ownX[k] ?? 0);
+    const dy = y0 + vy * t - (d.ownY[k] ?? 0);
+    const rho2 = dx * dx + dy * dy;
+    if (!(Math.sqrt(rho2) >= MIN_FIT_RANGE_M)) return null;
+    const a = dy / rho2;
+    const b = -dx / rho2;
+    rows.push([a, b, (t - ti) * a, (t - ti) * b]);
+  }
+  if (rows.length < 4) return null;
+  const r = qrFactor(rows);
+  if (r === null) return null;
+  const s = upperInverse(r);
+  const k2 = Math.max(sigma, EKF_MIN_SIGMA_RAD) ** 2 * p0Scale;
+  const p = new Float64Array(16);
+  for (let a = 0; a < 4; a++)
+    for (let b = 0; b < 4; b++) {
+      let v = 0;
+      for (let c = Math.max(a, b); c < 4; c++) v += (s[4 * a + c] ?? 0) * (s[4 * b + c] ?? 0);
+      p[4 * a + b] = k2 * v;
+    }
+  return { t: ti, x, p };
+}
+
+/** Samples [from, i] of `d` as their own bearing data (absolute times kept). */
+function windowOf(d: BearingData, from: number, i: number): BearingData {
+  if (from === 0) return d;
+  return {
+    t: d.t.subarray(from, i + 1),
+    ownX: d.ownX.subarray(from, i + 1),
+    ownY: d.ownY.subarray(from, i + 1),
+    bearing: d.bearing.subarray(from, i + 1),
+    valid: d.valid.subarray(from, i + 1),
+  };
+}
+
+/**
+ * The 4×4 upper-triangular factor R of the m×4 matrix `rows` (Householder QR), or null when its
+ * conditioning estimate max|R_kk| / min|R_kk| exceeds `MAX_FIT_CONDITION` or is not finite.
+ */
+function qrFactor(rows: number[][]): Float64Array | null {
+  const a = rows.map((row) => Float64Array.from(row));
+  const m = a.length;
+  for (let c = 0; c < 4; c++) {
+    let norm = 0;
+    for (let k = c; k < m; k++) norm += (a[k]?.[c] ?? 0) ** 2;
+    norm = Math.sqrt(norm);
+    if (!(norm > 0) || !Number.isFinite(norm)) return null;
+    const head = a[c]?.[c] ?? 0;
+    const alpha = head > 0 ? -norm : norm;
+    const v = new Float64Array(m - c);
+    for (let k = c; k < m; k++) v[k - c] = a[k]?.[c] ?? 0;
+    v[0] = (v[0] ?? 0) - alpha;
+    let vv = 0;
+    for (const e of v) vv += e * e;
+    if (!(vv > 0)) continue;
+    for (let j = c; j < 4; j++) {
+      let dot = 0;
+      for (let k = c; k < m; k++) dot += (v[k - c] ?? 0) * (a[k]?.[j] ?? 0);
+      const f = (2 * dot) / vv;
+      for (let k = c; k < m; k++) {
+        const row = a[k];
+        if (row !== undefined) row[j] = (row[j] ?? 0) - f * (v[k - c] ?? 0);
+      }
+    }
+  }
+  const r = new Float64Array(16);
+  for (let k = 0; k < 4; k++) for (let j = k; j < 4; j++) r[4 * k + j] = a[k]?.[j] ?? 0;
+  const diag = [0, 1, 2, 3].map((k) => Math.abs(r[5 * k] ?? 0));
+  const cond = Math.max(...diag) / Math.min(...diag);
+  return Number.isFinite(cond) && cond <= MAX_FIT_CONDITION ? r : null;
+}
+
+/** Inverse of a non-singular 4×4 upper-triangular matrix (back substitution). */
+function upperInverse(r: Float64Array): Float64Array {
+  const s = new Float64Array(16);
+  for (let c = 0; c < 4; c++) {
+    s[5 * c] = 1 / (r[5 * c] ?? 1);
+    for (let row = c - 1; row >= 0; row--) {
+      let v = 0;
+      for (let k = row + 1; k <= c; k++) v += (r[4 * row + k] ?? 0) * (s[4 * k + c] ?? 0);
+      s[4 * row + c] = -v / (r[5 * row] ?? 1);
+    }
+  }
+  return s;
+}
+
+/**
+ * The initialiser `level` selects (spec 016): at the first initialisation (`reinit` false) and at
+ * level 1, the guarded fit on every sample so far; at level 2 a re-initialisation first tries the
+ * last `REINIT_WINDOW` samples. Level 0 is `ekfInitialise`, unchanged.
+ */
+export function initialiseAt(
+  d: BearingData,
+  i: number,
+  sigma: number,
+  p0Scale: number,
+  level: GuardedInit,
+  reinit: boolean,
+): EkfState | null {
+  if (level === 0) return ekfInitialise(d, i, sigma, p0Scale);
+  if (level === 2 && reinit && i + 1 > REINIT_WINDOW) {
+    const recent = ekfInitialiseGuarded(d, i, sigma, p0Scale, i + 1 - REINIT_WINDOW);
+    if (recent !== null) return recent;
+  }
+  return ekfInitialiseGuarded(d, i, sigma, p0Scale);
 }
 
 function symmetrise(p: Float64Array): Float64Array {
@@ -217,15 +374,16 @@ export const EKF_REINIT_EVERY = 6;
  */
 export function ekfPredict(s: Scenario, sigmaA: number, scales: TrackerScales = {}): Prediction {
   if (!(sigmaA >= 0)) throw new Error(`EKF process noise must be ≥ 0, got ${String(sigmaA)}`);
-  const { p0Scale = 1, rScale = 1 } = scales;
+  const { p0Scale = 1, rScale = 1, guardedInit = 0 } = scales;
   if (!(p0Scale > 0) || !(rScale > 0)) throw new Error("EKF scales must be > 0");
+  if (![0, 1, 2].includes(guardedInit)) throw new Error("EKF guardedInit must be 0, 1 or 2");
   const d = bearingData(s);
   const n = s.metadata.samples;
   const sigma = s.metadata.parameters.noise_sigma_rad;
   const r2 = Math.max(sigma, EKF_MIN_SIGMA_RAD) ** 2 * rScale;
   const rows: PredictionRow[] = [];
   const first = s.metadata.zig_index + 1;
-  let st = first - 1 < n ? ekfInitialise(d, first - 1, sigma, p0Scale) : null;
+  let st = first - 1 < n ? initialiseAt(d, first - 1, sigma, p0Scale, guardedInit, false) : null;
   let lastTry = first - 1;
   for (let i = first; i < n; i++) {
     if (st !== null) {
@@ -243,7 +401,7 @@ export function ekfPredict(s: Scenario, sigmaA: number, scales: TrackerScales = 
       rows.push(emptyRow(d, i));
     }
     if (i - lastTry >= EKF_REINIT_EVERY) {
-      st = ekfInitialise(d, i, sigma, p0Scale);
+      st = initialiseAt(d, i, sigma, p0Scale, guardedInit, true);
       lastTry = i;
     }
   }

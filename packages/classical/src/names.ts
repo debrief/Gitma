@@ -10,28 +10,33 @@ import { type ImmParams, immName } from "./imm.js";
 
 /** A number as `String(x)` prints it for the settings these names carry. */
 const NUM = String.raw`(\d+(?:\.\d+)?(?:e[-+]?\d+)?)`;
-const SCALES = String.raw`(?:-p${NUM})?(?:-r${NUM})?`;
+const SCALES = String.raw`(?:-p${NUM})?(?:-r${NUM})?(?:-g([12]))?`;
 const IMM_RE = new RegExp(String.raw`^imm-cv${NUM}-ct${NUM}-w${NUM}-s${NUM}${SCALES}$`);
 const EKF_RE = new RegExp(String.raw`^ekf-sa${NUM}${SCALES}$`);
 const FUSION_RE = new RegExp(String.raw`-k${NUM}-m(\d+)$`);
 const HYBRID_RE = new RegExp(String.raw`^${NUM}$`);
 
-const scales = (p: string | undefined, r: string | undefined): TrackerScales => ({
+const scales = (
+  p: string | undefined,
+  r: string | undefined,
+  g: string | undefined,
+): TrackerScales => ({
   ...(p === undefined ? {} : { p0Scale: Number(p) }),
   ...(r === undefined ? {} : { rScale: Number(r) }),
+  ...(g === undefined ? {} : { guardedInit: Number(g) === 2 ? 2 : 1 }),
 });
 
 /** The IMM settings `name` declares, or null if it is not an IMM's canonical name. */
 export function parseImmName(name: string): ImmParams | null {
   const m = IMM_RE.exec(name);
   if (m === null) return null;
-  const [, cv, ct, w, sw, p, r] = m;
+  const [, cv, ct, w, sw, p, r, g] = m;
   const params: ImmParams = {
     sigmaCv: Number(cv),
     sigmaCt: Number(ct),
     sigmaOmega: Number(w),
     switchPerS: Number(sw),
-    ...scales(p, r),
+    ...scales(p, r, g),
   };
   return immName(params) === name ? params : null;
 }
@@ -40,8 +45,8 @@ export function parseImmName(name: string): ImmParams | null {
 export function parseEkfName(name: string): { sigmaA: number; scales: TrackerScales } | null {
   const m = EKF_RE.exec(name);
   if (m === null) return null;
-  const [, sa, p, r] = m;
-  const out = { sigmaA: Number(sa), scales: scales(p, r) };
+  const [, sa, p, r, g] = m;
+  const out = { sigmaA: Number(sa), scales: scales(p, r, g) };
   return ekfName(out.sigmaA, out.scales) === name ? out : null;
 }
 

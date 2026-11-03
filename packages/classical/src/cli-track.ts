@@ -34,13 +34,14 @@ export function main(argv: string[]): unknown {
       switch: { type: "string" },
       "p0-scale": { type: "string" },
       "r-scale": { type: "string" },
+      "guarded-init": { type: "string" },
     },
   });
   if (values.in === undefined || values.out === undefined)
     throw new UsageError(
       "usage: tma-track --in <split.f32pack> --out <pred.ndjson> " +
         "(--filter ekf --sigma-a <m/s²> | --filter imm --sigma-cv <m/s²> --sigma-ct <m/s²> " +
-        "--sigma-omega <rad/s/√s> --switch <1/s>) [--p0-scale k] [--r-scale k]",
+        "--sigma-omega <rad/s/√s> --switch <1/s>) [--p0-scale k] [--r-scale k] [--guarded-init 1|2]",
     );
   /** Optional scales (spec 010 FR-011); absent means 1, and names stay unchanged. */
   const scale = (key: "p0-scale" | "r-scale"): number | undefined => {
@@ -51,9 +52,15 @@ export function main(argv: string[]): unknown {
   };
   const p0Scale = scale("p0-scale");
   const rScale = scale("r-scale");
+  const guarded = values["guarded-init"];
+  if (guarded !== undefined && guarded !== "1" && guarded !== "2")
+    throw new UsageError("--guarded-init must be 1 or 2 (spec 016)");
   const scales = {
     ...(p0Scale === undefined ? {} : { p0Scale }),
     ...(rScale === undefined ? {} : { rScale }),
+    ...(guarded === undefined
+      ? {}
+      : { guardedInit: guarded === "2" ? (2 as const) : (1 as const) }),
   };
   let name: string;
   let predict: (s: Scenario) => Prediction;

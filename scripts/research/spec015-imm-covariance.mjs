@@ -1,9 +1,10 @@
 // Spec 015 R5 (report only): where the frozen reference IMM carries a model covariance that is not
 // positive definite, and why. Uses only public exports; changes nothing.
 //
-//   node scripts/research/spec015-imm-covariance.mjs count <split.f32pack>
+//   node scripts/research/spec015-imm-covariance.mjs count <split.f32pack> [level]
 //     Scenarios whose IMM state, after any step (`immPredict`'s onStep), has a model covariance
-//     that fails a Cholesky test.
+//     that fails a Cholesky test; also steps and non-converged rows. `level` is the guarded
+//     initialisation (spec 016: 0, the frozen reference, by default; 1 or 2).
 //   node scripts/research/spec015-imm-covariance.mjs batch <split.f32pack> <scenario> <sample>...
 //     At each sample: the batch least-squares fit over samples 0..i that `ekfInitialise` uses, its
 //     range against the truth, the closest approach of its straight track to ownship, and the
@@ -71,17 +72,40 @@ function eigenvalues(p, n) {
 
 const [mode, split, ...rest] = process.argv.slice(2);
 if (mode === "count") {
+  const level = Number(rest[0] ?? 0);
+  const params = level === 0 ? REF : { ...REF, guardedInit: level };
   let scenarios = 0;
+  let steps = 0;
+  let badSteps = 0;
+  let rows = 0;
+  let nonConverged = 0;
   const bad = [];
   for (const s of readDataset(split).scenarios()) {
     scenarios++;
     let hit = false;
-    immPredict(s, REF, (_i, st) => {
-      if (!hit && st.models.some((g) => !positiveDefinite(g.p, 5))) hit = true;
+    const p = immPredict(s, params, (_i, st) => {
+      steps++;
+      if (st.models.some((g) => !positiveDefinite(g.p, 5))) {
+        badSteps++;
+        hit = true;
+      }
     });
+    rows += p.rows.length;
+    nonConverged += p.rows.filter((r) => !r.converged).length;
     if (hit) bad.push(s.metadata.index);
   }
-  console.log(JSON.stringify({ scenarios, with_non_pd_state: bad.length, indices: bad }));
+  console.log(
+    JSON.stringify({
+      level,
+      scenarios,
+      with_non_pd_state: bad.length,
+      steps,
+      non_pd_steps: badSteps,
+      rows,
+      non_converged_rows: nonConverged,
+      indices: bad,
+    }),
+  );
 } else if (mode === "batch") {
   const [idx, ...samples] = rest.map(Number);
   let s;
