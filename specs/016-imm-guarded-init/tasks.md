@@ -10,4 +10,5 @@
   - no non-PD IMM step where the frozen IMM has some;
   - names and CLI levels.
 - [x] T005 Validation research (FR-005): `experiments/20261103-guarded-init-val/`; `research.md`
+  (level 1 neutral and numerically safe; level 2 rejected)
 - [x] T006 Site: trackers note; AGENTS.md

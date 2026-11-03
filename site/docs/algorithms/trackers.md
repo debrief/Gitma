@@ -155,8 +155,15 @@ construction, and equal to the frozen P₀ to rounding on a healthy fit.
 Level 2 (`-g2`) does the same, but a re-initialisation first fits only the last 60 samples
 (10 min), falling back to all.
 
-Every frozen reference is level 0 and unchanged. The validation comparison is in
-`specs/016-imm-guarded-init/research.md`.
+Every frozen reference is level 0 and unchanged.
+
+**On seed-211 validation** (`specs/016-imm-guarded-init/research.md`):
+- **Level 1 is accuracy-neutral** for the IMM, the EKF and the fused tracker. Every G5-row ratio
+  to the frozen tracker is 1.000 ± 0.003.
+- **Level 1 removes every non-positive-definite IMM covariance.** The frozen IMM has 21 such steps,
+  in 6 of 10,000 scenarios; level 1 has none. It reports no estimate on 0.07% more rows.
+- **Level 2 is worse.** It is 2–9% worse on range, course and speed, and still has non-PD steps:
+  a 10-min window is too short to observe range after a manoeuvre.
 
 ## Running it
 
