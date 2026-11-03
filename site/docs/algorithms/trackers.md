@@ -133,6 +133,18 @@ G0 on 0.5.0 (`experiments/20261030-g0-p4-r2/`) adds three tracker checks:
   60 s to settle (worst 1% range). Phase-3 data have rate-limited turns, where it settles within
   60 s. G0 gates the tracker on generator-0.4.0 data only.
 
+**Known limitation: re-initialisation can give an indefinite covariance (spec 015 R5).** The
+re-initialisation fits the batch solution over every bearing so far. After target manoeuvres that
+constant-velocity fit can be degenerate: its track passes through ownship's position at an earlier
+sample.
+- At that sample, one Jacobian row dominates JᵀJ, whose condition number reaches about 10¹⁶.
+- The initial covariance σ²(JᵀJ)⁻¹ is then not positive definite.
+- On the seed-214 test split this happens in 43 of 40,000 scenarios: 87 of 44,343
+  (re-)initialisations.
+- The frozen reference is not changed. The proposed fix is to refuse such a fit, by a closest
+  approach under 100 m or a failed Cholesky test, and to re-initialise from recent bearings. That
+  would need a new decision and re-tune.
+
 ## Running it
 
 ```
