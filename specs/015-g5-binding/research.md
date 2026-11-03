@@ -45,7 +45,9 @@ change. So the gate writes `scoring.json` (`GateScoring`) beside the verdict, an
 `usableRange` refuses a range that is ≤ 0 or not finite, and a log-range sd that is absent, ≤ 0
 or not finite.
 
-- **Seed 214 test split:** PHASE4C_GUARD rows of T2 would be skipped.
+- **Seed 214 test split.** Of T2's 4,938,978 rows (all converged), 0 would be skipped: no
+  range ≤ 0 or non-finite, and no absent, non-positive or non-finite sd
+  (`guards.mjs` count, logged in the PR).
 - **The fused verdict.** It re-scores with identical checks under the guarded code (R6), so the
   guards change nothing that was scored.
 
@@ -86,8 +88,11 @@ over all samples up to i, then propagates it to tᵢ.
 
 - **Overall.** 87 of 44,343 initialisations are not positive definite: 3 of 33,849 first
   initialisations and 84 of 10,494 re-initialisations.
-- **Scenarios.** 43 of the 40,000 scenarios are affected (0.11%). Only those 43 ever carry a
-  covariance that is not positive definite at any stage.
+- **Scenarios.** 43 of the 40,000 scenarios (0.11%) carry such a covariance at some stage
+  (mix, predict or update), counted with an instrumented copy.
+- **After a full step.** In 17 of them it is still not positive definite after the update, as
+  `onStep` sees it (`spec015-imm-covariance.mjs count`). Scenario 360417 is not among the 17: there
+  it occurs only on the fused path, whose range updates change when the IMM re-initialises.
 - **Rows.** The rows still come out finite; a non-PD state then usually becomes implausible and
   re-initialises again. The verdicts use only the reported rows, which re-score identically (R6).
 
@@ -113,7 +118,7 @@ reference's rows, so it needs a new decision and a re-tune before it could be us
 | Phase | Data | Re-computed (200 scenarios, byte-identical) | `checks` vs committed | Tampered cases refused |
 | --- | --- | --- | --- | --- |
 | 4b, seed 213 | regenerated at `4a15ba4` from a clean worktree; plan digests checked | hybrid θ 45° (with its IMM input re-run), reference IMM | identical, 7 checks, pass | C, A, B, D |
-| 4c, seed 214 | PHASE4C_DATA | PHASE4C_RECOMPUTED | PHASE4C_CHECKS | PHASE4C_TAMPER |
+| 4c, seed 214 | regenerated at `4a15ba4` from a clean worktree; plan digests checked; fused and hybrid rebuilt with the guarded code | fused k 4, M 6 (T2 rows as stored), reference IMM | identical, 7 checks, pass; `report.json` identical (378 rows) | C, A, B, D |
 
 **Tampered cases:**
 - **A.** Another setting under the frozen name. For 4b, the hybrid at θ 30° renamed c45; for 4c,
@@ -122,4 +127,6 @@ reference's rows, so it needs a new decision and a re-tune before it could be us
 - **C.** A second scoring without `--repeat-of`.
 - **D.** The data header names the commit before the decision (`requireG5Binding` on a copy).
 
-All refused with the expected message; the logs are in the PR description.
+All refused with the expected message; the logs are in the PR description. For phase 4b,
+`report.json` was not compared: the container restarted while it was being written. The verdict and
+`scoring.json` had already been written.
