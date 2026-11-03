@@ -9,7 +9,13 @@
 // timestep. Pure functions over typed arrays; the only state is what callers pass in.
 import { angleDiff, bearingOf, f32, f32Angle } from "@tma/sim";
 import type { Prediction, PredictionRow, Scenario } from "@tma/types";
-import { EKF_MIN_SIGMA_RAD, EKF_REINIT_EVERY, ekfInitialise, scaleSuffix } from "./ekf.js";
+import {
+  EKF_MIN_SIGMA_RAD,
+  EKF_REINIT_EVERY,
+  type GuardedInit,
+  initialiseAt,
+  scaleSuffix,
+} from "./ekf.js";
 import { bearingData, PLAUSIBLE } from "./estimate.js";
 import type { BearingData } from "./lsq.js";
 
@@ -30,6 +36,8 @@ export interface ImmParams {
   p0Scale?: number;
   /** Scale on the measurement variance (default 1). */
   rScale?: number;
+  /** Initialisation (spec 016; default 0, every frozen reference): see `GuardedInit`. */
+  guardedInit?: GuardedInit;
 }
 
 /** Estimator name of the IMM with `p`. */
@@ -293,14 +301,19 @@ export function immEstimate(st: ImmState): Gaussian {
   return mix(st.models, st.mu);
 }
 
-/** IMM state at sample i from the batch solution (`ekfInitialise`), ω = 0 with a wide prior. */
+/**
+ * IMM state at sample i from the batch solution, ω = 0 with a wide prior. `level` and `reinit`
+ * select the initialiser (`initialiseAt`, spec 016); the defaults are `ekfInitialise`, unchanged.
+ */
 export function immInitialise(
   d: BearingData,
   i: number,
   sigma: number,
   p0Scale = 1,
+  level: GuardedInit = 0,
+  reinit = false,
 ): ImmState | null {
-  const e = ekfInitialise(d, i, sigma, p0Scale);
+  const e = initialiseAt(d, i, sigma, p0Scale, level, reinit);
   if (e === null) return null;
   const x = new Float64Array(N);
   const p = new Float64Array(N * N);
@@ -356,6 +369,8 @@ export function immPredict(
   for (const [k, v] of Object.entries(params))
     if (!(typeof v === "number" && v >= 0)) throw new Error(`IMM ${k} must be ≥ 0`);
   if (params.p0Scale === 0 || params.rScale === 0) throw new Error("IMM scales must be > 0");
+  const level = params.guardedInit ?? 0;
+  if (![0, 1, 2].includes(level)) throw new Error("IMM guardedInit must be 0, 1 or 2");
   const d = bearingData(s);
   const n = s.metadata.samples;
   const sigma = s.metadata.parameters.noise_sigma_rad;
@@ -363,7 +378,7 @@ export function immPredict(
   const r2 = Math.max(sigma, EKF_MIN_SIGMA_RAD) ** 2 * (params.rScale ?? 1);
   const rows: PredictionRow[] = [];
   const first = s.metadata.zig_index + 1;
-  let st = first - 1 < n ? immInitialise(d, first - 1, sigma, p0Scale) : null;
+  let st = first - 1 < n ? immInitialise(d, first - 1, sigma, p0Scale, level, false) : null;
   let lastTry = first - 1;
   for (let i = first; i < n; i++) {
     if (st !== null) {
@@ -384,7 +399,7 @@ export function immPredict(
     }
     rows.push(row(d, new Float64Array(N), i, false));
     if (i - lastTry >= EKF_REINIT_EVERY) {
-      st = immInitialise(d, i, sigma, p0Scale);
+      st = immInitialise(d, i, sigma, p0Scale, level, true);
       lastTry = i;
     }
   }
