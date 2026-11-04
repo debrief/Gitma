@@ -294,8 +294,11 @@ opt-in guarded (re-)initialisation for both trackers, `guardedInit` 1 or 2 (name
 `--guarded-init` on `tma-track` and `tma-fuse-track`). It refuses a batch fit within 100 m of
 ownship or with an ill-conditioned QR factor, builds P₀ in square-root form, and at level 2
 re-initialises from the last 60 samples first. Level 0 is every frozen reference, byte-identical;
-re-freezing a guarded reference needs a decision record. Validation comparison:
-`experiments/20261103-guarded-init-val/`. Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+re-freezing a guarded reference needs a decision record. On seed-211 validation (`experiments/20261103-guarded-init-val/`):
+- **Level 1 is accuracy-neutral** (G5-row ratios 1.000 ± 0.003 for the IMM, the EKF and the fused
+  tracker) and removes every non-PD IMM covariance (frozen: 21 steps in 6 of 10,000 scenarios).
+  It reports no estimate on 0.07% more rows.
+- **Level 2 is rejected.** It is 2–9% worse and still has non-PD steps. Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

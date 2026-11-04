@@ -1,0 +1,1703 @@
+[
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.09722693519220606,
+    "metric": "range_rel",
+    "n": 16500,
+    "non_converged": 24,
+    "p90": 0.4113935552748457,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 27.727480784746923,
+    "metric": "course_deg",
+    "n": 16500,
+    "non_converged": 24,
+    "p90": 100.43572923640129,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.730184472662841,
+    "metric": "speed_kt",
+    "n": 16500,
+    "non_converged": 24,
+    "p90": 6.820948129081313,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.07117933383418901,
+    "metric": "range_rel",
+    "n": 7222,
+    "non_converged": 8,
+    "p90": 0.3842794624944617,
+    "rows": "settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 5.167775767545008,
+    "metric": "course_deg",
+    "n": 7222,
+    "non_converged": 8,
+    "p90": 59.02889903383804,
+    "rows": "settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.0811645062901802,
+    "metric": "speed_kt",
+    "n": 7222,
+    "non_converged": 8,
+    "p90": 5.959743068233679,
+    "rows": "settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.11820886158867297,
+    "metric": "range_rel",
+    "n": 9278,
+    "non_converged": 16,
+    "p90": 0.4341859306330716,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 49.56957880699062,
+    "metric": "course_deg",
+    "n": 9278,
+    "non_converged": 16,
+    "p90": 112.4074147937563,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.264183901298638,
+    "metric": "speed_kt",
+    "n": 9278,
+    "non_converged": 16,
+    "p90": 7.307575227889849,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.03666974539890243,
+    "metric": "range_rel",
+    "n": 3949,
+    "non_converged": 2,
+    "p90": 0.14369824795286537,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.8901811220300222,
+    "metric": "course_deg",
+    "n": 3949,
+    "non_converged": 2,
+    "p90": 10.346971611382275,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.5086960596863188,
+    "metric": "speed_kt",
+    "n": 3949,
+    "non_converged": 2,
+    "p90": 2.6950706416020895,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.17410900319668995,
+    "metric": "range_rel",
+    "n": 3273,
+    "non_converged": 6,
+    "p90": 0.5271798348765407,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 22.27432605330044,
+    "metric": "course_deg",
+    "n": 3273,
+    "non_converged": 6,
+    "p90": 91.94912675773553,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.6762527729471093,
+    "metric": "speed_kt",
+    "n": 3273,
+    "non_converged": 6,
+    "p90": 8.26355298703484,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.05587168348592481,
+    "metric": "range_rel",
+    "n": 4951,
+    "non_converged": 5,
+    "p90": 0.23529635783492803,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 15.793419097063804,
+    "metric": "course_deg",
+    "n": 4951,
+    "non_converged": 5,
+    "p90": 89.14832936876745,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.9482210192258105,
+    "metric": "speed_kt",
+    "n": 4951,
+    "non_converged": 5,
+    "p90": 4.8831785214384995,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.09453818806217032,
+    "metric": "range_rel",
+    "n": 4824,
+    "non_converged": 13,
+    "p90": 0.3519937613409254,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 29.79613186830332,
+    "metric": "course_deg",
+    "n": 4824,
+    "non_converged": 13,
+    "p90": 99.7193412028388,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.8006147627696618,
+    "metric": "speed_kt",
+    "n": 4824,
+    "non_converged": 13,
+    "p90": 6.2250245467118,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.14007270458755886,
+    "metric": "range_rel",
+    "n": 4044,
+    "non_converged": 5,
+    "p90": 0.4899234140733006,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 32.297150547052254,
+    "metric": "course_deg",
+    "n": 4044,
+    "non_converged": 5,
+    "p90": 111.2390306815029,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.3816037126545258,
+    "metric": "speed_kt",
+    "n": 4044,
+    "non_converged": 5,
+    "p90": 7.930014560856005,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.17807101154975422,
+    "metric": "range_rel",
+    "n": 2681,
+    "non_converged": 1,
+    "p90": 0.5586478691899797,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 29.167885718432572,
+    "metric": "course_deg",
+    "n": 2681,
+    "non_converged": 1,
+    "p90": 117.11579203772625,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.6127176717342104,
+    "metric": "speed_kt",
+    "n": 2681,
+    "non_converged": 1,
+    "p90": 8.536952231924168,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.03768980686549005,
+    "metric": "range_rel",
+    "n": 2103,
+    "non_converged": 2,
+    "p90": 0.14886820573433637,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.8828099466057149,
+    "metric": "course_deg",
+    "n": 2103,
+    "non_converged": 2,
+    "p90": 11.971627728118191,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.5264109205736197,
+    "metric": "speed_kt",
+    "n": 2103,
+    "non_converged": 2,
+    "p90": 2.92661699826465,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.05956182879541696,
+    "metric": "range_rel",
+    "n": 1780,
+    "non_converged": 5,
+    "p90": 0.2879312342142941,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 4.256710494535348,
+    "metric": "course_deg",
+    "n": 1780,
+    "non_converged": 5,
+    "p90": 53.2892451874662,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.9537235449508765,
+    "metric": "speed_kt",
+    "n": 1780,
+    "non_converged": 5,
+    "p90": 4.66299407168032,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.11105258500091661,
+    "metric": "range_rel",
+    "n": 1756,
+    "non_converged": 1,
+    "p90": 0.4508998038771628,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 11.043705548236938,
+    "metric": "course_deg",
+    "n": 1756,
+    "non_converged": 1,
+    "p90": 72.07195121629945,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.7448155462870587,
+    "metric": "speed_kt",
+    "n": 1756,
+    "non_converged": 1,
+    "p90": 6.943747188823527,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.1621391916676136,
+    "metric": "range_rel",
+    "n": 1583,
+    "non_converged": 0,
+    "p90": 0.5391664204874922,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 16.21929505219244,
+    "metric": "course_deg",
+    "n": 1583,
+    "non_converged": 0,
+    "p90": 94.44243267273534,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.2813315010482755,
+    "metric": "speed_kt",
+    "n": 1583,
+    "non_converged": 0,
+    "p90": 8.378059560227857,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.05902156384626281,
+    "metric": "range_rel",
+    "n": 887,
+    "non_converged": 3,
+    "p90": 0.19899420082582853,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 3.828826463790728,
+    "metric": "course_deg",
+    "n": 887,
+    "non_converged": 3,
+    "p90": 16.21612584441755,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.3971380476817714,
+    "metric": "speed_kt",
+    "n": 887,
+    "non_converged": 3,
+    "p90": 5.384071496341449,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.09176602914001653,
+    "metric": "range_rel",
+    "n": 3204,
+    "non_converged": 6,
+    "p90": 0.3678265859693051,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 25.782840550679666,
+    "metric": "course_deg",
+    "n": 3204,
+    "non_converged": 6,
+    "p90": 87.34844816396945,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.281023952409979,
+    "metric": "speed_kt",
+    "n": 3204,
+    "non_converged": 6,
+    "p90": 5.7746034461530185,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.09500224728385871,
+    "metric": "range_rel",
+    "n": 1482,
+    "non_converged": 1,
+    "p90": 0.4328600868384644,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 23.3403521108061,
+    "metric": "course_deg",
+    "n": 1482,
+    "non_converged": 1,
+    "p90": 90.68798696900603,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.6383157940199253,
+    "metric": "speed_kt",
+    "n": 1482,
+    "non_converged": 1,
+    "p90": 7.117909334648247,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.1228593607393853,
+    "metric": "range_rel",
+    "n": 3562,
+    "non_converged": 5,
+    "p90": 0.434706393400819,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 40.78754696843083,
+    "metric": "course_deg",
+    "n": 3562,
+    "non_converged": 5,
+    "p90": 108.715840981337,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.8129703035622384,
+    "metric": "speed_kt",
+    "n": 3562,
+    "non_converged": 5,
+    "p90": 7.104943895442954,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.12476234289495669,
+    "metric": "range_rel",
+    "n": 1641,
+    "non_converged": 4,
+    "p90": 0.5009839819824683,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 40.101594712552135,
+    "metric": "course_deg",
+    "n": 1641,
+    "non_converged": 4,
+    "p90": 113.0729623142318,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.8365077519262325,
+    "metric": "speed_kt",
+    "n": 1641,
+    "non_converged": 4,
+    "p90": 7.783349749851432,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.13925616263054558,
+    "metric": "range_rel",
+    "n": 2534,
+    "non_converged": 1,
+    "p90": 0.49351053172366605,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 51.394605353218026,
+    "metric": "course_deg",
+    "n": 2534,
+    "non_converged": 1,
+    "p90": 120.81738573765799,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.0302007316770614,
+    "metric": "speed_kt",
+    "n": 2534,
+    "non_converged": 1,
+    "p90": 7.996453167810295,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.14021086055436233,
+    "metric": "range_rel",
+    "n": 1211,
+    "non_converged": 4,
+    "p90": 0.48699526507117563,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 48.11103289086942,
+    "metric": "course_deg",
+    "n": 1211,
+    "non_converged": 4,
+    "p90": 120.55445077536918,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.8329577353294155,
+    "metric": "speed_kt",
+    "n": 1211,
+    "non_converged": 4,
+    "p90": 8.51284595081667,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.03702436349454312,
+    "metric": "range_rel",
+    "n": 1979,
+    "non_converged": 0,
+    "p90": 0.1414859633345836,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.9119611939833296,
+    "metric": "course_deg",
+    "n": 1979,
+    "non_converged": 0,
+    "p90": 10.245802849396048,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.5083874028908253,
+    "metric": "speed_kt",
+    "n": 1979,
+    "non_converged": 0,
+    "p90": 2.865492756886822,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.10226965799639334,
+    "metric": "range_rel",
+    "n": 16500,
+    "non_converged": 15,
+    "p90": 0.43613349010138364,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 28.42810792942849,
+    "metric": "course_deg",
+    "n": 16500,
+    "non_converged": 15,
+    "p90": 101.54210012626177,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 1.840806882788244,
+    "metric": "speed_kt",
+    "n": 16500,
+    "non_converged": 15,
+    "p90": 7.445366387748305,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.07495589717272351,
+    "metric": "range_rel",
+    "n": 7222,
+    "non_converged": 4,
+    "p90": 0.408248632318911,
+    "rows": "settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 5.6534841798029545,
+    "metric": "course_deg",
+    "n": 7222,
+    "non_converged": 4,
+    "p90": 61.19519598194513,
+    "rows": "settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 1.1731794534440174,
+    "metric": "speed_kt",
+    "n": 7222,
+    "non_converged": 4,
+    "p90": 6.602159586632483,
+    "rows": "settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.12336332411783067,
+    "metric": "range_rel",
+    "n": 9278,
+    "non_converged": 11,
+    "p90": 0.4549932484795088,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 49.780331124020535,
+    "metric": "course_deg",
+    "n": 9278,
+    "non_converged": 11,
+    "p90": 113.29764309452666,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 2.375674814178928,
+    "metric": "speed_kt",
+    "n": 9278,
+    "non_converged": 11,
+    "p90": 7.976347838828167,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.03817512090884863,
+    "metric": "range_rel",
+    "n": 3949,
+    "non_converged": 2,
+    "p90": 0.15847474057482644,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 2.0449313167451377,
+    "metric": "course_deg",
+    "n": 3949,
+    "non_converged": 2,
+    "p90": 13.221661629257243,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.5502497918147505,
+    "metric": "speed_kt",
+    "n": 3949,
+    "non_converged": 2,
+    "p90": 3.3291624637710866,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.18358770320481355,
+    "metric": "range_rel",
+    "n": 3273,
+    "non_converged": 2,
+    "p90": 0.5543110560310655,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 23.074400752297397,
+    "metric": "course_deg",
+    "n": 3273,
+    "non_converged": 2,
+    "p90": 93.02078343851053,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 2.832370545900151,
+    "metric": "speed_kt",
+    "n": 3273,
+    "non_converged": 2,
+    "p90": 8.772708787773906,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.05860815226974375,
+    "metric": "range_rel",
+    "n": 4951,
+    "non_converged": 7,
+    "p90": 0.2576338259550028,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 18.333511807878185,
+    "metric": "course_deg",
+    "n": 4951,
+    "non_converged": 7,
+    "p90": 90.76228918189203,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 1.0185943051496797,
+    "metric": "speed_kt",
+    "n": 4951,
+    "non_converged": 7,
+    "p90": 5.63588585245944,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.09810675652308637,
+    "metric": "range_rel",
+    "n": 4824,
+    "non_converged": 5,
+    "p90": 0.3798652587645654,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 30.106579106634936,
+    "metric": "course_deg",
+    "n": 4824,
+    "non_converged": 5,
+    "p90": 99.90145453667886,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 1.894780111621832,
+    "metric": "speed_kt",
+    "n": 4824,
+    "non_converged": 5,
+    "p90": 6.789162040529189,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.14708844011786446,
+    "metric": "range_rel",
+    "n": 4044,
+    "non_converged": 2,
+    "p90": 0.5183145806623046,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 32.64369043987661,
+    "metric": "course_deg",
+    "n": 4044,
+    "non_converged": 2,
+    "p90": 111.92859485464741,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 2.4698109657666594,
+    "metric": "speed_kt",
+    "n": 4044,
+    "non_converged": 2,
+    "p90": 8.370180006418577,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.18600626419895708,
+    "metric": "range_rel",
+    "n": 2681,
+    "non_converged": 1,
+    "p90": 0.5904964790231032,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 30.015143364215973,
+    "metric": "course_deg",
+    "n": 2681,
+    "non_converged": 1,
+    "p90": 115.99341801464044,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 2.7607635596915916,
+    "metric": "speed_kt",
+    "n": 2681,
+    "non_converged": 1,
+    "p90": 9.010302685764387,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.04001282044355631,
+    "metric": "range_rel",
+    "n": 2103,
+    "non_converged": 2,
+    "p90": 0.16808869099604315,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 2.119653586265077,
+    "metric": "course_deg",
+    "n": 2103,
+    "non_converged": 2,
+    "p90": 16.223393165694446,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.5869289711278664,
+    "metric": "speed_kt",
+    "n": 2103,
+    "non_converged": 2,
+    "p90": 3.948477689442315,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.06389654812093665,
+    "metric": "range_rel",
+    "n": 1780,
+    "non_converged": 2,
+    "p90": 0.2991254331614,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 4.508949380583918,
+    "metric": "course_deg",
+    "n": 1780,
+    "non_converged": 2,
+    "p90": 55.004797461676645,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 1.0248295431775614,
+    "metric": "speed_kt",
+    "n": 1780,
+    "non_converged": 2,
+    "p90": 5.210696749759286,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.11642447451218343,
+    "metric": "range_rel",
+    "n": 1756,
+    "non_converged": 0,
+    "p90": 0.4731659341623847,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 11.422658103767585,
+    "metric": "course_deg",
+    "n": 1756,
+    "non_converged": 0,
+    "p90": 75.0471133168653,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 1.8601113725172005,
+    "metric": "speed_kt",
+    "n": 1756,
+    "non_converged": 0,
+    "p90": 7.300191100678742,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.1696767981953887,
+    "metric": "range_rel",
+    "n": 1583,
+    "non_converged": 0,
+    "p90": 0.5555209369014468,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 16.91223140386857,
+    "metric": "course_deg",
+    "n": 1583,
+    "non_converged": 0,
+    "p90": 95.4230839130091,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 2.4165305926526854,
+    "metric": "speed_kt",
+    "n": 1583,
+    "non_converged": 0,
+    "p90": 8.877356418008166,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.06564032484047647,
+    "metric": "range_rel",
+    "n": 887,
+    "non_converged": 2,
+    "p90": 0.2254099153153601,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 4.249245097772524,
+    "metric": "course_deg",
+    "n": 887,
+    "non_converged": 2,
+    "p90": 18.589664392321176,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 2.541951844810667,
+    "metric": "speed_kt",
+    "n": 887,
+    "non_converged": 2,
+    "p90": 5.9617134201346405,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.09782729617313311,
+    "metric": "range_rel",
+    "n": 3204,
+    "non_converged": 3,
+    "p90": 0.4034394308447202,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 26.556417530791556,
+    "metric": "course_deg",
+    "n": 3204,
+    "non_converged": 3,
+    "p90": 88.09209161267265,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 1.399955069787044,
+    "metric": "speed_kt",
+    "n": 3204,
+    "non_converged": 3,
+    "p90": 6.3724781473048555,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.10237179641842317,
+    "metric": "range_rel",
+    "n": 1482,
+    "non_converged": 0,
+    "p90": 0.46440790586384273,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 23.744496951389003,
+    "metric": "course_deg",
+    "n": 1482,
+    "non_converged": 0,
+    "p90": 91.51544389638558,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 2.799810961564725,
+    "metric": "speed_kt",
+    "n": 1482,
+    "non_converged": 0,
+    "p90": 7.628516656533687,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.12608060515228803,
+    "metric": "range_rel",
+    "n": 3562,
+    "non_converged": 5,
+    "p90": 0.45608658373742933,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 41.29076115553152,
+    "metric": "course_deg",
+    "n": 3562,
+    "non_converged": 5,
+    "p90": 110.39141297061185,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 1.891835358951313,
+    "metric": "speed_kt",
+    "n": 3562,
+    "non_converged": 5,
+    "p90": 7.656318940560194,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.13307007177447414,
+    "metric": "range_rel",
+    "n": 1641,
+    "non_converged": 1,
+    "p90": 0.5334698370557247,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 40.831977348981766,
+    "metric": "course_deg",
+    "n": 1641,
+    "non_converged": 1,
+    "p90": 113.56041902754616,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 2.916418347451393,
+    "metric": "speed_kt",
+    "n": 1641,
+    "non_converged": 1,
+    "p90": 8.421749790595365,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.1422702393671641,
+    "metric": "range_rel",
+    "n": 2534,
+    "non_converged": 4,
+    "p90": 0.5153041055807867,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 51.281060288455734,
+    "metric": "course_deg",
+    "n": 2534,
+    "non_converged": 4,
+    "p90": 121.13033134504963,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 2.113153404087536,
+    "metric": "speed_kt",
+    "n": 2534,
+    "non_converged": 4,
+    "p90": 8.64406564065756,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.15410432575590918,
+    "metric": "range_rel",
+    "n": 1211,
+    "non_converged": 0,
+    "p90": 0.5174666061139274,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 48.981936651559394,
+    "metric": "course_deg",
+    "n": 1211,
+    "non_converged": 0,
+    "p90": 120.55445077536918,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 3.0561360633141534,
+    "metric": "speed_kt",
+    "n": 1211,
+    "non_converged": 0,
+    "p90": 8.976365963789608,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.03843785707699564,
+    "metric": "range_rel",
+    "n": 1979,
+    "non_converged": 0,
+    "p90": 0.15139751939033963,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 2.0288667118172676,
+    "metric": "course_deg",
+    "n": 1979,
+    "non_converged": 0,
+    "p90": 12.163904383443219,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g2:per_timestep",
+    "median": 0.5389166187261659,
+    "metric": "speed_kt",
+    "n": 1979,
+    "non_converged": 0,
+    "p90": 3.404499284649513,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.09724408794887743,
+    "metric": "range_rel",
+    "n": 16500,
+    "non_converged": 17,
+    "p90": 0.41127177975334545,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 27.70444938686564,
+    "metric": "course_deg",
+    "n": 16500,
+    "non_converged": 17,
+    "p90": 100.29919694261622,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 1.730184472662841,
+    "metric": "speed_kt",
+    "n": 16500,
+    "non_converged": 17,
+    "p90": 6.824087298457102,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.07113964241456777,
+    "metric": "range_rel",
+    "n": 7222,
+    "non_converged": 6,
+    "p90": 0.383305313151242,
+    "rows": "settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 5.1637596163130395,
+    "metric": "course_deg",
+    "n": 7222,
+    "non_converged": 6,
+    "p90": 58.814704301466435,
+    "rows": "settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 1.0811645062901802,
+    "metric": "speed_kt",
+    "n": 7222,
+    "non_converged": 6,
+    "p90": 5.998418784296023,
+    "rows": "settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.11824610244209845,
+    "metric": "range_rel",
+    "n": 9278,
+    "non_converged": 11,
+    "p90": 0.4341859306330716,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 49.53723786127061,
+    "metric": "course_deg",
+    "n": 9278,
+    "non_converged": 11,
+    "p90": 112.10381652761494,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 2.264183901298638,
+    "metric": "speed_kt",
+    "n": 9278,
+    "non_converged": 11,
+    "p90": 7.305577300794695,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.03656872838640047,
+    "metric": "range_rel",
+    "n": 3949,
+    "non_converged": 2,
+    "p90": 0.1442298911833145,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 1.8901811220300222,
+    "metric": "course_deg",
+    "n": 3949,
+    "non_converged": 2,
+    "p90": 10.346971611382275,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.5086960596863188,
+    "metric": "speed_kt",
+    "n": 3949,
+    "non_converged": 2,
+    "p90": 2.6977836699516673,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.17444053269738485,
+    "metric": "range_rel",
+    "n": 3273,
+    "non_converged": 4,
+    "p90": 0.5271405390934444,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 22.273588392870085,
+    "metric": "course_deg",
+    "n": 3273,
+    "non_converged": 4,
+    "p90": 91.60248099697905,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 2.6762527729471093,
+    "metric": "speed_kt",
+    "n": 3273,
+    "non_converged": 4,
+    "p90": 8.26355298703484,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.055832460748022554,
+    "metric": "range_rel",
+    "n": 4951,
+    "non_converged": 5,
+    "p90": 0.2353863316704389,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 15.793419097063804,
+    "metric": "course_deg",
+    "n": 4951,
+    "non_converged": 5,
+    "p90": 89.14832936876745,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.9482210192258105,
+    "metric": "speed_kt",
+    "n": 4951,
+    "non_converged": 5,
+    "p90": 4.875918135014775,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.09448916720896722,
+    "metric": "range_rel",
+    "n": 4824,
+    "non_converged": 10,
+    "p90": 0.3511874808324544,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 29.79595917865568,
+    "metric": "course_deg",
+    "n": 4824,
+    "non_converged": 10,
+    "p90": 99.40591429448178,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 1.8006147627696618,
+    "metric": "speed_kt",
+    "n": 4824,
+    "non_converged": 10,
+    "p90": 6.235694988242493,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.14034690273667844,
+    "metric": "range_rel",
+    "n": 4044,
+    "non_converged": 2,
+    "p90": 0.4887060817122543,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 32.261633563368186,
+    "metric": "course_deg",
+    "n": 4044,
+    "non_converged": 2,
+    "p90": 110.91175385705635,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 2.3816037126545258,
+    "metric": "speed_kt",
+    "n": 4044,
+    "non_converged": 2,
+    "p90": 7.9166778992885645,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.17815960329013072,
+    "metric": "range_rel",
+    "n": 2681,
+    "non_converged": 0,
+    "p90": 0.5560397118459528,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 29.145209490388137,
+    "metric": "course_deg",
+    "n": 2681,
+    "non_converged": 0,
+    "p90": 116.78779952359308,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 2.6138999292196514,
+    "metric": "speed_kt",
+    "n": 2681,
+    "non_converged": 0,
+    "p90": 8.536952231924168,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.03753668205833578,
+    "metric": "range_rel",
+    "n": 2103,
+    "non_converged": 2,
+    "p90": 0.14886820573433637,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 1.8828099466057149,
+    "metric": "course_deg",
+    "n": 2103,
+    "non_converged": 2,
+    "p90": 11.971627728118191,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.5264109205736197,
+    "metric": "speed_kt",
+    "n": 2103,
+    "non_converged": 2,
+    "p90": 2.92661699826465,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.059396136591735586,
+    "metric": "range_rel",
+    "n": 1780,
+    "non_converged": 4,
+    "p90": 0.2879312342142941,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 4.249723211014423,
+    "metric": "course_deg",
+    "n": 1780,
+    "non_converged": 4,
+    "p90": 51.84645333003673,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.9537235449508765,
+    "metric": "speed_kt",
+    "n": 1780,
+    "non_converged": 4,
+    "p90": 4.66299407168032,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.11116622630110676,
+    "metric": "range_rel",
+    "n": 1756,
+    "non_converged": 0,
+    "p90": 0.4508998038771628,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 10.978736788851775,
+    "metric": "course_deg",
+    "n": 1756,
+    "non_converged": 0,
+    "p90": 72.03691234585727,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 1.7448155462870587,
+    "metric": "speed_kt",
+    "n": 1756,
+    "non_converged": 0,
+    "p90": 6.947352819257369,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.1621391916676136,
+    "metric": "range_rel",
+    "n": 1583,
+    "non_converged": 0,
+    "p90": 0.5391664204874922,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 16.21929505219244,
+    "metric": "course_deg",
+    "n": 1583,
+    "non_converged": 0,
+    "p90": 94.44243267273534,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 2.2813315010482755,
+    "metric": "speed_kt",
+    "n": 1583,
+    "non_converged": 0,
+    "p90": 8.378059560227857,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.0585172478318941,
+    "metric": "range_rel",
+    "n": 887,
+    "non_converged": 1,
+    "p90": 0.19914554864310471,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 3.81930518008773,
+    "metric": "course_deg",
+    "n": 887,
+    "non_converged": 1,
+    "p90": 16.055493455517194,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 2.3971380476817714,
+    "metric": "speed_kt",
+    "n": 887,
+    "non_converged": 1,
+    "p90": 5.384071496341449,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.09158417448689954,
+    "metric": "range_rel",
+    "n": 3204,
+    "non_converged": 5,
+    "p90": 0.3672108874025289,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 25.782840550679666,
+    "metric": "course_deg",
+    "n": 3204,
+    "non_converged": 5,
+    "p90": 87.34844816396945,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 1.2829514353115665,
+    "metric": "speed_kt",
+    "n": 3204,
+    "non_converged": 5,
+    "p90": 5.827672950134936,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.09506896625443756,
+    "metric": "range_rel",
+    "n": 1482,
+    "non_converged": 1,
+    "p90": 0.43400478176708596,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 23.3403521108061,
+    "metric": "course_deg",
+    "n": 1482,
+    "non_converged": 1,
+    "p90": 90.80084901485134,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 2.6383157940199253,
+    "metric": "speed_kt",
+    "n": 1482,
+    "non_converged": 1,
+    "p90": 7.117909334648247,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.1228593607393853,
+    "metric": "range_rel",
+    "n": 3562,
+    "non_converged": 5,
+    "p90": 0.434706393400819,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 40.78754696843083,
+    "metric": "course_deg",
+    "n": 3562,
+    "non_converged": 5,
+    "p90": 108.715840981337,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 1.8129703035622384,
+    "metric": "speed_kt",
+    "n": 3562,
+    "non_converged": 5,
+    "p90": 7.104943895442954,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.1258030787233585,
+    "metric": "range_rel",
+    "n": 1641,
+    "non_converged": 3,
+    "p90": 0.5009839819824683,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 40.096570881046496,
+    "metric": "course_deg",
+    "n": 1641,
+    "non_converged": 3,
+    "p90": 112.62262722431424,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 2.832634248177382,
+    "metric": "speed_kt",
+    "n": 1641,
+    "non_converged": 3,
+    "p90": 7.783349749851432,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.13925616263054558,
+    "metric": "range_rel",
+    "n": 2534,
+    "non_converged": 1,
+    "p90": 0.49351053172366605,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 51.394605353218026,
+    "metric": "course_deg",
+    "n": 2534,
+    "non_converged": 1,
+    "p90": 120.81738573765799,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 2.0302007316770614,
+    "metric": "speed_kt",
+    "n": 2534,
+    "non_converged": 1,
+    "p90": 7.996453167810295,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.14021086055436233,
+    "metric": "range_rel",
+    "n": 1211,
+    "non_converged": 1,
+    "p90": 0.48434957845092014,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 48.069409718067355,
+    "metric": "course_deg",
+    "n": 1211,
+    "non_converged": 1,
+    "p90": 119.6845920336222,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 2.8329577353294155,
+    "metric": "speed_kt",
+    "n": 1211,
+    "non_converged": 1,
+    "p90": 8.47962989148002,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.03702436349454312,
+    "metric": "range_rel",
+    "n": 1979,
+    "non_converged": 0,
+    "p90": 0.1414859633345836,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 1.9119611939833296,
+    "metric": "course_deg",
+    "n": 1979,
+    "non_converged": 0,
+    "p90": 10.245802849396048,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8:per_timestep",
+    "median": 0.5083874028908253,
+    "metric": "speed_kt",
+    "n": 1979,
+    "non_converged": 0,
+    "p90": 2.865492756886822,
+    "rows": "manoeuvre=held"
+  }
+]
