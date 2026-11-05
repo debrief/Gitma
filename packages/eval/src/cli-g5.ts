@@ -206,6 +206,11 @@ interface PriorScoring {
 
 /** Every experiment under `root` holding a G5 verdict, with its scoring.json if it has one. */
 export function priorG5Scorings(root: string): PriorScoring[] {
+  return priorGateScorings(root, "G5");
+}
+
+/** Every experiment under `root` holding a verdict for `gate`, with its scoring.json if any. */
+export function priorGateScorings(root: string, gate: GateVerdict["gate"]): PriorScoring[] {
   if (!existsSync(root)) return [];
   const out: PriorScoring[] = [];
   for (const e of readdirSync(root, { withFileTypes: true })) {
@@ -214,7 +219,7 @@ export function priorG5Scorings(root: string): PriorScoring[] {
     const v = join(dir, "verdict.json");
     if (!existsSync(v)) continue;
     const verdict = parseRecord(GateVerdict, JSON.parse(readFileSync(v, "utf8")), v, 1);
-    if (verdict.gate !== "G5") continue;
+    if (verdict.gate !== gate) continue;
     const sp = join(dir, "scoring.json");
     out.push({
       dir,
@@ -238,6 +243,7 @@ export function requireScoredOnce(
   experiment: string,
   repeatOf: string | undefined,
   repoRoot: string,
+  gate: GateVerdict["gate"] = "G5",
 ): string | undefined {
   const rel = (p: string): string => relative(repoRoot, resolve(p));
   const self = rel(experiment);
@@ -246,7 +252,7 @@ export function requireScoredOnce(
   for (const p of same)
     if (p.scoring === null && rel(p.dir) !== want)
       throw new UsageError(
-        `${p.dir} holds a G5 verdict without scoring.json: cannot tell what it scored (name it with --repeat-of if it is this decision and seed)`,
+        `${p.dir} holds a ${gate} verdict without scoring.json: cannot tell what it scored (name it with --repeat-of if it is this decision and seed)`,
       );
   const matches = same.filter(
     (p) =>
@@ -259,20 +265,20 @@ export function requireScoredOnce(
     const m = matches[0];
     if (m !== undefined)
       throw new UsageError(
-        `${m.dir} already records G5 for ${current.decision} on test seed ${current.test_seed}: a G5 test split is scored once (a reproduction names it with --repeat-of)`,
+        `${m.dir} already records ${gate} for ${current.decision} on test seed ${current.test_seed}: a ${gate} test split is scored once (a reproduction names it with --repeat-of)`,
       );
     return undefined;
   }
   if (want === self) throw new UsageError("--repeat-of names the output experiment itself");
   if (!matches.some((m) => rel(m.dir) === want))
     throw new UsageError(
-      `--repeat-of ${repeatOf}: no G5 scoring of ${current.decision} on test seed ${current.test_seed} is recorded there`,
+      `--repeat-of ${repeatOf}: no ${gate} scoring of ${current.decision} on test seed ${current.test_seed} is recorded there`,
     );
   return want;
 }
 
 /** The repository's top level (the experiments root is its experiments/ folder). */
-function repoTop(): string {
+export function repoTop(): string {
   try {
     return execFileSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" }).trim();
   } catch {

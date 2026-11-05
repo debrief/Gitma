@@ -65,6 +65,12 @@ export interface ImmState {
    * variance and the motion models are right (a consistency check, G0 phase 4).
    */
   nis?: number | null;
+  /**
+   * Signed normalised innovation of the last update, ν/√S averaged over the models with their
+   * predicted probabilities (null without a bearing; spec 017's mean-shift CUSUM). It does not
+   * feed back into the filter, so the rows are unchanged.
+   */
+  innovation?: number | null;
 }
 
 const at = (a: Float64Array, i: number, j: number): number => a[N * i + j] ?? 0;
@@ -167,7 +173,7 @@ function updateModel(
   ox: number,
   oy: number,
   r2: number,
-): { g: Gaussian; likelihood: number; nis: number } {
+): { g: Gaussian; likelihood: number; nis: number; innovation: number } {
   const [x = 0, y = 0] = g.x;
   const dx = x - ox;
   const dy = y - oy;
@@ -188,7 +194,12 @@ function updateModel(
     (v, k) => v + r2 * (kg[Math.floor(k / N)] ?? 0) * (kg[k % N] ?? 0),
   );
   const likelihood = Math.exp((-0.5 * nu * nu) / s) / Math.sqrt(2 * Math.PI * s);
-  return { g: { x: xn, p: symmetrise(p) }, likelihood, nis: (nu * nu) / s };
+  return {
+    g: { x: xn, p: symmetrise(p) },
+    likelihood,
+    nis: (nu * nu) / s,
+    innovation: nu / Math.sqrt(s),
+  };
 }
 
 /** Mixture of `gs` with weights `w` (summing to 1): its mean and covariance with the spread. */
@@ -235,6 +246,7 @@ export function immStep(
   let ct = predictModel(m1, tau, ctMotion, processNoise(tau, params.sigmaCt, params.sigmaOmega));
   let like = [1, 1];
   let nis: number | null = null;
+  let innovation: number | null = null;
   if (z !== null) {
     const a = updateModel(cv, z.bearing, z.ox, z.oy, z.r2);
     const b = updateModel(ct, z.bearing, z.ox, z.oy, z.r2);
@@ -242,6 +254,7 @@ export function immStep(
     ct = b.g;
     like = [a.likelihood, b.likelihood];
     nis = (c[0] ?? 0) * a.nis + (c[1] ?? 0) * b.nis;
+    innovation = (c[0] ?? 0) * a.innovation + (c[1] ?? 0) * b.innovation;
   }
   let u0 = (like[0] ?? 0) * (c[0] ?? 0);
   let u1 = (like[1] ?? 0) * (c[1] ?? 0);
@@ -253,7 +266,7 @@ export function immStep(
     u0 /= total;
     u1 /= total;
   }
-  return { t, models: [cv, ct], mu: [u0, u1], nis };
+  return { t, models: [cv, ct], mu: [u0, u1], nis, innovation };
 }
 
 /**

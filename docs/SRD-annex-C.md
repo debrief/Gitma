@@ -281,3 +281,73 @@ first, then judge it.
     range after a manoeuvre.
   - Its stated covariance is not calibrated, as the reference IMM's is not.
   - Against the EKF it is still worse on settled course (about 1.3 × on validation).
+
+## C.12 Phase 5: manoeuvre detection, gate G6 (owner decisions 2026-11-05)
+
+G5 passed (phases 4b and 4c), so C.6's first incremental follow-on applies: **manoeuvre detection,
+judged against a CUSUM on the reference's innovations**. The owner chose, on 2026-11-05:
+- **a detector built from frozen models, with no training;**
+- **detection delay at matched false-alarm rates** as the gate.
+
+The rest of this section was written by the implementing agent, and stands unless the owner
+amends it before the decision record is committed.
+
+- **The reference detector.** A CUSUM on the innovations of the decision-32 reference IMM
+  (`imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1`). There are two declared kinds:
+  - on the normalised innovation squared (variance);
+  - two-sided, on the signed normalised innovation ν/√S (mean shift).
+
+  Each is clipped, so that one outlier cannot hold an alarm: on validation, 0.2% of quiet NIS
+  values exceed 10. Its drift and clip are tuned on seed-211 validation from a declared grid. The
+  best kind and setting is frozen, which favours the reference, as in C.3.
+- **The learned detector.** It is built from the frozen T2 (`experiments/20261101-p4b-models`,
+  bound by digest) and the reference IMM, with no training. There are two declared candidates:
+  - T2's course disagreement with the IMM, |Δcourse|: the statistic the phase-4b hybrid switched
+    on;
+  - T2's own course change over the last 6 samples (1 min).
+
+  The better on validation is carried.
+- **Events.** Each target course change on a σ = 1° scenario whose start is a tracker row. The
+  window runs 10 min from the start, cut at the next manoeuvre's start.
+  - **Detection.** The event is detected at the first row in the window whose score is at or
+    above the detector's threshold.
+  - **The armed rule.** A detector already alarming on the row before the start is credited
+    nothing.
+  - **A miss** has delay +∞.
+  - **Speed changes** are reported, not gated. Both learned candidates watch course only.
+- **False alarms.** Alarm onsets on quiet rows, per hour. Quiet rows are G5's settled rows: no
+  manoeuvre in progress, and none ended in the last 5 min.
+- **Matched operating point.** Each detector's threshold is set on validation for **0.5 false
+  alarms per hour** of quiet tracking (one per 2 h), and frozen in the decision record.
+- **The gate, G6.** On a fresh test seed (215), with scenario-clustered paired bootstraps (2,000
+  resamples, seed 20261011) and 95% intervals, since one detector is judged:
+
+| Check | Statistic | Limit |
+| --- | --- | --- |
+| G6-delay | median detection delay, learned / CUSUM (misses +∞) | wholly below 1 |
+| G6-detect5 | detected within 5 min, learned − CUSUM | lower bound ≥ −2 pp |
+| G6-false-alarms | false alarms on quiet rows, learned / CUSUM, at the frozen thresholds | upper bound ≤ 1.25 |
+
+  **Pass** if all three pass; **fail** if any fails; otherwise inconclusive. There is one
+  re-score on a larger fresh seed, as C.5.
+- **The bindings** are G5's, as tightened by spec 015:
+  - a committed decision naming the seed, plans, detectors, thresholds and frozen models;
+  - clean data at or after the decision;
+  - the learned file's inputs given byte for byte, with T2's file naming the bound weights;
+  - a re-computed 200-scenario sample of both detectors;
+  - scored once, across experiments.
+- **Reported beside it.** The CUSUM variants not carried, speed-change events, and all σ.
+- **If G6 fails,** the owner decides the next step; C.6's items 2 and 3 remain.
+- **The validation rule**, as C.5 and Annex A B.3 rule 3: the learned detector is carried to the
+  test split only if, on validation, every check's point estimate meets its limit and no interval
+  lies wholly beyond it.
+- **Outcome (2026-11-05): phase 5 stopped at validation.** This is recorded in
+  `experiments/20261105-p5-research/validation.md`.
+  - **Result.** The best learned detector, T2's course change over 1 min, detects 19.2% of course
+    changes within 5 min. The best CUSUM (mean shift) detects 28.2%: −8.95 pp [−10.16, −7.73]. It
+    is not carried, and seed 215 was never generated.
+  - **The delay check** is undefined at this operating point, since both detectors miss more than
+    half the events.
+  - **Reported only.** From about 1 false alarm per hour the learned detector catches more.
+  - **Next.** The owner decides the follow-on.
+

@@ -1,6 +1,13 @@
 // GENERATED from schema/tma.yaml by packages/types/scripts/generate.ts. Do not edit.
 import { z } from "zod";
 
+/** One detector's frozen alarm threshold (schema 0.19.0, spec 017). */
+export const DetectorThreshold = z.strictObject({
+  detector: z.string(),
+  threshold: z.number(),
+});
+export type DetectorThreshold = z.infer<typeof DetectorThreshold>;
+
 /** A trained model named by its manifest id and the SHA-256 of its files (schema 0.11.0; manifest and model.json digests from 0.11.1). */
 export const ModelDigest = z.strictObject({
   /** SHA-256 (hex) of the model's manifest.json (schema 0.11.1). */
@@ -24,6 +31,8 @@ export const ChangeDecision = z.strictObject({
   /** e.g. feature_set: derived */
   change: z.string(),
   decided_at: z.string(),
+  /** The frozen alarm threshold of each detector a G6 decision names (schema 0.19.0, spec 017), set on validation at the matched false-alarm rate; tma-g6 refuses others. */
+  detector_thresholds: z.array(DetectorThreshold).nullish(),
   /** The dataset count whose test split a re-score scores (the plan's dataset.fresh_test.count; schema 0.11.1); tma-g2 refuses a plan with another count. */
   fresh_test_count: z.number().int().nullish(),
   git_commit: z.string(),
@@ -137,7 +146,7 @@ export const ParameterRanges = z.strictObject({
 export type ParameterRanges = z.infer<typeof ParameterRanges>;
 
 /** Discriminator for records in NDJSON files. */
-export const RecordKind = z.enum(["header", "scenario", "prediction"]);
+export const RecordKind = z.enum(["header", "scenario", "prediction", "detection"]);
 export type RecordKind = z.infer<typeof RecordKind>;
 
 /** Dataset split. Train/validation/test are 80/10/10 by scenario index. */
@@ -176,6 +185,43 @@ export const DatasetRef = z.strictObject({
   path: z.string(),
 });
 export type DatasetRef = z.infer<typeof DatasetRef>;
+
+/** One detector's score at one timestep (schema 0.19.0, spec 017). Larger means a manoeuvre is more likely; an alarm is the score at or above the detector's threshold. */
+export const DetectionRow = z.strictObject({
+  /** The detector's statistic at this timestep (units depend on the detector). */
+  score: z.number(),
+  timestamp_s: z.number(),
+});
+export type DetectionRow = z.infer<typeof DetectionRow>;
+
+/** One detector's per-timestep scores for one scenario (schema 0.19.0). */
+export const Detection = z.strictObject({
+  detector: z.string(),
+  record: RecordKind,
+  rows: z.array(DetectionRow),
+  scenario_index: z.number().int(),
+});
+export type Detection = z.infer<typeof Detection>;
+
+/** One input file of a derived prediction file: its estimator and the SHA-256 of the whole file (schema 0.17.0). */
+export const PredictionInput = z.strictObject({
+  estimator: z.string(),
+  /** SHA-256 (hex) of the input file. */
+  sha256: z.string(),
+});
+export type PredictionInput = z.infer<typeof PredictionInput>;
+
+/** First record of every detection file (schema 0.19.0). */
+export const DetectionHeader = z.strictObject({
+  /** SHA-256 of the truth file. */
+  dataset_digest: z.string(),
+  detector: z.string(),
+  /** The prediction files the scores were computed from, with their SHA-256s. */
+  inputs: z.array(PredictionInput).nullish(),
+  record: RecordKind,
+  schema_version: z.string(),
+});
+export type DetectionHeader = z.infer<typeof DetectionHeader>;
 
 export const EpochRecord = z.strictObject({
   epoch: z.number().int(),
@@ -260,7 +306,7 @@ export const GateCheck = z.strictObject({
 });
 export type GateCheck = z.infer<typeof GateCheck>;
 
-export const GateId = z.enum(["G0", "G1", "G2", "G3", "G4", "G5"]);
+export const GateId = z.enum(["G0", "G1", "G2", "G3", "G4", "G5", "G6"]);
 export type GateId = z.infer<typeof GateId>;
 
 /** One estimator re-computed by a gate on a sample of scenarios (schema 0.18.0). */
@@ -532,14 +578,6 @@ export const Prediction = z.strictObject({
   scenario_index: z.number().int(),
 });
 export type Prediction = z.infer<typeof Prediction>;
-
-/** One input file of a derived prediction file: its estimator and the SHA-256 of the whole file (schema 0.17.0). */
-export const PredictionInput = z.strictObject({
-  estimator: z.string(),
-  /** SHA-256 (hex) of the input file. */
-  sha256: z.string(),
-});
-export type PredictionInput = z.infer<typeof PredictionInput>;
 
 /** First record of every prediction file. */
 export const PredictionHeader = z.strictObject({

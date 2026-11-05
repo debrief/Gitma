@@ -1,0 +1,17 @@
+ddaa34ced2a40e96dd1c3cba12e3d4a2a843fd2d341c3133b17d1d6f3478a019  data/p6v/validation.f32pack
+e82df104c7d715210f8bdeb8685afaf34d49e19d385dd3982a2660c81d4591a9  data/p6v/pred/crate-w6.ndjson
+d27acdcbe8468ecbad6ba11a619f876116192fdd165d622d8a5a4a311fb934c7  data/p6v/pred/cusum-mean-c0.25-x3.ndjson
+9baa2916e3290b10daf4e36d935707d2ebc5894b2b7673cc501d83a076958113  data/p6v/pred/cusum-mean-c0.5-x3.ndjson
+1234245151c82a10a5644c1da40a0f34b6634c40712a649bd245f559c92604d9  data/p6v/pred/cusum-mean-c0.75-x3.ndjson
+b9804170322aacf1dfc991f260682914b8b3aff48fa5f4281596711a2053d55e  data/p6v/pred/cusum-mean-c1-x3.ndjson
+514b381c3e9b63ff03b46ee43f553fd30f1fc3d3f1b935cfbb8100d0b15ed9a8  data/p6v/pred/cusum-nis-c0.5-x2.ndjson
+635170f244d8baed5307ccb6a1f5f4c8515dcd08e71da9edcbdd88eaa47ca6ee  data/p6v/pred/cusum-nis-c0.5-x5.ndjson
+1b2bb1c78d06298e70ea68ba2906e907e1b9cca2da9c77ec283e0fd5343a9826  data/p6v/pred/cusum-nis-c0.75-x2.ndjson
+5a870985cf7b1e6dc7808e1b3be5f64b835b13648bb997e5594957f7e4a59c06  data/p6v/pred/cusum-nis-c0.75-x5.ndjson
+9ad1598d5102d3a92af1254803bcf79bcc1cd72514ce96a26b40c88eaefccf9b  data/p6v/pred/cusum-nis-c1-x2.ndjson
+9dcba693fbb17d8d074e8a0d439f283daf7ac7d45eef4c8abf940a6b9cf23df4  data/p6v/pred/cusum-nis-c1-x5.ndjson
+78d8eb97007fe22a9afcd2aa503aef3dda567e30cd43226a10ab91d424fbf0e6  data/p6v/pred/cusum-nis-c1.25-x2.ndjson
+d35e9a049e3a5e2f316bc3f1c77c439673b217cad2faa48e2832ffdeaa4cd1df  data/p6v/pred/cusum-nis-c1.25-x5.ndjson
+bc14495eaab7197efb693dec962b75e0b0871c42132fe2204aec7a444858ad7e  data/p6v/pred/disagree.ndjson
+512f81d8c3163cfb4fc24ad1b206ea2bb59eff37005c7afc85ee9c63c965e41b  data/p6v/pred/imm-g1.ndjson
+7c64b6198eede2b7ae6c5e471cdca0b744d3c67ca1cd81a35032f64a69c7d562  data/p6v/pred/t2.ndjson

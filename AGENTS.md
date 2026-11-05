@@ -87,6 +87,10 @@ pnpm tma-g3 --truth <test.f32pack> --hybrid <hybrid.ndjson> --classical <classic
 node packages/eval/dist/cli-g5.js --truth <test.f32pack> --tracker <pred> --reference <pred> --also <pred>... \
   --decision <decision.json> --plan <plan.json> --model <model dir> --experiment <dir> \
   [--repeat-of experiments/<earlier>]   # G5 (spec 012; bindings spec 015); see each G5 run.sh
+node packages/eval/dist/cli-detect.js --truth <split> --out <scores.ndjson> --detector cusum <IMM flags> \
+  --kind nis|mean --c <drift> --clip <bound>   # or --detector disagree|crate --network <t2> (spec 017)
+node packages/eval/dist/cli-g6.js --truth <split> --learned <scores>... --cusum <scores>... --experiment <dir> \
+  [--also <pred>... --decision --plan --model]   # G6: validation calibrates; a test split is the gate
 ```
 
 Full walkthroughs: `specs/001-iteration-0-pipeline/quickstart.md`, `specs/002-iteration-1-signal/quickstart.md`,
@@ -302,7 +306,18 @@ re-freezing a guarded reference needs a decision record. On seed-211 validation 
 - **Decision 32** (owner 2026-11-05, `experiments/20261105-guarded-ref-decision/`, SRD Annex C D7):
   from it on, the Annex C reference is `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1` (EKF reported:
   `ekf-sa0.03-p4-r8-g1`), with decision 29's tuning unchanged. Decisions 29–31 and their verdicts
-  stand at level 0. Fresh seeds run from 215. Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+  stand at level 0. Fresh seeds run from 215. **Phase 5** (SRD Annex C §C.12, spec 017,
+owner 2026-11-05): manoeuvre detection, gate **G6**. It compares a detector built from frozen
+models (no training) with a clipped CUSUM on the `-g1` IMM's innovations, at matched false alarms
+(0.5 per quiet hour). Schema 0.19.0 adds detection files and `ChangeDecision.detector_thresholds`.
+`tma-detect` scores; `tma-g6` calibrates on validation and judges a test split with spec 015's
+bindings. **Phase 5 stopped at validation** (`experiments/20261105-p5-research/validation.md`):
+- **Result.** T2's course change over 1 min detects 19.2% of course changes within 5 min,
+  against the mean-shift CUSUM's 28.2% (−8.95 pp [−10.16, −7.73]). It was not carried, and seed
+  215 was never generated.
+- **The delay check is undefined** at that rate: every detector misses more than half the events.
+- **Reported only.** From about 1 false alarm per hour, the learned detector catches more.
+- **Next.** The owner decides the follow-on. Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

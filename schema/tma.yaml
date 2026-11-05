@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.18.0
+version: 0.19.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -24,6 +24,7 @@ enums:
       header: { description: Dataset or prediction file header (first line). }
       scenario: { description: One Scenario. }
       prediction: { description: One Prediction. }
+      detection: { description: "One Detection (schema 0.19.0, spec 017)." }
   Split:
     description: Dataset split. Train/validation/test are 80/10/10 by scenario index.
     permissible_values:
@@ -70,6 +71,10 @@ enums:
       G5:
         {
           description: "An end-to-end tracker better than the re-tuned reference overall, at most 10% worse when settled (SRD Annex C §C.5).",
+        }
+      G6:
+        {
+          description: "A manoeuvre detector from frozen models faster than a CUSUM on the reference's innovations at matched false alarms (SRD Annex C §C.12).",
         }
   ModelKind:
     description: Model families of SRD §4.
@@ -555,6 +560,38 @@ classes:
           network files (schema 0.17.0; written by tma-hybrid-track). Gates check each against the
           files they are given.
 
+  DetectionRow:
+    description: >-
+      One detector's score at one timestep (schema 0.19.0, spec 017). Larger means a manoeuvre is
+      more likely; an alarm is the score at or above the detector's threshold.
+    attributes:
+      timestamp_s: { range: float, required: true, unit: { ucum_code: s } }
+      score:
+        range: float
+        required: true
+        description: The detector's statistic at this timestep (units depend on the detector).
+
+  Detection:
+    description: One detector's per-timestep scores for one scenario (schema 0.19.0).
+    attributes:
+      record: { range: RecordKind, required: true }
+      scenario_index: { range: integer, required: true }
+      detector: { range: string, required: true }
+      rows: { range: DetectionRow, multivalued: true, inlined_as_list: true, required: true }
+
+  DetectionHeader:
+    description: First record of every detection file (schema 0.19.0).
+    attributes:
+      record: { range: RecordKind, required: true }
+      schema_version: { range: string, required: true }
+      detector: { range: string, required: true }
+      dataset_digest: { range: string, required: true, description: SHA-256 of the truth file. }
+      inputs:
+        range: PredictionInput
+        multivalued: true
+        inlined_as_list: true
+        description: The prediction files the scores were computed from, with their SHA-256s.
+
   PredictionInput:
     description: >-
       One input file of a derived prediction file: its estimator and the SHA-256 of the whole file
@@ -1018,6 +1055,13 @@ classes:
           The frozen carried models a re-score scores, by manifest id, with the SHA-256 of each
           one's weights.bin, manifest.json and model.json; tma-g2 refuses a re-score whose
           carried set or any of those files differs.
+      detector_thresholds:
+        range: DetectorThreshold
+        multivalued: true
+        inlined_as_list: true
+        description: >-
+          The frozen alarm threshold of each detector a G6 decision names (schema 0.19.0, spec
+          017), set on validation at the matched false-alarm rate; tma-g6 refuses others.
       fresh_test_count:
         range: integer
         description: >-
@@ -1047,6 +1091,12 @@ classes:
         description: >-
           G5: the plan of each carried tracker (configs/phase4/<x>/plan.json), in the order of
           carried_models; they share one dataset and one fresh test seed.
+
+  DetectorThreshold:
+    description: One detector's frozen alarm threshold (schema 0.19.0, spec 017).
+    attributes:
+      detector: { range: string, required: true }
+      threshold: { range: float, required: true }
 
   ModelDigest:
     description: >-

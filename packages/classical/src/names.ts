@@ -5,6 +5,7 @@
 // so an ambiguous or non-canonical name is refused rather than read loosely.
 import { ekfName, type TrackerScales } from "./ekf.js";
 import { type FusionParams, fusedName } from "./fused.js";
+import { type CusumParams, courseRateName, cusumName } from "./detect.js";
 import { trackerHybridName } from "./hybrid.js";
 import { type ImmParams, immName } from "./imm.js";
 
@@ -78,4 +79,28 @@ export function parseTrackerHybridName(
   if (m === null) return null;
   const deg = Number(m[1]);
   return trackerHybridName(network, tracker, deg) === name ? deg : null;
+}
+
+/** The CUSUM detector's IMM settings and CUSUM settings `name` declares (spec 017), or null. */
+export function parseCusumName(name: string): { imm: ImmParams; cusum: CusumParams } | null {
+  const head = /^cusum-(nis|mean)-/.exec(name);
+  if (head === null) return null;
+  const m = new RegExp(String.raw`-c${NUM}-x${NUM}$`).exec(name);
+  if (m === null) return null;
+  const imm = parseImmName(name.slice(head[0].length, m.index));
+  if (imm === null) return null;
+  const cusum: CusumParams = {
+    kind: head[1] === "mean" ? "mean" : "nis",
+    c: Number(m[1]),
+    clip: Number(m[2]),
+  };
+  return cusumName(imm, cusum) === name ? { imm, cusum } : null;
+}
+
+/** The course-rate detector's window `name` declares over `network`, or null. */
+export function parseCourseRateName(name: string, network: string): number | null {
+  const prefix = `crate-${network}-w`;
+  if (!name.startsWith(prefix) || !/^\d+$/.test(name.slice(prefix.length))) return null;
+  const w = Number(name.slice(prefix.length));
+  return courseRateName(network, w) === name ? w : null;
 }
