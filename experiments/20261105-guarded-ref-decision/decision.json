@@ -1,0 +1,10 @@
+{
+  "carried_set_rule": "No model is carried and no gate is judged: this decision changes the reference initialisation for future pre-registered work only.",
+  "change": "Decision 32 (owner, 2026-11-05): from this decision on, every reference tracker under SRD Annex C uses the guarded initialisation, level 1 (spec 016, name suffix -g1), with decision 29's tuning unchanged: imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1 (reference) and ekf-sa0.03-p4-r8-g1 (reported). A fused tracker built on the reference uses the -g1 IMM. Level 2 is rejected. Decisions 29-31 and their committed verdicts stand at level 0 and are not re-scored.",
+  "decided_at": "2026-11-05T06:22:33Z",
+  "git_commit": "ff585f34c5e8c4b0c9a53ab3ef457691156db79c",
+  "phase_a_experiment": "20261103-guarded-init-val",
+  "rationale": "Spec 015 R5: the frozen re-initialisation takes a degenerate full-history batch fit after target manoeuvres (track through ownship at sample 0, cond(J^T J) ~ 1e16) and returns a covariance that is not positive definite (87 of 44,343 initialisations, 43 of 40,000 scenarios on seed 214). Spec 016 on seed-211 validation (experiments/20261103-guarded-init-val): level 1 is accuracy-neutral against level 0 over the G5 rows (ratios 1.000 within +/-0.003, every 97.5% interval within [0.995, 1.005], for the IMM, the EKF and the fused tracker; gross-error difference within +/-0.03 pp) and removes every non-PD IMM covariance (21 steps in 6 of 10,000 scenarios at level 0, none at level 1), at 0.07% more non-converged rows. Level 2 is 2-9% worse and still non-PD in 12 scenarios. No re-tune: the tuning objective (median range over G5 rows) is unchanged at level 1 (1.000 [0.998, 1.001]).",
+  "reference_estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1",
+  "stalled": false
+}

@@ -200,6 +200,10 @@ operations: matrix products, elementwise maths, and `atan2` for bearings.
   record, before training.
 - **D6 The trackers' configurations and seeds.** These also go in the decision record, before
   training. Fresh seeds run from 211; seeds 201–210 stay reserved.
+- **D7 The reference initialisation.** _Decided 2026-11-05 (decision 32,
+  `experiments/20261105-guarded-ref-decision/`): from decision 32 on, reference trackers use the
+  guarded initialisation, level 1 (spec 016), with decision 29's tuning unchanged. The reference is
+  `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1`. Decisions 29–31 and their verdicts stand at level 0._
 
 ## C.9 Order of work
 
