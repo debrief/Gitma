@@ -2,10 +2,114 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://debrief.github.io/Gitma/pr/78/blog</id>
     <title>TMA via ML Blog</title>
-    <updated>2026-11-02T00:00:00.000Z</updated>
+    <updated>2026-11-05T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://debrief.github.io/Gitma/pr/78/blog"/>
     <subtitle>TMA via ML Blog</subtitle>
+    <entry>
+        <title type="html"><![CDATA[Phase 5: frozen models do not beat a CUSUM at detecting manoeuvres]]></title>
+        <id>https://debrief.github.io/Gitma/pr/78/blog/2026/11/05/phase-5</id>
+        <link href="https://debrief.github.io/Gitma/pr/78/blog/2026/11/05/phase-5"/>
+        <updated>2026-11-05T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[G5 passed in phases 4b and 4c. SRD Annex C §C.6 therefore lists incremental follow-ons, and the]]></summary>
+        <content type="html"><![CDATA[<p>G5 passed in phases 4b and 4c. SRD Annex C §C.6 therefore lists incremental follow-ons, and the
+first is <strong>manoeuvre detection, judged against a CUSUM on the reference tracker's innovations</strong>.</p>
+<p>The owner chose two things for this attempt:</p>
+<ul>
+<li class=""><strong>No training.</strong> The detector is built from models that already exist: the frozen recurrent
+tracker T2, and the reference IMM, which now uses decision 32's guarded initialisation.</li>
+<li class=""><strong>The test.</strong> Detection delay, with every detector's threshold set for the same false-alarm
+rate: one alarm per 2 h of quiet tracking.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-was-compared">What was compared<a href="https://debrief.github.io/Gitma/pr/78/blog/2026/11/05/phase-5#what-was-compared" class="hash-link" aria-label="Direct link to What was compared" title="Direct link to What was compared" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The baseline.</strong> A CUSUM on the IMM's innovations, tuned on validation from 12 declared
+settings to favour it.
+<ul>
+<li class=""><strong>Clipping.</strong> The innovations are heavy-tailed: a few huge values otherwise hold an alarm for
+hours. So both the variance kind and the mean-shift kind are clipped.</li>
+<li class=""><strong>The winner.</strong> The two-sided mean-shift CUSUM, since a turn biases the bearings to one side.</li>
+</ul>
+</li>
+<li class=""><strong>The learned detectors.</strong> Two candidates, declared in advance:
+<ul>
+<li class="">T2's course disagreement with the IMM;</li>
+<li class="">T2's own course change over the last minute.</li>
+</ul>
+</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-it-stopped-at-validation">Result: it stopped at validation<a href="https://debrief.github.io/Gitma/pr/78/blog/2026/11/05/phase-5#result-it-stopped-at-validation" class="hash-link" aria-label="Direct link to Result: it stopped at validation" title="Direct link to Result: it stopped at validation" translate="no">​</a></h2>
+<p>At 0.5 false alarms per hour, on 7,479 course changes in seed-211 validation:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th>Detected within 5 min</th></tr></thead><tbody><tr><td>CUSUM (mean shift)</td><td><strong>28.2%</strong></td></tr><tr><td>T2's course change over 1 min</td><td><strong>19.2%</strong></td></tr><tr><td>T2 against the IMM</td><td>5.9%</td></tr></tbody></table>
+<ul>
+<li class=""><strong>The learned detector is not carried.</strong> It is 9 points behind, with interval [−10.2, −7.7]
+pp, so it was not taken to a test split, and fresh seed 215 was never generated.</li>
+<li class=""><strong>The delay check could not be judged.</strong> Every detector misses more than half the course
+changes at this rate, so the median delays are infinite. That rule was the agent's, written
+before the data; any later attempt should declare a delay statistic defined at its operating
+point.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reported-not-used-a-crossover">Reported, not used: a crossover<a href="https://debrief.github.io/Gitma/pr/78/blog/2026/11/05/phase-5#reported-not-used-a-crossover" class="hash-link" aria-label="Direct link to Reported, not used: a crossover" title="Direct link to Reported, not used: a crossover" translate="no">​</a></h2>
+<p>The same detectors were also calibrated at looser rates:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>False alarms per hour</th><th>0.5</th><th>1</th><th>2</th><th>5</th></tr></thead><tbody><tr><td>CUSUM</td><td>28.2%</td><td>38.0%</td><td>47.8%</td><td>62.6%</td></tr><tr><td>T2's course change</td><td>19.2%</td><td>39.0%</td><td>58.1%</td><td>71.7%</td></tr></tbody></table>
+<p>From about 1 false alarm per hour, T2's course change catches more manoeuvres in time, though about
+20–40 s later among those both catch. Moving the operating point after seeing this would choose the
+rule from the result, so it stays a reported observation.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/pr/78/blog/2026/11/05/phase-5#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>The owner decides. Annex C's other follow-ons remain:</p>
+<ul>
+<li class="">calibration of the learned uncertainty;</li>
+<li class="">realistic bearing error.</li>
+</ul>
+<p>Record: <code>experiments/20261105-p5-research/validation.md</code>; spec 017.</p>]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Phase 4c: one track, a tracker that listens to a network's range]]></title>
         <id>https://debrief.github.io/Gitma/pr/78/blog/2026/11/02/phase-4c</id>
