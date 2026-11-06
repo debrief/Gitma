@@ -394,3 +394,14 @@ amends it before the decision record is committed.
   beyond it.
 - **The bindings** are G5's, as tightened by spec 015, plus the frozen `calibrations`.
 - **If G7 fails,** the owner decides the next step; C.6 item 3 remains.
+- **Outcome (2026-11-06): G7 on seed 215 is inconclusive** (agent panel rounds 1–2,
+  `experiments/20261106-p6u-g7/`).
+  - **The inconclusive check.** Log-range 50% coverage is 48.32% [47.81, 48.82], against a floor
+    of 48%.
+  - **The other eight gated checks pass.** The widths are 0.734 / 0.945 / 0.891 of the IMM's.
+  - **Coverage is calibrated on the pooled row mix only.** Within regimes it is far off: fused
+    log-range 50% is 67.2% on settled rows before any manoeuvre and 38.2% after one. 17% of course
+    90% intervals are vacuous.
+  - **The shortfall looks systematic**, about 3 SE, plausibly from reusing seed-211 validation.
+  - **What may follow.** One re-score on a larger fresh seed is allowed. The owner decides whether
+    to run it, and whether to keep the agent-written rules for it.

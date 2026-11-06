@@ -91,6 +91,8 @@ node packages/eval/dist/cli-detect.js --truth <split> --out <scores.ndjson> --de
   --kind nis|mean --c <drift> --clip <bound>   # or --detector disagree|crate --network <t2> (spec 017)
 node packages/eval/dist/cli-g6.js --truth <split> --learned <scores>... --cusum <scores>... --experiment <dir> \
   [--also <pred>... --decision --plan --model]   # G6: validation calibrates; a test split is the gate
+node packages/eval/dist/cli-g7.js --truth <split> --tracker <fused -sd> --reference <imm -sd> --experiment <dir> \
+  [--also <t2> --decision --plan --model]   # G7 (spec 018): validation fits + two-fold; test is the gate
 ```
 
 Full walkthroughs: `specs/001-iteration-0-pipeline/quickstart.md`, `specs/002-iteration-1-signal/quickstart.md`,
@@ -317,7 +319,27 @@ bindings. **Phase 5 stopped at validation** (`experiments/20261105-p5-research/v
   215 was never generated.
 - **The delay check is undefined** at that rate: every detector misses more than half the events.
 - **Reported only.** From about 1 false alarm per hour, the learned detector catches more.
-- **Next.** The owner decides the follow-on. Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+- **Next.** The owner decides the follow-on.
+
+**Phase 6** (SRD Annex C §C.13, spec 018, owner 2026-11-06): calibrated uncertainty, gate **G7**.
+- **Stated sds.** The IMM, and so the fused tracker, writes stated sds under the `-sd` name
+  suffix (`--report-sd`; schema 0.20.0 `course_sd_rad`, `speed_sd_mps`). They come from the
+  combined covariance by the delta method; the estimates are unchanged.
+- **Recalibration.** Post hoc, per tracker and output: the 50% and 90% multipliers are quantiles of
+  |error/sd| on seed-211 validation, frozen in decision 33 (`experiments/20261106-p6u-decision/`;
+  plan `configs/phase4/u`, seed 215).
+- **The gate.** Coverage within nominal ± 2 pp, and median 90% width below the `-g1` IMM's;
+  `tma-g7`.
+- **G7 on seed 215 is inconclusive** (panel rounds 1–2, `experiments/20261106-p6u-g7/`):
+  - log-range 50% coverage is 48.32% [47.81, 48.82] against a 48% floor;
+  - the other eight pass, with widths 0.73 / 0.95 / 0.89 × the IMM's;
+  - coverage holds on the pooled row mix only: 67% before any manoeuvre, 38% after one;
+  - 17% of course 90% intervals are vacuous;
+  - the shortfall looks systematic, plausibly from reusing seed-211 validation.
+- **Next.** One re-score on a larger fresh seed is allowed. The owner decides whether to run it,
+  whether to keep the rules, and its size (at least about a 110,000-scenario test split).
+
+Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

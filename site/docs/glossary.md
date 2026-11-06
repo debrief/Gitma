@@ -84,6 +84,10 @@ judged, each with 97.5% intervals.
 detect target course changes faster than a CUSUM on the reference IMM's innovations, at the same
 false-alarm rate (0.5 per quiet hour). Not reached: phase 5 stopped at validation.
 
+**G7** — Phase 6's gate (SRD Annex C §C.13): the fused tracker's post-hoc recalibrated 50% and
+90% intervals for range, course and speed must cover within ±2 points of nominal and be narrower
+than the reference IMM's. Inconclusive on seed 215.
+
 **Held-out geometry** — A test set drawn from parameter ranges outside training (for example
 20–30 km initial range), used to measure extrapolation.
 

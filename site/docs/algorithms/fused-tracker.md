@@ -83,3 +83,37 @@ Record: `experiments/20261102-p4f-g5/g5.md`.
 - **Against the EKF and batch least squares** it is still worse before any target manoeuvre. There
   its course error is 2.2 × the EKF's (4.09° against 1.88°); over all settled rows it is 1.41 ×.
 - **It needs T2's stated sd.** A network that states no uncertainty cannot be fused this way.
+
+## Stated uncertainty and its calibration (spec 018, gate G7)
+
+**The stated sds.** With `--report-sd` (name suffix `-sd`), every converged row carries
+`log_range_sd`, `course_sd_rad` and `speed_sd_mps`. They come from the combined IMM covariance by
+the delta method:
+- ∇ln ρ = (dx, dy)/ρ²;
+- ∇θ = (vy, −vx)/v²;
+- ∇v = (vx, vy)/v.
+
+**They are miscalibrated as stated.** On seed-211 validation, |error|/sd has a median of 0.17–0.47,
+against 0.674 for a Gaussian. Typical intervals are far too wide, and the tails are heavy: m90/m50
+is 3–6, against 2.44.
+
+**Post-hoc recalibration.** Each tracker's 50% and 90% intervals are ± m_q × sd, with m_q the
+q-quantile of |error|/sd on validation, frozen in decision 33.
+
+**Result on seed 215** (`experiments/20261106-p6u-g7/`; inconclusive):
+
+| Coverage, all G5 rows | 50% | 90% |
+| --- | --- | --- |
+| Log-range | 48.3% (inconclusive at the 48% floor) | 89.8% |
+| Course | 50.5% | 90.2% |
+| Speed | 49.3% | 89.6% |
+
+- **Widths.** The fused tracker's median 90% width is 0.73 × (log-range), 0.95 × (course) and
+  0.89 × (speed) the IMM's.
+- **Calibration holds only on the pooled rows.** Log-range 50% coverage is 67% on settled rows
+  before any manoeuvre and 38% after one. Course 50% is 76% settled and 30% unsettled.
+- **Many intervals carry little information.** 17% of course 90% intervals span the whole circle,
+  and 27% of speed 90% intervals reach below 0.
+
+One multiplier per output cannot fix the intervals' shape.
+
