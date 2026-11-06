@@ -351,3 +351,46 @@ amends it before the decision record is committed.
   - **Reported only.** From about 1 false alarm per hour the learned detector catches more.
   - **Next.** The owner decides the follow-on.
 
+
+## C.13 Phase 6: calibrated uncertainty, gate G7 (owner decisions 2026-11-06)
+
+This is C.6's second incremental follow-on: **calibration of the learned uncertainty**. The owner
+chose, on 2026-11-06:
+- **to calibrate the fused tracker's uncertainty**, the tracker that passed G5 (C.11) and the one
+  an operator would see;
+- **to judge it as calibrated and sharper**: its intervals cover their nominal level, and they
+  are narrower than the reference's after the same recalibration.
+
+The rest of this section was written by the implementing agent, and stands unless the owner
+amends it before the decision record is committed.
+
+- **The trackers.** Both under decision 32 (`-g1`), writing stated sds (`-sd`, spec 018):
+  - **carried:** `fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6`, with T2
+    bound by digest as in C.11;
+  - **reference:** `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd`.
+
+  Their estimates are unchanged by `-sd`.
+- **Stated uncertainty.** For log-range, course and speed, taken from the tracker's combined
+  covariance by the delta method.
+- **Recalibration** (post hoc, no training, the same for both trackers). For each tracker and
+  output, the q-interval is ± m_q × stated sd, where m_q is the q-quantile of |error / stated sd|
+  over seed-211 validation's G5 rows (q = 0.5 and 0.9). The six multipliers per tracker are frozen
+  in the decision record.
+- **Rows.** G5's: σ = 1°, zig + 5, 10, 15 and 20 min. A row with no estimate is never covered,
+  and its width is infinite.
+- **The gate, G7.** On a fresh test seed (215), with scenario-clustered bootstraps (2,000
+  resamples, seed 20261011) and 95% intervals, since one tracker is judged:
+
+| Check | Statistic | Limit |
+| --- | --- | --- |
+| G7-coverage (six: three outputs × 50%, 90%) | share of the fused tracker's rows inside its calibrated interval | interval within nominal ± 2 pp |
+| G7-width (three outputs) | median calibrated 90% width, fused / reference | wholly below 1 |
+
+  **Pass** if all nine pass; **fail** if any fails; otherwise inconclusive. There is one re-score
+  on a larger fresh seed, as C.5. The reference's coverage is reported.
+- **The validation rule**, as C.5. Before any test data, a two-fold check runs on validation:
+  multipliers fitted on even-indexed scenarios are judged on odd-indexed ones. The tracker is
+  carried only if every check's point estimate meets its limit and no interval lies wholly
+  beyond it.
+- **The bindings** are G5's, as tightened by spec 015, plus the frozen `calibrations`.
+- **If G7 fails,** the owner decides the next step; C.6 item 3 remains.

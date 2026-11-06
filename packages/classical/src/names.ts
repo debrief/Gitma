@@ -12,7 +12,7 @@ import { type ImmParams, immName } from "./imm.js";
 /** A number as `String(x)` prints it for the settings these names carry. */
 const NUM = String.raw`(\d+(?:\.\d+)?(?:e[-+]?\d+)?)`;
 const SCALES = String.raw`(?:-p${NUM})?(?:-r${NUM})?(?:-g([12]))?`;
-const IMM_RE = new RegExp(String.raw`^imm-cv${NUM}-ct${NUM}-w${NUM}-s${NUM}${SCALES}$`);
+const IMM_RE = new RegExp(String.raw`^imm-cv${NUM}-ct${NUM}-w${NUM}-s${NUM}${SCALES}(-sd)?$`);
 const EKF_RE = new RegExp(String.raw`^ekf-sa${NUM}${SCALES}$`);
 const FUSION_RE = new RegExp(String.raw`-k${NUM}-m(\d+)$`);
 const HYBRID_RE = new RegExp(String.raw`^${NUM}$`);
@@ -31,13 +31,14 @@ const scales = (
 export function parseImmName(name: string): ImmParams | null {
   const m = IMM_RE.exec(name);
   if (m === null) return null;
-  const [, cv, ct, w, sw, p, r, g] = m;
+  const [, cv, ct, w, sw, p, r, g, sd] = m;
   const params: ImmParams = {
     sigmaCv: Number(cv),
     sigmaCt: Number(ct),
     sigmaOmega: Number(w),
     switchPerS: Number(sw),
     ...scales(p, r, g),
+    ...(sd === undefined ? {} : { reportSd: true }),
   };
   return immName(params) === name ? params : null;
 }

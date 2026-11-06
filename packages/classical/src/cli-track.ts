@@ -35,13 +35,14 @@ export function main(argv: string[]): unknown {
       "p0-scale": { type: "string" },
       "r-scale": { type: "string" },
       "guarded-init": { type: "string" },
+      "report-sd": { type: "boolean" },
     },
   });
   if (values.in === undefined || values.out === undefined)
     throw new UsageError(
       "usage: tma-track --in <split.f32pack> --out <pred.ndjson> " +
         "(--filter ekf --sigma-a <m/s²> | --filter imm --sigma-cv <m/s²> --sigma-ct <m/s²> " +
-        "--sigma-omega <rad/s/√s> --switch <1/s>) [--p0-scale k] [--r-scale k] [--guarded-init 1|2]",
+        "--sigma-omega <rad/s/√s> --switch <1/s>) [--p0-scale k] [--r-scale k] [--guarded-init 1|2] [--report-sd]",
     );
   /** Optional scales (spec 010 FR-011); absent means 1, and names stay unchanged. */
   const scale = (key: "p0-scale" | "r-scale"): number | undefined => {
@@ -65,16 +66,19 @@ export function main(argv: string[]): unknown {
   let name: string;
   let predict: (s: Scenario) => Prediction;
   if (values.filter === "ekf") {
+    if (values["report-sd"] === true) throw new UsageError("--report-sd is for --filter imm");
     const sigmaA = num(values, "sigma-a");
     name = ekfName(sigmaA, scales);
     predict = (s) => ekfPredict(s, sigmaA, scales);
   } else if (values.filter === "imm") {
+    // --report-sd (spec 018) is an IMM option: the EKF writes no stated sds.
     const p: ImmParams = {
       sigmaCv: num(values, "sigma-cv"),
       sigmaCt: num(values, "sigma-ct"),
       sigmaOmega: num(values, "sigma-omega"),
       switchPerS: num(values, "switch"),
       ...scales,
+      ...(values["report-sd"] === true ? { reportSd: true } : {}),
     };
     name = immName(p);
     predict = (s) => immPredict(s, p);

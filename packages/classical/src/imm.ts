@@ -38,11 +38,16 @@ export interface ImmParams {
   rScale?: number;
   /** Initialisation (spec 016; default 0, every frozen reference): see `GuardedInit`. */
   guardedInit?: GuardedInit;
+  /**
+   * Write each row's stated standard deviations (spec 018; name suffix `-sd`): log-range, course
+   * and speed from the combined covariance by the delta method. The estimates are unchanged.
+   */
+  reportSd?: boolean;
 }
 
 /** Estimator name of the IMM with `p`. */
 export const immName = (p: ImmParams): string =>
-  `${IMM}-cv${String(p.sigmaCv)}-ct${String(p.sigmaCt)}-w${String(p.sigmaOmega)}-s${String(p.switchPerS)}${scaleSuffix(p)}`;
+  `${IMM}-cv${String(p.sigmaCv)}-ct${String(p.sigmaCt)}-w${String(p.sigmaOmega)}-s${String(p.switchPerS)}${scaleSuffix(p)}${p.reportSd === true ? "-sd" : ""}`;
 
 /** Prior turn-rate standard deviation at initialisation (rad/s): about the generator's 3°/s. */
 export const IMM_OMEGA0_SD = 0.05;
@@ -350,6 +355,41 @@ function plausible(d: BearingData, x: Float64Array, i: number): boolean {
   );
 }
 
+/**
+ * Stated standard deviations of log-range, course and speed at sample i from the combined
+ * estimate's covariance `p` (5×5), by the delta method: ∇ln ρ = (dx, dy)/ρ², ∇θ = (vy, −vx)/v²
+ * (θ = atan2(vx, vy)), ∇v = (vx, vy)/v. Null where a gradient is undefined (ρ or v zero) or the
+ * variance is not positive.
+ */
+export function stateSds(
+  x: Float64Array,
+  p: Float64Array,
+  ox: number,
+  oy: number,
+): { log_range_sd: number; course_sd_rad: number; speed_sd_mps: number } | null {
+  const [px = 0, py = 0, vx = 0, vy = 0] = x;
+  const dx = px - ox;
+  const dy = py - oy;
+  const r2 = dx * dx + dy * dy;
+  const v2 = vx * vx + vy * vy;
+  if (!(r2 > 0) || !(v2 > 0)) return null;
+  const quad = (g: number[], off: number): number => {
+    let s = 0;
+    for (let a = 0; a < 2; a++)
+      for (let b = 0; b < 2; b++) s += (g[a] ?? 0) * at(p, off + a, off + b) * (g[b] ?? 0);
+    return s;
+  };
+  const lr = quad([dx / r2, dy / r2], 0);
+  const th = quad([vy / v2, -vx / v2], 2);
+  const sp = quad([vx / Math.sqrt(v2), vy / Math.sqrt(v2)], 2);
+  if (!(lr > 0) || !(th > 0) || !(sp > 0)) return null;
+  return {
+    log_range_sd: f32(Math.sqrt(lr)),
+    course_sd_rad: f32(Math.sqrt(th)),
+    speed_sd_mps: f32(Math.sqrt(sp)),
+  };
+}
+
 function row(d: BearingData, x: Float64Array, i: number, converged: boolean): PredictionRow {
   const [px = 0, py = 0, vx = 0, vy = 0] = x;
   return {
@@ -380,7 +420,8 @@ export function immPredict(
   extra?: (i: number, st: ImmState) => ImmState,
 ): Prediction {
   for (const [k, v] of Object.entries(params))
-    if (!(typeof v === "number" && v >= 0)) throw new Error(`IMM ${k} must be ≥ 0`);
+    if (k !== "reportSd" && !(typeof v === "number" && v >= 0))
+      throw new Error(`IMM ${k} must be ≥ 0`);
   if (params.p0Scale === 0 || params.rScale === 0) throw new Error("IMM scales must be > 0");
   const level = params.guardedInit ?? 0;
   if (![0, 1, 2].includes(level)) throw new Error("IMM guardedInit must be 0, 1 or 2");
@@ -402,9 +443,14 @@ export function immPredict(
       st = immStep(st, d.t[i] ?? 0, z, params);
       if (extra !== undefined) st = extra(i, st);
       onStep?.(i, st);
-      const est = immEstimate(st).x;
+      const combined = immEstimate(st);
+      const est = combined.x;
       if (plausible(d, est, i)) {
-        rows.push(row(d, est, i, true));
+        const r = row(d, est, i, true);
+        if (params.reportSd === true) {
+          const sd = stateSds(est, combined.p, d.ownX[i] ?? 0, d.ownY[i] ?? 0);
+          rows.push(sd === null ? r : { ...r, ...sd });
+        } else rows.push(r);
         continue;
       }
       st = null;

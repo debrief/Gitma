@@ -79,6 +79,11 @@ export const RESERVED_TEST_SEEDS = {
     for: "phase 4c fused tracker G5 (spec 014, fresh test)",
     plan: "configs/phase4/f/plan.json",
   },
+  // Phase 5 (spec 017) stopped at validation and never generated 215; phase 6 takes it.
+  215: {
+    for: "phase 6 calibrated uncertainty G7 (spec 018, fresh test)",
+    plan: "configs/phase4/u/plan.json",
+  },
 };
 
 class PlanError extends Error {}

@@ -4,6 +4,16 @@
       "additionalProperties": false,
       "description": "The single change of the iteration's change round, fixed from validation evidence and committed before phase B trains (spec 003 R5).",
       "properties": {
+        "calibrations": {
+          "description": "The frozen post-hoc interval multipliers of each estimator and output a G7 decision names (schema 0.20.0, spec 018), fitted on validation; tma-g7 refuses others.",
+          "items": {
+            "$ref": "#/$defs/UncertaintyCalibration"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "carried_model": {
           "description": "G4: the manifest id of the one carried network (Annex B §B.4); tma-g4 refuses network predictions from another model.",
           "type": [
@@ -673,6 +683,7 @@
         "G3",
         "G4",
         "G5",
+        "G7",
         "G6"
       ],
       "title": "GateId",
@@ -1693,6 +1704,13 @@
         "course_rad": {
           "type": "number"
         },
+        "course_sd_rad": {
+          "description": "Stated standard deviation of the course estimate (schema 0.20.0, spec 018): from a tracker's covariance by the delta method, written only under the `-sd` name suffix.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "iterations": {
           "type": [
             "integer",
@@ -1718,6 +1736,13 @@
         },
         "speed_mps": {
           "type": "number"
+        },
+        "speed_sd_mps": {
+          "description": "Stated standard deviation of the speed estimate (schema 0.20.0, spec 018).",
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "timestamp_s": {
           "type": "number"
@@ -2247,6 +2272,35 @@
       "title": "TrainingConfig",
       "type": "object"
     },
+    "UncertaintyCalibration": {
+      "additionalProperties": false,
+      "description": "One estimator's post-hoc interval multipliers for one output (schema 0.20.0, spec 018): the calibrated q-interval is the estimate ± multiplier × the stated standard deviation.",
+      "properties": {
+        "estimator": {
+          "type": "string"
+        },
+        "output": {
+          "description": "\"log_range\", \"course\" or \"speed\".",
+          "type": "string"
+        },
+        "q50": {
+          "description": "Multiplier for the 50% interval.",
+          "type": "number"
+        },
+        "q90": {
+          "description": "Multiplier for the 90% interval.",
+          "type": "number"
+        }
+      },
+      "required": [
+        "estimator",
+        "output",
+        "q50",
+        "q90"
+      ],
+      "title": "UncertaintyCalibration",
+      "type": "object"
+    },
     "ZigRule": {
       "description": "How each zig's direction and size are chosen (generator 0.3.0, spec 007).",
       "enum": [
@@ -2291,5 +2345,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.19.0"
+  "version": "0.20.0"
 }

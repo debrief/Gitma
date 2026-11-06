@@ -18,10 +18,10 @@ import { openPredictionSet, openPredictionWriter, scenarioSource } from "./predi
 const USAGE =
   "usage: tma-fuse-track --truth <split.f32pack> --network <t2.ndjson> --out <fused.ndjson> " +
   "--sigma-cv <m/s²> --sigma-ct <m/s²> --sigma-omega <rad/s/√s> --switch <1/s> " +
-  "[--p0-scale k] [--r-scale k] [--guarded-init 1|2] [--k 4] [--every 6]";
+  "[--p0-scale k] [--r-scale k] [--guarded-init 1|2] [--report-sd] [--k 4] [--every 6]";
 
-function num(values: Record<string, string | undefined>, key: string, positive = false): number {
-  const raw = values[key];
+function num(values: Record<string, unknown>, key: string, positive = false): number {
+  const raw = values[key] as string | undefined;
   const v = Number(raw);
   if (raw === undefined || !Number.isFinite(v) || v < 0 || (positive && v === 0))
     throw new UsageError(`--${key} must be a number ${positive ? "> 0" : "≥ 0"}`);
@@ -50,6 +50,7 @@ export function main(argv: string[]): unknown {
       "p0-scale": { type: "string" },
       "r-scale": { type: "string" },
       "guarded-init": { type: "string" },
+      "report-sd": { type: "boolean" },
       k: { type: "string" },
       every: { type: "string" },
     },
@@ -66,6 +67,7 @@ export function main(argv: string[]): unknown {
     ...(values["guarded-init"] === undefined
       ? {}
       : { guardedInit: guardedLevel(values["guarded-init"]) }),
+    ...(values["report-sd"] === true ? { reportSd: true } : {}),
   };
   const f: FusionParams = {
     k: values.k === undefined ? FUSION_DEFAULT.k : num(values, "k", true),
