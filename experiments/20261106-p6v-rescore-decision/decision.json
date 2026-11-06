@@ -1,0 +1,65 @@
+{
+  "calibrations": [
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+      "output": "log_range",
+      "q50": 0.4698697014377588,
+      "q90": 1.521573304126665
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+      "output": "course",
+      "q50": 0.2918578006241129,
+      "q90": 1.647108563133206
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+      "output": "speed",
+      "q50": 0.17220543866244103,
+      "q90": 0.6831660302062594
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+      "output": "log_range",
+      "q50": 0.40953072513397054,
+      "q90": 1.4373317758971509
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+      "output": "course",
+      "q50": 0.2980680112408688,
+      "q90": 1.6906310619032001
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+      "output": "speed",
+      "q50": 0.18232627637094367,
+      "q90": 0.7193696522562376
+    }
+  ],
+  "carried_models": [
+    "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6"
+  ],
+  "carried_set_rule": "As decision 33: one tracker is judged at G7 under §C.13's rules, unchanged. This is the one allowed re-score: a fail or an inconclusive result is final.",
+  "change": "Decision 34 (owner 2026-11-06): the one re-score that SRD Annex C §C.13 / C.5 allows of G7 on seed 215 (inconclusive, panel rounds 1-2): the same tracker, reference, frozen T2 and frozen multipliers as decision 33, the same rules (owner chose to keep them), on fresh seed 216 with a larger test split: 1,100,000 scenarios, its 110,000-scenario test split generated alone, sized by the panel so that a ±0.3 pp coverage interval is reachable. After it, a fail or inconclusive is final.",
+  "decided_at": "2026-11-06T15:42:35Z",
+  "fresh_test_count": 1100000,
+  "git_commit": "ada7b5af98670728a843b5d011113eff84be7d4d",
+  "model_digests": [
+    {
+      "manifest_sha256": "b951f8c848b08b34f27f517e1d9f16ec4b79b69d055c3a0466f90ed0b4f59e96",
+      "model": "lstm-gaussian",
+      "model_json_sha256": "c5ab6e3fd71bb08dae18df56e64f89269b174d72eb7440894f323368a0ac1310",
+      "weights_sha256": "05e36db5cf1225e9b38c1608e924d3cda4debc217949f5305a0a9f24d1f971f2"
+    }
+  ],
+  "phase_a_experiment": "20261106-p6u-g7",
+  "plans": [
+    "configs/phase4/v/plan.json"
+  ],
+  "rationale": "G7 on seed 215 was inconclusive on one check: fused log-range 50% coverage 48.32% [47.81, 48.82] against a 48% floor; the other eight passed (experiments/20261106-p6u-g7/). The panel judged the shortfall systematic (about 3 SE; plausibly the reuse of seed-211 validation for T2's epoch, k and M, and the multipliers) and the coverage marginal only (log-range 50% 67.2% before any manoeuvre, 38.2% after one). tma-g7 was changed only to stream rows (memory), and re-scores seed 215 with identical checks. Forecast before scoring: the log-range 50% coverage centres near 48.3% again, with a half-width of about 0.3 pp, so P(pass) is about 50%; a fail needs a point below about 47.7% and is unlikely. A pass would show only that the pooled coverage reaches the floor, not that the tracker is well calibrated; conditional coverage is expected to stay poor and is reported (regimes).",
+  "reference_estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+  "rescore_of": "experiments/20261106-p6u-g7",
+  "stalled": false,
+  "test_seed": "216"
+}
