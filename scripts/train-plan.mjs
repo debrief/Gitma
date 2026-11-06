@@ -84,6 +84,10 @@ export const RESERVED_TEST_SEEDS = {
     for: "phase 6 calibrated uncertainty G7 (spec 018, fresh test)",
     plan: "configs/phase4/u/plan.json",
   },
+  216: {
+    for: "phase 6 G7 re-score (spec 018, fresh test, 1,100,000)",
+    plan: "configs/phase4/v/plan.json",
+  },
 };
 
 class PlanError extends Error {}
