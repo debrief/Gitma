@@ -4,10 +4,83 @@
         <title>TMA via ML Blog</title>
         <link>https://debrief.github.io/Gitma/pr/78/blog</link>
         <description>TMA via ML Blog</description>
-        <lastBuildDate>Thu, 05 Nov 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Fri, 06 Nov 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Phase 6: the fused tracker's uncertainty, recalibrated, is inconclusive at G7]]></title>
+            <link>https://debrief.github.io/Gitma/pr/78/blog/2026/11/06/phase-6</link>
+            <guid>https://debrief.github.io/Gitma/pr/78/blog/2026/11/06/phase-6</guid>
+            <pubDate>Fri, 06 Nov 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[C.6's second follow-on asks whether the tracker that passed G5 can say how sure it is. The fused]]></description>
+            <content:encoded><![CDATA[<p>C.6's second follow-on asks whether the tracker that passed G5 can say how sure it is. The fused
+tracker is the frozen IMM with T2's range fused in.</p>
+<p>The owner chose two things:</p>
+<ul>
+<li class=""><strong>Calibrate the fused tracker's stated uncertainty</strong>, without training.</li>
+<li class=""><strong>The test: calibrated and sharper.</strong> Its 50% and 90% intervals for range, course and speed must
+cover within ±2 points of nominal, and be narrower than the reference IMM's after the same
+recalibration.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-was-done">What was done<a href="https://debrief.github.io/Gitma/pr/78/blog/2026/11/06/phase-6#what-was-done" class="hash-link" aria-label="Direct link to What was done" title="Direct link to What was done" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Stated sds.</strong> Both trackers now write them, from their covariance by the delta method. They
+are badly miscalibrated as stated: typical errors are a fraction of the stated sd, with heavy
+tails.</li>
+<li class=""><strong>Recalibration, post hoc.</strong> One pair of multipliers per output, fitted on validation, scales
+the sd into 50% and 90% intervals. A two-fold check on validation passed, and decision 33 froze
+the multipliers before seed 215 was generated for scoring.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-inconclusive">Result: inconclusive<a href="https://debrief.github.io/Gitma/pr/78/blog/2026/11/06/phase-6#result-inconclusive" class="hash-link" aria-label="Direct link to Result: inconclusive" title="Direct link to Result: inconclusive" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Coverage on seed 215 (G5 rows)</th><th>50%</th><th>90%</th></tr></thead><tbody><tr><td>Range (log)</td><td><strong>48.3%</strong> [47.8, 48.8]</td><td>89.8%</td></tr><tr><td>Course</td><td>50.5%</td><td>90.2%</td></tr><tr><td>Speed</td><td>49.3%</td><td>89.6%</td></tr></tbody></table>
+<p>The fused tracker's intervals are narrower than the IMM's: 0.73 × for range, 0.95 × for course and
+0.89 × for speed. Eight of the nine checks pass. Range at 50% falls just short: its interval
+straddles the 48% floor.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-the-panel-added">What the panel added<a href="https://debrief.github.io/Gitma/pr/78/blog/2026/11/06/phase-6#what-the-panel-added" class="hash-link" aria-label="Direct link to What the panel added" title="Direct link to What the panel added" translate="no">​</a></h2>
+<p>Five independent reviewers agreed the verdict is right, and reproduced it byte for byte. They also
+narrowed what can be claimed:</p>
+<ul>
+<li class=""><strong>The intervals are calibrated only on the pooled mix of rows.</strong> On quiet straight legs before
+any manoeuvre they are far too wide: range 50% covers 67%. After a manoeuvre they are too narrow:
+38%. One multiplier cannot fix that shape.</li>
+<li class=""><strong>Course and speed intervals are often uninformative.</strong> 17% of course 90% intervals span the
+whole circle, and 27% of speed 90% intervals reach below zero.</li>
+<li class=""><strong>The shortfall looks systematic, not noise.</strong> The likely cause is that T2's training epoch, the
+fusion settings and the multipliers were all chosen on the same validation split.</li>
+<li class=""><strong>The rules were the agent's.</strong> The owner did not get to review them before the decision record.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/pr/78/blog/2026/11/06/phase-6#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>The rules allow one re-score on a larger fresh seed. It would probably land near 48.3% again, so a
+pass would mean the range coverage just reaches the floor, not that the tracker is well calibrated.
+The owner decides whether to run it.</p>
+<p>Record: <code>experiments/20261106-p6u-g7/</code>; spec 018.</p>]]></content:encoded>
+        </item>
         <item>
             <title><![CDATA[Phase 5: frozen models do not beat a CUSUM at detecting manoeuvres]]></title>
             <link>https://debrief.github.io/Gitma/pr/78/blog/2026/11/05/phase-5</link>

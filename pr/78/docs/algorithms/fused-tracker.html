@@ -5,8 +5,8 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Fused tracker (the IMM with a learned range measurement) | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/pr/78/docs/algorithms/fused-tracker"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Fused tracker (the IMM with a learned range measurement) | TMA via ML"><meta data-rh="true" name="description" content="Source: fusedPredict in packages/classical/src/fused.ts, and immRangeUpdate in"><meta data-rh="true" property="og:description" content="Source: fusedPredict in packages/classical/src/fused.ts, and immRangeUpdate in"><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/pr/78/docs/algorithms/fused-tracker"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/78/docs/algorithms/fused-tracker" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/78/docs/algorithms/fused-tracker" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Fused tracker (the IMM with a learned range measurement)","item":"https://debrief.github.io/Gitma/pr/78/docs/algorithms/fused-tracker"}]}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/pr/78/blog/rss.xml" title="TMA via ML RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/Gitma/pr/78/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/pr/78/assets/css/styles.d219d845.css">
-<script src="/Gitma/pr/78/assets/js/runtime~main.9675065a.js" defer="defer"></script>
-<script src="/Gitma/pr/78/assets/js/main.95ba0594.js" defer="defer"></script>
+<script src="/Gitma/pr/78/assets/js/runtime~main.e32acc14.js" defer="defer"></script>
+<script src="/Gitma/pr/78/assets/js/main.b08357e9.js" defer="defer"></script>
 </head>
 <body>
 <svg style="display: none;"><defs>
@@ -124,6 +124,56 @@ interval [1.03, 1.06].</li>
 <li class=""><strong>Against the EKF and batch least squares</strong> it is still worse before any target manoeuvre. There
 its course error is 2.2 × the EKF&#x27;s (4.09° against 1.88°); over all settled rows it is 1.41 ×.</li>
 <li class=""><strong>It needs T2&#x27;s stated sd.</strong> A network that states no uncertainty cannot be fused this way.</li>
-</ul></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/algorithms/fused-tracker.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/pr/78/docs/algorithms/hybrid"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Hybrid estimator (classical with a network fallback)</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/pr/78/docs/algorithms/detection"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Manoeuvre detection (CUSUM and detectors from frozen models)</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_kFBU thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#why" class="table-of-contents__link toc-highlight">Why</a></li><li><a href="#equations" class="table-of-contents__link toc-highlight">Equations</a></li><li><a href="#why-k-and-m" class="table-of-contents__link toc-highlight">Why k and M</a></li><li><a href="#result-g5-passed-on-seed-214-in-sample-validation-beside-it" class="table-of-contents__link toc-highlight">Result: G5 passed on seed 214 (in-sample validation beside it)</a></li><li><a href="#limits" class="table-of-contents__link toc-highlight">Limits</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="stated-uncertainty-and-its-calibration-spec-018-gate-g7">Stated uncertainty and its calibration (spec 018, gate G7)<a href="#stated-uncertainty-and-its-calibration-spec-018-gate-g7" class="hash-link" aria-label="Direct link to Stated uncertainty and its calibration (spec 018, gate G7)" title="Direct link to Stated uncertainty and its calibration (spec 018, gate G7)" translate="no">​</a></h2>
+<p><strong>The stated sds.</strong> With <code>--report-sd</code> (name suffix <code>-sd</code>), every converged row carries
+<code>log_range_sd</code>, <code>course_sd_rad</code> and <code>speed_sd_mps</code>. They come from the combined IMM covariance by
+the delta method:</p>
+<ul>
+<li class="">∇ln ρ = (dx, dy)/ρ²;</li>
+<li class="">∇θ = (vy, −vx)/v²;</li>
+<li class="">∇v = (vx, vy)/v.</li>
+</ul>
+<p><strong>They are miscalibrated as stated.</strong> On seed-211 validation, |error|/sd has a median of 0.17–0.47,
+against 0.674 for a Gaussian. Typical intervals are far too wide, and the tails are heavy: m90/m50
+is 3–6, against 2.44.</p>
+<p><strong>Post-hoc recalibration.</strong> Each tracker&#x27;s 50% and 90% intervals are ± m_q × sd, with m_q the
+q-quantile of |error|/sd on validation, frozen in decision 33.</p>
+<p><strong>Result on seed 215</strong> (<code>experiments/20261106-p6u-g7/</code>; inconclusive):</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Coverage, all G5 rows</th><th>50%</th><th>90%</th></tr></thead><tbody><tr><td>Log-range</td><td>48.3% (inconclusive at the 48% floor)</td><td>89.8%</td></tr><tr><td>Course</td><td>50.5%</td><td>90.2%</td></tr><tr><td>Speed</td><td>49.3%</td><td>89.6%</td></tr></tbody></table>
+<ul>
+<li class=""><strong>Widths.</strong> The fused tracker&#x27;s median 90% width is 0.73 × (log-range), 0.95 × (course) and
+0.89 × (speed) the IMM&#x27;s.</li>
+<li class=""><strong>Calibration holds only on the pooled rows.</strong> Log-range 50% coverage is 67% on settled rows
+before any manoeuvre and 38% after one. Course 50% is 76% settled and 30% unsettled.</li>
+<li class=""><strong>Many intervals carry little information.</strong> 17% of course 90% intervals span the whole circle,
+and 27% of speed 90% intervals reach below 0.</li>
+</ul>
+<p>One multiplier per output cannot fix the intervals&#x27; shape.</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_hLnR"><a href="https://github.com/debrief/Gitma/edit/main/site/docs/algorithms/fused-tracker.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_a9_Z" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_GhXS"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/pr/78/docs/algorithms/hybrid"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Hybrid estimator (classical with a network fallback)</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/pr/78/docs/algorithms/detection"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Manoeuvre detection (CUSUM and detectors from frozen models)</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_kFBU thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#why" class="table-of-contents__link toc-highlight">Why</a></li><li><a href="#equations" class="table-of-contents__link toc-highlight">Equations</a></li><li><a href="#why-k-and-m" class="table-of-contents__link toc-highlight">Why k and M</a></li><li><a href="#result-g5-passed-on-seed-214-in-sample-validation-beside-it" class="table-of-contents__link toc-highlight">Result: G5 passed on seed 214 (in-sample validation beside it)</a></li><li><a href="#limits" class="table-of-contents__link toc-highlight">Limits</a></li><li><a href="#stated-uncertainty-and-its-calibration-spec-018-gate-g7" class="table-of-contents__link toc-highlight">Stated uncertainty and its calibration (spec 018, gate G7)</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
 </body>
 </html>
