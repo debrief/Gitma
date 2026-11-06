@@ -7,3 +7,4 @@ export * from "./ekf.js";
 export * from "./imm.js";
 export * from "./fused.js";
 export * from "./names.js";
+export * from "./detect.js";

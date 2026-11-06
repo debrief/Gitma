@@ -4,6 +4,16 @@
       "additionalProperties": false,
       "description": "The single change of the iteration's change round, fixed from validation evidence and committed before phase B trains (spec 003 R5).",
       "properties": {
+        "calibrations": {
+          "description": "The frozen post-hoc interval multipliers of each estimator and output a G7 decision names (schema 0.20.0, spec 018), fitted on validation; tma-g7 refuses others.",
+          "items": {
+            "$ref": "#/$defs/UncertaintyCalibration"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "carried_model": {
           "description": "G4: the manifest id of the one carried network (Annex B §B.4); tma-g4 refuses network predictions from another model.",
           "type": [
@@ -30,6 +40,16 @@
         },
         "decided_at": {
           "type": "string"
+        },
+        "detector_thresholds": {
+          "description": "The frozen alarm threshold of each detector a G6 decision names (schema 0.19.0, spec 017), set on validation at the matched false-alarm rate; tma-g6 refuses others.",
+          "items": {
+            "$ref": "#/$defs/DetectorThreshold"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
         },
         "fresh_test_count": {
           "description": "The dataset count whose test split a re-score scores (the plan's dataset.fresh_test.count; schema 0.11.1); tma-g2 refuses a plan with another count.",
@@ -306,6 +326,109 @@
       "title": "DatasetRef",
       "type": "object"
     },
+    "Detection": {
+      "additionalProperties": false,
+      "description": "One detector's per-timestep scores for one scenario (schema 0.19.0).",
+      "properties": {
+        "detector": {
+          "type": "string"
+        },
+        "record": {
+          "$ref": "#/$defs/RecordKind"
+        },
+        "rows": {
+          "items": {
+            "$ref": "#/$defs/DetectionRow"
+          },
+          "type": "array"
+        },
+        "scenario_index": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "record",
+        "scenario_index",
+        "detector",
+        "rows"
+      ],
+      "title": "Detection",
+      "type": "object"
+    },
+    "DetectionHeader": {
+      "additionalProperties": false,
+      "description": "First record of every detection file (schema 0.19.0).",
+      "properties": {
+        "dataset_digest": {
+          "description": "SHA-256 of the truth file.",
+          "type": "string"
+        },
+        "detector": {
+          "type": "string"
+        },
+        "inputs": {
+          "description": "The prediction files the scores were computed from, with their SHA-256s.",
+          "items": {
+            "$ref": "#/$defs/PredictionInput"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "record": {
+          "$ref": "#/$defs/RecordKind"
+        },
+        "schema_version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "record",
+        "schema_version",
+        "detector",
+        "dataset_digest"
+      ],
+      "title": "DetectionHeader",
+      "type": "object"
+    },
+    "DetectionRow": {
+      "additionalProperties": false,
+      "description": "One detector's score at one timestep (schema 0.19.0, spec 017). Larger means a manoeuvre is more likely; an alarm is the score at or above the detector's threshold.",
+      "properties": {
+        "score": {
+          "description": "The detector's statistic at this timestep (units depend on the detector).",
+          "type": "number"
+        },
+        "timestamp_s": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "timestamp_s",
+        "score"
+      ],
+      "title": "DetectionRow",
+      "type": "object"
+    },
+    "DetectorThreshold": {
+      "additionalProperties": false,
+      "description": "One detector's frozen alarm threshold (schema 0.19.0, spec 017).",
+      "properties": {
+        "detector": {
+          "type": "string"
+        },
+        "threshold": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "detector",
+        "threshold"
+      ],
+      "title": "DetectorThreshold",
+      "type": "object"
+    },
     "EpochRecord": {
       "additionalProperties": false,
       "description": "",
@@ -559,7 +682,9 @@
         "G2",
         "G3",
         "G4",
-        "G5"
+        "G5",
+        "G7",
+        "G6"
       ],
       "title": "GateId",
       "type": "string"
@@ -1579,6 +1704,13 @@
         "course_rad": {
           "type": "number"
         },
+        "course_sd_rad": {
+          "description": "Stated standard deviation of the course estimate (schema 0.20.0, spec 018): from a tracker's covariance by the delta method, written only under the `-sd` name suffix.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "iterations": {
           "type": [
             "integer",
@@ -1604,6 +1736,13 @@
         },
         "speed_mps": {
           "type": "number"
+        },
+        "speed_sd_mps": {
+          "description": "Stated standard deviation of the speed estimate (schema 0.20.0, spec 018).",
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "timestamp_s": {
           "type": "number"
@@ -1655,7 +1794,8 @@
       "enum": [
         "header",
         "scenario",
-        "prediction"
+        "prediction",
+        "detection"
       ],
       "title": "RecordKind",
       "type": "string"
@@ -2132,6 +2272,35 @@
       "title": "TrainingConfig",
       "type": "object"
     },
+    "UncertaintyCalibration": {
+      "additionalProperties": false,
+      "description": "One estimator's post-hoc interval multipliers for one output (schema 0.20.0, spec 018): the calibrated q-interval is the estimate ± multiplier × the stated standard deviation.",
+      "properties": {
+        "estimator": {
+          "type": "string"
+        },
+        "output": {
+          "description": "\"log_range\", \"course\" or \"speed\".",
+          "type": "string"
+        },
+        "q50": {
+          "description": "Multiplier for the 50% interval.",
+          "type": "number"
+        },
+        "q90": {
+          "description": "Multiplier for the 90% interval.",
+          "type": "number"
+        }
+      },
+      "required": [
+        "estimator",
+        "output",
+        "q50",
+        "q90"
+      ],
+      "title": "UncertaintyCalibration",
+      "type": "object"
+    },
     "ZigRule": {
       "description": "How each zig's direction and size are chosen (generator 0.3.0, spec 007).",
       "enum": [
@@ -2176,5 +2345,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.18.0"
+  "version": "0.20.0"
 }

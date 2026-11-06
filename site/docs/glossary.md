@@ -27,6 +27,10 @@ with ownship's own track known. See [least-squares solver](algorithms/least-squa
 **Causal** — A model whose output at time _t_ uses only inputs up to _t_. The instantaneous variant
 is causal.
 
+**CUSUM** — Cumulative-sum change detector: it accumulates evidence step by step, never below
+zero, and alarms when the sum crosses a threshold. Phase 5's baseline is a clipped CUSUM on the
+reference IMM's innovations (spec 017).
+
 **Classical baseline** — The batch least-squares bearings-only solver; the yardstick a model must
 approach for G3. See [least-squares solver](algorithms/least-squares-solver.md).
 
@@ -75,6 +79,14 @@ not exceed its gross-error rate, and not regress from G2 on held-course scenario
 reference on median range and course error over all σ = 1° rows at zig + 5, 10, 15 and 20 min, and
 stay within 1.1 × the reference on range, course and speed on settled rows. Two trackers are
 judged, each with 97.5% intervals.
+
+**G6** — Phase 5's gate (SRD Annex C §C.12): a manoeuvre detector built from frozen models must
+detect target course changes faster than a CUSUM on the reference IMM's innovations, at the same
+false-alarm rate (0.5 per quiet hour). Not reached: phase 5 stopped at validation.
+
+**G7** — Phase 6's gate (SRD Annex C §C.13): the fused tracker's post-hoc recalibrated 50% and
+90% intervals for range, course and speed must cover within ±2 points of nominal and be narrower
+than the reference IMM's. Inconclusive on seed 215.
 
 **Held-out geometry** — A test set drawn from parameter ranges outside training (for example
 20–30 km initial range), used to measure extrapolation.

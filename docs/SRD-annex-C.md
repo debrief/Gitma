@@ -200,6 +200,10 @@ operations: matrix products, elementwise maths, and `atan2` for bearings.
   record, before training.
 - **D6 The trackers' configurations and seeds.** These also go in the decision record, before
   training. Fresh seeds run from 211; seeds 201–210 stay reserved.
+- **D7 The reference initialisation.** _Decided 2026-11-05 (decision 32,
+  `experiments/20261105-guarded-ref-decision/`): from decision 32 on, reference trackers use the
+  guarded initialisation, level 1 (spec 016), with decision 29's tuning unchanged. The reference is
+  `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1`. Decisions 29–31 and their verdicts stand at level 0._
 
 ## C.9 Order of work
 
@@ -277,3 +281,127 @@ first, then judge it.
     range after a manoeuvre.
   - Its stated covariance is not calibrated, as the reference IMM's is not.
   - Against the EKF it is still worse on settled course (about 1.3 × on validation).
+
+## C.12 Phase 5: manoeuvre detection, gate G6 (owner decisions 2026-11-05)
+
+G5 passed (phases 4b and 4c), so C.6's first incremental follow-on applies: **manoeuvre detection,
+judged against a CUSUM on the reference's innovations**. The owner chose, on 2026-11-05:
+- **a detector built from frozen models, with no training;**
+- **detection delay at matched false-alarm rates** as the gate.
+
+The rest of this section was written by the implementing agent, and stands unless the owner
+amends it before the decision record is committed.
+
+- **The reference detector.** A CUSUM on the innovations of the decision-32 reference IMM
+  (`imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1`). There are two declared kinds:
+  - on the normalised innovation squared (variance);
+  - two-sided, on the signed normalised innovation ν/√S (mean shift).
+
+  Each is clipped, so that one outlier cannot hold an alarm: on validation, 0.2% of quiet NIS
+  values exceed 10. Its drift and clip are tuned on seed-211 validation from a declared grid. The
+  best kind and setting is frozen, which favours the reference, as in C.3.
+- **The learned detector.** It is built from the frozen T2 (`experiments/20261101-p4b-models`,
+  bound by digest) and the reference IMM, with no training. There are two declared candidates:
+  - T2's course disagreement with the IMM, |Δcourse|: the statistic the phase-4b hybrid switched
+    on;
+  - T2's own course change over the last 6 samples (1 min).
+
+  The better on validation is carried.
+- **Events.** Each target course change on a σ = 1° scenario whose start is a tracker row. The
+  window runs 10 min from the start, cut at the next manoeuvre's start.
+  - **Detection.** The event is detected at the first row in the window whose score is at or
+    above the detector's threshold.
+  - **The armed rule.** A detector already alarming on the row before the start is credited
+    nothing.
+  - **A miss** has delay +∞.
+  - **Speed changes** are reported, not gated. Both learned candidates watch course only.
+- **False alarms.** Alarm onsets on quiet rows, per hour. Quiet rows are G5's settled rows: no
+  manoeuvre in progress, and none ended in the last 5 min.
+- **Matched operating point.** Each detector's threshold is set on validation for **0.5 false
+  alarms per hour** of quiet tracking (one per 2 h), and frozen in the decision record.
+- **The gate, G6.** On a fresh test seed (215), with scenario-clustered paired bootstraps (2,000
+  resamples, seed 20261011) and 95% intervals, since one detector is judged:
+
+| Check | Statistic | Limit |
+| --- | --- | --- |
+| G6-delay | median detection delay, learned / CUSUM (misses +∞) | wholly below 1 |
+| G6-detect5 | detected within 5 min, learned − CUSUM | lower bound ≥ −2 pp |
+| G6-false-alarms | false alarms on quiet rows, learned / CUSUM, at the frozen thresholds | upper bound ≤ 1.25 |
+
+  **Pass** if all three pass; **fail** if any fails; otherwise inconclusive. There is one
+  re-score on a larger fresh seed, as C.5.
+- **The bindings** are G5's, as tightened by spec 015:
+  - a committed decision naming the seed, plans, detectors, thresholds and frozen models;
+  - clean data at or after the decision;
+  - the learned file's inputs given byte for byte, with T2's file naming the bound weights;
+  - a re-computed 200-scenario sample of both detectors;
+  - scored once, across experiments.
+- **Reported beside it.** The CUSUM variants not carried, speed-change events, and all σ.
+- **If G6 fails,** the owner decides the next step; C.6's items 2 and 3 remain.
+- **The validation rule**, as C.5 and Annex A B.3 rule 3: the learned detector is carried to the
+  test split only if, on validation, every check's point estimate meets its limit and no interval
+  lies wholly beyond it.
+- **Outcome (2026-11-05): phase 5 stopped at validation.** This is recorded in
+  `experiments/20261105-p5-research/validation.md`.
+  - **Result.** The best learned detector, T2's course change over 1 min, detects 19.2% of course
+    changes within 5 min. The best CUSUM (mean shift) detects 28.2%: −8.95 pp [−10.16, −7.73]. It
+    is not carried, and seed 215 was never generated.
+  - **The delay check** is undefined at this operating point, since both detectors miss more than
+    half the events.
+  - **Reported only.** From about 1 false alarm per hour the learned detector catches more.
+  - **Next.** The owner decides the follow-on.
+
+
+## C.13 Phase 6: calibrated uncertainty, gate G7 (owner decisions 2026-11-06)
+
+This is C.6's second incremental follow-on: **calibration of the learned uncertainty**. The owner
+chose, on 2026-11-06:
+- **to calibrate the fused tracker's uncertainty**, the tracker that passed G5 (C.11) and the one
+  an operator would see;
+- **to judge it as calibrated and sharper**: its intervals cover their nominal level, and they
+  are narrower than the reference's after the same recalibration.
+
+The rest of this section was written by the implementing agent, and stands unless the owner
+amends it before the decision record is committed.
+
+- **The trackers.** Both under decision 32 (`-g1`), writing stated sds (`-sd`, spec 018):
+  - **carried:** `fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6`, with T2
+    bound by digest as in C.11;
+  - **reference:** `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd`.
+
+  Their estimates are unchanged by `-sd`.
+- **Stated uncertainty.** For log-range, course and speed, taken from the tracker's combined
+  covariance by the delta method.
+- **Recalibration** (post hoc, no training, the same for both trackers). For each tracker and
+  output, the q-interval is ± m_q × stated sd, where m_q is the q-quantile of |error / stated sd|
+  over seed-211 validation's G5 rows (q = 0.5 and 0.9). The six multipliers per tracker are frozen
+  in the decision record.
+- **Rows.** G5's: σ = 1°, zig + 5, 10, 15 and 20 min. A row with no estimate is never covered,
+  and its width is infinite.
+- **The gate, G7.** On a fresh test seed (215), with scenario-clustered bootstraps (2,000
+  resamples, seed 20261011) and 95% intervals, since one tracker is judged:
+
+| Check | Statistic | Limit |
+| --- | --- | --- |
+| G7-coverage (six: three outputs × 50%, 90%) | share of the fused tracker's rows inside its calibrated interval | interval within nominal ± 2 pp |
+| G7-width (three outputs) | median calibrated 90% width, fused / reference | wholly below 1 |
+
+  **Pass** if all nine pass; **fail** if any fails; otherwise inconclusive. There is one re-score
+  on a larger fresh seed, as C.5. The reference's coverage is reported.
+- **The validation rule**, as C.5. Before any test data, a two-fold check runs on validation:
+  multipliers fitted on even-indexed scenarios are judged on odd-indexed ones. The tracker is
+  carried only if every check's point estimate meets its limit and no interval lies wholly
+  beyond it.
+- **The bindings** are G5's, as tightened by spec 015, plus the frozen `calibrations`.
+- **If G7 fails,** the owner decides the next step; C.6 item 3 remains.
+- **Outcome (2026-11-06): G7 on seed 215 is inconclusive** (agent panel rounds 1–2,
+  `experiments/20261106-p6u-g7/`).
+  - **The inconclusive check.** Log-range 50% coverage is 48.32% [47.81, 48.82], against a floor
+    of 48%.
+  - **The other eight gated checks pass.** The widths are 0.734 / 0.945 / 0.891 of the IMM's.
+  - **Coverage is calibrated on the pooled row mix only.** Within regimes it is far off: fused
+    log-range 50% is 67.2% on settled rows before any manoeuvre and 38.2% after one. 17% of course
+    90% intervals are vacuous.
+  - **The shortfall looks systematic**, about 3 SE, plausibly from reusing seed-211 validation.
+  - **What may follow.** One re-score on a larger fresh seed is allowed. The owner decides whether
+    to run it, and whether to keep the agent-written rules for it.

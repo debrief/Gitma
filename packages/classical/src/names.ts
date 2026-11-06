@@ -5,13 +5,14 @@
 // so an ambiguous or non-canonical name is refused rather than read loosely.
 import { ekfName, type TrackerScales } from "./ekf.js";
 import { type FusionParams, fusedName } from "./fused.js";
+import { type CusumParams, courseRateName, cusumName } from "./detect.js";
 import { trackerHybridName } from "./hybrid.js";
 import { type ImmParams, immName } from "./imm.js";
 
 /** A number as `String(x)` prints it for the settings these names carry. */
 const NUM = String.raw`(\d+(?:\.\d+)?(?:e[-+]?\d+)?)`;
 const SCALES = String.raw`(?:-p${NUM})?(?:-r${NUM})?(?:-g([12]))?`;
-const IMM_RE = new RegExp(String.raw`^imm-cv${NUM}-ct${NUM}-w${NUM}-s${NUM}${SCALES}$`);
+const IMM_RE = new RegExp(String.raw`^imm-cv${NUM}-ct${NUM}-w${NUM}-s${NUM}${SCALES}(-sd)?$`);
 const EKF_RE = new RegExp(String.raw`^ekf-sa${NUM}${SCALES}$`);
 const FUSION_RE = new RegExp(String.raw`-k${NUM}-m(\d+)$`);
 const HYBRID_RE = new RegExp(String.raw`^${NUM}$`);
@@ -30,13 +31,14 @@ const scales = (
 export function parseImmName(name: string): ImmParams | null {
   const m = IMM_RE.exec(name);
   if (m === null) return null;
-  const [, cv, ct, w, sw, p, r, g] = m;
+  const [, cv, ct, w, sw, p, r, g, sd] = m;
   const params: ImmParams = {
     sigmaCv: Number(cv),
     sigmaCt: Number(ct),
     sigmaOmega: Number(w),
     switchPerS: Number(sw),
     ...scales(p, r, g),
+    ...(sd === undefined ? {} : { reportSd: true }),
   };
   return immName(params) === name ? params : null;
 }
@@ -78,4 +80,28 @@ export function parseTrackerHybridName(
   if (m === null) return null;
   const deg = Number(m[1]);
   return trackerHybridName(network, tracker, deg) === name ? deg : null;
+}
+
+/** The CUSUM detector's IMM settings and CUSUM settings `name` declares (spec 017), or null. */
+export function parseCusumName(name: string): { imm: ImmParams; cusum: CusumParams } | null {
+  const head = /^cusum-(nis|mean)-/.exec(name);
+  if (head === null) return null;
+  const m = new RegExp(String.raw`-c${NUM}-x${NUM}$`).exec(name);
+  if (m === null) return null;
+  const imm = parseImmName(name.slice(head[0].length, m.index));
+  if (imm === null) return null;
+  const cusum: CusumParams = {
+    kind: head[1] === "mean" ? "mean" : "nis",
+    c: Number(m[1]),
+    clip: Number(m[2]),
+  };
+  return cusumName(imm, cusum) === name ? { imm, cusum } : null;
+}
+
+/** The course-rate detector's window `name` declares over `network`, or null. */
+export function parseCourseRateName(name: string, network: string): number | null {
+  const prefix = `crate-${network}-w`;
+  if (!name.startsWith(prefix) || !/^\d+$/.test(name.slice(prefix.length))) return null;
+  const w = Number(name.slice(prefix.length));
+  return courseRateName(network, w) === name ? w : null;
 }

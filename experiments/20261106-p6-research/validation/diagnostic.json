@@ -1,0 +1,157 @@
+{
+  "checks": [
+    {
+      "ci_high": 0.5131049615994149,
+      "ci_level": 0.95,
+      "ci_low": 0.4847124484348459,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep log_range 50% interval (± 0.46926 × stated sd) covers 49.89% of 8190 G5 rows; 95% CI [48.47, 51.31]%, required within 48–52%",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep:g7-coverage-log_range-50",
+      "result": "pass",
+      "threshold": 0.5,
+      "value": 0.4989010989010989
+    },
+    {
+      "ci_high": 0.912841796875,
+      "ci_level": 0.95,
+      "ci_low": 0.8950775619885184,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep log_range 90% interval (± 1.5339 × stated sd) covers 90.37% of 8190 G5 rows; 95% CI [89.51, 91.28]%, required within 88–92%",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep:g7-coverage-log_range-90",
+      "result": "pass",
+      "threshold": 0.9,
+      "value": 0.9036630036630037
+    },
+    {
+      "ci_high": 0.5218295218295218,
+      "ci_level": 0.95,
+      "ci_low": 0.49531459170013387,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep course 50% interval (± 0.29576 × stated sd) covers 50.83% of 8190 G5 rows; 95% CI [49.53, 52.18]%, required within 48–52%",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep:g7-coverage-course-50",
+      "result": "inconclusive",
+      "threshold": 0.5,
+      "value": 0.5083028083028083
+    },
+    {
+      "ci_high": 0.9059652533106548,
+      "ci_level": 0.95,
+      "ci_low": 0.8905943025540275,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep course 90% interval (± 1.6379 × stated sd) covers 89.83% of 8190 G5 rows; 95% CI [89.06, 90.60]%, required within 88–92%",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep:g7-coverage-course-90",
+      "result": "pass",
+      "threshold": 0.9,
+      "value": 0.8982905982905983
+    },
+    {
+      "ci_high": 0.49804353142577645,
+      "ci_level": 0.95,
+      "ci_low": 0.47292897624502594,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep speed 50% interval (± 0.16881 × stated sd) covers 48.52% of 8190 G5 rows; 95% CI [47.29, 49.80]%, required within 48–52%",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep:g7-coverage-speed-50",
+      "result": "inconclusive",
+      "threshold": 0.5,
+      "value": 0.4852258852258852
+    },
+    {
+      "ci_high": 0.9103911980440098,
+      "ci_level": 0.95,
+      "ci_low": 0.893663777316567,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep speed 90% interval (± 0.68881 × stated sd) covers 90.18% of 8190 G5 rows; 95% CI [89.37, 91.04]%, required within 88–92%",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep:g7-coverage-speed-90",
+      "result": "pass",
+      "threshold": 0.9,
+      "value": 0.9018315018315018
+    },
+    {
+      "ci_high": 0.7545062393745042,
+      "ci_level": 0.95,
+      "ci_low": 0.7381142740868974,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep median calibrated 90% width of log_range on 8190 G5 rows in 2445 scenarios 0.7466; 95% CI [0.7381, 0.7545], limit 1",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep:g7-width-log_range",
+      "result": "pass",
+      "threshold": 1,
+      "value": 0.7466056802728448
+    },
+    {
+      "ci_high": 0.9539596688629258,
+      "ci_level": 0.95,
+      "ci_low": 0.926141654198062,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep median calibrated 90% width of course on 8190 G5 rows in 2445 scenarios 0.9396; 95% CI [0.9261, 0.9540], limit 1",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep:g7-width-course",
+      "result": "pass",
+      "threshold": 1,
+      "value": 0.9396499376565393
+    },
+    {
+      "ci_high": 0.9133978608623274,
+      "ci_level": 0.95,
+      "ci_low": 0.8823102689184138,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep median calibrated 90% width of speed on 8190 G5 rows in 2445 scenarios 0.8990; 95% CI [0.8823, 0.9134], limit 1",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6:per_timestep:g7-width-speed",
+      "result": "pass",
+      "threshold": 1,
+      "value": 0.8990338010757102
+    },
+    {
+      "ci_high": 0.510952438581629,
+      "ci_level": 0.95,
+      "ci_low": 0.4822081403850841,
+      "detail": "reported, not gated: imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep log_range 50% interval (± 0.40778 × stated sd) covers 49.65% of 8190 G5 rows; 95% CI [48.22, 51.10]%, required within 48–52%",
+      "name": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep:g7-coverage-log_range-50-reported",
+      "result": "pass",
+      "threshold": 0.5,
+      "value": 0.49645909645909647
+    },
+    {
+      "ci_high": 0.9082512315270936,
+      "ci_level": 0.95,
+      "ci_low": 0.8897319789499449,
+      "detail": "reported, not gated: imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep log_range 90% interval (± 1.4307 × stated sd) covers 89.90% of 8190 G5 rows; 95% CI [88.97, 90.83]%, required within 88–92%",
+      "name": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep:g7-coverage-log_range-90-reported",
+      "result": "pass",
+      "threshold": 0.9,
+      "value": 0.899023199023199
+    },
+    {
+      "ci_high": 0.5175492234315764,
+      "ci_level": 0.95,
+      "ci_low": 0.49072718399219134,
+      "detail": "reported, not gated: imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep course 50% interval (± 0.30060 × stated sd) covers 50.39% of 8190 G5 rows; 95% CI [49.07, 51.75]%, required within 48–52%",
+      "name": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep:g7-coverage-course-50-reported",
+      "result": "pass",
+      "threshold": 0.5,
+      "value": 0.5039072039072039
+    },
+    {
+      "ci_high": 0.9059538274605103,
+      "ci_level": 0.95,
+      "ci_low": 0.8898936820237077,
+      "detail": "reported, not gated: imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep course 90% interval (± 1.6810 × stated sd) covers 89.79% of 8190 G5 rows; 95% CI [88.99, 90.60]%, required within 88–92%",
+      "name": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep:g7-coverage-course-90-reported",
+      "result": "pass",
+      "threshold": 0.9,
+      "value": 0.897924297924298
+    },
+    {
+      "ci_high": 0.4985390796201607,
+      "ci_level": 0.95,
+      "ci_low": 0.4714285714285714,
+      "detail": "reported, not gated: imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep speed 50% interval (± 0.17795 × stated sd) covers 48.47% of 8190 G5 rows; 95% CI [47.14, 49.85]%, required within 48–52%",
+      "name": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep:g7-coverage-speed-50-reported",
+      "result": "inconclusive",
+      "threshold": 0.5,
+      "value": 0.48473748473748474
+    },
+    {
+      "ci_high": 0.9084016142839673,
+      "ci_level": 0.95,
+      "ci_low": 0.8912297893189612,
+      "detail": "reported, not gated: imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep speed 90% interval (± 0.71934 × stated sd) covers 89.99% of 8190 G5 rows; 95% CI [89.12, 90.84]%, required within 88–92%",
+      "name": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd:per_timestep:g7-coverage-speed-90-reported",
+      "result": "pass",
+      "threshold": 0.9,
+      "value": 0.8998778998778999
+    }
+  ],
+  "decided_by": "validation diagnostic (spec 018): multipliers fitted on even-indexed scenarios, judged on odd-indexed ones; not a gate decision",
+  "gate": "G7",
+  "result": "inconclusive"
+}

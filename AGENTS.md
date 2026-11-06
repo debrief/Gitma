@@ -87,6 +87,12 @@ pnpm tma-g3 --truth <test.f32pack> --hybrid <hybrid.ndjson> --classical <classic
 node packages/eval/dist/cli-g5.js --truth <test.f32pack> --tracker <pred> --reference <pred> --also <pred>... \
   --decision <decision.json> --plan <plan.json> --model <model dir> --experiment <dir> \
   [--repeat-of experiments/<earlier>]   # G5 (spec 012; bindings spec 015); see each G5 run.sh
+node packages/eval/dist/cli-detect.js --truth <split> --out <scores.ndjson> --detector cusum <IMM flags> \
+  --kind nis|mean --c <drift> --clip <bound>   # or --detector disagree|crate --network <t2> (spec 017)
+node packages/eval/dist/cli-g6.js --truth <split> --learned <scores>... --cusum <scores>... --experiment <dir> \
+  [--also <pred>... --decision --plan --model]   # G6: validation calibrates; a test split is the gate
+node packages/eval/dist/cli-g7.js --truth <split> --tracker <fused -sd> --reference <imm -sd> --experiment <dir> \
+  [--also <t2> --decision --plan --model]   # G7 (spec 018): validation fits + two-fold; test is the gate
 ```
 
 Full walkthroughs: `specs/001-iteration-0-pipeline/quickstart.md`, `specs/002-iteration-1-signal/quickstart.md`,
@@ -298,7 +304,42 @@ re-freezing a guarded reference needs a decision record. On seed-211 validation 
 - **Level 1 is accuracy-neutral** (G5-row ratios 1.000 ± 0.003 for the IMM, the EKF and the fused
   tracker) and removes every non-PD IMM covariance (frozen: 21 steps in 6 of 10,000 scenarios).
   It reports no estimate on 0.07% more rows.
-- **Level 2 is rejected.** It is 2–9% worse and still has non-PD steps. Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
+- **Level 2 is rejected.** It is 2–9% worse and still has non-PD steps.
+- **Decision 32** (owner 2026-11-05, `experiments/20261105-guarded-ref-decision/`, SRD Annex C D7):
+  from it on, the Annex C reference is `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1` (EKF reported:
+  `ekf-sa0.03-p4-r8-g1`), with decision 29's tuning unchanged. Decisions 29–31 and their verdicts
+  stand at level 0. Fresh seeds run from 215. **Phase 5** (SRD Annex C §C.12, spec 017,
+owner 2026-11-05): manoeuvre detection, gate **G6**. It compares a detector built from frozen
+models (no training) with a clipped CUSUM on the `-g1` IMM's innovations, at matched false alarms
+(0.5 per quiet hour). Schema 0.19.0 adds detection files and `ChangeDecision.detector_thresholds`.
+`tma-detect` scores; `tma-g6` calibrates on validation and judges a test split with spec 015's
+bindings. **Phase 5 stopped at validation** (`experiments/20261105-p5-research/validation.md`):
+- **Result.** T2's course change over 1 min detects 19.2% of course changes within 5 min,
+  against the mean-shift CUSUM's 28.2% (−8.95 pp [−10.16, −7.73]). It was not carried, and seed
+  215 was never generated.
+- **The delay check is undefined** at that rate: every detector misses more than half the events.
+- **Reported only.** From about 1 false alarm per hour, the learned detector catches more.
+- **Next.** The owner decides the follow-on.
+
+**Phase 6** (SRD Annex C §C.13, spec 018, owner 2026-11-06): calibrated uncertainty, gate **G7**.
+- **Stated sds.** The IMM, and so the fused tracker, writes stated sds under the `-sd` name
+  suffix (`--report-sd`; schema 0.20.0 `course_sd_rad`, `speed_sd_mps`). They come from the
+  combined covariance by the delta method; the estimates are unchanged.
+- **Recalibration.** Post hoc, per tracker and output: the 50% and 90% multipliers are quantiles of
+  |error/sd| on seed-211 validation, frozen in decision 33 (`experiments/20261106-p6u-decision/`;
+  plan `configs/phase4/u`, seed 215).
+- **The gate.** Coverage within nominal ± 2 pp, and median 90% width below the `-g1` IMM's;
+  `tma-g7`.
+- **G7 on seed 215 is inconclusive** (panel rounds 1–2, `experiments/20261106-p6u-g7/`):
+  - log-range 50% coverage is 48.32% [47.81, 48.82] against a 48% floor;
+  - the other eight pass, with widths 0.73 / 0.95 / 0.89 × the IMM's;
+  - coverage holds on the pooled row mix only: 67% before any manoeuvre, 38% after one;
+  - 17% of course 90% intervals are vacuous;
+  - the shortfall looks systematic, plausibly from reusing seed-211 validation.
+- **Next.** One re-score on a larger fresh seed is allowed. The owner decides whether to run it,
+  whether to keep the rules, and its size (at least about a 110,000-scenario test split).
+
+Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
 re-score is finished with `--reuse-predictions <committed reuse.json>`: each listed prediction file

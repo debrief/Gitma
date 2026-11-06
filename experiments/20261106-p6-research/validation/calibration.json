@@ -1,0 +1,81 @@
+{
+  "calibrations": [
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+      "output": "log_range",
+      "q50": 0.4698697014377588,
+      "q90": 1.521573304126665
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+      "output": "course",
+      "q50": 0.2918578006241129,
+      "q90": 1.647108563133206
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+      "output": "speed",
+      "q50": 0.17220543866244103,
+      "q90": 0.6831660302062594
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+      "output": "log_range",
+      "q50": 0.40953072513397054,
+      "q90": 1.4373317758971509
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+      "output": "course",
+      "q50": 0.2980680112408688,
+      "q90": 1.6906310619032001
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+      "output": "speed",
+      "q50": 0.18232627637094367,
+      "q90": 0.7193696522562376
+    }
+  ],
+  "fitted_on": "every G5 row of this split",
+  "two_fold": {
+    "fitted_on_even": [
+      {
+        "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+        "output": "log_range",
+        "q50": 0.46926281577024964,
+        "q90": 1.533931952664211
+      },
+      {
+        "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+        "output": "course",
+        "q50": 0.29575843182275396,
+        "q90": 1.6379447950494461
+      },
+      {
+        "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+        "output": "speed",
+        "q50": 0.1688124120031466,
+        "q90": 0.6888071721119375
+      },
+      {
+        "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+        "output": "log_range",
+        "q50": 0.4077782181432496,
+        "q90": 1.4307209400107799
+      },
+      {
+        "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+        "output": "course",
+        "q50": 0.3005977676580447,
+        "q90": 1.680952802246517
+      },
+      {
+        "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+        "output": "speed",
+        "q50": 0.1779450891179238,
+        "q90": 0.7193406372218187
+      }
+    ]
+  }
+}

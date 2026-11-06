@@ -1,0 +1,64 @@
+{
+  "calibrations": [
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+      "output": "log_range",
+      "q50": 0.4698697014377588,
+      "q90": 1.521573304126665
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+      "output": "course",
+      "q50": 0.2918578006241129,
+      "q90": 1.647108563133206
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+      "output": "speed",
+      "q50": 0.17220543866244103,
+      "q90": 0.6831660302062594
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+      "output": "log_range",
+      "q50": 0.40953072513397054,
+      "q90": 1.4373317758971509
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+      "output": "course",
+      "q50": 0.2980680112408688,
+      "q90": 1.6906310619032001
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+      "output": "speed",
+      "q50": 0.18232627637094367,
+      "q90": 0.7193696522562376
+    }
+  ],
+  "carried_models": [
+    "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6"
+  ],
+  "carried_set_rule": "One tracker is judged: the fused tracker named in carried_models, with T2 bound by model_digests and the fused file tied to T2's prediction file by the prediction chain. G7 as Annex C §C.13: pass if all six coverage and three width checks pass, fail if any fails, otherwise inconclusive, with one re-score on a larger fresh seed.",
+  "change": "Decision 33 (phase 6, SRD Annex C §C.13, owner decisions 2026-11-06): judge the calibrated uncertainty of the fused tracker (decision 32's -g1 IMM with the frozen T2's range fused in, k 4, every 6; stated sds under -sd) at G7 on fresh seed 215. Each tracker's 50% and 90% intervals are ± multiplier × stated sd per output (log-range, course, speed), with the multipliers fitted on seed-211 validation's G5 rows and frozen here. Nothing is trained.",
+  "decided_at": "2026-11-06T13:48:51Z",
+  "fresh_test_count": 400000,
+  "git_commit": "f1c16ad9419367b228447ff325f822e9249f7593",
+  "model_digests": [
+    {
+      "manifest_sha256": "b951f8c848b08b34f27f517e1d9f16ec4b79b69d055c3a0466f90ed0b4f59e96",
+      "model": "lstm-gaussian",
+      "model_json_sha256": "c5ab6e3fd71bb08dae18df56e64f89269b174d72eb7440894f323368a0ac1310",
+      "weights_sha256": "05e36db5cf1225e9b38c1608e924d3cda4debc217949f5305a0a9f24d1f971f2"
+    }
+  ],
+  "phase_a_experiment": "20261106-p6-research",
+  "plans": [
+    "configs/phase4/u/plan.json"
+  ],
+  "rationale": "Seed-211 validation (experiments/20261106-p6-research): the raw stated sds are miscalibrated for both trackers (q50 0.17-0.47 and q90 0.68-1.69, against 0.674 and 1.645 for an honest Gaussian: typical intervals too wide). Two-fold check (fit on even-indexed scenarios, judge odd): the fused tracker's coverage is within nominal ± 2 pp on all six (log-range 49.9/90.4%, course 50.8/89.8%, speed 48.5/90.2%; none wholly beyond), and its median calibrated 90% width is 0.747 [0.738, 0.755] (log-range), 0.940 [0.926, 0.954] (course) and 0.899 [0.882, 0.913] (speed) of the reference's. Carried under the validation rule (C.13). Forecast before scoring: P(G7 pass on seed 215) about 80%; weakest check speed-50 (48.5% on the odd half against a floor of 48%).",
+  "reference_estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+  "stalled": false,
+  "test_seed": "215"
+}

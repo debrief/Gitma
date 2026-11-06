@@ -1,0 +1,28 @@
+{
+  "id": "p4v",
+  "description": "Spec 018 re-score (SRD Annex C \u00a7C.13, C.5: one re-score of the same frozen multipliers on a larger fresh seed): the fused tracker's calibrated uncertainty, decision 33's tracker, reference and multipliers unchanged, judged at G7 on fresh seed 216 (1,100,000; its 110,000-scenario test split, generated alone, sized by the G7 panel so that a \u00b10.3 pp coverage interval is reachable). Nothing is trained or refitted.",
+  "dataset": {
+    "seed": "211",
+    "count": 100000,
+    "ranges": "configs/phase4-ranges.json",
+    "heldout_ranges": "configs/phase4-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "870aff4e5f14d76b9da8b39e68c32cc64a9344ba97c2b535ef468c707db59208",
+      "validation.f32pack": "afefe28892e1e361029d799414f3637ea0211c500ed75acb85c79f1592d3c127",
+      "test.f32pack": "05f1ce53be676c9b4b1a597396f01af35b55fa048cad8fa751b2bb262fd70d77",
+      "heldout.f32pack": "9fb7293ab9fae55389789082bc4bc4d5673d3fd56de7c90362de873919e69510"
+    },
+    "fresh_test": {
+      "seed": "216",
+      "count": 1100000,
+      "digest": "06e883dcdea1f92184fc1a5ceca497e061b54e1fbb092f0292705a0440555553"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/phase4/b",
+  "models": ["tracker"],
+  "evaluate": {
+    "command": "models",
+    "split": "validation"
+  }
+}

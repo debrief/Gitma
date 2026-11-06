@@ -1,0 +1,34 @@
+{
+  "checks": [
+    {
+      "ci_level": 0.95,
+      "detail": "crate-lstm-gaussian-w6 / cusum-mean-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-c0.5-x3 median detection delay over 7479 course-change events in 3992 scenarios is undefined: at these thresholds at least one detector misses half the events or more (median +∞)",
+      "name": "crate-lstm-gaussian-w6:g6-delay",
+      "result": "inconclusive",
+      "threshold": 1
+    },
+    {
+      "ci_high": -0.07732233164759117,
+      "ci_level": 0.95,
+      "ci_low": -0.10157804004773903,
+      "detail": "detected within 300 s: crate-lstm-gaussian-w6 19.23% vs cusum-mean-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-c0.5-x3 28.17%; difference -8.95 pp, 95% CI [-10.16, -7.73] pp, margin -2 pp",
+      "name": "crate-lstm-gaussian-w6:g6-detect5",
+      "result": "fail",
+      "threshold": -0.02,
+      "value": -0.08945046129161653
+    },
+    {
+      "ci_high": 1.1885057471264369,
+      "ci_level": 0.95,
+      "ci_low": 0.8346938775510204,
+      "detail": "false alarms on 896.6 quiet hours: crate-lstm-gaussian-w6 0.500/h vs cusum-mean-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-c0.5-x3 0.500/h (thresholds 78.0566 and 0.920306, set on validation for 0.5/h); ratio 1.0000, 95% CI [0.8347, 1.1885], limit 1.25",
+      "name": "crate-lstm-gaussian-w6:g6-false-alarms",
+      "result": "pass",
+      "threshold": 1.25,
+      "value": 1
+    }
+  ],
+  "decided_by": "validation diagnostic (spec 017): not a gate decision",
+  "gate": "G6",
+  "result": "fail"
+}
