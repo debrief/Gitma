@@ -1,0 +1,19 @@
+{
+  "decision": "experiments/20261106-p6v-rescore-decision/decision.json",
+  "decision_sha256": "1550a80ccb36998637601783979aa51f01ca759ef47a512ebf97afc8c7f82aa8",
+  "gate": "G7",
+  "recomputed": [
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+      "sample_sha256": "37dcb27ecb2bc9a6c53c74a8403f2283a658b3ecd8f909fc8ad56fd6a58637af",
+      "scenarios": 200
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+      "sample_sha256": "37dcb27ecb2bc9a6c53c74a8403f2283a658b3ecd8f909fc8ad56fd6a58637af",
+      "scenarios": 200
+    }
+  ],
+  "test_seed": "216",
+  "truth_sha256": "e73f3f989f4b44830f43d61bed85a33b0d75de5ae8f713244ecf4da5cd3274ee"
+}
