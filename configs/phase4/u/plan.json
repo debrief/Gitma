@@ -15,7 +15,7 @@
     "fresh_test": {
       "seed": "215",
       "count": 400000,
-      "digest": "PLACEHOLDER"
+      "digest": "4cd78c30882ebb4e26f3c08cd5197b1e38c088f6320e0b14895ff958d7be952d"
     }
   },
   "feature_set": "derived",
