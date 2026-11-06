@@ -26,7 +26,7 @@ import {
   selectQuantile,
 } from "./bootstrap.js";
 import type { PredictionSet } from "./evaluate.js";
-import { type G5Row, g5Rows } from "./gate-g5.js";
+import { g5Rows } from "./gate-g5.js";
 
 export const G7_OUTPUTS = ["log_range", "course", "speed"] as const;
 export type G7Output = (typeof G7_OUTPUTS)[number];
@@ -50,23 +50,54 @@ function truthAt(s: Scenario, k: number): { range: number; course: number; speed
   };
 }
 
-function rowAt(set: PredictionSet, s: Scenario, k: number): PredictionRow | undefined {
-  const p = set.byIndex.get(s.metadata.index);
-  if (p === undefined)
-    throw new Error(`${set.label}: no prediction for scenario ${String(s.metadata.index)}`);
-  const dt = s.metadata.parameters.dt_s;
-  return p.rows.find((r) => Math.round(r.timestamp_s / dt) === k);
+/**
+ * One G5 row as G7 needs it: the scenario's index and dt, the row's sample, its cluster (G5's
+ * numbering) and the truth there. Compact, so a large split can be streamed (spec 018 re-score).
+ */
+export interface G7Row {
+  index: number;
+  k: number;
+  dt: number;
+  cluster: number;
+  range: number;
+  course: number;
+  speed: number;
 }
 
-/** Signed error and stated sd of one output at one row; null when there is no estimate or sd. */
-export function errorAndSd(
-  s: Scenario,
-  k: number,
+/** G5's rows of `truth` (σ = 1°, zig + 5/10/15/20 min) as compact G7 rows, one scenario at a time. */
+export function g7Rows(truth: Iterable<Scenario>): G7Row[] {
+  const out: G7Row[] = [];
+  let cluster = 0;
+  for (const s of truth) {
+    const rows = g5Rows([s]);
+    if (rows.length === 0) continue;
+    for (const r of rows)
+      out.push({
+        index: s.metadata.index,
+        k: r.k,
+        dt: s.metadata.parameters.dt_s,
+        cluster,
+        ...truthAt(s, r.k),
+      });
+    cluster++;
+  }
+  return out;
+}
+
+function rowAt(set: PredictionSet, r: G7Row): PredictionRow | undefined {
+  const p = set.byIndex.get(r.index);
+  if (p === undefined)
+    throw new Error(`${set.label}: no prediction for scenario ${String(r.index)}`);
+  return p.rows.find((x) => Math.round(x.timestamp_s / r.dt) === r.k);
+}
+
+/** Signed error and stated sd of one output against truth `t`; null without an estimate or sd. */
+function errorAndSdAt(
+  t: { range: number; course: number; speed: number },
   r: PredictionRow | undefined,
   out: G7Output,
 ): { e: number; sd: number } | null {
   if (r === undefined || !r.converged) return null;
-  const t = truthAt(s, k);
   const sd =
     out === "log_range" ? r.log_range_sd : out === "course" ? r.course_sd_rad : r.speed_sd_mps;
   if (sd == null || !(sd > 0) || !Number.isFinite(sd)) return null;
@@ -79,35 +110,45 @@ export function errorAndSd(
   return Number.isFinite(e) ? { e, sd } : null;
 }
 
+/** Signed error and stated sd of one output at row k of `s`; null when there is no estimate or sd. */
+export function errorAndSd(
+  s: Scenario,
+  k: number,
+  r: PredictionRow | undefined,
+  out: G7Output,
+): { e: number; sd: number } | null {
+  return errorAndSdAt(truthAt(s, k), r, out);
+}
+
 /** z = |e| / sd per row (+∞ without an estimate or a stated sd). */
 export function normalisedErrors(
-  rows: readonly G5Row[],
+  rows: readonly G7Row[],
   set: PredictionSet,
   out: G7Output,
 ): Float64Array {
   return Float64Array.from(rows, (r) => {
-    const x = errorAndSd(r.s, r.k, rowAt(set, r.s, r.k), out);
+    const x = errorAndSdAt(r, rowAt(set, r), out);
     return x === null ? Infinity : Math.abs(x.e) / x.sd;
   });
 }
 
 /** 90% widths 2 · m90 · sd per row, in log units, degrees or knots (+∞ without an estimate). */
 export function widths(
-  rows: readonly G5Row[],
+  rows: readonly G7Row[],
   set: PredictionSet,
   out: G7Output,
   m90: number,
 ): Float64Array {
   const unit = out === "course" ? DEG : out === "speed" ? KT : 1;
   return Float64Array.from(rows, (r) => {
-    const x = errorAndSd(r.s, r.k, rowAt(set, r.s, r.k), out);
+    const x = errorAndSdAt(r, rowAt(set, r), out);
     return x === null ? Infinity : 2 * m90 * x.sd * unit;
   });
 }
 
 /** The 50% and 90% multipliers of `set` on `rows`, per output. */
 export function fitCalibration(
-  rows: readonly G5Row[],
+  rows: readonly G7Row[],
   set: PredictionSet,
 ): UncertaintyCalibration[] {
   return G7_OUTPUTS.map((output) => {
@@ -121,7 +162,7 @@ export function fitCalibration(
   });
 }
 
-function clustersOf(rows: readonly G5Row[]): Int32Array {
+function clustersOf(rows: readonly G7Row[]): Int32Array {
   const ids = new Map<number, number>();
   return Int32Array.from(rows, (r) => {
     const c = ids.get(r.cluster);
@@ -143,7 +184,7 @@ const calOf = (
 
 /** Coverage checks of one set (gated or reported) at its multipliers. */
 function coverageChecks(
-  rows: readonly G5Row[],
+  rows: readonly G7Row[],
   cl: Int32Array,
   set: PredictionSet,
   cal: readonly UncertaintyCalibration[],
@@ -194,14 +235,13 @@ function coverageChecks(
  * - g7-width-<output>: median 90% width tracker / reference, wholly below 1 (gated).
  */
 export function g7Checks(
-  truth: Iterable<Scenario>,
+  rows: readonly G7Row[],
   tracker: PredictionSet,
   reference: PredictionSet,
   cal: readonly UncertaintyCalibration[],
   resamples = BOOTSTRAP_RESAMPLES,
   seed = BOOTSTRAP_SEED,
 ): GateCheck[] {
-  const rows = g5Rows(truth);
   if (rows.length === 0) throw new Error("G7: no σ = 1° rows at zig + 5–20 min");
   const cl = clustersOf(rows);
   const checks = coverageChecks(rows, cl, tracker, cal, true, resamples, seed);

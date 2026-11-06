@@ -6,7 +6,7 @@ import type { ParameterRanges, Prediction, PredictionRow, Scenario } from "@tma/
 import { describe, expect, it } from "vitest";
 import type { PredictionSet } from "../src/evaluate.js";
 import { g5Rows } from "../src/gate-g5.js";
-import { fitCalibration, g7Checks, g7Verdict, normalisedErrors } from "../src/gate-g7.js";
+import { fitCalibration, g7Checks, g7Rows, g7Verdict, normalisedErrors } from "../src/gate-g7.js";
 
 const PHASE4 = JSON.parse(
   readFileSync(new URL("../../../configs/phase4-ranges.json", import.meta.url), "utf8"),
@@ -62,9 +62,16 @@ function synthetic(
 }
 
 describe("G7 scoring (spec 018)", () => {
-  const rows = g5Rows(scen);
+  const rows = g7Rows(scen);
   const honest = synthetic("sharp", [0.05, 0.05, 0.3], 1, 1n);
   const wide = synthetic("wide", [0.1, 0.1, 0.6], 1, 2n);
+
+  it("streamed rows are G5's rows, in G5's order and clusters", () => {
+    const g5 = g5Rows(scen);
+    expect(rows.map((r) => [r.index, r.k, r.cluster])).toEqual(
+      g5.map((r) => [r.s.metadata.index, r.k, r.cluster]),
+    );
+  });
 
   it("an honest Gaussian's multipliers are its quantiles: about 0.674 and 1.645", () => {
     const cal = fitCalibration(rows, honest);
@@ -86,7 +93,7 @@ describe("G7 scoring (spec 018)", () => {
     // Multipliers fitted on independent draws from the same process (out of sample).
     const fitT = fitCalibration(rows, synthetic("sharp", [0.05, 0.05, 0.3], 1, 11n));
     const fitR = fitCalibration(rows, synthetic("wide", [0.1, 0.1, 0.6], 1, 12n));
-    const v = g7Verdict(g7Checks(scen, honest, wide, [...fitT, ...fitR], 200));
+    const v = g7Verdict(g7Checks(rows, honest, wide, [...fitT, ...fitR], 200));
     expect(v.gate).toBe("G7");
     const gated = v.checks.filter((c) => !c.name.endsWith("-reported"));
     expect(gated).toHaveLength(9);
@@ -99,11 +106,11 @@ describe("G7 scoring (spec 018)", () => {
     const fitR = fitCalibration(rows, synthetic("wide", [0.1, 0.1, 0.6], 1, 12n));
     // At test the tracker's errors are 1.5 × larger than it states: undercoverage.
     const drifted = synthetic("sharp", [0.075, 0.075, 0.45], 2 / 3, 13n);
-    const v = g7Verdict(g7Checks(scen, drifted, wide, [...fitT, ...fitR], 200));
+    const v = g7Verdict(g7Checks(rows, drifted, wide, [...fitT, ...fitR], 200));
     expect(v.checks.find((c) => c.name.endsWith("g7-coverage-course-90"))?.result).toBe("fail");
     expect(v.result).toBe("fail");
     // The wide estimator as the tracker against the sharp one: widths fail.
-    const w = g7Verdict(g7Checks(scen, wide, honest, [...fitT, ...fitR], 200));
+    const w = g7Verdict(g7Checks(rows, wide, honest, [...fitT, ...fitR], 200));
     expect(w.checks.find((c) => c.name.endsWith("g7-width-speed"))?.result).toBe("fail");
   });
 });

@@ -13,12 +13,20 @@
 //   - scored once.
 //   Writes verdict.json and scoring.json (exit 3 unless pass).
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { fileDigest } from "@tma/classical";
-import { isMain, readDataset, runCli, UsageError } from "@tma/data";
-import type { GateRecomputation, GateScoring, Scenario, UncertaintyCalibration } from "@tma/types";
+import { canonicalJson, isMain, readDataset, runCli, UsageError } from "@tma/data";
+import {
+  ChangeDecision,
+  type GateRecomputation,
+  GateScoring,
+  GateVerdict,
+  parseRecord,
+  type Scenario,
+  type UncertaintyCalibration,
+} from "@tma/types";
 import {
   priorGateScorings,
   repoTop,
@@ -27,8 +35,7 @@ import {
   requireScoredOnce,
 } from "./cli-g5.js";
 import { prettyJson } from "./experiment.js";
-import { g5Rows } from "./gate-g5.js";
-import { G7_OUTPUTS, fitCalibration, g7Checks, g7Verdict } from "./gate-g7.js";
+import { G7_OUTPUTS, fitCalibration, g7Checks, g7Rows, g7Verdict } from "./gate-g7.js";
 import { openPredictionSet, scenarioSource } from "./prediction-file.js";
 import { digestCache, requireRecomputed, sampleScenarios } from "./recompute.js";
 
@@ -58,6 +65,63 @@ export function requireCalibrations(
   return out;
 }
 
+/**
+ * A G7 re-score decision (`rescore_of`, as SRD Annex C §C.13 and C.5 allow once): the named experiment
+ * holds an inconclusive G7 that is not itself a re-score, on another test seed; and this decision
+ * carries that one's tracker, reference and frozen multipliers exactly (the same frozen models).
+ */
+export function requireG7Rescore(d: ChangeDecision, decisionPath: string, top: string): void {
+  if (d.rescore_of == null) return;
+  const dir = join(top, d.rescore_of);
+  const verdict = parseRecord(
+    GateVerdict,
+    JSON.parse(readFileSync(join(dir, "verdict.json"), "utf8")),
+    dir,
+    1,
+  );
+  if (verdict.gate !== "G7" || verdict.result !== "inconclusive")
+    throw new UsageError(
+      `${decisionPath}: rescore_of ${d.rescore_of} is not an inconclusive G7 (${verdict.gate} ${verdict.result})`,
+    );
+  const scoring = parseRecord(
+    GateScoring,
+    JSON.parse(readFileSync(join(dir, "scoring.json"), "utf8")),
+    dir,
+    1,
+  );
+  if (scoring.test_seed === d.test_seed)
+    throw new UsageError(
+      `${decisionPath}: a re-score needs a fresh test seed, not ${d.test_seed} again`,
+    );
+  const orig = parseRecord(
+    ChangeDecision,
+    JSON.parse(readFileSync(join(top, scoring.decision), "utf8")),
+    scoring.decision,
+    1,
+  );
+  if (orig.rescore_of != null)
+    throw new UsageError(
+      `${decisionPath}: ${d.rescore_of} is itself a re-score; only one is allowed`,
+    );
+  const same = (a: unknown, b: unknown): boolean =>
+    canonicalJson(a ?? null) === canonicalJson(b ?? null);
+  const key = (c: UncertaintyCalibration) => `${c.estimator} ${c.output}`;
+  const sorted = (x: readonly UncertaintyCalibration[] | null | undefined) =>
+    [...(x ?? [])].sort((p, q) => key(p).localeCompare(key(q)));
+  if (!same(sorted(orig.calibrations), sorted(d.calibrations)))
+    throw new UsageError(
+      `${decisionPath}: a re-score must carry ${scoring.decision}'s frozen calibrations exactly`,
+    );
+  if (
+    orig.reference_estimator !== d.reference_estimator ||
+    !same(orig.carried_models, d.carried_models) ||
+    !same(orig.model_digests, d.model_digests)
+  )
+    throw new UsageError(
+      `${decisionPath}: a re-score must judge ${scoring.decision}'s tracker, reference and frozen models`,
+    );
+}
+
 export function main(argv: string[]): unknown {
   const { values } = parseArgs({
     args: argv,
@@ -81,15 +145,14 @@ export function main(argv: string[]): unknown {
   if (existsSync(out)) throw new UsageError(`${out} exists: a G7 split is scored once`);
   const t = openPredictionSet(tracker, truth);
   const r = openPredictionSet(reference, truth);
-  const scenarios: Scenario[] = Array.from(scenarioSource(truth));
+  // Streamed into compact rows: a large re-score split does not fit in memory as scenarios.
+  const rows = g7Rows(scenarioSource(truth));
   if (!gate) {
     if (values.decision || values["repeat-of"])
       throw new UsageError("--decision and --repeat-of apply to a test split only");
-    const rows = g5Rows(scenarios);
     const full = [...fitCalibration(rows, t), ...fitCalibration(rows, r)];
-    const even = scenarios.filter((s) => s.metadata.index % 2 === 0);
-    const odd = scenarios.filter((s) => s.metadata.index % 2 === 1);
-    const evenRows = g5Rows(even);
+    const evenRows = rows.filter((x) => x.index % 2 === 0);
+    const odd = rows.filter((x) => x.index % 2 === 1);
     const fold = [...fitCalibration(evenRows, t), ...fitCalibration(evenRows, r)];
     const verdict = {
       ...g7Verdict(g7Checks(odd, t, r, fold)),
@@ -122,6 +185,7 @@ export function main(argv: string[]): unknown {
     trackers: [t.estimator],
     reference: r.estimator,
   });
+  requireG7Rescore(d, values.decision, repoTop());
   const cal = requireCalibrations(
     d.calibrations ?? [],
     [t.estimator, r.estimator],
@@ -144,12 +208,15 @@ export function main(argv: string[]): unknown {
     top,
     "G7",
   );
-  const sample = sampleScenarios([...new Set(g5Rows(scenarios).map((x) => x.s.metadata.index))]);
+  const sample = sampleScenarios([...new Set(rows.map((x) => x.index))]);
+  const want = new Set(sample);
+  const sampled: Scenario[] = [];
+  for (const s of scenarioSource(truth)) if (want.has(s.metadata.index)) sampled.push(s);
   const given = [t, r, ...also];
   const recomputed = [t, r]
-    .map((x) => requireRecomputed(x, given, scenarios, sample, digestOf))
+    .map((x) => requireRecomputed(x, given, sampled, sample, digestOf))
     .filter((x): x is GateRecomputation => x !== null);
-  const verdict = g7Verdict(g7Checks(scenarios, t, r, cal));
+  const verdict = g7Verdict(g7Checks(rows, t, r, cal));
   const scoring: GateScoring = {
     gate: "G7",
     ...current,
