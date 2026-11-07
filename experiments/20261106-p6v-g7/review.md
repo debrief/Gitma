@@ -17,7 +17,7 @@ The machine verdict is **pass**:
 | TMA geometry | approve-with-findings | 0 | 0 | 3 |
 | Estimation and numerics | approve-with-findings | 0 | 2 | 2 |
 | Evaluation statistics | approve-with-findings | 0 | 1 | 3 |
-| Reproducibility | REPRO_VERDICT | 0 | REPRO_MAJOR | REPRO_MINOR |
+| Reproducibility | approve-with-findings | 0 | 0 | 2 |
 | Red team | approve-with-findings | 0 | 1 | 3 |
 
 All five agree that **pass** is the correct machine verdict under the pre-registered rules. None
@@ -43,7 +43,11 @@ What the reviewers verified:
     decision.
 
   There is one scoring. regimes.json for seeds 215 and 216 differs by no more than 1 pp anywhere.
-- **REPRO_SUMMARY**
+- **Reproducibility.** All five SHA-256s in `predictions.sha256` verify, and every plan content
+  digest checks. The test header is clean at a8706f7, which descends from 78c0234 (decision 34).
+  Re-running step 4 with `--repeat-of` (891 s) gave a `checks` array byte-identical to the
+  committed one. `scoring.json` differs only by `repeat_of`, and the 200-scenario sample hash is the
+  same.
 
 ### Major findings and responses
 
@@ -88,4 +92,11 @@ What the reviewers verified:
   one.
 - **The convention for coverage without vacuous rows** (geometry): rows with no estimate are left
   out of its denominator. This is stated wherever the figure is quoted.
+- **`packages/eval/dist/cli-g7.js` was stale against the source before the review**
+  (reproducibility). `tsc -b --force` changed only that file. It was most likely built before the
+  last lint and format edits to `cli-g7.ts` were committed in 6bdf735. Those edits removed an
+  unused import, an unnecessary assertion and a `String()` call, and changed nothing about
+  behaviour. The repeat used dist rebuilt from the committed source and gave identical checks, so
+  the verdict does not depend on that edit. From now on, a gate run is preceded by `pnpm build` on
+  a clean tree.
 - **`decided_by`** (red team): set once the panel closes.
