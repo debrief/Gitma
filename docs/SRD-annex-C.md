@@ -405,3 +405,15 @@ amends it before the decision record is committed.
   - **The shortfall looks systematic**, about 3 SE, plausibly from reusing seed-211 validation.
   - **What may follow.** One re-score on a larger fresh seed is allowed. The owner decides whether
     to run it, and whether to keep the agent-written rules for it.
+- **Outcome of the re-score (2026-11-07): G7 passes on seed 216** (decision 34, 110,000 test
+  scenarios, the same rules and frozen multipliers; agent panel rounds 1–2,
+  `experiments/20261106-p6v-g7/`). This is final.
+  - **Coverage.** Log-range 50% is 48.62% [48.33, 48.91]. All nine gated checks pass.
+  - **Widths.** 0.731 / 0.944 / 0.888 of the IMM's.
+  - **What is claimed.** Pooled coverage within the ±2 pp tolerance and narrower intervals; not
+    calibration. Log-range 50% is about 1.5 pp low on both seeds (pooled ~48.5%). Within regimes:
+    66.7% on settled rows before any manoeuvre and 38.7% after one. 16.9% of course 90% intervals
+    are vacuous, and 27% of speed 90% lower bounds are below 0.
+  - **The false-pass risk** over the two looks is at most about 5%. The pass judges the frozen
+    multipliers, not the procedure that fitted them.
+  - **Next.** The owner decides the follow-on. Conditional calibration would be a new design.
