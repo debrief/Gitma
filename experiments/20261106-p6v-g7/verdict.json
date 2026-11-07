@@ -151,7 +151,7 @@
       "value": 0.8961644473565932
     }
   ],
-  "decided_by": "machine verdict (pending agent review panel)",
+  "decided_by": "agent review panel, rounds 1-2 (no rejections, no open blocker or major; experiments/20261106-p6v-g7/review.md)",
   "gate": "G7",
   "result": "pass"
 }

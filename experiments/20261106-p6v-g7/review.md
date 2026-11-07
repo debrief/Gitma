@@ -99,4 +99,30 @@ What the reviewers verified:
   behaviour. The repeat used dist rebuilt from the committed source and gave identical checks, so
   the verdict does not depend on that edit. From now on, a gate run is preceded by `pnpm build` on
   a clean tree.
-- **`decided_by`** (red team): set once the panel closes.
+- **`decided_by`** (red team): now set to round 2.
+
+## Round 2
+
+Estimation, statistics and red team (the reviewers with major findings) re-read the responses and
+the write-ups at c9c7a90:
+
+| Reviewer | Verdict | Open |
+| --- | --- | --- |
+| Estimation and numerics | approve-with-findings | 2 minor |
+| Evaluation statistics | approve | 2 minor |
+| Red team | approve-with-findings | 3 minor |
+
+M1–M3 are closed. No reviewer rejects, and no blocker or major finding is open. Geometry and
+reproducibility had no majors in round 1.
+
+The minors were fixed as follows:
+- **The row set is named.** The 67% and 39% figures are now labelled as settled rows in AGENTS.md
+  and the fused-tracker note.
+- **"Calibrated" is reworded** to "cover within tolerance" in the blog's title, its bullet and its
+  closing line, and in the fused-tracker note.
+- **The second look and the frozen-multiplier caveat** are now stated in AGENTS.md, the
+  fused-tracker note and SRD §C.13.
+- **Validation reuse** is described as "weakened", not ruled out, as an explanation (statistics). T2's
+  epoch and the fusion's k and M were also chosen on that data. Only the multipliers' share is
+  ruled out by the IMM's nominal coverage.
+- **`decided_by`** is set.

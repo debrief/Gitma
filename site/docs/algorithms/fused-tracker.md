@@ -110,7 +110,7 @@ q-quantile of |error|/sd on validation, frozen in decision 33.
 
 - **Widths.** The fused tracker's median 90% width is 0.73 × (log-range), 0.95 × (course) and
   0.89 × (speed) the IMM's.
-- **Calibration holds only on the pooled rows.** Log-range 50% coverage is 67% on settled rows
+- **Coverage holds only on the pooled rows.** Log-range 50% coverage is 67% on settled rows
   before any manoeuvre and 38% after one. Course 50% is 76% settled and 30% unsettled.
 - **Many intervals carry little information.** 17% of course 90% intervals span the whole circle,
   and 27% of speed 90% intervals reach below 0.
@@ -122,8 +122,9 @@ One multiplier per output cannot fix the intervals' shape.
 49.4% / 89.9%. Widths are 0.73 / 0.94 / 0.89 × the IMM's. The regime pattern above repeats
 within a point, so the pass shows pooled coverage within tolerance:
 - log-range 50% is about 1.5 pp low on both seeds;
-- 67% before any manoeuvre and 39% after one;
+- 67% on settled rows before any manoeuvre and 39% after one;
 - 17% of course 90% intervals are vacuous.
 
-It does not show calibration.
+It does not show calibration. It was the second look (false-pass risk at most about 5% over both),
+and it judges these frozen multipliers, not the procedure that fitted them.
 

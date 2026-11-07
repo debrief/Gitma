@@ -1,5 +1,5 @@
 ---
-title: "Phase 6 re-score: G7 passes, but the intervals are only calibrated on average"
+title: "Phase 6 re-score: G7 passes, with coverage within tolerance on average but not calibrated"
 date: 2026-11-07
 ---
 
@@ -34,7 +34,7 @@ of its own, and another re-ran the gate. All five also agreed on how far the cla
   [48.3, 48.8]. That is inside the ±2-point tolerance but not centred on 50%. The pass rests on
   the tolerance. The reference IMM, fitted on the same validation data, lands on 50%. So reusing
   validation data does not explain the fused tracker's shortfall.
-- **The intervals are calibrated only on the pooled mix of rows.** Range at 50% covers:
+- **The intervals cover within tolerance only on the pooled mix of rows.** Range at 50% covers:
 
   | Rows                                       | Coverage |
   | ------------------------------------------ | -------- |
@@ -57,8 +57,8 @@ of its own, and another re-ran the gate. All five also agreed on how far the cla
 
 ## Phase 6 in one line
 
-On average over the G5 rows, the fused tracker's recalibrated intervals cover roughly what they
-say, and they are tighter than the IMM's. Within a regime they do not: the intervals are too wide
+On average over the G5 rows, the fused tracker's recalibrated intervals cover within the
+tolerance, with range about 1.5 points short, and they are tighter than the IMM's. Within a regime they do not: the intervals are too wide
 on quiet legs and too narrow after a manoeuvre, and its course intervals are often vacuous.
 Conditional calibration, for example a multiplier that depends on time since the last manoeuvre,
 would be a new design. The owner decides on the follow-on.
