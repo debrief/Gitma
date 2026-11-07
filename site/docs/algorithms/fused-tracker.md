@@ -117,3 +117,13 @@ q-quantile of |error|/sd on validation, frozen in decision 33.
 
 One multiplier per output cannot fix the intervals' shape.
 
+**Result of the one re-score, seed 216** (`experiments/20261106-p6v-g7/`; **pass**, final): on
+184,667 G5 rows, log-range 50% coverage is 48.6% [48.3, 48.9], course 50.5% / 90.3%, speed
+49.4% / 89.9%. Widths are 0.73 / 0.94 / 0.89 × the IMM's. The regime pattern above repeats
+within a point, so the pass shows pooled coverage within tolerance:
+- log-range 50% is about 1.5 pp low on both seeds;
+- 67% before any manoeuvre and 39% after one;
+- 17% of course 90% intervals are vacuous.
+
+It does not show calibration.
+
