@@ -31,3 +31,22 @@ node --max-old-space-size=12288 packages/eval/dist/cli-g5.js --truth $D/test.f32
 ( cd $D && sha256sum test.f32pack test.features.bin pred/*.ndjson ) > $E/predictions.sha256
 # 5. After the verdict is committed (decision 35): seed 218's phase-4-range twin and the clean
 #    comparison (scripts/research/spec019-clean.mjs), in a separate commit.
+C=$D/clean
+node scripts/generate-splits.mjs --seed 218 --count 400000 --ranges configs/phase4-ranges.json \
+  --heldout-ranges configs/phase4-heldout-ranges.json --out $C --splits test
+mkdir -p $C/pred
+node packages/features/dist/cli.js build --in $C/test.f32pack --norm $D/norm.json --feature-set derived \
+  --out $C/test.features.bin
+node packages/classical/dist/cli-track.js --in $C/test.f32pack --out $C/pred/test.imm.ndjson --filter imm $IMM &
+node packages/classical/dist/cli-track.js --in $C/test.f32pack --out $C/pred/test.ekf.ndjson --filter ekf \
+  --sigma-a 0.03 --p0-scale 4 --r-scale 8 --guarded-init 1 &
+node packages/models/dist/cli-predict.js --model $T2 --truth $C/test.f32pack \
+  --features $C/test.features.bin --out $C/pred/test.t2.ndjson --train $D/train.f32pack &
+wait
+node packages/eval/dist/cli-fuse-track.js --truth $C/test.f32pack --network $C/pred/test.t2.ndjson \
+  --out $C/pred/test.fused.ndjson $IMM
+for t in fused ekf t2; do
+  node scripts/research/spec019-clean.mjs $D/test.f32pack $C/test.f32pack $D/pred/test.$t.ndjson \
+    $D/pred/test.imm.ndjson $C/pred/test.$t.ndjson $C/pred/test.imm.ndjson > $E/clean-$t.json
+done
+( cd $D && sha256sum clean/test.f32pack clean/pred/*.ndjson ) > $E/clean.sha256
