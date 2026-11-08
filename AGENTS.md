@@ -364,9 +364,23 @@ trackers, with no training or re-tuning. The gate is G5's rules unchanged: the f
 - **Plans** can give `dataset.fresh_test.ranges`, and the digest check binds the header to them.
 - **`tma-model-predict`** treats 0.6.0 as 0.5.0 only when there is no bearing error
   (`EQUIVALENT_GENERATORS`), so T2 keeps seed 211's normalisation.
-- **Next.** Validation on seed 217, with the clean comparison by `scripts/research/spec019-clean.mjs`,
-  committed first. Then decision 35, G5 on seed 218 and a re-score on seed 219; seeds 217–219
-  are reserved from decision 35. The clean regeneration of seed 218 comes only after its verdict.
+- **Validation on seed 217 carried it** (`experiments/20261108-p7-val/`): fused/IMM range
+  0.777 and course 0.922.
+- **Decision 35** (`experiments/20261108-p7-decision/`, plan `configs/phase4/w`) set G5 on seed
+  218. Seeds 217–219 are reserved.
+- **G5 passed** (panel rounds 1–2, `experiments/20261108-p7-g5/`; write-up
+  `site/blog/2026-11-08-phase-7.md`): fused/IMM range 0.766 [0.755, 0.778], course 0.907; settled
+  0.774 / 0.875 / 0.907.
+- **Not shown:**
+  - **Against T2.** T2 alone has lower range error: 12.1% against 13.2%, fused/T2 1.095. T2 is
+    also the most robust, at 1.47 × its clean error against the IMM's 1.82 ×.
+  - **Against classical methods on straight legs.** The EKF wins on settled course (1.27 ×) and
+    speed, and batch least squares before any manoeuvre (7.3%, 2.2°).
+  - **Against an adapted reference.** The IMM is frozen, not adapted to correlated error.
+  - **Scale of the errors.** Every tracker degrades 1.5–2.1 ×.
+
+  Baselines: `baselines.json` and `lsq.json` (`scripts/research/spec019-baselines.mjs`,
+  `spec014-lsq.mjs`). The owner decides the follow-on.
 
 Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight

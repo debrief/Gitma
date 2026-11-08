@@ -128,3 +128,15 @@ within a point, so the pass shows pooled coverage within tolerance:
 It does not show calibration. It was the second look (false-pass risk at most about 5% over both),
 and it judges these frozen multipliers, not the procedure that fitted them.
 
+## Under realistic bearing error (spec 019, phase 7)
+
+Both trackers stay frozen, with no re-training or re-tuning. They are tested on bearings carrying
+a correlated term (1.0°, 30 s) and a drifting bias (0.5°, 20 min). G5 still passes against the
+frozen `-g1` IMM: range 0.766 × and course 0.907 × the IMM's on seed 218
+(`experiments/20261108-p7-g5/`).
+- **Range bias.** The IMM's range ends up biased about 7% short.
+- **T2 is the most robust component.** Its range error grows 1.47 ×, against the IMM's 1.82 ×.
+- **The fusion now under-weights T2.** With k = 4, chosen on clean data, the fused tracker's range
+  (13.2%) is worse than T2's alone (12.1%).
+- **Course on settled rows.** The EKF stays better: 10.6° against 13.5°.
+

@@ -508,3 +508,18 @@ it before the decision record is committed.
   either way.
 - **What a pass would show:** the advantage survives this one error model at this one severity.
   It would not show robustness to other models or severities, or to real data.
+- **Outcome (2026-11-08): G5 passes on seed 218** (decision 35; agent panel rounds 1–2,
+  `experiments/20261108-p7-g5/`). Fused/IMM: overall range 0.766 [0.755, 0.778] and course 0.907;
+  settled range 0.774, course 0.875 and speed 0.907. Validation on seed 217 agreed.
+  - **The advantage survives against a frozen reference.** It is not shown against an IMM adapted
+    to correlated error.
+  - **T2 alone has lower range error** than the fused tracker: 12.1% against 13.2%, fused/T2
+    1.095 [1.080, 1.113]. It is also the most robust: realistic/clean 1.47 ×, against the IMM's
+    1.82 × and the fused tracker's 1.68 ×. The fusion's frozen k gives it too little weight under
+    this error.
+  - **Classical methods remain better on straight legs.** The EKF wins on settled course (fused/EKF
+    1.27 ×) and speed. Batch least squares before any manoeuvre: 7.3% range, 2.2° course.
+  - **Every tracker degrades 1.5–2.1 ×.** The fused tracker's median range error is 13.2% and its
+    course error 27°. The scope is one error model at one severity.
+  - **Next.** The owner decides the follow-on. Re-tuning the fusion, or adding a bias state, would
+    be a new decision on a new seed.

@@ -56,4 +56,4 @@ node packages/classical/dist/cli-naive.js predict --model data/p4/naive-model.js
   --out $D/pred/test.naive.ndjson --per-timestep
 node scripts/research/spec019-baselines.mjs $D/test.f32pack $E/baselines.json $D/pred/test.fused.ndjson \
   $D/pred/test.imm.ndjson $D/pred/test.t2.ndjson $D/pred/test.ekf.ndjson $D/pred/test.naive.ndjson
-node scripts/research/spec014-lsq.mjs $D/test.f32pack $E/lsq.json
+node --max-old-space-size=8192 scripts/research/spec014-lsq.mjs $D/test.f32pack $E/lsq.json

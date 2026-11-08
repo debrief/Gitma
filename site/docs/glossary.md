@@ -15,7 +15,8 @@ sight, the change bearings respond to most. It is iteration 3's rule for both tu
 
 **Bearing error, realistic** — Generator 0.6.0's added bearing error (spec 019, SRD Annex C
 §C.14). It is a correlated Gauss–Markov term (sd 1.0°, τ 30 s) plus a drifting bias (sd 0.5°,
-τ 20 min), on top of the white noise σ. It is applied to σ > 0 scenarios only.
+τ 20 min), on top of the white noise σ. It is applied to σ > 0 scenarios only. Under it, G5 passed for the fused tracker against the
+frozen IMM (phase 7), but T2 alone had lower range error.
 
 **Bearing-line intercept** — c = x_o cos b − y_o sin b for ownship at (x_o, y_o) and bearing b: every
 point (x, y) on the line of bearing satisfies x cos b − y sin b = c. A derived input channel (in km,
