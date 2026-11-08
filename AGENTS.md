@@ -350,6 +350,39 @@ bindings. **Phase 5 stopped at validation** (`experiments/20261105-p5-research/v
   (`requireG7Rescore`: an inconclusive, non-re-score G7, a fresh seed, the same multipliers, names
   and models). Seeds 215–216 are reserved. The owner decides the follow-on.
 
+**Phase 7** (SRD Annex C §C.14, spec 019, owner 2026-11-08): realistic bearing error. Frozen
+trackers, with no training or re-tuning. The gate is G5's rules unchanged: the frozen
+`-g1` fused tracker against the frozen `-g1` IMM.
+- **Generator 0.6.0** (schema 0.21.0 `BearingErrorModel`, `configs/phase7-ranges.json`) adds a
+  Gauss–Markov term (1.0°, 30 s) and a drifting bias (0.5°, 20 min) to σ > 0 bearings.
+  - They come from the scenario's own stream (sub-index 2), so the geometry and white noise are
+    0.5.0's.
+  - A noise-free scenario has no bearing error.
+  - The owner doubled the agent's first severity after the G0 panel noted it.
+- **G0 passed on 0.6.0** (panel rounds 0–2, `experiments/20261108-g0-p7-r1/`). It adds the check
+  `bearing-error-model`; the tracker checks keep white noise.
+- **Plans** can give `dataset.fresh_test.ranges`, and the digest check binds the header to them.
+- **`tma-model-predict`** treats 0.6.0 as 0.5.0 only when there is no bearing error
+  (`EQUIVALENT_GENERATORS`), so T2 keeps seed 211's normalisation.
+- **Validation on seed 217 carried it** (`experiments/20261108-p7-val/`): fused/IMM range
+  0.777 and course 0.922.
+- **Decision 35** (`experiments/20261108-p7-decision/`, plan `configs/phase4/w`) set G5 on seed
+  218. Seeds 217–219 are reserved.
+- **G5 passed** (panel rounds 1–2, `experiments/20261108-p7-g5/`; write-up
+  `site/blog/2026-11-08-phase-7.md`): fused/IMM range 0.766 [0.755, 0.778], course 0.907; settled
+  0.774 / 0.875 / 0.907.
+- **Not shown:**
+  - **Against T2.** T2 alone has lower range error: 12.1% against 13.2%, fused/T2 1.095. T2 is
+    also the most robust, at 1.47 × its clean error against the IMM's 1.82 ×.
+  - **Against classical methods on straight legs.** The EKF wins on settled course (1.27 ×) and
+    speed, and batch least squares before any manoeuvre (7.3%, 2.2°).
+  - **Against an adapted reference.** The IMM is frozen, not adapted to correlated error.
+  - **Scale of the errors.** Every tracker degrades 1.5–2.1 ×.
+  - **Consistency.** NIS, NEES and non-PD counts under correlated error were not measured.
+
+  Baselines: `baselines.json` and `lsq.json` (`scripts/research/spec019-baselines.mjs`,
+  `spec014-lsq.mjs`). The owner decides the follow-on.
+
 Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted

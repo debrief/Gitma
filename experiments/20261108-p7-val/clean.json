@@ -1,0 +1,151 @@
+{
+  "resamples": 2000,
+  "seed": "20261011",
+  "level": 0.95,
+  "results": [
+    {
+      "rows": "all",
+      "n": 16711,
+      "scenarios": 4995,
+      "metric": "range_rel",
+      "statistic": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6 realistic/clean",
+      "value": 1.692051080325595,
+      "ci95": [
+        1.6364134008294864,
+        1.7524177792069462
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 16711,
+      "scenarios": 4995,
+      "metric": "range_rel",
+      "statistic": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1 realistic/clean",
+      "value": 1.8386932410374726,
+      "ci95": [
+        1.7758796004970463,
+        1.9071829327181071
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 16711,
+      "scenarios": 4995,
+      "metric": "range_rel",
+      "statistic": "interaction (tracker/reference realistic ÷ clean)",
+      "value": 0.9202465330056168,
+      "ci95": [
+        0.8876754618403854,
+        0.9535390877053194
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 16711,
+      "scenarios": 4995,
+      "metric": "course_deg",
+      "statistic": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6 realistic/clean",
+      "value": 1.2888150707747423,
+      "ci95": [
+        1.245274095967498,
+        1.3278116063942114
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 16711,
+      "scenarios": 4995,
+      "metric": "course_deg",
+      "statistic": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1 realistic/clean",
+      "value": 1.3028690383819257,
+      "ci95": [
+        1.2533576955943224,
+        1.3526994554735037
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 16711,
+      "scenarios": 4995,
+      "metric": "course_deg",
+      "statistic": "interaction (tracker/reference realistic ÷ clean)",
+      "value": 0.9892130619477784,
+      "ci95": [
+        0.9562289301457016,
+        1.0189544904593484
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 7509,
+      "scenarios": 3894,
+      "metric": "range_rel",
+      "statistic": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6 realistic/clean",
+      "value": 1.8501639337480131,
+      "ci95": [
+        1.7662226701814454,
+        1.9477534719096046
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 7509,
+      "scenarios": 3894,
+      "metric": "range_rel",
+      "statistic": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1 realistic/clean",
+      "value": 2.0931849583318844,
+      "ci95": [
+        1.9886733602426334,
+        2.204574323377534
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 7509,
+      "scenarios": 3894,
+      "metric": "range_rel",
+      "statistic": "interaction (tracker/reference realistic ÷ clean)",
+      "value": 0.8838989246427887,
+      "ci95": [
+        0.8389511545912333,
+        0.9355748184055
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 7509,
+      "scenarios": 3894,
+      "metric": "course_deg",
+      "statistic": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6 realistic/clean",
+      "value": 1.9090886243279994,
+      "ci95": [
+        1.8221583072053078,
+        1.9960639120423476
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 7509,
+      "scenarios": 3894,
+      "metric": "course_deg",
+      "statistic": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1 realistic/clean",
+      "value": 2.056580241751763,
+      "ci95": [
+        1.970514824059193,
+        2.1641654617018173
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 7509,
+      "scenarios": 3894,
+      "metric": "course_deg",
+      "statistic": "interaction (tracker/reference realistic ÷ clean)",
+      "value": 0.9282830718542096,
+      "ci95": [
+        0.8812158041253194,
+        0.9668902173157155
+      ]
+    }
+  ]
+}

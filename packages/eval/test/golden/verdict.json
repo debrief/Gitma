@@ -36,6 +36,11 @@
       "result": "pass"
     },
     {
+      "detail": "not applicable: the ranges have no bearing_error (generator 0.6.0 checks only)",
+      "name": "bearing-error-model",
+      "result": "pass"
+    },
+    {
       "detail": "two in-process naive fits gave identical metrics (determinism only; cross-process and cross-commit reproduction is shown by re-running G0 from the manifest)",
       "name": "naive-baseline-reproduces",
       "result": "pass"

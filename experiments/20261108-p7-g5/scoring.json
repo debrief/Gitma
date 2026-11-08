@@ -1,0 +1,19 @@
+{
+  "decision": "experiments/20261108-p7-decision/decision.json",
+  "decision_sha256": "89ef2f57322b555d15910a464c75b632542ecce2bf31f31021a197b29529dfc0",
+  "gate": "G5",
+  "recomputed": [
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6",
+      "sample_sha256": "47e58cd10954e5bc390b1297eaa5a78e284e240292bd8152d0fc80e72f0d7c64",
+      "scenarios": 200
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1",
+      "sample_sha256": "47e58cd10954e5bc390b1297eaa5a78e284e240292bd8152d0fc80e72f0d7c64",
+      "scenarios": 200
+    }
+  ],
+  "test_seed": "218",
+  "truth_sha256": "2e99d2265d9d3794b79766869dc19bcaec209659b7962b193b0e9c8f7fb4f24c"
+}

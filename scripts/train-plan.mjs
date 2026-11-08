@@ -48,6 +48,9 @@ export const RESERVED_SEEDS = {
   212: "the phase-4 G5 test (fresh test only; spec 012)",
   213: "the phase-4b hybrid G5 test (fresh test only; spec 013)",
   214: "the phase-4c fused-tracker G5 test (fresh test only; spec 014)",
+  217: "phase 7 validation research (spec 019)",
+  218: "the phase-7 G5 test (fresh test only; spec 019)",
+  219: "the phase-7 G5 re-score (fresh test only; spec 019)",
 };
 /** Dataset seeds owned by one iteration's plans: its test split decided that iteration's gate. */
 export const ITERATION_DATASET_SEEDS = { 201: "2", 204: "3", 205: "4" };
@@ -88,6 +91,13 @@ export const RESERVED_TEST_SEEDS = {
     for: "phase 6 G7 re-score (spec 018, fresh test, 1,100,000)",
     plan: "configs/phase4/v/plan.json",
   },
+  // Phase 7 (spec 019, decision 35): 217 was its validation research (phase-7 and phase-4 ranges).
+  217: { for: "phase 7 validation research (spec 019; experiments/20261108-p7-val)" },
+  218: {
+    for: "phase 7 realistic-bearing-error G5 (spec 019, fresh test)",
+    plan: "configs/phase4/w/plan.json",
+  },
+  219: { for: "phase 7 G5 re-score, if needed (spec 019, fresh test, 1,100,000)" },
 };
 
 class PlanError extends Error {}
@@ -215,7 +225,11 @@ export function loadPlan(path) {
       fail("dataset.fresh_test.digest must be a SHA-256 (hex) or a PLACEHOLDER");
     if (f.count !== undefined && (!Number.isInteger(f.count) || f.count < 1))
       fail("dataset.fresh_test.count must be a positive integer");
-    const known = ["seed", "digest", "count"];
+    // Phase 7 (spec 019, SRD Annex C §C.14): the fresh test split may use other ranges (realistic
+    // bearing error) while training data and normalisation stay the plan's.
+    if (f.ranges !== undefined && (typeof f.ranges !== "string" || !existsSync(f.ranges)))
+      fail("dataset.fresh_test.ranges must name an existing ranges file");
+    const known = ["seed", "digest", "count", "ranges"];
     for (const k of Object.keys(f))
       if (!known.includes(k)) fail(`dataset.fresh_test.${k}: unknown key`);
   }
@@ -288,6 +302,17 @@ export function resolve(input, ref) {
 }
 
 /** The JSON header of a .f32pack (bytes 16 to 16 + H). */
+/** JSON with object keys sorted at every level, for comparing records parsed in any key order. */
+function sortedJson(v) {
+  if (Array.isArray(v)) return `[${v.map(sortedJson).join(",")}]`;
+  if (v !== null && typeof v === "object")
+    return `{${Object.keys(v)
+      .sort()
+      .map((k) => `${JSON.stringify(k)}:${sortedJson(v[k])}`)
+      .join(",")}}`;
+  return JSON.stringify(v);
+}
+
 export function packHeader(path) {
   const fd = openSync(path, "r");
   try {
@@ -313,13 +338,19 @@ export function checkDigests(plan, dir) {
   if (fresh !== undefined) {
     const h = packHeader(join(dir, "test.f32pack"));
     const [start, end] = testIndices(fresh.count ?? plan.dataset.count);
+    // The header must also record the ranges the plan names for it (spec 019 G0 panel, red team:
+    // otherwise a split generated with other ranges, its digest pinned, would pass).
+    const rangesFile = fresh.ranges ?? plan.dataset.ranges;
+    const rangesOk =
+      sortedJson(h.parameter_ranges) === sortedJson(JSON.parse(readFileSync(rangesFile, "utf8")));
     const ok =
       h.dataset_seed === fresh.seed &&
       h.split === "test" &&
       h.index_start === start &&
-      h.index_end === end;
+      h.index_end === end &&
+      rangesOk;
     lines.push(
-      `${ok ? "ok " : "BAD"} test.f32pack header seed ${String(h.dataset_seed)} index [${String(h.index_start)}, ${String(h.index_end)})${ok ? "" : ` (plan: seed ${fresh.seed} index [${String(start)}, ${String(end)}))`}`,
+      `${ok ? "ok " : "BAD"} test.f32pack header seed ${String(h.dataset_seed)} index [${String(h.index_start)}, ${String(h.index_end)}), ranges ${rangesOk ? `= ${rangesFile}` : `≠ ${rangesFile}`}${ok ? "" : ` (plan: seed ${fresh.seed} index [${String(start)}, ${String(end)}))`}`,
     );
     if (!ok) bad.push("test.f32pack header");
   }
@@ -353,8 +384,8 @@ const run = (script, args) =>
 
 /**
  * Generate the plan's dataset, check its digests, and build features for `splits`. With a
- * `fresh_test`, test.f32pack is replaced by the test split of that seed's dataset (same ranges;
- * count `fresh_test.count`, else the plan's), generated alone by scripts/generate-splits.mjs
+ * `fresh_test`, test.f32pack is replaced by the test split of that seed's dataset (the plan's
+ * ranges unless `fresh_test.ranges` names others; count `fresh_test.count`, else the plan's), generated alone by scripts/generate-splits.mjs
  * (byte-identical to tma-generate's: a split's bytes do not depend on the others), so a large
  * fresh count never generates its train split; the plan's own test split is discarded, never
  * scored.
@@ -363,13 +394,13 @@ export function data(plan, dir, splits) {
   const d = plan.dataset;
   // Tests only: generate from a working tree with changes; headers then record it.
   const dirty = process.env.TRAIN_PLAN_ALLOW_DIRTY === "1" ? ["--allow-dirty"] : [];
-  const args = (seed, out, count) => [
+  const args = (seed, out, count, ranges = d.ranges) => [
     "--seed",
     seed,
     "--count",
     String(count),
     "--ranges",
-    d.ranges,
+    ranges,
     "--heldout-ranges",
     d.heldout_ranges,
     "--out",
@@ -381,7 +412,11 @@ export function data(plan, dir, splits) {
   if (fresh !== undefined) {
     const tmp = join(dir, ".fresh-test");
     rmSync(tmp, { recursive: true, force: true });
-    run(GENERATE_SPLITS, [...args(fresh.seed, tmp, fresh.count ?? d.count), "--splits", "test"]);
+    run(GENERATE_SPLITS, [
+      ...args(fresh.seed, tmp, fresh.count ?? d.count, fresh.ranges ?? d.ranges),
+      "--splits",
+      "test",
+    ]);
     renameSync(join(tmp, "test.f32pack"), join(dir, "test.f32pack"));
     rmSync(tmp, { recursive: true, force: true });
   }

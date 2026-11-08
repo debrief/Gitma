@@ -17,12 +17,14 @@ function compatible(file: string, build: string): boolean {
  * Generator versions whose files this build reads. 0.2.0 (rate-limited turn) reproduces 0.1.0
  * byte for byte when the ranges have no turn rate, and 0.3.0 (second zig, across-LOS rule)
  * reproduces 0.2.0 when the ranges have neither, and 0.4.0 (target course change) reproduces
- * 0.3.0 when the ranges have no target manoeuvre fraction, so earlier datasets stay readable.
+ * 0.3.0 when the ranges have no target manoeuvre fraction, and 0.6.0 (realistic bearing error)
+ * reproduces 0.5.0 when the ranges have no bearing_error, so earlier datasets stay readable.
  */
 export const READABLE_GENERATOR_VERSIONS: readonly string[] = [
   "0.1.0",
   "0.2.0",
   "0.3.0",
+  "0.5.0",
   GENERATOR_VERSION,
 ];
 

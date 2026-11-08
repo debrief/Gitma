@@ -1,0 +1,26 @@
+{
+  "carried_models": [
+    "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6"
+  ],
+  "carried_set_rule": "One estimator is judged: the frozen -g1 fused tracker named in carried_models (decision 31's fused tracker on decision 32's guarded reference), with T2 bound by model_digests and the fused file tied to T2's prediction file by tma-g5's prediction chain. G5 exactly as Annex C §C.5 (five gated checks, 97.5% intervals, scenario-clustered bootstrap); pass if every gated check passes, fail if any fails, otherwise inconclusive, with one re-score on seed 219 (1,100,000; 110,000-scenario test split, phase-7 ranges).",
+  "change": "Phase 7 (SRD Annex C §C.14, owner decisions 2026-11-08): judge the frozen fused tracker against the frozen IMM at G5 unchanged on data with realistic bearing error (generator 0.6.0, configs/phase7-ranges.json: Gauss-Markov 1.0 deg / 30 s plus a drifting bias 0.5 deg / 20 min). Nothing is trained, re-tuned or refitted; T2 keeps seed 211's normalisation.",
+  "decided_at": "2026-11-08T19:54:28Z",
+  "fresh_test_count": 400000,
+  "git_commit": "192d1246e5a8b826aee5bc64648d973bbea8d50d",
+  "model_digests": [
+    {
+      "manifest_sha256": "b951f8c848b08b34f27f517e1d9f16ec4b79b69d055c3a0466f90ed0b4f59e96",
+      "model": "lstm-gaussian",
+      "model_json_sha256": "c5ab6e3fd71bb08dae18df56e64f89269b174d72eb7440894f323368a0ac1310",
+      "weights_sha256": "05e36db5cf1225e9b38c1608e924d3cda4debc217949f5305a0a9f24d1f971f2"
+    }
+  ],
+  "phase_a_experiment": "20261108-p7-val",
+  "plans": [
+    "configs/phase4/w/plan.json"
+  ],
+  "rationale": "On seed 217's validation split with realistic error (tma-g5 diagnostic, experiments/20261108-p7-val): fused/IMM overall range 0.777 [0.756, 0.798], course 0.922 [0.896, 0.942]; settled range 0.778, course 0.876, speed 0.889; every point within its limit (the carry rule), every interval too. Every tracker degrades (median range 1.7-1.8 x clean); the fused tracker least on range (interaction 0.920 [0.888, 0.954]). Forecast before scoring: P(G5 pass on seed 218) about 95%; the weakest check is overall course (upper bound 0.942 on validation).",
+  "reference_estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1",
+  "stalled": false,
+  "test_seed": "218"
+}

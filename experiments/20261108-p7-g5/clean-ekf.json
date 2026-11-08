@@ -1,0 +1,151 @@
+{
+  "resamples": 2000,
+  "seed": "20261011",
+  "level": 0.95,
+  "results": [
+    {
+      "rows": "all",
+      "n": 67261,
+      "scenarios": 20069,
+      "metric": "range_rel",
+      "statistic": "ekf-sa0.03-p4-r8-g1 realistic/clean",
+      "value": 1.7220640991945142,
+      "ci95": [
+        1.691702406220582,
+        1.7524305789409136
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 67261,
+      "scenarios": 20069,
+      "metric": "range_rel",
+      "statistic": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1 realistic/clean",
+      "value": 1.820057114669021,
+      "ci95": [
+        1.7860941425646686,
+        1.8530151424693067
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 67261,
+      "scenarios": 20069,
+      "metric": "range_rel",
+      "statistic": "interaction (tracker/reference realistic ÷ clean)",
+      "value": 0.9461593734148686,
+      "ci95": [
+        0.9327005019621601,
+        0.9613017981991533
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 67261,
+      "scenarios": 20069,
+      "metric": "course_deg",
+      "statistic": "ekf-sa0.03-p4-r8-g1 realistic/clean",
+      "value": 1.1423136541533525,
+      "ci95": [
+        1.1276439012933501,
+        1.157780523314845
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 67261,
+      "scenarios": 20069,
+      "metric": "course_deg",
+      "statistic": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1 realistic/clean",
+      "value": 1.3155684308419309,
+      "ci95": [
+        1.294158138745846,
+        1.3372245313571387
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 67261,
+      "scenarios": 20069,
+      "metric": "course_deg",
+      "statistic": "interaction (tracker/reference realistic ÷ clean)",
+      "value": 0.8683042458097755,
+      "ci95": [
+        0.8551353483433617,
+        0.8826850737117112
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 29957,
+      "scenarios": 15679,
+      "metric": "range_rel",
+      "statistic": "ekf-sa0.03-p4-r8-g1 realistic/clean",
+      "value": 2.1585558359597417,
+      "ci95": [
+        2.1014719858116857,
+        2.2234024256571847
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 29957,
+      "scenarios": 15679,
+      "metric": "range_rel",
+      "statistic": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1 realistic/clean",
+      "value": 2.1409284834394278,
+      "ci95": [
+        2.087142350213735,
+        2.199867150856495
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 29957,
+      "scenarios": 15679,
+      "metric": "range_rel",
+      "statistic": "interaction (tracker/reference realistic ÷ clean)",
+      "value": 1.0082335083383989,
+      "ci95": [
+        0.9853575655696739,
+        1.0293431745301738
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 29957,
+      "scenarios": 15679,
+      "metric": "course_deg",
+      "statistic": "ekf-sa0.03-p4-r8-g1 realistic/clean",
+      "value": 2.103111435641557,
+      "ci95": [
+        2.0411237470316546,
+        2.1700180849470883
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 29957,
+      "scenarios": 15679,
+      "metric": "course_deg",
+      "statistic": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1 realistic/clean",
+      "value": 2.0557779058191143,
+      "ci95": [
+        2.00480258415868,
+        2.108933422249349
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 29957,
+      "scenarios": 15679,
+      "metric": "course_deg",
+      "statistic": "interaction (tracker/reference realistic ÷ clean)",
+      "value": 1.0230246320327014,
+      "ci95": [
+        0.9911618042186627,
+        1.057569519140146
+      ]
+    }
+  ]
+}

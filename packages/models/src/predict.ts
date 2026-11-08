@@ -46,12 +46,23 @@ const PROVENANCE_FIELDS = [
   "schema_version",
 ] as const;
 
-const withoutProvenance = (h: DatasetHeader): string =>
-  canonicalJson(
-    Object.fromEntries(
-      Object.entries(h).filter(([k]) => !(PROVENANCE_FIELDS as readonly string[]).includes(k)),
-    ),
+/**
+ * Generator versions whose scenarios are byte-identical for ranges without the newer version's
+ * additions: 0.6.0 reproduces 0.5.0 when the ranges have no `bearing_error` (spec 019; data
+ * goldens). Only that pair is relabelled, and only for such ranges.
+ */
+const EQUIVALENT_GENERATORS: Record<string, string> = { "0.6.0": "0.5.0" };
+
+const withoutProvenance = (h: DatasetHeader): string => {
+  const rest = Object.fromEntries(
+    Object.entries(h).filter(([k]) => !(PROVENANCE_FIELDS as readonly string[]).includes(k)),
   );
+  const v = typeof rest.generator_version === "string" ? rest.generator_version : undefined;
+  const older = v === undefined ? undefined : EQUIVALENT_GENERATORS[v];
+  if (older !== undefined && h.parameter_ranges.bearing_error == null)
+    rest.generator_version = older;
+  return canonicalJson(rest);
+};
 
 /**
  * Refuse features normalised differently from the model's training data. Tolerated, with

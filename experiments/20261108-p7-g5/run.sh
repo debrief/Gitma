@@ -1,0 +1,59 @@
+#!/bin/bash
+# Phase 7 G5 (spec 019, decision 35; SRD Annex C §C.14): the frozen -g1 fused tracker against the
+# frozen -g1 IMM with realistic bearing error. The commands that produced this folder, in order.
+# Data and predictions are regenerable and not committed; their SHA-256s are in predictions.sha256.
+set -e
+cd "$(git rev-parse --show-toplevel)"
+D=data/p7; E=experiments/20261108-p7-g5
+IMM="--sigma-cv 0.01 --sigma-ct 0.03 --sigma-omega 0.01 --switch 0.001 --p0-scale 4 --r-scale 8 --guarded-init 1"
+T2=experiments/20261101-p4b-models/models/tracker
+# 1. Data at a clean commit after decision 35: the seed-211 dataset (normalisation) and the fresh
+#    seed-218 test split (40,000, phase-7 ranges) alone; digests and header ranges checked against
+#    configs/phase4/w/plan.json; T2's derived test features.
+node scripts/train-plan.mjs data configs/phase4/w/plan.json $D test
+mkdir -p $D/pred
+# 2. The reference IMM and the EKF (reported), both -g1, and the frozen T2, in parallel.
+node packages/classical/dist/cli-track.js --in $D/test.f32pack --out $D/pred/test.imm.ndjson --filter imm $IMM &
+node packages/classical/dist/cli-track.js --in $D/test.f32pack --out $D/pred/test.ekf.ndjson --filter ekf \
+  --sigma-a 0.03 --p0-scale 4 --r-scale 8 --guarded-init 1 &
+node packages/models/dist/cli-predict.js --model $T2 --truth $D/test.f32pack \
+  --features $D/test.features.bin --out $D/pred/test.t2.ndjson --train $D/train.f32pack &
+wait
+# 3. The fused tracker on the -g1 IMM (k 4, every 6).
+node packages/eval/dist/cli-fuse-track.js --truth $D/test.f32pack --network $D/pred/test.t2.ndjson \
+  --out $D/pred/test.fused.ndjson $IMM
+# 4. The gate, with every binding (the prediction chain needs T2's file among --also).
+node --max-old-space-size=12288 packages/eval/dist/cli-g5.js --truth $D/test.f32pack \
+  --tracker $D/pred/test.fused.ndjson --reference $D/pred/test.imm.ndjson \
+  --also $D/pred/test.t2.ndjson --also $D/pred/test.ekf.ndjson \
+  --decision experiments/20261108-p7-decision/decision.json --plan configs/phase4/w/plan.json \
+  --model $T2 --experiment $E || test $? -eq 3
+( cd $D && sha256sum test.f32pack test.features.bin pred/*.ndjson ) > $E/predictions.sha256
+# 5. After the verdict is committed (decision 35): seed 218's phase-4-range twin and the clean
+#    comparison (scripts/research/spec019-clean.mjs), in a separate commit.
+C=$D/clean
+node scripts/generate-splits.mjs --seed 218 --count 400000 --ranges configs/phase4-ranges.json \
+  --heldout-ranges configs/phase4-heldout-ranges.json --out $C --splits test
+mkdir -p $C/pred
+node packages/features/dist/cli.js build --in $C/test.f32pack --norm $D/norm.json --feature-set derived \
+  --out $C/test.features.bin
+node packages/classical/dist/cli-track.js --in $C/test.f32pack --out $C/pred/test.imm.ndjson --filter imm $IMM &
+node packages/classical/dist/cli-track.js --in $C/test.f32pack --out $C/pred/test.ekf.ndjson --filter ekf \
+  --sigma-a 0.03 --p0-scale 4 --r-scale 8 --guarded-init 1 &
+node packages/models/dist/cli-predict.js --model $T2 --truth $C/test.f32pack \
+  --features $C/test.features.bin --out $C/pred/test.t2.ndjson --train $D/train.f32pack &
+wait
+node packages/eval/dist/cli-fuse-track.js --truth $C/test.f32pack --network $C/pred/test.t2.ndjson \
+  --out $C/pred/test.fused.ndjson $IMM
+for t in fused ekf t2; do
+  node scripts/research/spec019-clean.mjs $D/test.f32pack $C/test.f32pack $D/pred/test.$t.ndjson \
+    $D/pred/test.imm.ndjson $C/pred/test.$t.ndjson $C/pred/test.imm.ndjson > $E/clean-$t.json
+done
+( cd $D && sha256sum clean/test.f32pack clean/pred/*.ndjson ) > $E/clean.sha256
+# 6. Baselines and comparisons, reported (G5 panel: naive and batch least squares beside the result;
+#    the fused tracker against T2 alone and the EKF). Naive fitted on seed-211 train (data/p4).
+node packages/classical/dist/cli-naive.js predict --model data/p4/naive-model.json --in $D/test.f32pack \
+  --out $D/pred/test.naive.ndjson --per-timestep
+node scripts/research/spec019-baselines.mjs $D/test.f32pack $E/baselines.json $D/pred/test.fused.ndjson \
+  $D/pred/test.imm.ndjson $D/pred/test.t2.ndjson $D/pred/test.ekf.ndjson $D/pred/test.naive.ndjson
+node --max-old-space-size=8192 scripts/research/spec014-lsq.mjs $D/test.f32pack $E/lsq.json

@@ -417,3 +417,110 @@ amends it before the decision record is committed.
   - **The false-pass risk** over the two looks is at most about 5%. The pass judges the frozen
     multipliers, not the procedure that fitted them.
   - **Next.** The owner decides the follow-on. Conditional calibration would be a new design.
+
+## C.14 Phase 7: realistic bearing error, G5 rules (owner decisions 2026-11-08)
+
+This is C.6's third incremental follow-on: **realistic bearing error**. On 2026-11-08 the owner
+chose:
+- **to test robustness with frozen trackers.** Nothing is trained, re-tuned or refitted. The
+  question is whether the fused tracker's advantage over the reference survives bearing error
+  that its components never saw.
+- **the error model:** a first-order correlated (Gauss–Markov) term plus a slowly varying bias,
+  added to the white noise, at one setting;
+- **its severity** (on 2026-11-08, after the G0 panel noted that the agent's first numbers, 0.5° and
+  0.3°, were its own and raised the total sd by only 16%): double them, to 1.0° and 0.5°. No
+  tracker had been run on generator 0.6.0 data when either setting was chosen.
+- **the pass rule:** G5's checks and limits, unchanged.
+
+The rest of this section was written by the implementing agent. It stands unless the owner amends
+it before the decision record is committed.
+
+- **Generator 0.6.0** (schema 0.21.0 `BearingErrorModel`, `configs/phase7-ranges.json`). The
+  phase-4 ranges plus a bearing error made of two terms:
+  - a correlated term with sd 1.0° and τ 30 s;
+  - a drifting bias with sd 0.5° and τ 20 min. Its correlation is 0.78 over a 5-min leg and 0.05
+    across a 60-min window, so it is a drift within the window, not a constant offset.
+
+  Each starts stationary and is drawn from the scenario's own stream, so the geometry and the
+  white noise are 0.5.0's for the same seed. A noise-free scenario (σ = 0) has no bearing error,
+  so G0's noise-free data are unchanged. At σ = 1° the total sd is 1.50°, 50% above the white noise alone.
+- **G0 re-run on 0.6.0.** It adds the check `bearing-error-model`, on 1,000 regenerated σ = 1°
+  scenarios:
+  - the pooled residual sd matches the model within ±1%;
+  - its mean is within 4 clustered standard errors of zero;
+  - its correlations at 10 s, 30 s, 2 min, 10 min and 20 min each match the model within ±0.015.
+
+  The largest deviations over 12 null seeds were 0.5% on the sd and 0.009 on a correlation. In a
+  measured power study at 1,000 scenarios, a constant or 5-min bias, a bias sd off by 20%, an AR τ
+  of 20 s, an AR sd off by 10%, or a missing term each failed it.
+
+  `configs/phase7-heldout-ranges.json` exists only for G0's held-out split, which is generated but
+  not gated. It plays no part in the gate. The tracker checks still
+  test the filters' white-noise model, so they regenerate without the bearing error.
+- **The trackers,** frozen, under decision 32 (`-g1`):
+  - **carried:** `fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6`, with T2 bound
+    by digest as in C.11;
+  - **reference:** `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1`.
+
+  T2 keeps seed 211's normalisation constants: its features on new data are normalised with the
+  constants it was trained on, from inputs only.
+  - **How.** `scripts/train-plan.mjs data` regenerates seed 211 with the phase-4 ranges and computes
+    `norm.json` from its train split.
+  - **Accepted at generator 0.6.0.** Its header then says generator 0.6.0 where T2's
+    `source_dataset_header` says 0.5.0. `tma-model-predict` accepts this only because 0.6.0
+    without a bearing error is byte-identical to 0.5.0 (`EQUIVALENT_GENERATORS`). Any other version
+    change, or ranges with a bearing error, is still refused.
+- **The gate:** G5 unchanged (C.5): the same rows, five checks, limits, 97.5% intervals,
+  clustered bootstrap, `tma-g5` and spec 015's bindings. It is scored on the 40,000-scenario test
+  split of a 400,000-scenario fresh seed (218), generated with the phase-7 ranges. A plan's
+  `fresh_test.ranges` names them, and seed 211 still supplies the training data and normalisation.
+  The plan's digest check refuses a fresh split whose header does not record exactly those ranges.
+  Seeds 217–219 are reserved from decision 35 on.
+- **Validation first.** On seed 217's 10,000-scenario validation split with the phase-7 ranges,
+  `tma-g5` runs as a diagnostic.
+  - **Carried to the gate** if every point estimate is within its limit.
+  - **Otherwise phase 7 stops at validation,** seed 218 is never generated, and the result is
+    published.
+- **Reported, not gated:**
+  - the same rows of seeds 217 and 218 regenerated with the phase-4 ranges, so the geometry and
+    white noise are identical and only the added error differs. Each tracker's degradation from
+    clean to realistic is reported, as a paired ratio of medians;
+  - the EKF (`-g1`);
+  - settled rows before any manoeuvre and after one.
+- **Re-score.** As C.5: one re-score if the result is inconclusive, fixed now. It uses seed 219,
+  a 1,100,000-scenario dataset whose 110,000-scenario test split is generated with the phase-7
+  ranges. One tracker is judged at 97.5% (G5's level, kept deliberately), so a false pass is at most
+  about 2.5% per look, and at most about 5% over the gate and its re-score. These are upper bounds:
+  each check is one-sided, at about 1.25%, and a pass needs all five.
+- **The clean comparison** (reported, fixed now). On the same G5 rows of each scored seed (217, and
+  218 only if carried), regenerated with the phase-4 ranges, `scripts/research/spec019-clean.mjs` reports:
+  - each tracker's realistic/clean ratio of median range error and of median course error;
+  - the interaction: (fused/IMM, realistic) ÷ (fused/IMM, clean).
+
+  Each comes with a scenario-clustered bootstrap 95% interval (2,000 resamples, seed 20261011).
+  It does not use `tma-g5`, which scores a decision and seed only once. The script is committed
+  before seed 217's validation is scored.
+
+  The phase-4-range regeneration of seed 218 shares the gate rows' geometry and white noise, so it
+  would preview the gate. It is generated and scored only after the seed-218 G5 verdict is
+  committed.
+- **If it fails,** the owner decides the next step. Decisions 29–34 and their verdicts stand
+  either way.
+- **What a pass would show:** the advantage survives this one error model at this one severity.
+  It would not show robustness to other models or severities, or to real data.
+- **Outcome (2026-11-08): G5 passes on seed 218** (decision 35; agent panel rounds 1–2,
+  `experiments/20261108-p7-g5/`). Fused/IMM: overall range 0.766 [0.755, 0.778] and course 0.907;
+  settled range 0.774, course 0.875 and speed 0.907. Validation on seed 217 agreed.
+  - **The advantage survives against a frozen reference.** It is not shown against an IMM adapted
+    to correlated error.
+  - **T2 alone has lower range error** than the fused tracker: 12.1% against 13.2%, fused/T2
+    1.095 [1.080, 1.113]. It is also the most robust: realistic/clean 1.47 ×, against the IMM's
+    1.82 × and the fused tracker's 1.68 ×. The fusion's frozen k plausibly gives it too little weight
+    under this error (k was not re-swept).
+  - **Classical methods remain better on straight legs.** The EKF wins on settled course (fused/EKF
+    1.27 ×) and speed. Batch least squares before any manoeuvre: 7.3% range, 2.2° course.
+  - **Not measured:** NIS, NEES and non-PD counts under correlated error.
+  - **Every tracker degrades 1.5–2.1 ×.** The fused tracker's median range error is 13.2% and its
+    course error 27°. The scope is one error model at one severity.
+  - **Next.** The owner decides the follow-on. Re-tuning the fusion, or adding a bias state, would
+    be a new decision on a new seed.

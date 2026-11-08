@@ -23,6 +23,7 @@ import {
   beforeManoeuvre,
   checkBearingResiduals,
   checkTrackerNoiseFree,
+  checkBearingErrorModel,
   checkTrackerNis,
   checkTrackerNoisy,
   G0_IMM,
@@ -107,6 +108,7 @@ export function runG0(dataDir: string, experiment: string, commandLine: string):
     checkTrackerNoiseFree(full.slice(0, G0_PER_TIMESTEP_SCENARIOS), truth.header.parameter_ranges),
     checkTrackerNoisy(truth.header.parameter_ranges),
     checkTrackerNis(truth.header.parameter_ranges),
+    checkBearingErrorModel(truth.header.parameter_ranges),
     checkNaiveReproducible(evA.metrics, evB.metrics),
   ]);
   writeEvaluation(experiment, evA);

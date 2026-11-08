@@ -8,6 +8,7 @@
 // reproduce 0.4.0's scenarios byte for byte.
 // Pure functions: every output is determined by (datasetSeed, index, ranges).
 import type {
+  BearingErrorModel,
   FloatRange,
   ManoeuvreKind,
   Observation,
@@ -29,7 +30,7 @@ import {
   uniformInt,
 } from "./prng.js";
 
-export const GENERATOR_VERSION = "0.5.0";
+export const GENERATOR_VERSION = "0.6.0";
 const MAX_REDRAWS = 1000;
 
 const draw = (s: RngState, r: FloatRange): number => uniform(s, r.min, r.max);
@@ -525,11 +526,49 @@ function ranges(truth: Truth): { mean: number; min: number } {
   return { mean: sum / truth.samples, min };
 }
 
-/** Bearings with Gaussian noise and random dropouts. Draws noise and dropout for every sample. */
-export function observe(s: RngState, p: ScenarioParameters, truth: Truth): Observation[] {
+/**
+ * Generator 0.6.0 (SRD Annex C §C.14): the realistic bearing error of every sample, the sum of a
+ * correlated Gauss–Markov term and a slowly varying Gauss–Markov bias. Each starts in its
+ * stationary distribution and steps as x ← a·x + √(1 − a²)·sd·w with a = exp(−dt/τ). Drawn from
+ * the scenario's own stream (sub-index 2), so the geometry and white noise are 0.5.0's.
+ */
+export function bearingErrors(
+  scenarioSeed: bigint,
+  m: BearingErrorModel,
+  dt: number,
+  samples: number,
+): Float64Array {
+  const s = createRng(deriveSeed(scenarioSeed, 2));
+  const aAr = Math.exp(-dt / m.ar_tau_s);
+  const aBias = Math.exp(-dt / m.bias_tau_s);
+  const qAr = Math.sqrt(1 - aAr * aAr) * m.ar_sd_rad;
+  const qBias = Math.sqrt(1 - aBias * aBias) * m.bias_sd_rad;
+  let ar = gaussian(s) * m.ar_sd_rad;
+  let bias = gaussian(s) * m.bias_sd_rad;
+  const out = new Float64Array(samples);
+  for (let i = 0; i < samples; i++) {
+    if (i > 0) {
+      ar = aAr * ar + qAr * gaussian(s);
+      bias = aBias * bias + qBias * gaussian(s);
+    }
+    out[i] = ar + bias;
+  }
+  return out;
+}
+
+/**
+ * Bearings with Gaussian noise and random dropouts. Draws noise and dropout for every sample.
+ * `extra` (generator 0.6.0) is added to every bearing.
+ */
+export function observe(
+  s: RngState,
+  p: ScenarioParameters,
+  truth: Truth,
+  extra?: Float64Array,
+): Observation[] {
   const out: Observation[] = [];
   for (let i = 0; i < truth.samples; i++) {
-    const noise = gaussian(s) * p.noise_sigma_rad;
+    const noise = gaussian(s) * p.noise_sigma_rad + (extra?.[i] ?? 0);
     const dropped = uniform01(s) < p.dropout_fraction;
     const b = bearingOf(
       (truth.tgtX[i] ?? 0) - (truth.ownX[i] ?? 0),
@@ -743,7 +782,10 @@ export function generateScenario(
     if (truth.zig2Index !== null && truth.zig2Index >= truth.samples) continue;
     const rg = ranges(truth);
     if (rg.min < r.min_range_m) continue;
-    const observations = observe(s, p, truth);
+    // Noise-free scenarios (σ = 0, as G0's) carry no bearing error at all.
+    const model = p.noise_sigma_rad > 0 ? r.bearing_error : undefined;
+    const extra = model == null ? undefined : bearingErrors(seed, model, p.dt_s, truth.samples);
+    const observations = observe(s, p, truth, extra);
     const own: PlatformState[] = [];
     const tgt: PlatformState[] = [];
     for (let i = 0; i < truth.samples; i++) {
@@ -768,7 +810,18 @@ export function generateScenario(
       metadata: {
         seed: seed.toString(),
         index,
-        parameters: p,
+        parameters:
+          model == null
+            ? p
+            : {
+                ...p,
+                bearing_error: {
+                  ar_sd_rad: f32(model.ar_sd_rad),
+                  ar_tau_s: f32(model.ar_tau_s),
+                  bias_sd_rad: f32(model.bias_sd_rad),
+                  bias_tau_s: f32(model.bias_tau_s),
+                },
+              },
         samples: truth.samples,
         zig_index: truth.zigIndex,
         ...(truth.turnStartIndex === null ? {} : { turn_start_index: truth.turnStartIndex }),
