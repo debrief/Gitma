@@ -378,6 +378,7 @@ trackers, with no training or re-tuning. The gate is G5's rules unchanged: the f
     speed, and batch least squares before any manoeuvre (7.3%, 2.2°).
   - **Against an adapted reference.** The IMM is frozen, not adapted to correlated error.
   - **Scale of the errors.** Every tracker degrades 1.5–2.1 ×.
+  - **Consistency.** NIS, NEES and non-PD counts under correlated error were not measured.
 
   Baselines: `baselines.json` and `lsq.json` (`scripts/research/spec019-baselines.mjs`,
   `spec014-lsq.mjs`). The owner decides the follow-on.

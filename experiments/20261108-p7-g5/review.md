@@ -97,3 +97,26 @@ signed-error figures, but it is a hypothesis, not a test.
   `verdict.json` is written before `report.json`. Noted here; `run.sh` sets a 12 GB heap.
 - **The least-squares baseline ran out of memory at the default heap.** It is re-run with
   `--max-old-space-size=8192`, now in `run.sh`.
+
+## Round 2
+
+Geometry, estimation and the red team, the three reviewers with major findings, re-read the
+responses and the write-ups at 9e598ca.
+
+| Reviewer | Verdict | Open |
+| --- | --- | --- |
+| TMA geometry | approve | 3 minor |
+| Estimation and numerics | approve-with-findings | 3 minor |
+| Red team | approve-with-findings | 2 minor |
+
+M1–M4 are closed. Geometry checked every figure in the write-ups against its own medians, to all
+printed digits. No reviewer rejects, and no blocker or major finding is open.
+
+The minors were fixed as follows:
+- **The mechanism is hedged.** The blog, §C.14 and the algorithm note now say that T2 "plausibly"
+  or "likely" makes the tracker robust, call it a hypothesis, and say that k was not re-swept.
+- **The frozen-reference qualifier** is in the blog's title and its one-line version.
+- **The public limits** now list NIS, NEES and non-PD counts as not measured.
+- **The blog** adds batch least squares on settled rows (course 8.1°, speed 1.8 kt) and the fused
+  tracker's course P90 (106°).
+- **`decided_by`** is set now that the round has approved.

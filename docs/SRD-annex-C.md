@@ -515,10 +515,11 @@ it before the decision record is committed.
     to correlated error.
   - **T2 alone has lower range error** than the fused tracker: 12.1% against 13.2%, fused/T2
     1.095 [1.080, 1.113]. It is also the most robust: realistic/clean 1.47 ×, against the IMM's
-    1.82 × and the fused tracker's 1.68 ×. The fusion's frozen k gives it too little weight under
-    this error.
+    1.82 × and the fused tracker's 1.68 ×. The fusion's frozen k plausibly gives it too little weight
+    under this error (k was not re-swept).
   - **Classical methods remain better on straight legs.** The EKF wins on settled course (fused/EKF
     1.27 ×) and speed. Batch least squares before any manoeuvre: 7.3% range, 2.2° course.
+  - **Not measured:** NIS, NEES and non-PD counts under correlated error.
   - **Every tracker degrades 1.5–2.1 ×.** The fused tracker's median range error is 13.2% and its
     course error 27°. The scope is one error model at one severity.
   - **Next.** The owner decides the follow-on. Re-tuning the fusion, or adding a bias state, would

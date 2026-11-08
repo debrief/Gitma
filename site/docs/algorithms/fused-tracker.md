@@ -136,7 +136,7 @@ frozen `-g1` IMM: range 0.766 × and course 0.907 × the IMM's on seed 218
 (`experiments/20261108-p7-g5/`).
 - **Range bias.** The IMM's range ends up biased about 7% short.
 - **T2 is the most robust component.** Its range error grows 1.47 ×, against the IMM's 1.82 ×.
-- **The fusion now under-weights T2.** With k = 4, chosen on clean data, the fused tracker's range
+- **The fusion plausibly under-weights T2 now** (k was not re-swept). With k = 4, chosen on clean data, the fused tracker's range
   (13.2%) is worse than T2's alone (12.1%).
 - **Course on settled rows.** The EKF stays better: 10.6° against 13.5°.
 
