@@ -1216,11 +1216,11 @@ const BEARING_ERROR_SCENARIOS = 1000;
 /** Lags (samples) at which the residual correlation is checked: 10 s to 20 min at dt 10 s. */
 export const BEARING_ERROR_LAGS = [1, 3, 12, 60, 120] as const;
 /**
- * Tolerances (G0 panel phase 7, statistics), at 1,000 scenarios: sd ±1% (null spread ±0.5% over 12
- * seeds), each lag correlation ±0.015 (null spread ±0.009 at 10–20 min, about 3.5 SE there), and
- * the mean residual within 4 scenario-clustered standard errors of zero. Each of these is caught:
- * a constant or 5-min bias, bias sd −20%, AR τ 20 s, AR sd −10%, or a missing term
- * (`g0-bearing-error.test.ts`).
+ * Tolerances (G0 panel phase 7, statistics), at 1,000 scenarios: sd ±1% (largest deviation in 12
+ * null seeds 0.5%), each lag correlation ±0.015 (largest null deviation 0.009, at 10 min), and the
+ * mean residual within 4 scenario-clustered standard errors of zero. Measured power at 1,000
+ * scenarios (G0 panel phase 7, round 2 review.md): a constant or 5-min bias, bias sd −20%, AR τ
+ * 20 s, AR sd −10%, or a missing term each fails; `g0-bearing-error.test.ts` tests the first two.
  */
 export const BEARING_ERROR_TOLERANCE = { sd: 0.01, rho: 0.015, meanSe: 4 } as const;
 

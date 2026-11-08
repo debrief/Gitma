@@ -450,8 +450,9 @@ it before the decision record is committed.
   - its mean is within 4 clustered standard errors of zero;
   - its correlations at 10 s, 30 s, 2 min, 10 min and 20 min each match the model within ±0.015.
 
-  These tolerances are about 4 standard errors. A constant or 5-min bias, a bias sd off by 20%, an
-  AR τ of 20 s, an AR sd off by 10%, or a missing term would each fail it.
+  The largest deviations over 12 null seeds were 0.5% on the sd and 0.009 on a correlation. In a
+  measured power study at 1,000 scenarios, a constant or 5-min bias, a bias sd off by 20%, an AR τ
+  of 20 s, an AR sd off by 10%, or a missing term each failed it.
 
   `configs/phase7-heldout-ranges.json` exists only for G0's held-out split, which is generated but
   not gated. It plays no part in the gate. The tracker checks still
@@ -480,15 +481,17 @@ it before the decision record is committed.
   - settled rows before any manoeuvre and after one.
 - **Re-score.** As C.5: one re-score if the result is inconclusive, fixed now. It uses seed 219,
   a 1,100,000-scenario dataset whose 110,000-scenario test split is generated with the phase-7
-  ranges. One tracker is judged at 97.5% (G5's level, kept deliberately), so a false pass is about
-  2.5% per look, and at most about 5% over the gate and its re-score.
-- **The clean comparison** (reported, fixed now). On the same G5 rows of each seed regenerated with
-  the phase-4 ranges, `scripts/research/spec019-clean.mjs` reports:
+  ranges. One tracker is judged at 97.5% (G5's level, kept deliberately), so a false pass is at most
+  about 2.5% per look, and at most about 5% over the gate and its re-score. These are upper bounds:
+  each check is one-sided, at about 1.25%, and a pass needs all five.
+- **The clean comparison** (reported, fixed now). On the same G5 rows of each scored seed (217, and
+  218 only if carried), regenerated with the phase-4 ranges, `scripts/research/spec019-clean.mjs` reports:
   - each tracker's realistic/clean ratio of median range error and of median course error;
   - the interaction: (fused/IMM, realistic) ÷ (fused/IMM, clean).
 
   Each comes with a scenario-clustered bootstrap 95% interval (2,000 resamples, seed 20261011).
-  It does not use `tma-g5`, which scores a decision and seed only once.
+  It does not use `tma-g5`, which scores a decision and seed only once. The script is committed
+  before seed 217's validation is scored.
 - **If it fails,** the owner decides the next step. Decisions 29–34 and their verdicts stand
   either way.
 - **What a pass would show:** the advantage survives this one error model at this one severity.
