@@ -2,10 +2,148 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://debrief.github.io/Gitma/blog</id>
     <title>TMA via ML Blog</title>
-    <updated>2026-11-07T00:00:00.000Z</updated>
+    <updated>2026-11-08T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://debrief.github.io/Gitma/blog"/>
     <subtitle>TMA via ML Blog</subtitle>
+    <entry>
+        <title type="html"><![CDATA[Phase 7: realistic bearing error — the frozen fused tracker still beats the frozen IMM, but T2 alone is more robust]]></title>
+        <id>https://debrief.github.io/Gitma/blog/2026/11/08/phase-7</id>
+        <link href="https://debrief.github.io/Gitma/blog/2026/11/08/phase-7"/>
+        <updated>2026-11-08T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[So far every tracker in this project has seen only white bearing noise. Real bearings also carry]]></summary>
+        <content type="html"><![CDATA[<p>So far every tracker in this project has seen only white bearing noise. Real bearings also carry
+correlated error and a slowly drifting bias. Phase 7 asks one question: <strong>does the fused tracker's
+G5 advantage over the reference IMM survive that error, with nothing re-trained or re-tuned?</strong></p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-setup">The setup<a href="https://debrief.github.io/Gitma/blog/2026/11/08/phase-7#the-setup" class="hash-link" aria-label="Direct link to The setup" title="Direct link to The setup" translate="no">​</a></h2>
+<p>The owner chose three things:</p>
+<ul>
+<li class=""><strong>frozen trackers;</strong></li>
+<li class=""><strong>an error model</strong> made of a correlated term (sd 1.0°, 30 s) and a drifting bias (sd 0.5°,
+20 min). This setting is double the one first proposed. At σ = 1° the total bearing error goes
+from 1.0° to 1.5°;</li>
+<li class=""><strong>G5's rules, unchanged.</strong></li>
+</ul>
+<p>The generator adds the error from its own random stream, so each scenario can be regenerated
+without it. The two versions have identical geometry and identical white noise, which makes a
+paired clean comparison possible.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-g5-passes-seed-218-40000-scenarios">Result: G5 passes (seed 218, 40,000 scenarios)<a href="https://debrief.github.io/Gitma/blog/2026/11/08/phase-7#result-g5-passes-seed-218-40000-scenarios" class="hash-link" aria-label="Direct link to Result: G5 passes (seed 218, 40,000 scenarios)" title="Direct link to Result: G5 passes (seed 218, 40,000 scenarios)" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Fused / IMM</th><th>Ratio (97.5% CI)</th><th>Limit</th></tr></thead><tbody><tr><td>Overall range</td><td><strong>0.766</strong> [0.755, 0.778]</td><td>&lt; 1</td></tr><tr><td>Overall course</td><td><strong>0.907</strong> [0.897, 0.918]</td><td>&lt; 1</td></tr><tr><td>Settled range</td><td>0.774</td><td>&lt; 1.1</td></tr><tr><td>Settled course</td><td>0.875</td><td>&lt; 1.1</td></tr><tr><td>Settled speed</td><td>0.907</td><td>&lt; 1.1</td></tr></tbody></table>
+<p>Validation on seed 217 had already shown much the same: 0.777 for range and 0.922 for course. Five
+independent reviewers agreed the verdict is right, and one reproduced it byte for byte.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-the-pass-does-not-show">What the pass does not show<a href="https://debrief.github.io/Gitma/blog/2026/11/08/phase-7#what-the-pass-does-not-show" class="hash-link" aria-label="Direct link to What the pass does not show" title="Direct link to What the pass does not show" translate="no">​</a></h2>
+<p>The absolute errors are large: the fused tracker's 90th-percentile course error is 106°. The panel
+narrowed the claim.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Median error, all G5 rows</th><th>Range</th><th>Course</th><th>Speed</th></tr></thead><tbody><tr><td>Fused tracker</td><td>13.2%</td><td>27°</td><td>2.6 kt</td></tr><tr><td>IMM (reference)</td><td>17.3%</td><td>30°</td><td>2.9 kt</td></tr><tr><td>T2 alone</td><td><strong>12.1%</strong></td><td><strong>26°</strong></td><td>2.9 kt</td></tr><tr><td>EKF</td><td>16.8%</td><td>31°</td><td><strong>2.4 kt</strong></td></tr><tr><td>Batch least squares</td><td>17.6%</td><td>47°</td><td>2.4 kt</td></tr><tr><td>Naive</td><td>40%</td><td>90°</td><td>3.9 kt</td></tr></tbody></table>
+<ul>
+<li class=""><strong>T2 alone beats the fused tracker on range</strong>, by 1.10 × [1.08, 1.11] overall. Its error grows
+least under realistic error (1.47 × its clean value, against the IMM's 1.82 ×). The IMM's range
+ends up biased about 7% short under the drifting bias, while T2 stays nearly unbiased. The fusion
+setting, frozen from clean data, plausibly gives T2 too little weight; k was not re-swept. Fusing keeps one coherent track
+state, but under this error it is not the best range estimator.</li>
+<li class=""><strong>On straight legs, classical methods still win.</strong> On settled rows the EKF beats the fused
+tracker on course (10.6° against 13.5°) and on speed, and batch least squares does too (8.1°,
+1.8 kt). Before any manoeuvre, batch least squares
+is best of all: 7.3% range and 2.2° course.</li>
+<li class=""><strong>The reference was frozen, not adapted.</strong> Neither filter models correlated or bias error. An
+IMM with an inflated measurement noise or a bias state might close the gap; this phase does not
+test that.</li>
+<li class=""><strong>Every tracker is much worse.</strong> Median range error rises 1.5–1.8 × overall and about 2 × on
+settled rows.</li>
+<li class=""><strong>Not measured.</strong> Filter consistency (NIS, NEES) and covariance health (non-PD steps) under
+correlated error.</li>
+<li class=""><strong>Scope.</strong> The result covers one error model at one severity, σ = 1° rows and simulated data.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-one-line-version">The one-line version<a href="https://debrief.github.io/Gitma/blog/2026/11/08/phase-7#the-one-line-version" class="hash-link" aria-label="Direct link to The one-line version" title="Direct link to The one-line version" translate="no">​</a></h2>
+<p>Under one setting of realistic bearing error, the frozen fused tracker keeps its G5 advantage over
+the frozen IMM, which was not adapted to this error. The learned range (T2) is likely what makes it robust (a hypothesis), and on its
+own T2 is more robust still. The classical filters remain better on straight legs.</p>
+<p>Record: <code>experiments/20261108-p7-g5/</code> (verdict, baselines, clean comparison, panel review);
+validation <code>experiments/20261108-p7-val/</code>; decision <code>experiments/20261108-p7-decision/</code>; G0
+<code>experiments/20261108-g0-p7-r1/</code>; spec 019.</p>]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Phase 6 re-score: G7 passes, with coverage within tolerance on average but not calibrated]]></title>
         <id>https://debrief.github.io/Gitma/blog/2026/11/07/phase-6-rescore</id>
