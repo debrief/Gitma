@@ -4,10 +4,123 @@
         <title>TMA via ML Blog</title>
         <link>https://debrief.github.io/Gitma/blog</link>
         <description>TMA via ML Blog</description>
-        <lastBuildDate>Fri, 06 Nov 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Sat, 07 Nov 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Phase 6 re-score: G7 passes, with coverage within tolerance on average but not calibrated]]></title>
+            <link>https://debrief.github.io/Gitma/blog/2026/11/07/phase-6-rescore</link>
+            <guid>https://debrief.github.io/Gitma/blog/2026/11/07/phase-6-rescore</guid>
+            <pubDate>Sat, 07 Nov 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[G7 on seed 215 was inconclusive: the fused tracker's 50% range interval covered 48.3%, and its]]></description>
+            <content:encoded><![CDATA[<p>G7 on seed 215 was inconclusive: the fused tracker's 50% range interval covered 48.3%, and its
+confidence interval straddled the 48% floor. The rules allow one re-score on a larger fresh seed.
+The owner chose to run it. Decision 34 fixed the details before the data existed:</p>
+<ul>
+<li class=""><strong>What stayed the same:</strong> the tracker, the reference, the frozen models, the multipliers and the
+rules.</li>
+<li class=""><strong>What changed:</strong> a fresh seed, 216, and a test split of 110,000 scenarios instead of 40,000.
+That is large enough to resolve a coverage of about 48.3% against the floor.</li>
+<li class=""><strong>The forecast:</strong> about an even chance of passing.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-pass">Result: pass<a href="https://debrief.github.io/Gitma/blog/2026/11/07/phase-6-rescore#result-pass" class="hash-link" aria-label="Direct link to Result: pass" title="Direct link to Result: pass" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Coverage on seed 216 (184,667 G5 rows)</th><th>50%</th><th>90%</th></tr></thead><tbody><tr><td>Range (log)</td><td><strong>48.6%</strong> [48.3, 48.9]</td><td>89.9%</td></tr><tr><td>Course</td><td>50.5%</td><td>90.3%</td></tr><tr><td>Speed</td><td>49.4%</td><td>89.9%</td></tr></tbody></table>
+<p>All nine gated checks pass. The fused tracker's 90% intervals are narrower than the IMM's: 0.73 ×
+for range, 0.94 × for course and 0.89 × for speed. This was the one re-score, so the verdict is
+final.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-the-pass-does-and-does-not-show">What the pass does and does not show<a href="https://debrief.github.io/Gitma/blog/2026/11/07/phase-6-rescore#what-the-pass-does-and-does-not-show" class="hash-link" aria-label="Direct link to What the pass does and does not show" title="Direct link to What the pass does and does not show" translate="no">​</a></h2>
+<p>Five independent reviewers agreed that the pass is correct. One recomputed every value with code
+of its own, and another re-ran the gate. All five also agreed on how far the claim goes.</p>
+<ul>
+<li class="">
+<p><strong>Range intervals run about 1.5 points short.</strong> At 50%, the two seeds together give about 48.5%
+[48.3, 48.8]. That is inside the ±2-point tolerance but not centred on 50%. The pass rests on
+the tolerance. The reference IMM, fitted on the same validation data, lands on 50%. So reusing
+validation data does not explain the fused tracker's shortfall.</p>
+</li>
+<li class="">
+<p><strong>The intervals cover within tolerance only on the pooled mix of rows.</strong> Range at 50% covers:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Rows</th><th>Coverage</th></tr></thead><tbody><tr><td>Settled, before any manoeuvre (quiet legs)</td><td>67%</td></tr><tr><td>Settled, after a manoeuvre</td><td>39%</td></tr><tr><td>At zig + 5 min</td><td>61%</td></tr><tr><td>At zig + 20 min</td><td>40%</td></tr></tbody></table>
+<p>Seed 215 showed the same pattern within a point.</p>
+</li>
+<li class="">
+<p><strong>Course and speed intervals are often uninformative.</strong></p>
+<ul>
+<li class="">17% of course 90% intervals span the whole circle, and the median course 90% interval is
+188° wide. The course width ratio of 0.94 therefore compares two mostly vague intervals.</li>
+<li class="">27% of speed 90% intervals reach below zero.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>This was a second look.</strong> Over both seeds, the chance of a false pass is about 5% at most, not
+2.5%. A smaller re-score would probably have been inconclusive again.</p>
+</li>
+<li class="">
+<p><strong>The pass judges these frozen multipliers.</strong> The 0.3-point margin is smaller than the
+multipliers' own sampling error. So the pass does not show that the recalibration procedure works
+in general.</p>
+</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="phase-6-in-one-line">Phase 6 in one line<a href="https://debrief.github.io/Gitma/blog/2026/11/07/phase-6-rescore#phase-6-in-one-line" class="hash-link" aria-label="Direct link to Phase 6 in one line" title="Direct link to Phase 6 in one line" translate="no">​</a></h2>
+<p>On average over the G5 rows, the fused tracker's recalibrated intervals cover within the
+tolerance, with range about 1.5 points short, and they are tighter than the IMM's. Within a regime they do not: the intervals are too wide
+on quiet legs and too narrow after a manoeuvre, and its course intervals are often vacuous.
+Conditional calibration, for example a multiplier that depends on time since the last manoeuvre,
+would be a new design. The owner decides on the follow-on.</p>
+<p>Record: <code>experiments/20261106-p6v-g7/</code> (verdict, regimes, panel review); decision
+<code>experiments/20261106-p6v-rescore-decision/</code>; spec 018.</p>]]></content:encoded>
+        </item>
         <item>
             <title><![CDATA[Phase 6: the fused tracker's uncertainty, recalibrated, is inconclusive at G7]]></title>
             <link>https://debrief.github.io/Gitma/blog/2026/11/06/phase-6</link>
