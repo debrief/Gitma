@@ -7,7 +7,7 @@
     <link rel="alternate" href="https://debrief.github.io/Gitma/pr/80/blog"/>
     <subtitle>TMA via ML Blog</subtitle>
     <entry>
-        <title type="html"><![CDATA[Phase 7: realistic bearing error — the fused tracker still beats the IMM, but T2 alone is more robust]]></title>
+        <title type="html"><![CDATA[Phase 7: realistic bearing error — the frozen fused tracker still beats the frozen IMM, but T2 alone is more robust]]></title>
         <id>https://debrief.github.io/Gitma/pr/80/blog/2026/11/08/phase-7</id>
         <link href="https://debrief.github.io/Gitma/pr/80/blog/2026/11/08/phase-7"/>
         <updated>2026-11-08T00:00:00.000Z</updated>
@@ -67,7 +67,8 @@ paired clean comparison possible.</p>
 <p>Validation on seed 217 had already shown much the same: 0.777 for range and 0.922 for course. Five
 independent reviewers agreed the verdict is right, and one reproduced it byte for byte.</p>
 <h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-the-pass-does-not-show">What the pass does not show<a href="https://debrief.github.io/Gitma/pr/80/blog/2026/11/08/phase-7#what-the-pass-does-not-show" class="hash-link" aria-label="Direct link to What the pass does not show" title="Direct link to What the pass does not show" translate="no">​</a></h2>
-<p>The absolute errors are large, so the panel narrowed the claim.</p>
+<p>The absolute errors are large: the fused tracker's 90th-percentile course error is 106°. The panel
+narrowed the claim.</p>
 
 
 
@@ -120,22 +121,25 @@ independent reviewers agreed the verdict is right, and one reproduced it byte fo
 <li class=""><strong>T2 alone beats the fused tracker on range</strong>, by 1.10 × [1.08, 1.11] overall. Its error grows
 least under realistic error (1.47 × its clean value, against the IMM's 1.82 ×). The IMM's range
 ends up biased about 7% short under the drifting bias, while T2 stays nearly unbiased. The fusion
-setting, frozen from clean data, gives T2 too little weight. Fusing keeps one coherent track
+setting, frozen from clean data, plausibly gives T2 too little weight; k was not re-swept. Fusing keeps one coherent track
 state, but under this error it is not the best range estimator.</li>
 <li class=""><strong>On straight legs, classical methods still win.</strong> On settled rows the EKF beats the fused
-tracker on course (10.6° against 13.5°) and on speed. Before any manoeuvre, batch least squares
+tracker on course (10.6° against 13.5°) and on speed, and batch least squares does too (8.1°,
+1.8 kt). Before any manoeuvre, batch least squares
 is best of all: 7.3% range and 2.2° course.</li>
 <li class=""><strong>The reference was frozen, not adapted.</strong> Neither filter models correlated or bias error. An
 IMM with an inflated measurement noise or a bias state might close the gap; this phase does not
 test that.</li>
 <li class=""><strong>Every tracker is much worse.</strong> Median range error rises 1.5–1.8 × overall and about 2 × on
 settled rows.</li>
+<li class=""><strong>Not measured.</strong> Filter consistency (NIS, NEES) and covariance health (non-PD steps) under
+correlated error.</li>
 <li class=""><strong>Scope.</strong> The result covers one error model at one severity, σ = 1° rows and simulated data.</li>
 </ul>
 <h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-one-line-version">The one-line version<a href="https://debrief.github.io/Gitma/pr/80/blog/2026/11/08/phase-7#the-one-line-version" class="hash-link" aria-label="Direct link to The one-line version" title="Direct link to The one-line version" translate="no">​</a></h2>
 <p>Under one setting of realistic bearing error, the frozen fused tracker keeps its G5 advantage over
-the frozen IMM. The learned range (T2) is what makes it robust, and on its own T2 is more robust
-still. The classical filters remain better on straight legs.</p>
+the frozen IMM, which was not adapted to this error. The learned range (T2) is likely what makes it robust (a hypothesis), and on its
+own T2 is more robust still. The classical filters remain better on straight legs.</p>
 <p>Record: <code>experiments/20261108-p7-g5/</code> (verdict, baselines, clean comparison, panel review);
 validation <code>experiments/20261108-p7-val/</code>; decision <code>experiments/20261108-p7-decision/</code>; G0
 <code>experiments/20261108-g0-p7-r1/</code>; spec 019.</p>]]></content>
