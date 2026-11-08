@@ -1,0 +1,29 @@
+{
+  "id": "p4w",
+  "description": "Spec 019 (phase 7, SRD Annex C \u00a7C.14, decision 35): the frozen -g1 fused tracker against the frozen -g1 IMM, judged at G5 unchanged on fresh seed 218 (400,000; its 40,000-scenario test split, generated alone) with realistic bearing error (generator 0.6.0, configs/phase7-ranges.json). Nothing is trained or re-tuned: the dataset (seed 211, phase-4 ranges) supplies the normalisation for T2's derived features, and the plan pins the fresh test digest and binds its header to the phase-7 ranges.",
+  "dataset": {
+    "seed": "211",
+    "count": 100000,
+    "ranges": "configs/phase4-ranges.json",
+    "heldout_ranges": "configs/phase4-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "870aff4e5f14d76b9da8b39e68c32cc64a9344ba97c2b535ef468c707db59208",
+      "validation.f32pack": "afefe28892e1e361029d799414f3637ea0211c500ed75acb85c79f1592d3c127",
+      "test.f32pack": "05f1ce53be676c9b4b1a597396f01af35b55fa048cad8fa751b2bb262fd70d77",
+      "heldout.f32pack": "9fb7293ab9fae55389789082bc4bc4d5673d3fd56de7c90362de873919e69510"
+    },
+    "fresh_test": {
+      "seed": "218",
+      "count": 400000,
+      "ranges": "configs/phase7-ranges.json",
+      "digest": "536a8677de6843a5fa34a24556a57b5aad97295f22d36cde1bc1bc5bf1e04c28"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/phase4/b",
+  "models": ["tracker"],
+  "evaluate": {
+    "command": "models",
+    "split": "validation"
+  }
+}

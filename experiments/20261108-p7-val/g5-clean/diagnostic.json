@@ -1,0 +1,147 @@
+{
+  "checks": [
+    {
+      "ci_high": 0.8743259210951675,
+      "ci_level": 0.975,
+      "ci_low": 0.8171482748474069,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep median range_rel on σ = 1° rows at zig + 5/10/15/20 min 0.8440 vs limit 1; 97.5% CI [0.8171, 0.8743] (scenario-clustered paired bootstrap, 2000 resamples, 16711 rows in 4995 scenarios)",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep:g5-range",
+      "result": "pass",
+      "threshold": 1,
+      "value": 0.843979534007154
+    },
+    {
+      "ci_high": 0.9595030675467724,
+      "ci_level": 0.975,
+      "ci_low": 0.9070414622949237,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep median course_deg on σ = 1° rows at zig + 5/10/15/20 min 0.9321 vs limit 1; 97.5% CI [0.9070, 0.9595] (scenario-clustered paired bootstrap, 2000 resamples, 16711 rows in 4995 scenarios)",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep:g5-course",
+      "result": "pass",
+      "threshold": 1,
+      "value": 0.9320916575151279
+    },
+    {
+      "ci_high": 0.9311365967952077,
+      "ci_level": 0.975,
+      "ci_low": 0.8792095713280567,
+      "detail": "reported, not gated: fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep median speed_kt on σ = 1° rows at zig + 5/10/15/20 min 0.9054 vs limit 1; 97.5% CI [0.8792, 0.9311] (scenario-clustered paired bootstrap, 2000 resamples, 16711 rows in 4995 scenarios)",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep:g5-speed-reported",
+      "result": "pass",
+      "threshold": 1,
+      "value": 0.9053605763582679
+    },
+    {
+      "ci_high": 0.9244935212688996,
+      "ci_level": 0.975,
+      "ci_low": 0.8361162933951999,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep median range_rel on settled σ = 1° rows at zig + 5/10/15/20 min 0.8800 vs limit 1.1; 97.5% CI [0.8361, 0.9245] (scenario-clustered paired bootstrap, 2000 resamples, 7509 rows in 3894 scenarios)",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep:g5-settled-range",
+      "result": "pass",
+      "threshold": 1.1,
+      "value": 0.8800391560980307
+    },
+    {
+      "ci_high": 0.9773405741248645,
+      "ci_level": 0.975,
+      "ci_low": 0.9086522049467771,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep median course_deg on settled σ = 1° rows at zig + 5/10/15/20 min 0.9434 vs limit 1.1; 97.5% CI [0.9087, 0.9773] (scenario-clustered paired bootstrap, 2000 resamples, 7509 rows in 3894 scenarios)",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep:g5-settled-course",
+      "result": "pass",
+      "threshold": 1.1,
+      "value": 0.9434143653863453
+    },
+    {
+      "ci_high": 0.9508164972848989,
+      "ci_level": 0.975,
+      "ci_low": 0.8520440613190001,
+      "detail": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep median speed_kt on settled σ = 1° rows at zig + 5/10/15/20 min 0.8971 vs limit 1.1; 97.5% CI [0.8520, 0.9508] (scenario-clustered paired bootstrap, 2000 resamples, 7509 rows in 3894 scenarios)",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep:g5-settled-speed",
+      "result": "pass",
+      "threshold": 1.1,
+      "value": 0.8970671671729039
+    },
+    {
+      "ci_high": -0.022553242402488634,
+      "ci_level": 0.975,
+      "ci_low": -0.03172801147227534,
+      "detail": "reported, not gated: gross-error rate (range error > 50% or no converged estimate) fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep 3.190% vs imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep 5.888% on σ = 1° rows at zig + 5/10/15/20 min; difference -2.699 pp, 97.5% CI [-3.173, -2.255] pp",
+      "name": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep:g5-gross-reported",
+      "result": "pass",
+      "threshold": 0,
+      "value": -0.026988211357788283
+    },
+    {
+      "ci_high": 1.0698944954950687,
+      "ci_level": 0.975,
+      "ci_low": 1.009678042312347,
+      "detail": "ekf-sa0.03-p4-r8-g1:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep median range_rel on σ = 1° rows at zig + 5/10/15/20 min 1.0364 vs limit 1; 97.5% CI [1.0097, 1.0699] (scenario-clustered paired bootstrap, 2000 resamples, 16711 rows in 4995 scenarios)",
+      "name": "ekf-sa0.03-p4-r8-g1:per_timestep:g5-range",
+      "result": "fail",
+      "threshold": 1,
+      "value": 1.0363642109484161
+    },
+    {
+      "ci_high": 1.2628361858190709,
+      "ci_level": 0.975,
+      "ci_low": 1.1831109118290215,
+      "detail": "ekf-sa0.03-p4-r8-g1:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep median course_deg on σ = 1° rows at zig + 5/10/15/20 min 1.2221 vs limit 1; 97.5% CI [1.1831, 1.2628] (scenario-clustered paired bootstrap, 2000 resamples, 16711 rows in 4995 scenarios)",
+      "name": "ekf-sa0.03-p4-r8-g1:per_timestep:g5-course",
+      "result": "fail",
+      "threshold": 1,
+      "value": 1.222140701898997
+    },
+    {
+      "ci_high": 0.9076501422323827,
+      "ci_level": 0.975,
+      "ci_low": 0.8501612128828367,
+      "detail": "reported, not gated: ekf-sa0.03-p4-r8-g1:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep median speed_kt on σ = 1° rows at zig + 5/10/15/20 min 0.8779 vs limit 1; 97.5% CI [0.8502, 0.9077] (scenario-clustered paired bootstrap, 2000 resamples, 16711 rows in 4995 scenarios)",
+      "name": "ekf-sa0.03-p4-r8-g1:per_timestep:g5-speed-reported",
+      "result": "pass",
+      "threshold": 1,
+      "value": 0.8779169375239856
+    },
+    {
+      "ci_high": 0.9826889698207397,
+      "ci_level": 0.975,
+      "ci_low": 0.909754867091523,
+      "detail": "ekf-sa0.03-p4-r8-g1:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep median range_rel on settled σ = 1° rows at zig + 5/10/15/20 min 0.9449 vs limit 1.1; 97.5% CI [0.9098, 0.9827] (scenario-clustered paired bootstrap, 2000 resamples, 7509 rows in 3894 scenarios)",
+      "name": "ekf-sa0.03-p4-r8-g1:per_timestep:g5-settled-range",
+      "result": "pass",
+      "threshold": 1.1,
+      "value": 0.9449434771226407
+    },
+    {
+      "ci_high": 0.7212256363987376,
+      "ci_level": 0.975,
+      "ci_low": 0.6369385515090056,
+      "detail": "ekf-sa0.03-p4-r8-g1:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep median course_deg on settled σ = 1° rows at zig + 5/10/15/20 min 0.6757 vs limit 1.1; 97.5% CI [0.6369, 0.7212] (scenario-clustered paired bootstrap, 2000 resamples, 7509 rows in 3894 scenarios)",
+      "name": "ekf-sa0.03-p4-r8-g1:per_timestep:g5-settled-course",
+      "result": "pass",
+      "threshold": 1.1,
+      "value": 0.6757296893516003
+    },
+    {
+      "ci_high": 0.8707235476454217,
+      "ci_level": 0.975,
+      "ci_low": 0.7799061857626036,
+      "detail": "ekf-sa0.03-p4-r8-g1:per_timestep / imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep median speed_kt on settled σ = 1° rows at zig + 5/10/15/20 min 0.8240 vs limit 1.1; 97.5% CI [0.7799, 0.8707] (scenario-clustered paired bootstrap, 2000 resamples, 7509 rows in 3894 scenarios)",
+      "name": "ekf-sa0.03-p4-r8-g1:per_timestep:g5-settled-speed",
+      "result": "pass",
+      "threshold": 1.1,
+      "value": 0.8239526620436701
+    },
+    {
+      "ci_high": 0.006880459495034103,
+      "ci_level": 0.975,
+      "ci_low": -0.002760607333613395,
+      "detail": "reported, not gated: gross-error rate (range error > 50% or no converged estimate) ekf-sa0.03-p4-r8-g1:per_timestep 6.086% vs imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep 5.888% on σ = 1° rows at zig + 5/10/15/20 min; difference 0.197 pp, 97.5% CI [-0.276, 0.688] pp",
+      "name": "ekf-sa0.03-p4-r8-g1:per_timestep:g5-gross-reported",
+      "result": "inconclusive",
+      "threshold": 0,
+      "value": 0.001974747172521094
+    }
+  ],
+  "decided_by": "validation diagnostic (spec 012 FR-005): not a gate decision",
+  "gate": "G5",
+  "result": "pass"
+}
