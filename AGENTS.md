@@ -336,8 +336,19 @@ bindings. **Phase 5 stopped at validation** (`experiments/20261105-p5-research/v
   - coverage holds on the pooled row mix only: 67% before any manoeuvre, 38% after one;
   - 17% of course 90% intervals are vacuous;
   - the shortfall looks systematic, plausibly from reusing seed-211 validation.
-- **Next.** One re-score on a larger fresh seed is allowed. The owner decides whether to run it,
-  whether to keep the rules, and its size (at least about a 110,000-scenario test split).
+- **The one re-score passes** (decision 34 `experiments/20261106-p6v-rescore-decision/`, plan
+  `configs/phase4/v`, seed 216, 110,000 test scenarios; panel rounds 1–2,
+  `experiments/20261106-p6v-g7/`; write-up `site/blog/2026-11-07-phase-6-rescore.md`). The verdict
+  is final:
+  - log-range 50% coverage is 48.62% [48.33, 48.91], and all nine checks pass;
+  - widths are 0.73 / 0.94 / 0.89 × the IMM's;
+  - the claim is pooled coverage within tolerance, not calibration. Log-range 50% is biased about
+    1.5 pp low (both seeds pooled: ~48.5%); on settled rows it is 67% before any manoeuvre and 39%
+    after one; 17% of course 90% intervals are vacuous; 27% of speed 90% lower bounds are below 0. A second look:
+    false-pass risk ≤ ~5% over both; the pass judges the frozen multipliers, not the fitting.
+- `tma-g7` streams rows (`g7Rows`, ~0.4 GB at 110,000 scenarios) and binds a re-score
+  (`requireG7Rescore`: an inconclusive, non-re-score G7, a fresh seed, the same multipliers, names
+  and models). Seeds 215–216 are reserved. The owner decides the follow-on.
 
 Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight

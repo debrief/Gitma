@@ -1,0 +1,490 @@
+[
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "log_range",
+    "rows": "all",
+    "n": 184667,
+    "coverage_50": 0.4862048985471145,
+    "coverage_90": 0.8988395327806268
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "log_range",
+    "rows": "settled",
+    "n": 81474,
+    "coverage_50": 0.5403932542897121,
+    "coverage_90": 0.9174706041191055
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "log_range",
+    "rows": "not settled",
+    "n": 103193,
+    "coverage_50": 0.4434215499113312,
+    "coverage_90": 0.8841297374821936
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "log_range",
+    "rows": "settled, before any manoeuvre",
+    "n": 44647,
+    "coverage_50": 0.6667413264049096,
+    "coverage_90": 0.9660447510471029
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "log_range",
+    "rows": "settled, after a manoeuvre",
+    "n": 36827,
+    "coverage_50": 0.3872159013767073,
+    "coverage_90": 0.8585820186276373
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "log_range",
+    "rows": "zig+5min",
+    "n": 55156,
+    "coverage_50": 0.6117920081224164,
+    "coverage_90": 0.944484734208427
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "log_range",
+    "rows": "zig+10min",
+    "n": 53766,
+    "coverage_50": 0.46845590149908867,
+    "coverage_90": 0.8991927984227951
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "log_range",
+    "rows": "zig+15min",
+    "n": 45453,
+    "coverage_50": 0.41493410775966383,
+    "coverage_90": 0.8700195806657426
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "log_range",
+    "rows": "zig+20min",
+    "n": 30292,
+    "coverage_50": 0.39597913640565163,
+    "coverage_90": 0.8583454377393371
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "log_range",
+    "rows": "widths (90%)",
+    "n": 184667,
+    "width_median": 0.49547369273491343,
+    "width_p90": 0.8064651873759281
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "course",
+    "rows": "all",
+    "n": 184667,
+    "coverage_50": 0.5048113631563842,
+    "coverage_90": 0.903415336795421
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "course",
+    "rows": "settled",
+    "n": 81474,
+    "coverage_50": 0.7622308957458821,
+    "coverage_90": 0.9726047573459018
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "course",
+    "rows": "not settled",
+    "n": 103193,
+    "coverage_50": 0.3015708429835357,
+    "coverage_90": 0.848788192997587
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "course",
+    "rows": "settled, before any manoeuvre",
+    "n": 44647,
+    "coverage_50": 0.9340605191838197,
+    "coverage_90": 0.9958787824489888
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "course",
+    "rows": "settled, after a manoeuvre",
+    "n": 36827,
+    "coverage_50": 0.5539142476986993,
+    "coverage_90": 0.9443886279088712
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "course",
+    "rows": "zig+5min",
+    "n": 55156,
+    "coverage_50": 0.5486982377257233,
+    "coverage_90": 0.9116505910508377
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "course",
+    "rows": "zig+10min",
+    "n": 53766,
+    "coverage_50": 0.4759327456013094,
+    "coverage_90": 0.8964587285645204
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "course",
+    "rows": "zig+15min",
+    "n": 45453,
+    "coverage_50": 0.48001232041889424,
+    "coverage_90": 0.8954304446351176
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "course",
+    "rows": "zig+20min",
+    "n": 30292,
+    "coverage_50": 0.5133698666314539,
+    "coverage_90": 0.9127492407236234
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "course",
+    "rows": "widths (90%)",
+    "n": 184667,
+    "width_median": 187.79013653312273,
+    "width_p90": 474.6400259118981,
+    "vacuous_90_share": 0.1692722576313039,
+    "coverage_90_without_vacuous": 0.8862884562582535,
+    "coverage_90_without_vacuous_convention": "rows with no estimate left out of the denominator"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "speed",
+    "rows": "all",
+    "n": 184667,
+    "coverage_50": 0.49356409103954685,
+    "coverage_90": 0.899104875261958
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "speed",
+    "rows": "settled",
+    "n": 81474,
+    "coverage_50": 0.5333357881041805,
+    "coverage_90": 0.9235093404030734
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "speed",
+    "rows": "not settled",
+    "n": 103193,
+    "coverage_50": 0.4621631312201409,
+    "coverage_90": 0.8798368106363804
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "speed",
+    "rows": "settled, before any manoeuvre",
+    "n": 44647,
+    "coverage_50": 0.6361457656729456,
+    "coverage_90": 0.9762806011602123
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "speed",
+    "rows": "settled, after a manoeuvre",
+    "n": 36827,
+    "coverage_50": 0.40869470768729466,
+    "coverage_90": 0.8595324082873979
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "speed",
+    "rows": "zig+5min",
+    "n": 55156,
+    "coverage_50": 0.5739901370657771,
+    "coverage_90": 0.9275872071941402
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "speed",
+    "rows": "zig+10min",
+    "n": 53766,
+    "coverage_50": 0.48990068072759735,
+    "coverage_90": 0.8990812037347022
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "speed",
+    "rows": "zig+15min",
+    "n": 45453,
+    "coverage_50": 0.4445911160979473,
+    "coverage_90": 0.8815479726310694
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "speed",
+    "rows": "zig+20min",
+    "n": 30292,
+    "coverage_50": 0.42710946784629605,
+    "coverage_90": 0.8736300013204806
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd-k4-m6",
+    "output": "speed",
+    "rows": "widths (90%)",
+    "n": 184667,
+    "width_median": 12.558931125580523,
+    "width_p90": 32.13675067247886,
+    "negative_lower_90_share": 0.27182983424217644
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "log_range",
+    "rows": "all",
+    "n": 184667,
+    "coverage_50": 0.5010911532650663,
+    "coverage_90": 0.9010597453795209
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "log_range",
+    "rows": "settled",
+    "n": 81474,
+    "coverage_50": 0.5786876795051182,
+    "coverage_90": 0.9226256228981025
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "log_range",
+    "rows": "not settled",
+    "n": 103193,
+    "coverage_50": 0.43982634481021,
+    "coverage_90": 0.8840328316843197
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "log_range",
+    "rows": "settled, before any manoeuvre",
+    "n": 44647,
+    "coverage_50": 0.7438797679575335,
+    "coverage_90": 0.9630882254126817
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "log_range",
+    "rows": "settled, after a manoeuvre",
+    "n": 36827,
+    "coverage_50": 0.37841800852635293,
+    "coverage_90": 0.8735710212615744
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "log_range",
+    "rows": "zig+5min",
+    "n": 55156,
+    "coverage_50": 0.620258902023352,
+    "coverage_90": 0.9367611864529698
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "log_range",
+    "rows": "zig+10min",
+    "n": 53766,
+    "coverage_50": 0.48296321095115874,
+    "coverage_90": 0.8971282966930774
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "log_range",
+    "rows": "zig+15min",
+    "n": 45453,
+    "coverage_50": 0.43154467251886564,
+    "coverage_90": 0.8783798649154071
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "log_range",
+    "rows": "zig+20min",
+    "n": 30292,
+    "coverage_50": 0.4206391126369999,
+    "coverage_90": 0.8770632510233725
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "log_range",
+    "rows": "widths (90%)",
+    "n": 184667,
+    "width_median": 0.6777034449541578,
+    "width_p90": 1.296253785484955
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "course",
+    "rows": "all",
+    "n": 184667,
+    "coverage_50": 0.5054557663253315,
+    "coverage_90": 0.9031391640087292
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "course",
+    "rows": "settled",
+    "n": 81474,
+    "coverage_50": 0.7536760193435943,
+    "coverage_90": 0.9679406927363331
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "course",
+    "rows": "not settled",
+    "n": 103193,
+    "coverage_50": 0.30947835609004487,
+    "coverage_90": 0.8519763937476379
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "course",
+    "rows": "settled, before any manoeuvre",
+    "n": 44647,
+    "coverage_50": 0.9321790937800972,
+    "coverage_90": 0.9937957757520102
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "course",
+    "rows": "settled, after a manoeuvre",
+    "n": 36827,
+    "coverage_50": 0.5372688516577511,
+    "coverage_90": 0.936595432698835
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "course",
+    "rows": "zig+5min",
+    "n": 55156,
+    "coverage_50": 0.550783233011821,
+    "coverage_90": 0.9166364493436797
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "course",
+    "rows": "zig+10min",
+    "n": 53766,
+    "coverage_50": 0.47981996056987686,
+    "coverage_90": 0.8985976267529665
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "course",
+    "rows": "zig+15min",
+    "n": 45453,
+    "coverage_50": 0.47750423514399487,
+    "coverage_90": 0.8939343937693882
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "course",
+    "rows": "zig+20min",
+    "n": 30292,
+    "coverage_50": 0.5103657731414235,
+    "coverage_90": 0.9004357586161362
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "course",
+    "rows": "widths (90%)",
+    "n": 184667,
+    "width_median": 198.9187864186075,
+    "width_p90": 524.4162168997849,
+    "vacuous_90_share": 0.1980158880579638,
+    "coverage_90_without_vacuous": 0.8824948661818626,
+    "coverage_90_without_vacuous_convention": "rows with no estimate left out of the denominator"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "speed",
+    "rows": "all",
+    "n": 184667,
+    "coverage_50": 0.5088456519031554,
+    "coverage_90": 0.8961644473565932
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "speed",
+    "rows": "settled",
+    "n": 81474,
+    "coverage_50": 0.5650882490119548,
+    "coverage_90": 0.9203549598644967
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "speed",
+    "rows": "not settled",
+    "n": 103193,
+    "coverage_50": 0.4644404174701772,
+    "coverage_90": 0.8770653048171873
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "speed",
+    "rows": "settled, before any manoeuvre",
+    "n": 44647,
+    "coverage_50": 0.7001590252424575,
+    "coverage_90": 0.9751159092436222
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "speed",
+    "rows": "settled, after a manoeuvre",
+    "n": 36827,
+    "coverage_50": 0.40133597632172047,
+    "coverage_90": 0.8539658402802291
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "speed",
+    "rows": "zig+5min",
+    "n": 55156,
+    "coverage_50": 0.5940604829936906,
+    "coverage_90": 0.9290376386975125
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "speed",
+    "rows": "zig+10min",
+    "n": 53766,
+    "coverage_50": 0.5132053714243202,
+    "coverage_90": 0.902596436409627
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "speed",
+    "rows": "zig+15min",
+    "n": 45453,
+    "coverage_50": 0.45277539436340836,
+    "coverage_90": 0.8739137130662442
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "speed",
+    "rows": "zig+20min",
+    "n": 30292,
+    "coverage_50": 0.4300805493199525,
+    "coverage_90": 0.8582794137065892
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-sd",
+    "output": "speed",
+    "rows": "widths (90%)",
+    "n": 184667,
+    "width_median": 14.137485961614683,
+    "width_p90": 36.303413915239126,
+    "negative_lower_90_share": 0.3298965164322808
+  }
+]

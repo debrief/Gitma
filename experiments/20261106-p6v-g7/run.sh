@@ -17,8 +17,8 @@ wait
 # 3. The fused tracker on the -g1 IMM, with stated sds (k 4, every 6, the CLI defaults).
 node packages/eval/dist/cli-fuse-track.js --truth $D/test.f32pack --network $D/pred/test.t2.ndjson \
   --out $D/pred/test.fused.ndjson $IMM
-# 4. The gate, with every binding (the prediction chain needs T2's file among --also). It needs about 10-12 GB
-#    free (--max-old-space-size=12288); run it alone.
+# 4. The gate, with every binding (the prediction chain needs T2's file among --also). The rows are streamed:
+#    the gate peaked at about 0.4 GB on this split; the heap flag is a margin only.
 node --max-old-space-size=12288 packages/eval/dist/cli-g7.js --truth $D/test.f32pack \
   --tracker $D/pred/test.fused.ndjson --reference $D/pred/test.imm.ndjson --also $D/pred/test.t2.ndjson \
   --decision experiments/20261106-p6v-rescore-decision/decision.json --plan configs/phase4/v/plan.json \
