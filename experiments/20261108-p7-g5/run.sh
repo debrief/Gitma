@@ -50,3 +50,10 @@ for t in fused ekf t2; do
     $D/pred/test.imm.ndjson $C/pred/test.$t.ndjson $C/pred/test.imm.ndjson > $E/clean-$t.json
 done
 ( cd $D && sha256sum clean/test.f32pack clean/pred/*.ndjson ) > $E/clean.sha256
+# 6. Baselines and comparisons, reported (G5 panel: naive and batch least squares beside the result;
+#    the fused tracker against T2 alone and the EKF). Naive fitted on seed-211 train (data/p4).
+node packages/classical/dist/cli-naive.js predict --model data/p4/naive-model.json --in $D/test.f32pack \
+  --out $D/pred/test.naive.ndjson --per-timestep
+node scripts/research/spec019-baselines.mjs $D/test.f32pack $E/baselines.json $D/pred/test.fused.ndjson \
+  $D/pred/test.imm.ndjson $D/pred/test.t2.ndjson $D/pred/test.ekf.ndjson $D/pred/test.naive.ndjson
+node scripts/research/spec014-lsq.mjs $D/test.f32pack $E/lsq.json
