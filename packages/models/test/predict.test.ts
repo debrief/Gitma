@@ -195,6 +195,42 @@ describe("normalisation check", () => {
     expect(() => requireSameNormalisation(file(now), scaled, "m", train)).toThrow();
   });
 
+  it("treats generator 0.6.0 as 0.5.0 only for ranges without a bearing error (spec 019)", () => {
+    const at = (
+      commit: string,
+      version: string,
+      ranges = header.parameter_ranges,
+    ): DatasetHeader => ({
+      ...header,
+      schema_version: "0.8.0",
+      generator_version: version,
+      generator_git_commit: commit,
+      generator_git_dirty: false,
+      parameter_ranges: ranges,
+    });
+    const earlier = at("a".repeat(40), "0.5.0");
+    const modelNorm = { ...now, train_header_digest: digest(earlier) };
+    const accepts = (later: DatasetHeader) =>
+      requireSameNormalisation(
+        file({ ...now, train_header_digest: digest(later) }),
+        modelNorm,
+        "m",
+        {
+          header: later,
+          modelSchemaVersion: "0.8.0",
+          modelSourceHeader: earlier,
+        },
+      );
+    expect(accepts(at("b".repeat(40), "0.6.0"))).toMatch(/regenerated at b{40}/);
+    // With a bearing error the data differ; another version pair is never relabelled.
+    const withError = {
+      ...header.parameter_ranges,
+      bearing_error: { ar_sd_rad: 0.01, ar_tau_s: 30, bias_sd_rad: 0.01, bias_tau_s: 1200 },
+    };
+    expect(() => accepts(at("b".repeat(40), "0.6.0", withError))).toThrow(/normalisation differs/);
+    expect(() => accepts(at("b".repeat(40), "0.7.0"))).toThrow(/normalisation differs/);
+  });
+
   it("accepts data regenerated at a later commit (provenance-only header change) with a note", () => {
     const at = (commit: string, dirty = false): DatasetHeader => ({
       ...header,

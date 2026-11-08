@@ -411,25 +411,32 @@ describe("dataset content digests", () => {
       provenance: { generator_git_commit: "c".repeat(40), generator_git_dirty: false },
     });
     renameSync(join(fresh, "test.f32pack"), join(data, "test.f32pack"));
+    // The fresh split's header must record the ranges the plan names for it (spec 019).
+    const R = "configs/fresh-ranges.json";
+    writeFileSync(join(dir, R), JSON.stringify(DEFAULT_RANGES));
     const freshDigest = run(["digest", join(data, "test.f32pack")]).out.split(" ")[0] ?? "";
-    withFresh.dataset.fresh_test = { seed: "9207", digest: freshDigest, count: 50 };
+    withFresh.dataset.fresh_test = { seed: "9207", digest: freshDigest, count: 50, ranges: R };
     plan.dataset.digests["test.f32pack"] = "0".repeat(64);
     writeFileSync(p, JSON.stringify(plan));
     const okFresh = check();
     expect(okFresh.status).toBe(0);
     expect(okFresh.out).toContain("ok  test.f32pack header seed 9207 index [45, 50)");
-    withFresh.dataset.fresh_test = { seed: "9207", digest: "1".repeat(64), count: 50 };
+    withFresh.dataset.fresh_test = { seed: "9207", digest: "1".repeat(64), count: 50, ranges: R };
     writeFileSync(p, JSON.stringify(plan));
     expect(check().err).toMatch(/BAD test.f32pack .*\(plan: 1{64}\)/);
     // Without the count, the test indices are the plan count's: the header says otherwise.
-    withFresh.dataset.fresh_test = { seed: "9207", digest: freshDigest };
+    withFresh.dataset.fresh_test = { seed: "9207", digest: freshDigest, ranges: R };
     writeFileSync(p, JSON.stringify(plan));
     expect(check().err).toMatch(
-      /BAD test.f32pack header seed 9207 index \[45, 50\) \(plan: seed 9207 index \[27, 30\)\)/,
+      /BAD test.f32pack header seed 9207 index \[45, 50\), ranges = .* \(plan: seed 9207 index \[27, 30\)\)/,
     );
-    withFresh.dataset.fresh_test = { seed: "9208", digest: freshDigest, count: 50 };
+    withFresh.dataset.fresh_test = { seed: "9208", digest: freshDigest, count: 50, ranges: R };
     writeFileSync(p, JSON.stringify(plan));
     expect(check().err).toMatch(/BAD test.f32pack header seed 9207/);
+    // Generated with other ranges than the plan names: refused even with the right digest.
+    withFresh.dataset.fresh_test = { seed: "9207", digest: freshDigest, count: 50 };
+    writeFileSync(p, JSON.stringify(plan));
+    expect(check().err).toMatch(/BAD test.f32pack header seed 9207 index \[45, 50\), ranges ≠/);
   });
 
   it("data: a fresh_test.count test split is generated alone (none of its seed's other splits)", () => {

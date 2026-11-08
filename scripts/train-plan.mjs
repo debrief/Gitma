@@ -292,6 +292,17 @@ export function resolve(input, ref) {
 }
 
 /** The JSON header of a .f32pack (bytes 16 to 16 + H). */
+/** JSON with object keys sorted at every level, for comparing records parsed in any key order. */
+function sortedJson(v) {
+  if (Array.isArray(v)) return `[${v.map(sortedJson).join(",")}]`;
+  if (v !== null && typeof v === "object")
+    return `{${Object.keys(v)
+      .sort()
+      .map((k) => `${JSON.stringify(k)}:${sortedJson(v[k])}`)
+      .join(",")}}`;
+  return JSON.stringify(v);
+}
+
 export function packHeader(path) {
   const fd = openSync(path, "r");
   try {
@@ -317,13 +328,19 @@ export function checkDigests(plan, dir) {
   if (fresh !== undefined) {
     const h = packHeader(join(dir, "test.f32pack"));
     const [start, end] = testIndices(fresh.count ?? plan.dataset.count);
+    // The header must also record the ranges the plan names for it (spec 019 G0 panel, red team:
+    // otherwise a split generated with other ranges, its digest pinned, would pass).
+    const rangesFile = fresh.ranges ?? plan.dataset.ranges;
+    const rangesOk =
+      sortedJson(h.parameter_ranges) === sortedJson(JSON.parse(readFileSync(rangesFile, "utf8")));
     const ok =
       h.dataset_seed === fresh.seed &&
       h.split === "test" &&
       h.index_start === start &&
-      h.index_end === end;
+      h.index_end === end &&
+      rangesOk;
     lines.push(
-      `${ok ? "ok " : "BAD"} test.f32pack header seed ${String(h.dataset_seed)} index [${String(h.index_start)}, ${String(h.index_end)})${ok ? "" : ` (plan: seed ${fresh.seed} index [${String(start)}, ${String(end)}))`}`,
+      `${ok ? "ok " : "BAD"} test.f32pack header seed ${String(h.dataset_seed)} index [${String(h.index_start)}, ${String(h.index_end)}), ranges ${rangesOk ? `= ${rangesFile}` : `≠ ${rangesFile}`}${ok ? "" : ` (plan: seed ${fresh.seed} index [${String(start)}, ${String(end)}))`}`,
     );
     if (!ok) bad.push("test.f32pack header");
   }

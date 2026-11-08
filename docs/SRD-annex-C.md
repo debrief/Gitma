@@ -464,10 +464,18 @@ it before the decision record is committed.
 
   T2 keeps seed 211's normalisation constants: its features on new data are normalised with the
   constants it was trained on, from inputs only.
+  - **How.** `scripts/train-plan.mjs data` regenerates seed 211 with the phase-4 ranges and computes
+    `norm.json` from its train split.
+  - **Accepted at generator 0.6.0.** Its header then says generator 0.6.0 where T2's
+    `source_dataset_header` says 0.5.0. `tma-model-predict` accepts this only because 0.6.0
+    without a bearing error is byte-identical to 0.5.0 (`EQUIVALENT_GENERATORS`). Any other version
+    change, or ranges with a bearing error, is still refused.
 - **The gate:** G5 unchanged (C.5): the same rows, five checks, limits, 97.5% intervals,
   clustered bootstrap, `tma-g5` and spec 015's bindings. It is scored on the 40,000-scenario test
   split of a 400,000-scenario fresh seed (218), generated with the phase-7 ranges. A plan's
   `fresh_test.ranges` names them, and seed 211 still supplies the training data and normalisation.
+  The plan's digest check refuses a fresh split whose header does not record exactly those ranges.
+  Seeds 217–219 are reserved from decision 35 on.
 - **Validation first.** On seed 217's 10,000-scenario validation split with the phase-7 ranges,
   `tma-g5` runs as a diagnostic.
   - **Carried to the gate** if every point estimate is within its limit.
@@ -492,6 +500,10 @@ it before the decision record is committed.
   Each comes with a scenario-clustered bootstrap 95% interval (2,000 resamples, seed 20261011).
   It does not use `tma-g5`, which scores a decision and seed only once. The script is committed
   before seed 217's validation is scored.
+
+  The phase-4-range regeneration of seed 218 shares the gate rows' geometry and white noise, so it
+  would preview the gate. It is generated and scored only after the seed-218 G5 verdict is
+  committed.
 - **If it fails,** the owner decides the next step. Decisions 29–34 and their verdicts stand
   either way.
 - **What a pass would show:** the advantage survives this one error model at this one severity.
