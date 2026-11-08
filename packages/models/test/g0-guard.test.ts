@@ -138,10 +138,11 @@ describe("G0 guard (constitution V)", () => {
 
   it("the committed phase-7 G0 (generator 0.6.0) is the latest, and needs its panel review", () => {
     // Generator 0.6.0 (spec 019, realistic bearing error) no longer accepts the phase-4 G0
-    // (20261030-g0-p4-r3, 0.5.0). G0 ran on 0.6.0 at 794b558; the generator source at HEAD still
+    // (20261030-g0-p4-r3, 0.5.0). G0 ran on 0.6.0 at 794b558 (round 0, the first severity) and again
+    // at 3c881a7 (the owner's doubled severity, a tighter check); the generator source at HEAD still
     // matches.
     const dir = new URL("../../../experiments", import.meta.url).pathname;
-    const want = { id: "20261108-g0-p7", commit: "794b55896cb301aa06379050870d59ba79ad5b3c" };
+    const want = { id: "20261108-g0-p7-r1", commit: "3c881a717b82d8fbe4f3e4f768091d0ada6999d6" };
     expect(g0Accepted(dir, { requireReview: false })).toEqual(want);
     const verdict = JSON.parse(readFileSync(join(dir, want.id, "verdict.json"), "utf8")) as {
       decided_by: string;
