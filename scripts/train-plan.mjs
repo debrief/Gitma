@@ -215,7 +215,11 @@ export function loadPlan(path) {
       fail("dataset.fresh_test.digest must be a SHA-256 (hex) or a PLACEHOLDER");
     if (f.count !== undefined && (!Number.isInteger(f.count) || f.count < 1))
       fail("dataset.fresh_test.count must be a positive integer");
-    const known = ["seed", "digest", "count"];
+    // Phase 7 (spec 019, SRD Annex C §C.14): the fresh test split may use other ranges (realistic
+    // bearing error) while training data and normalisation stay the plan's.
+    if (f.ranges !== undefined && (typeof f.ranges !== "string" || !existsSync(f.ranges)))
+      fail("dataset.fresh_test.ranges must name an existing ranges file");
+    const known = ["seed", "digest", "count", "ranges"];
     for (const k of Object.keys(f))
       if (!known.includes(k)) fail(`dataset.fresh_test.${k}: unknown key`);
   }
@@ -353,8 +357,8 @@ const run = (script, args) =>
 
 /**
  * Generate the plan's dataset, check its digests, and build features for `splits`. With a
- * `fresh_test`, test.f32pack is replaced by the test split of that seed's dataset (same ranges;
- * count `fresh_test.count`, else the plan's), generated alone by scripts/generate-splits.mjs
+ * `fresh_test`, test.f32pack is replaced by the test split of that seed's dataset (the plan's
+ * ranges unless `fresh_test.ranges` names others; count `fresh_test.count`, else the plan's), generated alone by scripts/generate-splits.mjs
  * (byte-identical to tma-generate's: a split's bytes do not depend on the others), so a large
  * fresh count never generates its train split; the plan's own test split is discarded, never
  * scored.
@@ -363,13 +367,13 @@ export function data(plan, dir, splits) {
   const d = plan.dataset;
   // Tests only: generate from a working tree with changes; headers then record it.
   const dirty = process.env.TRAIN_PLAN_ALLOW_DIRTY === "1" ? ["--allow-dirty"] : [];
-  const args = (seed, out, count) => [
+  const args = (seed, out, count, ranges = d.ranges) => [
     "--seed",
     seed,
     "--count",
     String(count),
     "--ranges",
-    d.ranges,
+    ranges,
     "--heldout-ranges",
     d.heldout_ranges,
     "--out",
@@ -381,7 +385,11 @@ export function data(plan, dir, splits) {
   if (fresh !== undefined) {
     const tmp = join(dir, ".fresh-test");
     rmSync(tmp, { recursive: true, force: true });
-    run(GENERATE_SPLITS, [...args(fresh.seed, tmp, fresh.count ?? d.count), "--splits", "test"]);
+    run(GENERATE_SPLITS, [
+      ...args(fresh.seed, tmp, fresh.count ?? d.count, fresh.ranges ?? d.ranges),
+      "--splits",
+      "test",
+    ]);
     renameSync(join(tmp, "test.f32pack"), join(dir, "test.f32pack"));
     rmSync(tmp, { recursive: true, force: true });
   }

@@ -1,6 +1,19 @@
 // GENERATED from schema/tma.yaml by packages/types/scripts/generate.ts. Do not edit.
 import { z } from "zod";
 
+/** Realistic bearing error (generator 0.6.0, SRD Annex C §C.14), added to the white noise of noise_sigma_rad: a first-order autoregressive (Gauss–Markov) term and a slowly varying bias, itself a Gauss–Markov process with a long time constant. Both start in their stationary distribution and are drawn every sample (dropped ones included) from the scenario's own stream (sub-index 2), so the geometry and the white noise are those of 0.5.0 for the same seed. */
+export const BearingErrorModel = z.strictObject({
+  /** Stationary sd of the correlated term. */
+  ar_sd_rad: z.number(),
+  /** Time constant of the correlated term. */
+  ar_tau_s: z.number(),
+  /** Stationary sd of the drifting bias. */
+  bias_sd_rad: z.number(),
+  /** Time constant of the drifting bias. */
+  bias_tau_s: z.number(),
+});
+export type BearingErrorModel = z.infer<typeof BearingErrorModel>;
+
 /** One detector's frozen alarm threshold (schema 0.19.0, spec 017). */
 export const DetectorThreshold = z.strictObject({
   detector: z.string(),
@@ -115,6 +128,8 @@ export type ZigRule = z.infer<typeof ZigRule>;
 
 /** Ranges from which ScenarioParameters are drawn. Initial ownship course, target bearing and target course are always uniform on [0, 2π); zig sign is uniform ±. */
 export const ParameterRanges = z.strictObject({
+  /** Generator 0.6.0: the same realistic bearing error for every scenario with σ > 0, recorded in its parameters; a noise-free scenario (σ = 0) has none. Absent: white noise only, as 0.5.0. */
+  bearing_error: BearingErrorModel.nullish(),
   dropout_fraction: FloatRange,
   dt_s: z.number(),
   /** Angle off the line of sight, on the other bow, after an across_los turn; required when zig_rule is across_los. */
@@ -626,6 +641,8 @@ export type TargetManoeuvre = z.infer<typeof TargetManoeuvre>;
 
 /** The random draws that define one scenario. */
 export const ScenarioParameters = z.strictObject({
+  /** Realistic bearing error (generator 0.6.0); absent = white noise only. */
+  bearing_error: BearingErrorModel.nullish(),
   /** Probability each bearing is missing. */
   dropout_fraction: z.number(),
   /** Bearing interval. */

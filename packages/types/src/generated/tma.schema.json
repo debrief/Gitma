@@ -1,5 +1,35 @@
 {
   "$defs": {
+    "BearingErrorModel": {
+      "additionalProperties": false,
+      "description": "Realistic bearing error (generator 0.6.0, SRD Annex C §C.14), added to the white noise of noise_sigma_rad: a first-order autoregressive (Gauss–Markov) term and a slowly varying bias, itself a Gauss–Markov process with a long time constant. Both start in their stationary distribution and are drawn every sample (dropped ones included) from the scenario's own stream (sub-index 2), so the geometry and the white noise are those of 0.5.0 for the same seed.",
+      "properties": {
+        "ar_sd_rad": {
+          "description": "Stationary sd of the correlated term.",
+          "type": "number"
+        },
+        "ar_tau_s": {
+          "description": "Time constant of the correlated term.",
+          "type": "number"
+        },
+        "bias_sd_rad": {
+          "description": "Stationary sd of the drifting bias.",
+          "type": "number"
+        },
+        "bias_tau_s": {
+          "description": "Time constant of the drifting bias.",
+          "type": "number"
+        }
+      },
+      "required": [
+        "ar_sd_rad",
+        "ar_tau_s",
+        "bias_sd_rad",
+        "bias_tau_s"
+      ],
+      "title": "BearingErrorModel",
+      "type": "object"
+    },
     "ChangeDecision": {
       "additionalProperties": false,
       "description": "The single change of the iteration's change round, fixed from validation evidence and committed before phase B trains (spec 003 R5).",
@@ -1367,6 +1397,17 @@
       "additionalProperties": false,
       "description": "Ranges from which ScenarioParameters are drawn. Initial ownship course, target bearing and target course are always uniform on [0, 2π); zig sign is uniform ±.",
       "properties": {
+        "bearing_error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BearingErrorModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Generator 0.6.0: the same realistic bearing error for every scenario with σ > 0, recorded in its parameters; a noise-free scenario (σ = 0) has none. Absent: white noise only, as 0.5.0."
+        },
         "dropout_fraction": {
           "$ref": "#/$defs/FloatRange"
         },
@@ -1928,6 +1969,17 @@
       "additionalProperties": false,
       "description": "The random draws that define one scenario.",
       "properties": {
+        "bearing_error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BearingErrorModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Realistic bearing error (generator 0.6.0); absent = white noise only."
+        },
         "dropout_fraction": {
           "description": "Probability each bearing is missing.",
           "type": "number"
@@ -2345,5 +2397,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.20.0"
+  "version": "0.21.0"
 }

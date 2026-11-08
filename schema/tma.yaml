@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.20.0
+version: 0.21.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -146,6 +146,44 @@ classes:
       min: { range: float, required: true }
       max: { range: float, required: true }
 
+  BearingErrorModel:
+    description: >-
+      Realistic bearing error (generator 0.6.0, SRD Annex C §C.14), added to the white noise of
+      noise_sigma_rad: a first-order autoregressive (Gauss–Markov) term and a slowly varying bias,
+      itself a Gauss–Markov process with a long time constant. Both start in their stationary
+      distribution and are drawn every sample (dropped ones included) from the scenario's own
+      stream (sub-index 2), so the geometry and the white noise are those of 0.5.0 for the same
+      seed.
+    attributes:
+      ar_sd_rad:
+        {
+          range: float,
+          required: true,
+          unit: { ucum_code: rad },
+          description: Stationary sd of the correlated term.,
+        }
+      ar_tau_s:
+        {
+          range: float,
+          required: true,
+          unit: { ucum_code: s },
+          description: Time constant of the correlated term.,
+        }
+      bias_sd_rad:
+        {
+          range: float,
+          required: true,
+          unit: { ucum_code: rad },
+          description: Stationary sd of the drifting bias.,
+        }
+      bias_tau_s:
+        {
+          range: float,
+          required: true,
+          unit: { ucum_code: s },
+          description: Time constant of the drifting bias.,
+        }
+
   ScenarioParameters:
     description: The random draws that define one scenario.
     attributes:
@@ -213,6 +251,10 @@ classes:
         range: float
         unit: { ucum_code: rad }
         description: Signed course change at the second zig; positive is clockwise.
+      bearing_error:
+        range: BearingErrorModel
+        inlined: true
+        description: Realistic bearing error (generator 0.6.0); absent = white noise only.
       target_manoeuvre_time_s:
         range: float
         unit: { ucum_code: s }
@@ -350,6 +392,13 @@ classes:
         range: float
         unit: { ucum_code: s }
         description: Least time from the end of one target manoeuvre to the start of the next.
+      bearing_error:
+        range: BearingErrorModel
+        inlined: true
+        description: >-
+          Generator 0.6.0: the same realistic bearing error for every scenario with σ > 0,
+          recorded in its parameters; a noise-free scenario (σ = 0) has none. Absent: white noise
+          only, as 0.5.0.
       min_range_m:
         {
           range: float,

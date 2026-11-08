@@ -1004,6 +1004,17 @@ export const TRACKER_NOISY_PAIRED_RATIO = 1.15;
  * The check is one-sided: an over-stated measurement variance barely moves it, and on 0.5.0 a
  * mis-stated scenario σ does not move it at all; `tracker-nis` covers both.
  */
+/**
+ * The ranges without generator 0.6.0's realistic bearing error: the tracker checks test the
+ * filters' white-noise measurement model, which correlated error would violate by design.
+ * `bearing-error-model` checks the error itself.
+ */
+function whiteNoiseOnly(ranges: ParameterRanges): ParameterRanges {
+  return Object.fromEntries(
+    Object.entries(ranges).filter(([k]) => k !== "bearing_error"),
+  ) as ParameterRanges;
+}
+
 export function checkTrackerNoisy(ranges: ParameterRanges): GateCheck {
   const name = "tracker-noisy-sanity";
   if (!hasTargetManoeuvre(ranges))
@@ -1013,7 +1024,7 @@ export function checkTrackerNoisy(ranges: ParameterRanges): GateCheck {
       "not applicable: the ranges have no target manoeuvre (generator 0.4.0 and later checks only)",
     );
   const r: ParameterRanges = {
-    ...ranges,
+    ...whiteNoiseOnly(ranges),
     noise_sigma_rad_values: [degToRad(1)],
     dropout_fraction: { min: 0, max: 0 },
   };
@@ -1090,7 +1101,7 @@ export function checkTrackerNis(ranges: ParameterRanges, rScale = 1): GateCheck 
       "not applicable: the ranges have no target manoeuvre (generator 0.4.0 and later checks only)",
     );
   const r: ParameterRanges = {
-    ...ranges,
+    ...whiteNoiseOnly(ranges),
     noise_sigma_rad_values: [degToRad(1)],
     dropout_fraction: { min: 0, max: 0 },
   };
@@ -1198,4 +1209,79 @@ function reconvergenceError(
     worst = Math.max(worst, rowError(s, r).range_rel);
   }
   return worst;
+}
+
+/** Scenarios regenerated for `bearing-error-model`. */
+const BEARING_ERROR_SCENARIOS = 1000;
+/** Tolerances: relative on the residual sd, absolute on each lag correlation. */
+export const BEARING_ERROR_TOLERANCE = { sd: 0.03, rho: 0.02 } as const;
+
+/**
+ * Generator 0.6.0 (SRD Annex C §C.14): the realistic bearing error is the declared one. On 1,000
+ * scenarios regenerated from the ranges at σ = 1° without dropouts (seed NOISY_SEED), the residual
+ * e = observed − true bearing (atan2 of the stored positions) is pooled over every sample. Its sd
+ * and its correlation at lags of 1 and 12 samples are compared with the model's:
+ *   var = σ² + s_ar² + s_b², ρ(L) = (s_ar² e^{−L·dt/τ_ar} + s_b² e^{−L·dt/τ_b}) / var.
+ * Known mean (zero) and raw moments, so a scenario's bias is not removed.
+ */
+export function checkBearingErrorModel(ranges: ParameterRanges): GateCheck {
+  const name = "bearing-error-model";
+  const m = ranges.bearing_error;
+  if (m == null)
+    return check(
+      name,
+      true,
+      "not applicable: the ranges have no bearing_error (generator 0.6.0 checks only)",
+    );
+  const sigma = degToRad(1);
+  const r: ParameterRanges = {
+    ...ranges,
+    noise_sigma_rad_values: [sigma],
+    dropout_fraction: { min: 0, max: 0 },
+  };
+  const lags = [1, 12] as const;
+  let n = 0;
+  let s2 = 0;
+  const c = [0, 0];
+  const nc = [0, 0];
+  let dt = NaN;
+  for (let i = 0; i < BEARING_ERROR_SCENARIOS; i++) {
+    const sc = generateScenario(NOISY_SEED, i, r).scenario;
+    dt = sc.metadata.parameters.dt_s;
+    const e = sc.observations.map((o, k) => {
+      const t = sc.target.states[k];
+      const w = sc.ownship.states[k];
+      if (t === undefined || w === undefined) return NaN;
+      return angleDiff(o.bearing_rad, Math.atan2(t.x_m - w.x_m, t.y_m - w.y_m));
+    });
+    for (let k = 0; k < e.length; k++) {
+      const a = e[k] ?? NaN;
+      n++;
+      s2 += a * a;
+      lags.forEach((L, j) => {
+        const b = e[k + L];
+        if (b === undefined) return;
+        c[j] = (c[j] ?? 0) + a * b;
+        nc[j] = (nc[j] ?? 0) + 1;
+      });
+    }
+  }
+  const vAr = m.ar_sd_rad ** 2;
+  const vB = m.bias_sd_rad ** 2;
+  const total = sigma ** 2 + vAr + vB;
+  const sd = Math.sqrt(s2 / n);
+  const sdWant = Math.sqrt(total);
+  const rho = lags.map((_, j) => (c[j] ?? 0) / (nc[j] ?? 1) / (s2 / n));
+  const want = lags.map(
+    (L) =>
+      (vAr * Math.exp((-L * dt) / m.ar_tau_s) + vB * Math.exp((-L * dt) / m.bias_tau_s)) / total,
+  );
+  const sdOk = Math.abs(sd / sdWant - 1) <= BEARING_ERROR_TOLERANCE.sd;
+  const rhoOk = rho.every((x, j) => Math.abs(x - (want[j] ?? NaN)) <= BEARING_ERROR_TOLERANCE.rho);
+  const deg = (x: number) => ((x * 180) / Math.PI).toFixed(4);
+  return check(
+    name,
+    Number.isFinite(sd) && sdOk && rhoOk,
+    `σ = 1°, ${String(BEARING_ERROR_SCENARIOS)} regenerated scenarios (seed ${String(NOISY_SEED)}), ${String(n)} samples: residual sd ${deg(sd)}° (model ${deg(sdWant)}°, ±${String(BEARING_ERROR_TOLERANCE.sd * 100)}%); correlation at lag ${String(dt)} s ${rho[0]?.toFixed(4) ?? "?"} (model ${want[0]?.toFixed(4) ?? "?"}), at lag ${String(12 * dt)} s ${rho[1]?.toFixed(4) ?? "?"} (model ${want[1]?.toFixed(4) ?? "?"}), each ±${String(BEARING_ERROR_TOLERANCE.rho)}`,
+  );
 }

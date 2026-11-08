@@ -417,3 +417,56 @@ amends it before the decision record is committed.
   - **The false-pass risk** over the two looks is at most about 5%. The pass judges the frozen
     multipliers, not the procedure that fitted them.
   - **Next.** The owner decides the follow-on. Conditional calibration would be a new design.
+
+## C.14 Phase 7: realistic bearing error, G5 rules (owner decisions 2026-11-08)
+
+This is C.6's third incremental follow-on: **realistic bearing error**. On 2026-11-08 the owner
+chose:
+- **to test robustness with frozen trackers.** Nothing is trained, re-tuned or refitted. The
+  question is whether the fused tracker's advantage over the reference survives bearing error
+  that its components never saw.
+- **the error model:** a first-order correlated (Gauss–Markov) term plus a slowly varying bias,
+  added to the white noise, at one moderate setting.
+- **the pass rule:** G5's checks and limits, unchanged.
+
+The rest of this section was written by the implementing agent. It stands unless the owner amends
+it before the decision record is committed.
+
+- **Generator 0.6.0** (schema 0.21.0 `BearingErrorModel`, `configs/phase7-ranges.json`). The
+  phase-4 ranges plus a bearing error made of two terms:
+  - a correlated term with sd 0.5° and τ 30 s;
+  - a bias with sd 0.3° and τ 20 min.
+
+  Each starts stationary and is drawn from the scenario's own stream, so the geometry and the
+  white noise are 0.5.0's for the same seed. A noise-free scenario (σ = 0) has no bearing error,
+  so G0's noise-free data are unchanged. At σ = 1° the total sd is 1.16°.
+- **G0 re-run on 0.6.0.** It adds the check `bearing-error-model`: the pooled residual sd and its
+  correlations at 10 s and 120 s match the model, within 3% and ±0.02. The tracker checks still
+  test the filters' white-noise model, so they regenerate without the bearing error.
+- **The trackers,** frozen, under decision 32 (`-g1`):
+  - **carried:** `fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6`, with T2 bound
+    by digest as in C.11;
+  - **reference:** `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1`.
+
+  T2 keeps seed 211's normalisation constants: its features on new data are normalised with the
+  constants it was trained on, from inputs only.
+- **The gate:** G5 unchanged (C.5): the same rows, five checks, limits, 97.5% intervals,
+  clustered bootstrap, `tma-g5` and spec 015's bindings. It is scored on the 40,000-scenario test
+  split of a 400,000-scenario fresh seed (218), generated with the phase-7 ranges. A plan's
+  `fresh_test.ranges` names them, and seed 211 still supplies the training data and normalisation.
+- **Validation first.** On seed 217's 10,000-scenario validation split with the phase-7 ranges,
+  `tma-g5` runs as a diagnostic.
+  - **Carried to the gate** if every point estimate is within its limit.
+  - **Otherwise phase 7 stops at validation,** seed 218 is never generated, and the result is
+    published.
+- **Reported, not gated:**
+  - the same rows of seeds 217 and 218 regenerated with the phase-4 ranges, so the geometry and
+    white noise are identical and only the added error differs. Each tracker's degradation from
+    clean to realistic is reported, as a paired ratio of medians;
+  - the EKF (`-g1`);
+  - settled rows before any manoeuvre and after one.
+- **Re-score.** As C.5: one re-score on a larger fresh seed if the result is inconclusive.
+- **If it fails,** the owner decides the next step. Decisions 29–34 and their verdicts stand
+  either way.
+- **What a pass would show:** the advantage survives this one error model at this one severity.
+  It would not show robustness to other models or severities, or to real data.
