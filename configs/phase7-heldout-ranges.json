@@ -66,9 +66,9 @@
   },
   "target_manoeuvre_spacing_s": 180,
   "bearing_error": {
-    "ar_sd_rad": 0.008726646259971648,
+    "ar_sd_rad": 0.017453292519943295,
     "ar_tau_s": 30,
-    "bias_sd_rad": 0.005235987755982988,
+    "bias_sd_rad": 0.008726646259971648,
     "bias_tau_s": 1200
   }
 }

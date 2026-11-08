@@ -4,7 +4,12 @@ import { readFileSync } from "node:fs";
 import { generateScenario, noiseFree } from "@tma/sim";
 import type { ParameterRanges } from "@tma/types";
 import { describe, expect, it } from "vitest";
-import { checkBearingErrorModel, checkTrackerNis } from "../src/g0-checks.js";
+import {
+  bearingErrorStats,
+  bearingErrorStatsPass,
+  checkBearingErrorModel,
+  checkTrackerNis,
+} from "../src/g0-checks.js";
 
 const read = (f: string) =>
   JSON.parse(
@@ -19,6 +24,15 @@ describe("G0 on generator 0.6.0 (spec 019)", () => {
     const na = checkBearingErrorModel(P4);
     expect(na.result).toBe("pass");
     expect(na.detail).toMatch(/not applicable/);
+  });
+
+  it("bearing-error-model catches a constant bias and a 5-min one (it identifies τ_b)", () => {
+    const m = P7.bearing_error;
+    if (m == null) throw new Error("phase-7 ranges have no bearing_error");
+    for (const tau of [1e12, 300]) {
+      const x = bearingErrorStats({ ...P7, bearing_error: { ...m, bias_tau_s: tau } }, m, 5n, 400);
+      expect(bearingErrorStatsPass(x)).toBe(false);
+    }
   });
 
   it("noise-free data carries no bearing error: identical to 0.5.0's", () => {

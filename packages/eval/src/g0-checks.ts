@@ -1213,16 +1213,123 @@ function reconvergenceError(
 
 /** Scenarios regenerated for `bearing-error-model`. */
 const BEARING_ERROR_SCENARIOS = 1000;
-/** Tolerances: relative on the residual sd, absolute on each lag correlation. */
-export const BEARING_ERROR_TOLERANCE = { sd: 0.03, rho: 0.02 } as const;
+/** Lags (samples) at which the residual correlation is checked: 10 s to 20 min at dt 10 s. */
+export const BEARING_ERROR_LAGS = [1, 3, 12, 60, 120] as const;
+/**
+ * Tolerances (G0 panel phase 7, statistics), at 1,000 scenarios: sd ±1% (null spread ±0.5% over 12
+ * seeds), each lag correlation ±0.015 (null spread ±0.009 at 10–20 min, about 3.5 SE there), and
+ * the mean residual within 4 scenario-clustered standard errors of zero. Each of these is caught:
+ * a constant or 5-min bias, bias sd −20%, AR τ 20 s, AR sd −10%, or a missing term
+ * (`g0-bearing-error.test.ts`).
+ */
+export const BEARING_ERROR_TOLERANCE = { sd: 0.01, rho: 0.015, meanSe: 4 } as const;
+
+/** The pooled residual statistics of regenerated scenarios, against the declared model. */
+export interface BearingErrorStats {
+  samples: number;
+  sd: number;
+  sdModel: number;
+  mean: number;
+  meanSe: number;
+  dt: number;
+  rho: number[];
+  rhoModel: number[];
+}
 
 /**
- * Generator 0.6.0 (SRD Annex C §C.14): the realistic bearing error is the declared one. On 1,000
- * scenarios regenerated from the ranges at σ = 1° without dropouts (seed NOISY_SEED), the residual
- * e = observed − true bearing (atan2 of the stored positions) is pooled over every sample. Its sd
- * and its correlation at lags of 1 and 12 samples are compared with the model's:
+ * Residual e = observed − true bearing (atan2 of the stored positions), pooled over every sample of
+ * `count` scenarios regenerated from `ranges` at σ = 1° without dropouts, with raw moments about a
+ * known zero mean (so a scenario's bias is not removed), against `model`:
  *   var = σ² + s_ar² + s_b², ρ(L) = (s_ar² e^{−L·dt/τ_ar} + s_b² e^{−L·dt/τ_b}) / var.
- * Known mean (zero) and raw moments, so a scenario's bias is not removed.
+ * The mean's standard error is clustered by scenario. `model` may differ from `ranges.bearing_error`
+ * (tests of the check's power).
+ */
+export function bearingErrorStats(
+  ranges: ParameterRanges,
+  model: NonNullable<ParameterRanges["bearing_error"]>,
+  seed = NOISY_SEED,
+  count = BEARING_ERROR_SCENARIOS,
+): BearingErrorStats {
+  const sigma = degToRad(1);
+  const r: ParameterRanges = {
+    ...ranges,
+    noise_sigma_rad_values: [sigma],
+    dropout_fraction: { min: 0, max: 0 },
+  };
+  let n = 0;
+  let s1 = 0;
+  let s2 = 0;
+  const c = BEARING_ERROR_LAGS.map(() => 0);
+  const nc = BEARING_ERROR_LAGS.map(() => 0);
+  const sums: number[] = [];
+  const counts: number[] = [];
+  let dt = NaN;
+  for (let i = 0; i < count; i++) {
+    const sc = generateScenario(seed, i, r).scenario;
+    dt = sc.metadata.parameters.dt_s;
+    const e = sc.observations.map((o, k) => {
+      const t = sc.target.states[k];
+      const w = sc.ownship.states[k];
+      if (t === undefined || w === undefined) return NaN;
+      return angleDiff(o.bearing_rad, Math.atan2(t.x_m - w.x_m, t.y_m - w.y_m));
+    });
+    let sum = 0;
+    for (let k = 0; k < e.length; k++) {
+      const a = e[k] ?? NaN;
+      n++;
+      sum += a;
+      s2 += a * a;
+      BEARING_ERROR_LAGS.forEach((L, j) => {
+        const b = e[k + L];
+        if (b === undefined) return;
+        c[j] = (c[j] ?? 0) + a * b;
+        nc[j] = (nc[j] ?? 0) + 1;
+      });
+    }
+    s1 += sum;
+    sums.push(sum);
+    counts.push(e.length);
+  }
+  const mean = s1 / n;
+  // Clustered (ratio-estimator) standard error of the pooled mean.
+  let v = 0;
+  sums.forEach((t, i) => (v += (t - mean * (counts[i] ?? 0)) ** 2));
+  const meanSe = Math.sqrt((v * count) / (count - 1)) / n;
+  const vAr = model.ar_sd_rad ** 2;
+  const vB = model.bias_sd_rad ** 2;
+  const total = sigma ** 2 + vAr + vB;
+  return {
+    samples: n,
+    sd: Math.sqrt(s2 / n),
+    sdModel: Math.sqrt(total),
+    mean,
+    meanSe,
+    dt,
+    rho: BEARING_ERROR_LAGS.map((_, j) => (c[j] ?? 0) / (nc[j] ?? 1) / (s2 / n)),
+    rhoModel: BEARING_ERROR_LAGS.map(
+      (L) =>
+        (vAr * Math.exp((-L * dt) / model.ar_tau_s) + vB * Math.exp((-L * dt) / model.bias_tau_s)) /
+        total,
+    ),
+  };
+}
+
+/** Whether `x` passes every `bearing-error-model` tolerance. */
+export function bearingErrorStatsPass(x: BearingErrorStats): boolean {
+  const t = BEARING_ERROR_TOLERANCE;
+  return (
+    Number.isFinite(x.sd) &&
+    Math.abs(x.sd / x.sdModel - 1) <= t.sd &&
+    Math.abs(x.mean) <= t.meanSe * x.meanSe &&
+    x.rho.every((r, j) => Math.abs(r - (x.rhoModel[j] ?? NaN)) <= t.rho)
+  );
+}
+
+/**
+ * Generator 0.6.0 (SRD Annex C §C.14): the realistic bearing error is the declared one, by
+ * `bearingErrorStats` on 1,000 scenarios regenerated from the ranges (seed NOISY_SEED): the
+ * residual sd, its mean, and its correlation at lags of 10 s to 20 min (so both time constants are
+ * identified) against the model, within `BEARING_ERROR_TOLERANCE`.
  */
 export function checkBearingErrorModel(ranges: ParameterRanges): GateCheck {
   const name = "bearing-error-model";
@@ -1233,55 +1340,16 @@ export function checkBearingErrorModel(ranges: ParameterRanges): GateCheck {
       true,
       "not applicable: the ranges have no bearing_error (generator 0.6.0 checks only)",
     );
-  const sigma = degToRad(1);
-  const r: ParameterRanges = {
-    ...ranges,
-    noise_sigma_rad_values: [sigma],
-    dropout_fraction: { min: 0, max: 0 },
-  };
-  const lags = [1, 12] as const;
-  let n = 0;
-  let s2 = 0;
-  const c = [0, 0];
-  const nc = [0, 0];
-  let dt = NaN;
-  for (let i = 0; i < BEARING_ERROR_SCENARIOS; i++) {
-    const sc = generateScenario(NOISY_SEED, i, r).scenario;
-    dt = sc.metadata.parameters.dt_s;
-    const e = sc.observations.map((o, k) => {
-      const t = sc.target.states[k];
-      const w = sc.ownship.states[k];
-      if (t === undefined || w === undefined) return NaN;
-      return angleDiff(o.bearing_rad, Math.atan2(t.x_m - w.x_m, t.y_m - w.y_m));
-    });
-    for (let k = 0; k < e.length; k++) {
-      const a = e[k] ?? NaN;
-      n++;
-      s2 += a * a;
-      lags.forEach((L, j) => {
-        const b = e[k + L];
-        if (b === undefined) return;
-        c[j] = (c[j] ?? 0) + a * b;
-        nc[j] = (nc[j] ?? 0) + 1;
-      });
-    }
-  }
-  const vAr = m.ar_sd_rad ** 2;
-  const vB = m.bias_sd_rad ** 2;
-  const total = sigma ** 2 + vAr + vB;
-  const sd = Math.sqrt(s2 / n);
-  const sdWant = Math.sqrt(total);
-  const rho = lags.map((_, j) => (c[j] ?? 0) / (nc[j] ?? 1) / (s2 / n));
-  const want = lags.map(
-    (L) =>
-      (vAr * Math.exp((-L * dt) / m.ar_tau_s) + vB * Math.exp((-L * dt) / m.bias_tau_s)) / total,
-  );
-  const sdOk = Math.abs(sd / sdWant - 1) <= BEARING_ERROR_TOLERANCE.sd;
-  const rhoOk = rho.every((x, j) => Math.abs(x - (want[j] ?? NaN)) <= BEARING_ERROR_TOLERANCE.rho);
-  const deg = (x: number) => ((x * 180) / Math.PI).toFixed(4);
+  const x = bearingErrorStats(ranges, m);
+  const deg = (v: number) => ((v * 180) / Math.PI).toFixed(4);
+  const t = BEARING_ERROR_TOLERANCE;
+  const lags = BEARING_ERROR_LAGS.map(
+    (L, j) =>
+      `${String(L * x.dt)} s ${x.rho[j]?.toFixed(4) ?? "?"} (model ${x.rhoModel[j]?.toFixed(4) ?? "?"})`,
+  ).join(", ");
   return check(
     name,
-    Number.isFinite(sd) && sdOk && rhoOk,
-    `σ = 1°, ${String(BEARING_ERROR_SCENARIOS)} regenerated scenarios (seed ${String(NOISY_SEED)}), ${String(n)} samples: residual sd ${deg(sd)}° (model ${deg(sdWant)}°, ±${String(BEARING_ERROR_TOLERANCE.sd * 100)}%); correlation at lag ${String(dt)} s ${rho[0]?.toFixed(4) ?? "?"} (model ${want[0]?.toFixed(4) ?? "?"}), at lag ${String(12 * dt)} s ${rho[1]?.toFixed(4) ?? "?"} (model ${want[1]?.toFixed(4) ?? "?"}), each ±${String(BEARING_ERROR_TOLERANCE.rho)}`,
+    bearingErrorStatsPass(x),
+    `σ = 1°, ${String(BEARING_ERROR_SCENARIOS)} regenerated scenarios (seed ${String(NOISY_SEED)}), ${String(x.samples)} samples: residual sd ${deg(x.sd)}° (model ${deg(x.sdModel)}°, ±${String(t.sd * 100)}%); mean ${deg(x.mean)}° (clustered SE ${deg(x.meanSe)}°, limit ${String(t.meanSe)} SE); correlation at lag ${lags}, each ±${String(t.rho)}`,
   );
 }

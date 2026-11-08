@@ -16,10 +16,11 @@ seen. Nothing is trained, re-tuned or refitted.
     to every bearing of a σ > 0 scenario (`bearingErrors`, stream sub-index 2), recorded in
     `ScenarioParameters.bearing_error`;
   - without it, or at σ = 0, scenarios are byte-identical to 0.5.0's;
-  - `configs/phase7-ranges.json` is the phase-4 ranges plus 0.5° / 30 s and 0.3° / 1,200 s.
+  - `configs/phase7-ranges.json` is the phase-4 ranges plus 1.0° / 30 s and 0.5° / 1,200 s
+    (owner, 2026-11-08).
 - **FR-002 G0 on 0.6.0.**
-  - The check `bearing-error-model` covers the residual sd and its lag-1 and lag-12
-    correlations.
+  - The check `bearing-error-model` covers the residual sd, its mean, and its correlations at
+    lags of 1, 3, 12, 60 and 120 samples, within about 4 SE.
   - The tracker checks regenerate without the bearing error.
   - G0 is re-run on noise-free 0.6.0 data and reviewed by the agent panel.
 - **FR-003 Plans.** `dataset.fresh_test.ranges` generates the fresh test split with other ranges,
