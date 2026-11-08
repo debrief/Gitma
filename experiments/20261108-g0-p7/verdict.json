@@ -46,7 +46,7 @@
       "result": "pass"
     }
   ],
-  "decided_by": "harness (pending agent panel review)",
+  "decided_by": "superseded (round 0, the agent's first severity; never panel-approved): see experiments/20261108-g0-p7-r1/review.md",
   "gate": "G0",
   "result": "pass"
 }

@@ -108,3 +108,15 @@ manifest), and the ranges files' SHA-256s match the manifest.
   dataset and read its 200-scenario test split, indices 1,800–2,000. These are different scenarios
   from the gate's: the test split of a 400,000-scenario dataset is indices 360,000–400,000. No
   tracker was run on them.
+
+## Round 2
+
+The red team re-reviewed R1–R3 at 5807b28 and returned **approve**. All three are closed, and
+none of the fixes loosens a guard elsewhere. On the reviewer's own scratch files, the R2 check
+accepts each split against its own ranges and refuses phase-4 data against the phase-7 ranges.
+The other four reviewers had no open major.
+
+No reviewer rejects, and no blocker or major finding is open.
+
+The one remaining minor: seeds 217–219 go into the reserved table in `scripts/train-plan.mjs` in
+the decision-35 commit, before seed 217 is generated.

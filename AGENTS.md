@@ -350,6 +350,24 @@ bindings. **Phase 5 stopped at validation** (`experiments/20261105-p5-research/v
   (`requireG7Rescore`: an inconclusive, non-re-score G7, a fresh seed, the same multipliers, names
   and models). Seeds 215–216 are reserved. The owner decides the follow-on.
 
+**Phase 7** (SRD Annex C §C.14, spec 019, owner 2026-11-08): realistic bearing error. Frozen
+trackers, with no training or re-tuning. The gate is G5's rules unchanged: the frozen
+`-g1` fused tracker against the frozen `-g1` IMM.
+- **Generator 0.6.0** (schema 0.21.0 `BearingErrorModel`, `configs/phase7-ranges.json`) adds a
+  Gauss–Markov term (1.0°, 30 s) and a drifting bias (0.5°, 20 min) to σ > 0 bearings.
+  - They come from the scenario's own stream (sub-index 2), so the geometry and white noise are
+    0.5.0's.
+  - A noise-free scenario has no bearing error.
+  - The owner doubled the agent's first severity after the G0 panel noted it.
+- **G0 passed on 0.6.0** (panel rounds 0–2, `experiments/20261108-g0-p7-r1/`). It adds the check
+  `bearing-error-model`; the tracker checks keep white noise.
+- **Plans** can give `dataset.fresh_test.ranges`, and the digest check binds the header to them.
+- **`tma-model-predict`** treats 0.6.0 as 0.5.0 only when there is no bearing error
+  (`EQUIVALENT_GENERATORS`), so T2 keeps seed 211's normalisation.
+- **Next.** Validation on seed 217, with the clean comparison by `scripts/research/spec019-clean.mjs`,
+  committed first. Then decision 35, G5 on seed 218 and a re-score on seed 219; seeds 217–219
+  are reserved from decision 35. The clean regeneration of seed 218 comes only after its verdict.
+
 Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
