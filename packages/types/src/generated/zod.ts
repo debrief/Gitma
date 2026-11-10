@@ -48,6 +48,8 @@ export type UncertaintyCalibration = z.infer<typeof UncertaintyCalibration>;
 
 /** The single change of the iteration's change round, fixed from validation evidence and committed before phase B trains (spec 003 R5). */
 export const ChangeDecision = z.strictObject({
+  /** The estimator a G8 decision requires the carried tracker to beat on median range error over every G5 row (schema 0.22.0, spec 020); tma-g5 --beat refuses another. */
+  beat_estimator: z.string().nullish(),
   /** The frozen post-hoc interval multipliers of each estimator and output a G7 decision names (schema 0.20.0, spec 018), fitted on validation; tma-g7 refuses others. */
   calibrations: z.array(UncertaintyCalibration).nullish(),
   /** G4: the manifest id of the one carried network (Annex B §B.4); tma-g4 refuses network predictions from another model. */
@@ -335,7 +337,7 @@ export const GateCheck = z.strictObject({
 });
 export type GateCheck = z.infer<typeof GateCheck>;
 
-export const GateId = z.enum(["G0", "G1", "G2", "G3", "G4", "G5", "G7", "G6"]);
+export const GateId = z.enum(["G0", "G1", "G2", "G3", "G4", "G5", "G8", "G7", "G6"]);
 export type GateId = z.infer<typeof GateId>;
 
 /** One estimator re-computed by a gate on a sample of scenarios (schema 0.18.0). */

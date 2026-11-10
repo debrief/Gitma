@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.21.0
+version: 0.22.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -71,6 +71,10 @@ enums:
       G5:
         {
           description: "An end-to-end tracker better than the re-tuned reference overall, at most 10% worse when settled (SRD Annex C §C.5).",
+        }
+      G8:
+        {
+          description: "G5 against the reference, and the tracker's median range error wholly below the named network's (SRD Annex C §C.15).",
         }
       G7:
         {
@@ -1125,6 +1129,11 @@ classes:
         description: >-
           The frozen alarm threshold of each detector a G6 decision names (schema 0.19.0, spec
           017), set on validation at the matched false-alarm rate; tma-g6 refuses others.
+      beat_estimator:
+        range: string
+        description: >-
+          The estimator a G8 decision requires the carried tracker to beat on median range error
+          over every G5 row (schema 0.22.0, spec 020); tma-g5 --beat refuses another.
       calibrations:
         range: UncertaintyCalibration
         multivalued: true

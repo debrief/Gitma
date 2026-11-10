@@ -128,3 +128,28 @@ describe("G5 checks and verdict", () => {
     expect(g5Verdict(none, ["T1", "T2"]).result).toBe("fail");
   });
 });
+
+describe("G8: G5 plus beating a network on range (spec 020)", () => {
+  const ref = mk("ref", err(1));
+
+  it("passes only when the tracker also beats the network's median range error", () => {
+    const t = mk("F", err(0.6, 0.6));
+    const worse = mk("net", err(0.9, 0.9));
+    const pass = g5Checks(SCEN, t, ref, 300, undefined, worse);
+    expect(pass.map((c) => c.name)).toContain("F:g8-range-vs-network");
+    expect(pass.find((c) => c.name === "F:g8-range-vs-network")?.detail).toMatch(/F \/ net /);
+    const v = g5Verdict(pass, ["F"], true);
+    expect(v.gate).toBe("G8");
+    expect(v.result).toBe("pass");
+    // The same tracker against a better network: G5 still passes, G8 fails.
+    const better = mk("net", err(0.3, 0.3));
+    const fail = g5Checks(SCEN, t, ref, 300, undefined, better);
+    expect(trackerResult(fail, "F")).toBe("pass");
+    expect(g5Verdict(fail, ["F"], true).result).toBe("fail");
+    // Without --beat the G5 checks are unchanged, in name and order.
+    expect(g5Checks(SCEN, t, ref, 300).map((c) => c.name)).toEqual(
+      pass.map((c) => c.name).filter((n) => !n.endsWith("g8-range-vs-network")),
+    );
+    expect(() => g5Verdict(g5Checks(SCEN, t, ref, 300), ["F"], true)).toThrow(/lacks gated/);
+  });
+});

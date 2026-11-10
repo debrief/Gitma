@@ -110,6 +110,7 @@ export function g5Checks(
   reference: PredictionSet,
   resamples = BOOTSTRAP_RESAMPLES,
   seed = BOOTSTRAP_SEED,
+  beat?: PredictionSet,
 ): GateCheck[] {
   const all = g5Rows(truth);
   if (all.length === 0) throw new Error("G5: no σ = 1° rows at zig + 5–20 min");
@@ -122,9 +123,10 @@ export function g5Checks(
     limit: number,
     gated: boolean,
     what: string,
+    against: PredictionSet = reference,
   ): void => {
     const a = Float64Array.from(rows, (r) => errorOf(r.s, rowAt(tracker, r.s, r.k), metric));
-    const b = Float64Array.from(rows, (r) => errorOf(r.s, rowAt(reference, r.s, r.k), metric));
+    const b = Float64Array.from(rows, (r) => errorOf(r.s, rowAt(against, r.s, r.k), metric));
     const x = bootstrapClusteredQuantileRatio(
       a,
       b,
@@ -142,11 +144,13 @@ export function g5Checks(
       ci_low: x.lo,
       ci_high: x.hi,
       ci_level: G5_LEVEL,
-      detail: `${gated ? "" : "reported, not gated: "}${tracker.label} / ${reference.label} median ${metric} on ${what} ${x.ratio.toFixed(4)} vs limit ${String(limit)}; ${String(G5_LEVEL * 100)}% CI [${x.lo.toFixed(4)}, ${x.hi.toFixed(4)}] (scenario-clustered paired bootstrap, ${String(x.resamples)} resamples, ${String(x.n)} rows in ${String(x.clusters)} scenarios)`,
+      detail: `${gated ? "" : "reported, not gated: "}${tracker.label} / ${against.label} median ${metric} on ${what} ${x.ratio.toFixed(4)} vs limit ${String(limit)}; ${String(G5_LEVEL * 100)}% CI [${x.lo.toFixed(4)}, ${x.hi.toFixed(4)}] (scenario-clustered paired bootstrap, ${String(x.resamples)} resamples, ${String(x.n)} rows in ${String(x.clusters)} scenarios)`,
     });
   };
   const where = "σ = 1° rows at zig + 5/10/15/20 min";
   ratio("g5-range", all, "range_rel", G5_RATIO, true, where);
+  // G8 (spec 020, SRD Annex C §C.15): the tracker's median range error wholly below `beat`'s.
+  if (beat !== undefined) ratio(G8_CHECK, all, "range_rel", G5_RATIO, true, where, beat);
   ratio("g5-course", all, "course_deg", G5_RATIO, true, where);
   ratio("g5-speed-reported", all, "speed_kt", G5_RATIO, false, where);
   if (settled.length === 0) throw new Error("G5: no settled rows");
@@ -175,6 +179,9 @@ export function g5Checks(
   return checks;
 }
 
+/** The G8 check (spec 020): tracker / network median range error over all G5 rows, wholly below 1. */
+export const G8_CHECK = "g8-range-vs-network";
+
 const GATED = [
   "g5-range",
   "g5-course",
@@ -184,9 +191,10 @@ const GATED = [
 ];
 
 /** One tracker's result: pass if every gated check passes, fail if any fails, else inconclusive. */
-export function trackerResult(checks: GateCheck[], label: string): GateResult {
-  const gated = checks.filter((c) => GATED.some((g) => c.name === `${label}:${g}`));
-  if (gated.length !== GATED.length) throw new Error(`G5: ${label} lacks gated checks`);
+export function trackerResult(checks: GateCheck[], label: string, g8 = false): GateResult {
+  const want = g8 ? [...GATED, G8_CHECK] : GATED;
+  const gated = checks.filter((c) => want.some((g) => c.name === `${label}:${g}`));
+  if (gated.length !== want.length) throw new Error(`G5: ${label} lacks gated checks`);
   if (gated.some((c) => c.result === "fail")) return "fail";
   return gated.every((c) => c.result === "pass") ? "pass" : "inconclusive";
 }
@@ -195,12 +203,17 @@ export function trackerResult(checks: GateCheck[], label: string): GateResult {
  * The G5 verdict over one or two trackers: pass if any tracker passes; fail if every tracker
  * fails; otherwise inconclusive (Annex C §C.5).
  */
-export function g5Verdict(checks: GateCheck[], labels: string[]): GateVerdict {
-  const results = labels.map((l) => trackerResult(checks, l));
+export function g5Verdict(checks: GateCheck[], labels: string[], g8 = false): GateVerdict {
+  const results = labels.map((l) => trackerResult(checks, l, g8));
   const result: GateResult = results.includes("pass")
     ? "pass"
     : results.every((r) => r === "fail")
       ? "fail"
       : "inconclusive";
-  return { gate: "G5", result, checks, decided_by: "harness (pending agent panel review)" };
+  return {
+    gate: g8 ? "G8" : "G5",
+    result,
+    checks,
+    decided_by: "harness (pending agent panel review)",
+  };
 }

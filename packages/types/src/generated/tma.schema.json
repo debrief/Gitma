@@ -34,6 +34,13 @@
       "additionalProperties": false,
       "description": "The single change of the iteration's change round, fixed from validation evidence and committed before phase B trains (spec 003 R5).",
       "properties": {
+        "beat_estimator": {
+          "description": "The estimator a G8 decision requires the carried tracker to beat on median range error over every G5 row (schema 0.22.0, spec 020); tma-g5 --beat refuses another.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "calibrations": {
           "description": "The frozen post-hoc interval multipliers of each estimator and output a G7 decision names (schema 0.20.0, spec 018), fitted on validation; tma-g7 refuses others.",
           "items": {
@@ -713,6 +720,7 @@
         "G3",
         "G4",
         "G5",
+        "G8",
         "G7",
         "G6"
       ],
@@ -2397,5 +2405,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.21.0"
+  "version": "0.22.0"
 }

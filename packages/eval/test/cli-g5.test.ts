@@ -10,6 +10,7 @@ import { main as generate } from "../../data/src/cli-generate.js";
 import {
   main as g5,
   requireFrozenModels,
+  requireBeat,
   requireG5Binding,
   requirePredictionChain,
 } from "../src/cli-g5.js";
@@ -287,6 +288,24 @@ describe("tma-g5", () => {
       expect(() => {
         requirePredictionChain([imm], [], [m]);
       }).toThrow(/names neither/);
+    });
+
+    it("G8: --beat exactly when the decision names beat_estimator (spec 020)", () => {
+      expect(() => {
+        requireBeat({ beat_estimator: "lstm-gaussian" }, "lstm-gaussian", "d.json");
+      }).not.toThrow();
+      expect(() => {
+        requireBeat({}, undefined, "d.json");
+      }).not.toThrow();
+      expect(() => {
+        requireBeat({}, "lstm-gaussian", "d.json");
+      }).toThrow(/names no beat_estimator/);
+      expect(() => {
+        requireBeat({ beat_estimator: "lstm-gaussian" }, undefined, "d.json");
+      }).toThrow(/requires --beat lstm-gaussian$/);
+      expect(() => {
+        requireBeat({ beat_estimator: "lstm-gaussian" }, "imm-ref", "d.json");
+      }).toThrow(/not imm-ref/);
     });
 
     it("refuses data from a dirty tree (these test data were generated with --allow-dirty)", () => {
