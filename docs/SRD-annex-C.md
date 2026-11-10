@@ -524,3 +524,59 @@ it before the decision record is committed.
     course error 27°. The scope is one error model at one severity.
   - **Next.** The owner decides the follow-on. Re-tuning the fusion, or adding a bias state, would
     be a new decision on a new seed.
+
+## C.15 Phase 8: the fusion re-tuned for correlated error, gate G8 (owner decisions 2026-11-10)
+
+In phase 7 (C.14), under realistic bearing error, T2 alone had lower range error than the fused
+tracker (fused/T2 1.095). The fusion's k and M were tuned on clean data and then frozen. On
+2026-11-10 the owner chose:
+- **to re-tune the fusion's k and M** on validation data with realistic bearing error. T2, the
+  IMM's settings, the reference, the generator (0.6.0) and the error model
+  (`configs/phase7-ranges.json`) stay frozen;
+- **the gate: beat T2 alone on range and still pass G5** against the `-g1` IMM.
+
+The rest of this section was written by the implementing agent. It stands unless the owner amends
+it before the decision record is committed.
+
+- **Tuning data.** Seed 217's 10,000-scenario validation split with the phase-7 ranges, the split
+  phase 7 validated on. Validation was then scored only at k 4, M 6.
+- **The grid.** 24 variants: k ∈ {0.5, 1, 1.5, 2, 3, 4} × M ∈ {1, 3, 6, 12} samples, each on the
+  frozen `-g1` IMM, named `fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k<k>-m<M>`.
+  The fused tracker's tuning stays in its name, so spec 015's recomputation binds it.
+- **The selection rule, fixed before any variant is scored.** Six point ratios of medians on the G5
+  rows:
+  - the five G5 checks against the IMM, with limits 1, 1, 1.1, 1.1 and 1.1;
+  - fused/T2 median range error over all G5 rows, with limit 1.
+
+  Each check's margin is (limit − point) / limit, and a variant's score is its smallest margin.
+  The variant with the largest score is carried. A tie within 0.005 goes to the larger k, then
+  the larger M (closer to the frozen setting).
+- **Carry rule.** If the carried variant's score is above 0, it goes to the gate. Otherwise phase 8
+  stops at validation, the result is published, and no test seed is generated.
+- **The gate, G8.** On the 40,000-scenario test split of fresh seed 220 (400,000 scenarios,
+  phase-7 ranges), with scenario-clustered bootstraps (2,000 resamples, seed 20261011) and 97.5%
+  intervals, as G5:
+
+| Check | Statistic | Limit |
+| --- | --- | --- |
+| G5's five gated checks | fused / `-g1` IMM, as C.5 | as C.5 |
+| g8-range-vs-network | fused / T2 median range error, all G5 rows | wholly below 1 |
+
+  - **Pass** if all six pass, **fail** if any fails, otherwise **inconclusive**.
+  - **The re-score**, if inconclusive, is fixed now: seed 221, a 1,100,000-scenario dataset with
+    a 110,000-scenario test split, phase-7 ranges. The same names, models and rules apply.
+  - **False passes.** One tracker is judged at 97.5%, so a false pass is at most about 2.5% per
+    look, and at most about 5% with the re-score.
+  - **The bindings** are G5's (spec 015). T2 is bound by `model_digests`, and its file is the one
+    in the prediction chain.
+- **Reported, not gated.** Using `scripts/research/spec019-baselines.mjs` and `spec014-lsq.mjs`,
+  as in phase 7:
+  - fused/T2 on course, speed and settled rows;
+  - the EKF, batch least squares and naive;
+  - phase 7's frozen k 4, M 6 on the same rows.
+- **Seeds** 220–221 are reserved from the decision record on; 217 stays reserved.
+- **If G8 fails,** the owner decides. C.14's verdict stands either way.
+- **What a pass would show:** a fusion weighting exists, tuned on validation with this one error
+  model, under which the fused tracker beats T2 alone on range while still beating the IMM. It
+  would not show robustness to other error models or severities, or that the gain holds on clean
+  data.
