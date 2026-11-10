@@ -580,3 +580,15 @@ it before the decision record is committed.
   model, under which the fused tracker beats T2 alone on range while still beating the IMM. It
   would not show robustness to other error models or severities, or that the gain holds on clean
   data.
+- **Outcome (2026-11-10): phase 8 stopped at validation** (`experiments/20261110-p8-research/`).
+  - **No variant clears the rule.** The best score is −0.014, at k 3, M 1, and the tie rule
+    selects k 4, M 1 at −0.016. The binding check is always fused/T2 range.
+  - **The fused tracker never beats T2 on range.** The best fused/T2 is 1.014. Weighting T2 more
+    (k 0.5) still gives 1.027, and course collapses (settled course up to 1.27 × the IMM's).
+  - **Re-tuning does improve the fused tracker against the IMM:** range 0.740 at k 3, M 1, against
+    0.777 at the frozen setting.
+  - **No G8 was scored.** Seed 220 was never generated, and seeds 220–221 stay unused. C.14's
+    verdict stands.
+  - **Next.** The owner decides. The remaining options are a bias state in the IMM, or reporting
+    T2's range directly.
+

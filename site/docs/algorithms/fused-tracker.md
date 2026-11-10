@@ -140,3 +140,9 @@ frozen `-g1` IMM: range 0.766 × and course 0.907 × the IMM's on seed 218
   (13.2%) is worse than T2's alone (12.1%).
 - **Course on settled rows.** The EKF stays better: 10.6° against 13.5°.
 
+**Re-tuning k and M under realistic error** (spec 020, phase 8) does not make the fused tracker
+beat T2 on range. Over 24 variants on validation the best fused/T2 range is 1.014 (k 3, every
+sample). Weighting T2 more degrades course and velocity without closing the gap. Re-tuning does
+improve range against the IMM, to 0.740 from 0.777. Phase 8 stopped at validation
+(`experiments/20261110-p8-research/`).
+

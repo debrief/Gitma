@@ -89,6 +89,10 @@ judged, each with 97.5% intervals.
 detect target course changes faster than a CUSUM on the reference IMM's innovations, at the same
 false-alarm rate (0.5 per quiet hour). Not reached: phase 5 stopped at validation.
 
+**G8** — Phase 8's gate (SRD Annex C §C.15): G5 against the reference, plus the fused tracker's
+median range error wholly below T2's. It was never scored: phase 8 stopped at validation, because
+no fusion setting beat T2 on range.
+
 **G7** — Phase 6's gate (SRD Annex C §C.13): the fused tracker's post-hoc recalibrated 50% and
 90% intervals for range, course and speed must cover within ±2 points of nominal and be narrower
 than the reference IMM's. Inconclusive on seed 215; passed on the one re-score (seed 216), on the pooled
