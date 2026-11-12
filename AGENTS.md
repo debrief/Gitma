@@ -415,8 +415,14 @@ frozen fused tracker's velocity, θ 180.
   - against the fused tracker: range 0.908.
 - **Mostly a replay.** The range is T2's, so the beat check repeats phase 7. Only the pairing is
   new.
-- **Not shown:** a gain over T2, settled course and speed against the EKF, or one coherent state
-  (kinematic gap of 18 kt).
+- **Not shown:**
+  - a gain over T2 on range;
+  - overall course, where T2 is better (1.02 ×);
+  - settled course and speed against the EKF;
+  - one coherent state (kinematic gap of 18 kt);
+  - stated uncertainty.
+
+  The estimator to beat moved from T2 (phases 8–9) to the fused tracker.
 - **Reported:** `baselines.json`, `lsq.json`, `coherence.txt` (`scripts/research/spec022-coherence.mjs`)
   and `convergence.json` (`spec022-convergence.mjs`).
 - **Seeds 224–225** are reserved. The owner decides the follow-on.

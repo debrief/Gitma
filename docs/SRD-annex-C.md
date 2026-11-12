@@ -689,6 +689,11 @@ it before the decision record is committed.
   - **Against the fused tracker:** range 0.908 [0.893, 0.921].
   - **Mostly a replay.** The range is T2's row for row, so the beat check repeats phase 7's T2/fused
     result. The velocity is the fused tracker's. Only the pairing is new.
+  - **Composition and coverage.** The velocity is T2's on the 618 of 67,292 G5 rows (0.9%) where the
+    fused tracker has no estimate. T2 converged on every row. The G5 rows come from the 20,161
+    σ = 1° scenarios.
+  - **The estimator to beat changed.** It was T2 in phases 8–9 and is the fused tracker here (the
+    owner's choice before validation). T2 is still not beaten on range.
   - **The scoring convention helps.** Counting a missing estimate as infinitely wrong moves each
     ratio about 1 pp in the hybrid's favour. On rows where every estimator converged the ratios are
     0.700 and 0.918.

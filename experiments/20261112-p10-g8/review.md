@@ -79,4 +79,29 @@ Every write-up also states what the pass does not show:
   sampled scenario indices, not the rows, so this is expected.
 - **The digest pin** (red team, statistics) was taken from a dirty tree before the decision and
   deleted unused. It is disclosed in `decision.md`.
-- **`decided_by`** is set once the panel closes.
+- **`decided_by`** is set now that round 2 has approved.
+
+## Round 2
+
+Geometry, estimation, statistics and the red team (the reviewers with majors) re-read the responses
+at f55ea90.
+
+| Reviewer | Verdict | Open |
+| --- | --- | --- |
+| TMA geometry | approve | none |
+| Estimation and numerics | approve | 2 minor |
+| Evaluation statistics | approve-with-findings | 2 minor |
+| Red team | approve-with-findings | 2 minor |
+
+M1–M4 are closed. No reviewer rejects, and no blocker or major finding is open.
+
+The minors were fixed as follows:
+- **The change of estimator to beat** is now stated in the blog and in §C.17. It moved from T2
+  (phases 8–9) to the fused tracker, by the owner's choice before validation, and T2 is still not
+  beaten on range.
+- **Composition and coverage** are now stated in the blog and in §C.17: the fallback covers 618 of
+  67,292 G5 rows (0.9%; 2.5% of all rows), T2 converged on every row, and the rows come from the
+  20,161 σ = 1° scenarios.
+- **The AGENTS.md "Not shown" list** now matches §C.17: overall course against T2, and no stated
+  uncertainty.
+- **`decided_by`** is set.
