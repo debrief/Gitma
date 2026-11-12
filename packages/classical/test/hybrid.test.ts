@@ -79,6 +79,10 @@ describe("tracker hybrid (spec 013)", () => {
     expect(useNetworkVelocity(r(0, 5), r(46 * deg, 5))).toBe(true);
     expect(useNetworkVelocity(r(350 * deg, 5), r(20 * deg, 5))).toBe(false); // 30° apart
     expect(useNetworkVelocity(r(0, 5, 10_000, false), r(0, 5))).toBe(true);
+    // At 180° (spec 022) a converged tracker's velocity is always kept, even exactly opposite.
+    expect(useNetworkVelocity(r(0, 5), r(180 * deg, 5), 180)).toBe(false);
+    expect(useNetworkVelocity(r(10 * deg, 5), r(190 * deg, 5), 180)).toBe(false);
+    expect(useNetworkVelocity(r(0, 5, 10_000, false), r(0, 5), 180)).toBe(true);
   });
 
   it("takes the network's range always and the tracker's velocity when they agree", () => {

@@ -12,7 +12,7 @@ import { isMain, runCli, UsageError } from "@tma/data";
 import { openPredictionSet, openPredictionWriter, scenarioSource } from "./prediction-file.js";
 
 const USAGE =
-  "usage: tma-hybrid-track --truth <split.f32pack> --tracker <imm.ndjson> --network <t2.ndjson> --out <hybrid.ndjson> [--course-deg 45]";
+  "usage: tma-hybrid-track --truth <split.f32pack> --tracker <imm.ndjson> --network <t2.ndjson> --out <hybrid.ndjson> [--course-deg 45] (180: always the tracker's velocity)";
 
 export function main(argv: string[]): unknown {
   const { values } = parseArgs({
@@ -29,8 +29,9 @@ export function main(argv: string[]): unknown {
   const { truth, tracker, network, out } = values;
   if (!truth || !tracker || !network || !out) throw new UsageError(USAGE);
   const deg = Number(values["course-deg"] ?? TRACKER_SWITCH_COURSE_DEG);
-  if (!Number.isFinite(deg) || deg <= 0 || deg >= 180)
-    throw new UsageError(`--course-deg must be in (0, 180), got ${String(values["course-deg"])}`);
+  // 180 (spec 022): courses never differ by more, so the velocity is always the tracker's.
+  if (!Number.isFinite(deg) || deg <= 0 || deg > 180)
+    throw new UsageError(`--course-deg must be in (0, 180], got ${String(values["course-deg"])}`);
   const t = openPredictionSet(tracker, truth);
   const n = openPredictionSet(network, truth);
   const name = trackerHybridName(n.estimator, t.estimator, deg);
