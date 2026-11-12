@@ -1,0 +1,29 @@
+{
+  "id": "p4z",
+  "description": "Spec 022 (phase 10, SRD Annex C \u00a7C.17, decision 38): the hybrid of the frozen T2's range with the frozen -g1 fused tracker's velocity (theta 180), judged at G8 (G5 against the -g1 IMM, and median range wholly below the fused tracker's) on fresh seed 224 (400,000; its 40,000-scenario test split, generated alone) with realistic bearing error (configs/phase7-ranges.json). Nothing is trained or tuned; seed 211 supplies T2's normalisation.",
+  "dataset": {
+    "seed": "211",
+    "count": 100000,
+    "ranges": "configs/phase4-ranges.json",
+    "heldout_ranges": "configs/phase4-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "870aff4e5f14d76b9da8b39e68c32cc64a9344ba97c2b535ef468c707db59208",
+      "validation.f32pack": "afefe28892e1e361029d799414f3637ea0211c500ed75acb85c79f1592d3c127",
+      "test.f32pack": "05f1ce53be676c9b4b1a597396f01af35b55fa048cad8fa751b2bb262fd70d77",
+      "heldout.f32pack": "9fb7293ab9fae55389789082bc4bc4d5673d3fd56de7c90362de873919e69510"
+    },
+    "fresh_test": {
+      "seed": "224",
+      "count": 400000,
+      "ranges": "configs/phase7-ranges.json",
+      "digest": "195c865b0cb08dd94cdd4a22a8d0d6289e69bc769ee44e5e9e4bea2cc71c4e9f"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/phase4/b",
+  "models": ["tracker"],
+  "evaluate": {
+    "command": "models",
+    "split": "validation"
+  }
+}

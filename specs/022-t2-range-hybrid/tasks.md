@@ -2,6 +2,6 @@
 
 - [x] T001 θ = 180 in `tma-hybrid-track`; G8 re-computes the beaten file; tests
 - [x] T002 SRD Annex C §C.17 and this spec, before validation scoring
-- [ ] T003 Seed-217 validation diagnostic; carry rule
-- [ ] T004 Decision 38, plan `configs/phase4/z`, seed 224 (if carried)
+- [x] T003 Seed-217 validation diagnostic: carried (`experiments/20261112-p10-val/`)
+- [x] T004 Decision 38 (`experiments/20261112-p10-decision/`), plan `configs/phase4/z`, seed 224
 - [ ] T005 G8 on seed 224; agent panel; write-up
