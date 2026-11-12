@@ -1,0 +1,19 @@
+{
+  scenarios: 600,
+  rowsN: 73576,
+  mism: 0,
+  t2nc: 0,
+  t2whole: 1838,
+  fusedVel: 71738,
+  g5n: 931,
+  g5sig: 931
+}
+resid var/sig^2 med 1.452 rho1 med 0.2402 |mean| deg med 0.2806 n 600
+bearing-rate err deg/min hyb med 0.3580 p90 1.416
+bearing-rate err deg/min fused med 0.3191 p90 1.346
+bearing-rate err deg/min t2 med 0.3524 p90 1.281
+bearing-rate err deg/min imm med 0.3456 p90 1.374
+range-rate err m/s hyb 2.487 8.546  bearing err deg 0.9851 2.540  kin gap kt 18.23 44.82
+range-rate err m/s fused 2.500 8.598  bearing err deg 0.6904 1.779  kin gap kt 7.906 25.02
+range-rate err m/s t2 2.194 5.823  bearing err deg 0.9851 2.540  kin gap kt 16.75 43.54
+hybrid |pos-ownship| vs range_m rel med/max 2.501e-8 1.962e-7
