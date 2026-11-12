@@ -1,10 +1,10 @@
 {
-  "train.ndjson": "63fcc141fd5c1cfdfee0eaa462d8852c8ee06b404e03a239a49a95cdf08e7979",
-  "train.f32pack": "d1eec04384339483e2531008b346865d0f0d9146682c2cb4cc47092c0e5f60e4",
-  "validation.ndjson": "d8495b88a568f261fd79e1d2866200a944bef87485bab45f0004d6ff75665776",
-  "validation.f32pack": "6d12851c2fef42b50c13d9219c73b6e2e6d6e4c384a42ccd26e255678f72249d",
-  "test.ndjson": "621f5126aefcb094ce5d0b1ff354a01ac06ee555dba390feb1fa6ccc0812fe18",
-  "test.f32pack": "35befa1a893976f3e3ecad537cef20d5e9f82e8c9a9f341fc6f2b5b4fcb203f2",
-  "heldout.ndjson": "1c825179c494a870a2d073d1206c60cd9f9ff218f540168489015ee8a0f8a7f7",
-  "heldout.f32pack": "78f4cb9e0e434b62a4d0a54bd984c6ef3df539a2424c2067c580ed264ab5c5f2"
+  "train.ndjson": "8da63c9d507535257a3bd20b51822c731cc696bb52af0053c035085fe2b6cfbd",
+  "train.f32pack": "c6dd77ea10b212de56c3cac61b98420d84f4494133ffa2856dd84f4978fbb292",
+  "validation.ndjson": "d6d3f1b4fe4cc17d9d9ac49dff696a2c7bd5674a2f72ec25f249c36a9a049e38",
+  "validation.f32pack": "e6a2b40e10778dc2e2e6d4c0949de899db274f1cac4c2b63405e9ab9f553d33e",
+  "test.ndjson": "d2edb5af3c3f0a2148aef4efc649cd07b0db6f3a643c2e466d8caf8d78eeb2d3",
+  "test.f32pack": "e1207e1859196fbd7eb9a46bd45d7c47fdb400daf34c73ab62e0cf45ae6698d7",
+  "heldout.ndjson": "bdefb3924fc323f9a2e3f2d34969eebe944a150c82b015d66cbc5af6b49b7d3b",
+  "heldout.f32pack": "e417a7a837c7adef9a08376aa2e7de58c80f0a3f60d5bf10b93e6504a7d4d059"
 }

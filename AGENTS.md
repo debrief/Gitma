@@ -381,7 +381,17 @@ trackers, with no training or re-tuning. The gate is G5's rules unchanged: the f
   - **Consistency.** NIS, NEES and non-PD counts under correlated error were not measured.
 
   Baselines: `baselines.json` and `lsq.json` (`scripts/research/spec019-baselines.mjs`,
-  `spec014-lsq.mjs`). The owner decides the follow-on.
+  `spec014-lsq.mjs`).
+
+**Phase 8** (SRD Annex C §C.15, spec 020, owner 2026-11-10): re-tune the fusion's k and M under
+realistic error. The gate would have been **G8**: G5, plus fused/T2 median range wholly below 1.
+It is `tma-g5 --beat <network>` (schema 0.22.0 `ChangeDecision.beat_estimator`).
+- **The grid.** 24 variants on seed 217 validation (`experiments/20261110-p8-research/`), with the
+  selection pre-registered in `scripts/research/spec020-grid.mjs`.
+- **Phase 8 stopped at validation.** No variant beats T2 on range: the best is k 3, M 1, at fused/T2
+  1.014. Against the IMM, re-tuning improves range to 0.740 from 0.777.
+- **Seeds.** Seed 220 was never generated; 220–221 stay reserved. Write-up:
+  `site/blog/2026-11-10-phase-8.md`. The owner decides the follow-on.
 
 Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight

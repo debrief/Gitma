@@ -20,7 +20,7 @@ import {
   type Scenario,
 } from "@tma/types";
 import { defaultDeps, type G4BindingDeps } from "./cli-g4.js";
-import { selectQuantile } from "./bootstrap.js";
+import { BOOTSTRAP_RESAMPLES, BOOTSTRAP_SEED, selectQuantile } from "./bootstrap.js";
 import { rowError } from "./errors.js";
 import type { PredictionSet } from "./evaluate.js";
 import { prettyJson } from "./experiment.js";
@@ -30,7 +30,7 @@ import { type DigestOf, digestCache, requireRecomputed, sampleScenarios } from "
 import { manoeuvreBand } from "./slices.js";
 
 const USAGE =
-  "usage: tma-g5 --truth <split.f32pack> --tracker <pred.ndjson> [--tracker <pred.ndjson>] --reference <pred.ndjson> [--also <pred.ndjson>]... --experiment <dir> [--decision <decision.json> (--plan <plan.json> --model <model dir>)... [--repeat-of <earlier experiment>]] (bindings required on a test split)";
+  "usage: tma-g5 --truth <split.f32pack> --tracker <pred.ndjson> [--tracker <pred.ndjson>] --reference <pred.ndjson> [--also <pred.ndjson>]... --experiment <dir> [--decision <decision.json> (--plan <plan.json> --model <model dir>)... [--repeat-of <earlier experiment>]] [--beat <network.ndjson>] (bindings required on a test split; --beat: G8, spec 020)";
 
 export interface G5Binding {
   decisionPath: string;
@@ -196,6 +196,25 @@ export function requirePredictionChain(
     if (!bound)
       throw new UsageError(`${where}: none of its inputs was made with a --model's weights`);
   }
+}
+
+/**
+ * G8 (spec 020): a decision that names `beat_estimator` is scored only with --beat of that
+ * estimator (bound to a --model's weights like any carried file by the prediction chain), and a
+ * decision without one cannot be scored as G8.
+ */
+export function requireBeat(
+  d: { beat_estimator?: string | null | undefined },
+  beat: string | undefined,
+  decisionPath: string,
+): void {
+  const want = d.beat_estimator ?? undefined;
+  if (want === beat) return;
+  throw new UsageError(
+    want === undefined
+      ? `${decisionPath} names no beat_estimator: --beat applies to a G8 decision only`
+      : `${decisionPath} requires --beat ${want}${beat === undefined ? "" : `, not ${beat}`}`,
+  );
 }
 
 /** A G5 scoring already recorded under the experiments root. */
@@ -365,6 +384,7 @@ export function main(argv: string[]): unknown {
       plan: { type: "string", multiple: true },
       model: { type: "string", multiple: true },
       "repeat-of": { type: "string" },
+      beat: { type: "string" },
     },
   });
   const { truth, reference, experiment } = values;
@@ -374,6 +394,10 @@ export function main(argv: string[]): unknown {
   const sets = trackers.map((p) => openPredictionSet(p, truth));
   const ref = openPredictionSet(reference, truth);
   const also = (values.also ?? []).map((p) => openPredictionSet(p, truth));
+  // G8 (spec 020): the carried tracker must also beat this network's median range error.
+  const beat = values.beat === undefined ? undefined : openPredictionSet(values.beat, truth);
+  if (beat !== undefined && sets.length !== 1)
+    throw new UsageError("--beat judges one tracker: give one --tracker");
   const gate = readDataset(truth).header.split === "test";
   if (!gate && values["repeat-of"] !== undefined)
     throw new UsageError("--repeat-of applies to a test split only");
@@ -392,22 +416,30 @@ export function main(argv: string[]): unknown {
       trackers: sets.map((t) => t.estimator),
       reference: ref.estimator,
     });
-    requirePredictionChain(sets, [ref, ...also], values.model, digestOf);
+    requireBeat(d, beat?.estimator, values.decision);
+    requirePredictionChain(
+      beat === undefined ? sets : [...sets, beat],
+      [ref, ...also, ...(beat === undefined ? [] : [beat])],
+      values.model,
+      digestOf,
+    );
     const top = repoTop();
     const current = {
       decision: relative(top, resolve(values.decision)),
       decision_sha256: fileDigest(values.decision),
       test_seed: String(d.test_seed),
     };
+    const gateId = beat === undefined ? "G5" : "G8";
     const repeatOf = requireScoredOnce(
-      priorG5Scorings(join(top, "experiments")),
+      priorGateScorings(join(top, "experiments"), gateId),
       current,
       experiment,
       values["repeat-of"],
       top,
+      gateId,
     );
     scoring = {
-      gate: "G5",
+      gate: gateId,
       ...current,
       truth_sha256: fileDigest(truth),
       ...(repeatOf === undefined ? {} : { repeat_of: repeatOf }),
@@ -417,16 +449,19 @@ export function main(argv: string[]): unknown {
   if (scoring !== undefined) {
     // Re-compute a seeded sample of the carried trackers' and the reference's rows (FR-001).
     const sample = sampleScenarios([...new Set(g5Rows(scenarios).map((r) => r.s.metadata.index))]);
-    const given = [...sets, ref, ...also];
+    const given = [...sets, ref, ...also, ...(beat === undefined ? [] : [beat])];
     const recomputed = [...sets, ref]
       .map((t) => requireRecomputed(t, given, scenarios, sample, digestOf))
       .filter((r): r is GateRecomputation => r !== null);
     scoring = { ...scoring, recomputed };
   }
-  const checks = sets.flatMap((t) => g5Checks(scenarios, t, ref));
+  const checks = sets.flatMap((t) =>
+    g5Checks(scenarios, t, ref, BOOTSTRAP_RESAMPLES, BOOTSTRAP_SEED, beat),
+  );
   const judged = g5Verdict(
     checks,
     sets.map((t) => t.label),
+    beat !== undefined,
   );
   const verdict = gate
     ? judged
@@ -436,7 +471,14 @@ export function main(argv: string[]): unknown {
   if (scoring !== undefined) writeFileSync(join(experiment, "scoring.json"), prettyJson(scoring));
   writeFileSync(
     join(experiment, "report.json"),
-    prettyJson(g5Report(scenarios, [...sets, ref, ...also])),
+    prettyJson(
+      g5Report(scenarios, [
+        ...sets,
+        ref,
+        ...also,
+        ...(beat === undefined || also.some((a) => a.estimator === beat.estimator) ? [] : [beat]),
+      ]),
+    ),
   );
   if (gate && verdict.result !== "pass") process.exitCode = 3;
   return {
