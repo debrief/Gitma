@@ -208,3 +208,18 @@ by median range error over all G5 rows (σ = 1°, zig + 5/10/15/20 min; spec 012
 
 Two declared grids were run, the second because the first's optimum sat on its R and P0 edges.
 The surface is flat in σ_cv and σ_ct: the top four settings are within 0.05 points.
+
+## IMM with a bearing-bias state (spec 021, phase 9)
+
+This is an opt-in variant, with name suffix `-b<sd>-tb<τ>` and `tma-track --bias-sd <deg> --bias-tau <s>`.
+- **The bias state.** The state gains a sixth element b, a Gauss–Markov bearing bias:
+  - it is predicted by b ← e^(−τ/τ_b) b, with process variance sd²(1 − e^(−2τ/τ_b));
+  - it is initialised at 0 with variance sd².
+- **The measurement model** becomes bearingOf(x − x_o, y − y_o) + b, so H gains a 1 for b.
+- **Unchanged.** Mixing, the CV and CT motion of the first five states and the log-range update
+  are as before. Without the suffix the filter is the 5-state IMM, byte-identical.
+
+Under realistic bearing error (phase 9, `experiments/20261112-p9-research/`) it did not help. In
+18 settings the best only matched the plain IMM (range 0.998 ×), and every setting stayed about
+1.4 × T2's range error. A bearing bias is nearly unobservable in these geometries: a slight
+rotation of the solution absorbs it, and one or two ownship zigs do not separate the two.

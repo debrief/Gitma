@@ -1,0 +1,821 @@
+{
+  "truth": "data/p9val/validation.f32pack",
+  "rows": 16711,
+  "settled_rows": 7509,
+  "rule": "largest smallest margin; ties within 0.005 to the smaller bias sd, then the larger r",
+  "variants": [
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r4-g1-b0.25-tb1200",
+      "bias_sd_deg": 0.25,
+      "bias_tau_s": 1200,
+      "r_scale": 4,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.064007958387098,
+          "limit": 1,
+          "margin": -0.06400795838709805
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 1.079617625967021,
+          "limit": 1,
+          "margin": -0.07961762596702093
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.0635026916329835,
+          "limit": 1.1,
+          "margin": 0.03317937124274235
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 1.1351365762568555,
+          "limit": 1.1,
+          "margin": -0.03194234205168672
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 1.1149337604962393,
+          "limit": 1.1,
+          "margin": -0.01357614590567198
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.4582416596574448,
+          "limit": 1,
+          "margin": -0.4582416596574448
+        }
+      ],
+      "score": -0.4582416596574448
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-b0.25-tb1200",
+      "bias_sd_deg": 0.25,
+      "bias_tau_s": 1200,
+      "r_scale": 8,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 0.9986255972840076,
+          "limit": 1,
+          "margin": 0.0013744027159924288
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 0.9963900977656087,
+          "limit": 1,
+          "margin": 0.0036099022343912823
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.0010239630481397,
+          "limit": 1.1,
+          "margin": 0.08997821541078219
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 0.9966560117295477,
+          "limit": 1.1,
+          "margin": 0.09394908024586585
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 0.9866213272203518,
+          "limit": 1.1,
+          "margin": 0.10307152070877118
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.3686339814293407,
+          "limit": 1,
+          "margin": -0.3686339814293407
+        }
+      ],
+      "score": -0.3686339814293407
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r4-g1-b0.25-tb2400",
+      "bias_sd_deg": 0.25,
+      "bias_tau_s": 2400,
+      "r_scale": 4,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.0657182491510195,
+          "limit": 1,
+          "margin": -0.06571824915101954
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 1.0743747362973315,
+          "limit": 1,
+          "margin": -0.07437473629733149
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.0652164044997146,
+          "limit": 1.1,
+          "margin": 0.03162145045480503
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 1.1364611008302428,
+          "limit": 1.1,
+          "margin": -0.03314645530022061
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 1.1211633695592422,
+          "limit": 1.1,
+          "margin": -0.019239426872038307
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.4605856432925468,
+          "limit": 1,
+          "margin": -0.4605856432925468
+        }
+      ],
+      "score": -0.4605856432925468
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-b0.25-tb2400",
+      "bias_sd_deg": 0.25,
+      "bias_tau_s": 2400,
+      "r_scale": 8,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 0.9995000321745197,
+          "limit": 1,
+          "margin": 0.0004999678254803408
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 0.9974413408724745,
+          "limit": 1,
+          "margin": 0.002558659127525509
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.001612989583025,
+          "limit": 1.1,
+          "margin": 0.0894427367427046
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 0.9942206636218439,
+          "limit": 1.1,
+          "margin": 0.09616303307105106
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 0.986470495766786,
+          "limit": 1.1,
+          "margin": 0.10320864021201277
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.3698324098583305,
+          "limit": 1,
+          "margin": -0.36983240985833055
+        }
+      ],
+      "score": -0.36983240985833055
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r4-g1-b0.25-tb600",
+      "bias_sd_deg": 0.25,
+      "bias_tau_s": 600,
+      "r_scale": 4,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.0632412738744403,
+          "limit": 1,
+          "margin": -0.06324127387444034
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 1.0767507359890935,
+          "limit": 1,
+          "margin": -0.07675073598909354
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.0666646906705992,
+          "limit": 1.1,
+          "margin": 0.030304826663091703
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 1.1390397875804414,
+          "limit": 1.1,
+          "margin": -0.03549071598221941
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 1.1129405479116496,
+          "limit": 1.1,
+          "margin": -0.011764134465135962
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.4571909050203586,
+          "limit": 1,
+          "margin": -0.45719090502035864
+        }
+      ],
+      "score": -0.45719090502035864
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-b0.25-tb600",
+      "bias_sd_deg": 0.25,
+      "bias_tau_s": 600,
+      "r_scale": 8,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 0.9981114964189768,
+          "limit": 1,
+          "margin": 0.0018885035810232154
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 0.9957444870385528,
+          "limit": 1,
+          "margin": 0.0042555129614472165
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.0005732778649867,
+          "limit": 1.1,
+          "margin": 0.0903879292136485
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 0.9951030461086374,
+          "limit": 1.1,
+          "margin": 0.09536086717396605
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 0.9853637555103145,
+          "limit": 1.1,
+          "margin": 0.10421476771789596
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.3679293971330069,
+          "limit": 1,
+          "margin": -0.3679293971330069
+        }
+      ],
+      "score": -0.3679293971330069
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r4-g1-b0.5-tb1200",
+      "bias_sd_deg": 0.5,
+      "bias_tau_s": 1200,
+      "r_scale": 4,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.0710048077758032,
+          "limit": 1,
+          "margin": -0.0710048077758032
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 1.0737623039443496,
+          "limit": 1,
+          "margin": -0.07376230394434957
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.0698430620858388,
+          "limit": 1.1,
+          "margin": 0.027415398103782997
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 1.1267605985346953,
+          "limit": 1.1,
+          "margin": -0.024327816849722957
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 1.1056175072498429,
+          "limit": 1.1,
+          "margin": -0.005106824772584344
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.467830965061161,
+          "limit": 1,
+          "margin": -0.46783096506116095
+        }
+      ],
+      "score": -0.46783096506116095
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-b0.5-tb1200",
+      "bias_sd_deg": 0.5,
+      "bias_tau_s": 1200,
+      "r_scale": 8,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.008153240552369,
+          "limit": 1,
+          "margin": -0.00815324055236899
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 0.9985539461335419,
+          "limit": 1,
+          "margin": 0.0014460538664581302
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.014890373910627,
+          "limit": 1.1,
+          "margin": 0.07737238735397556
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 0.9974820557874708,
+          "limit": 1.1,
+          "margin": 0.09319813110229931
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 0.9873565823367109,
+          "limit": 1.1,
+          "margin": 0.10240310696662656
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.381691784449292,
+          "limit": 1,
+          "margin": -0.38169178444929197
+        }
+      ],
+      "score": -0.38169178444929197
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r4-g1-b0.5-tb2400",
+      "bias_sd_deg": 0.5,
+      "bias_tau_s": 2400,
+      "r_scale": 4,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.0684697507856245,
+          "limit": 1,
+          "margin": -0.06846975078562445
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 1.0809114705844576,
+          "limit": 1,
+          "margin": -0.08091147058445758
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.0638830324716413,
+          "limit": 1.1,
+          "margin": 0.03283360684396255
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 1.1313850244231876,
+          "limit": 1.1,
+          "margin": -0.02853184038471588
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 1.1082740310477481,
+          "limit": 1.1,
+          "margin": -0.007521846407043674
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.4643566247768192,
+          "limit": 1,
+          "margin": -0.46435662477681916
+        }
+      ],
+      "score": -0.46435662477681916
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-b0.5-tb2400",
+      "bias_sd_deg": 0.5,
+      "bias_tau_s": 2400,
+      "r_scale": 8,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.0084013487691361,
+          "limit": 1,
+          "margin": -0.008401348769136119
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 1.0003310781447357,
+          "limit": 1,
+          "margin": -0.00033107814473565256
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.009896084609486,
+          "limit": 1.1,
+          "margin": 0.08191265035501281
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 0.9944253335894424,
+          "limit": 1.1,
+          "margin": 0.09597696946414334
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 0.9827845762301588,
+          "limit": 1.1,
+          "margin": 0.10655947615440116
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.3820318211331732,
+          "limit": 1,
+          "margin": -0.38203182113317324
+        }
+      ],
+      "score": -0.38203182113317324
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r4-g1-b0.5-tb600",
+      "bias_sd_deg": 0.5,
+      "bias_tau_s": 600,
+      "r_scale": 4,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.0679005270444757,
+          "limit": 1,
+          "margin": -0.06790052704447569
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 1.0651547158718204,
+          "limit": 1,
+          "margin": -0.06515471587182042
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.063378025218078,
+          "limit": 1.1,
+          "margin": 0.03329270434720189
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 1.1207969100032633,
+          "limit": 1.1,
+          "margin": -0.018906281821148386
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 1.1065575999668247,
+          "limit": 1.1,
+          "margin": -0.0059614545152950815
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.4635764936072484,
+          "limit": 1,
+          "margin": -0.4635764936072484
+        }
+      ],
+      "score": -0.4635764936072484
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-b0.5-tb600",
+      "bias_sd_deg": 0.5,
+      "bias_tau_s": 600,
+      "r_scale": 8,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.0065535340140315,
+          "limit": 1,
+          "margin": -0.00655353401403147
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 0.9954201951887313,
+          "limit": 1,
+          "margin": 0.0045798048112687395
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.0093545547883274,
+          "limit": 1.1,
+          "margin": 0.08240495019242974
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 0.9904288792354037,
+          "limit": 1.1,
+          "margin": 0.09961010978599673
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 0.9786329501147147,
+          "limit": 1.1,
+          "margin": 0.11033368171389576
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.379499358444353,
+          "limit": 1,
+          "margin": -0.3794993584443529
+        }
+      ],
+      "score": -0.3794993584443529
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r4-g1-b1-tb1200",
+      "bias_sd_deg": 1,
+      "bias_tau_s": 1200,
+      "r_scale": 4,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.1091270219161795,
+          "limit": 1,
+          "margin": -0.10912702191617951
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 1.0583135491917555,
+          "limit": 1,
+          "margin": -0.058313549191755465
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.0886935340264594,
+          "limit": 1.1,
+          "margin": 0.010278605430491528
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 1.0855605628097338,
+          "limit": 1.1,
+          "margin": 0.013126761082060274
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 1.1065365761452919,
+          "limit": 1.1,
+          "margin": -0.005942341950265268
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.5200781314283642,
+          "limit": 1,
+          "margin": -0.5200781314283642
+        }
+      ],
+      "score": -0.5200781314283642
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-b1-tb1200",
+      "bias_sd_deg": 1,
+      "bias_tau_s": 1200,
+      "r_scale": 8,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.0570584117297972,
+          "limit": 1,
+          "margin": -0.0570584117297972
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 1.0232067861785787,
+          "limit": 1,
+          "margin": -0.023206786178578742
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.0573437845356548,
+          "limit": 1.1,
+          "margin": 0.038778377694859346
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 1.0066206097536055,
+          "limit": 1.1,
+          "margin": 0.08489035476944966
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 0.9911024872723906,
+          "limit": 1.1,
+          "margin": 0.09899773884328136
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.4487171834808086,
+          "limit": 1,
+          "margin": -0.4487171834808086
+        }
+      ],
+      "score": -0.4487171834808086
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r4-g1-b1-tb2400",
+      "bias_sd_deg": 1,
+      "bias_tau_s": 2400,
+      "r_scale": 4,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.11651250361825,
+          "limit": 1,
+          "margin": -0.11651250361824994
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 1.0633888890738736,
+          "limit": 1,
+          "margin": -0.06338888907387363
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.103877150156128,
+          "limit": 1.1,
+          "margin": -0.003524681960116258
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 1.117937724509957,
+          "limit": 1.1,
+          "margin": -0.016307022281779097
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 1.112574463386243,
+          "limit": 1.1,
+          "margin": -0.011431330351130016
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.5302000642670268,
+          "limit": 1,
+          "margin": -0.5302000642670268
+        }
+      ],
+      "score": -0.5302000642670268
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-b1-tb2400",
+      "bias_sd_deg": 1,
+      "bias_tau_s": 2400,
+      "r_scale": 8,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.0624182600304994,
+          "limit": 1,
+          "margin": -0.06241826003049944
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 1.021745748530281,
+          "limit": 1,
+          "margin": -0.021745748530280995
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.0623184154053094,
+          "limit": 1.1,
+          "margin": 0.03425598599517339
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 1.0107881554859504,
+          "limit": 1.1,
+          "margin": 0.08110167683095429
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 0.9926352974533209,
+          "limit": 1.1,
+          "margin": 0.09760427504243561
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.4560629500419684,
+          "limit": 1,
+          "margin": -0.4560629500419684
+        }
+      ],
+      "score": -0.4560629500419684
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r4-g1-b1-tb600",
+      "bias_sd_deg": 1,
+      "bias_tau_s": 600,
+      "r_scale": 4,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.0999595657485228,
+          "limit": 1,
+          "margin": -0.09995956574852283
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 1.0513827255758732,
+          "limit": 1,
+          "margin": -0.0513827255758732
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.0874195056313964,
+          "limit": 1.1,
+          "margin": 0.011436813062366949
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 1.0593933580289596,
+          "limit": 1.1,
+          "margin": 0.03691512906458224
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 1.1011953682013733,
+          "limit": 1.1,
+          "margin": -0.0010866983648847508
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.5075139711780732,
+          "limit": 1,
+          "margin": -0.5075139711780732
+        }
+      ],
+      "score": -0.5075139711780732
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-b1-tb600",
+      "bias_sd_deg": 1,
+      "bias_tau_s": 600,
+      "r_scale": 8,
+      "points": [
+        {
+          "check": "overall range / IMM",
+          "point": 1.051798535820402,
+          "limit": 1,
+          "margin": -0.05179853582040206
+        },
+        {
+          "check": "overall course / IMM",
+          "point": 1.0203536838460083,
+          "limit": 1,
+          "margin": -0.02035368384600833
+        },
+        {
+          "check": "settled range / IMM",
+          "point": 1.0576406574584176,
+          "limit": 1.1,
+          "margin": 0.038508493219620424
+        },
+        {
+          "check": "settled course / IMM",
+          "point": 0.9928932865188655,
+          "limit": 1.1,
+          "margin": 0.09736973952830412
+        },
+        {
+          "check": "settled speed / IMM",
+          "point": 0.9815644230648681,
+          "limit": 1.1,
+          "margin": 0.1076687063046654
+        },
+        {
+          "check": "overall range / T2",
+          "point": 1.4415084308439057,
+          "limit": 1,
+          "margin": -0.4415084308439057
+        }
+      ],
+      "score": -0.4415084308439057
+    }
+  ],
+  "best_score": -0.3679293971330069,
+  "chosen": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-b0.25-tb1200",
+  "carried": false
+}

@@ -391,7 +391,17 @@ It is `tma-g5 --beat <network>` (schema 0.22.0 `ChangeDecision.beat_estimator`).
 - **Phase 8 stopped at validation.** No variant beats T2 on range: the best is k 3, M 1, at fused/T2
   1.014. Against the IMM, re-tuning improves range to 0.740 from 0.777.
 - **Seeds.** Seed 220 was never generated; 220–221 stay reserved. Write-up:
-  `site/blog/2026-11-10-phase-8.md`. The owner decides the follow-on.
+  `site/blog/2026-11-10-phase-8.md`.
+
+**Phase 9** (SRD Annex C §C.16, spec 021, owner 2026-11-12): an IMM with a bearing-bias state, under
+G8's rules. The bias state is opt-in, `ImmParams.biasSdDeg`/`biasTauS` (name suffix `-b<sd>-tb<τ>`,
+`tma-track --bias-sd --bias-tau`), and the 5-state IMM is byte-identical.
+- **Phase 9 stopped at validation, as forecast** (`experiments/20261112-p9-research/`; 18 variants
+  on seed 217). At best the candidate equals the frozen IMM (range 0.998) and is 1.37 × T2's range
+  error.
+- **Why.** A bearing bias is nearly unobservable here: the geometry rotates to absorb it.
+- **Seeds.** 222–223 stay reserved, and seed 222 was never generated. Write-up:
+  `site/blog/2026-11-12-phase-9.md`. The owner decides the follow-on.
 
 Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight

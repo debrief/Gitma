@@ -592,3 +592,54 @@ it before the decision record is committed.
   - **Next.** The owner decides. The remaining options are a bias state in the IMM, or reporting
     T2's range directly.
 
+
+## C.16 Phase 9: an IMM with a bearing-bias state, gate G8 (owner decisions 2026-11-12)
+
+Under realistic bearing error, T2 alone beats both the frozen IMM (C.14) and every fusion setting
+(C.15) on range. On 2026-11-12 the owner chose to give the classical filter a model of the error:
+- **an IMM with a drifting bearing-bias state**, tuned on validation with realistic error;
+- **judged by G8's rules:** beat T2 alone on median range error, and pass G5 against the frozen
+  `-g1` IMM.
+
+The rest of this section was written by the implementing agent. It stands unless the owner amends
+it before the decision record is committed.
+
+- **The filter** (spec 021, opt-in, name suffix `-b<sd>-tb<τ>`): the `-g1` IMM with a sixth state,
+  a Gauss–Markov bias b added to the predicted bearing. It is initialised at 0 with its stationary
+  variance. The 5-state IMM is unchanged (byte-identical).
+- **Tuning data:** seed 217's 10,000-scenario validation split with the phase-7 ranges, as C.15.
+- **The grid.** 18 variants: bias sd ∈ {0.25°, 0.5°, 1°} × τ ∈ {600, 1200, 2400} s × the
+  measurement-variance scale r ∈ {4, 8}. The other IMM settings are decision 29's.
+- **The selection rule,** fixed before any variant is scored. As C.15, with six point ratios of
+  medians on the G5 rows:
+  - the five G5 checks against the frozen `-g1` IMM;
+  - candidate/T2 median range over all G5 rows, with limit 1.
+
+  A variant's score is its smallest margin, and the largest score is carried. A tie within 0.005
+  goes to the smaller bias sd, then the larger r (closer to the frozen IMM).
+- **Carry rule.** A score above 0 goes to the gate. Otherwise phase 9 stops at validation and no
+  test seed is generated.
+- **The gate, G8** (`tma-g5 --beat`, as C.15), on the 40,000-scenario test split of fresh seed 222
+  (400,000 scenarios, phase-7 ranges).
+  - **The re-score**, if needed: seed 223, 1,100,000 scenarios, a 110,000-scenario test split.
+  - **Seeds 222–223** are reserved from the decision record on.
+  - **False passes:** at most about 2.5% per look, at most about 5% with the re-score.
+- **Reported, not gated:** the candidate against the fused tracker; the clean twin (phase-4 ranges)
+  of seed 217's rows; the bias estimate's spread.
+- **Forecast, before any validation scoring.** A constant bearing bias is nearly unobservable in
+  these geometries. On 8 scenarios of seed 9, not the validation seed, a 1° offset left the batch
+  least-squares residual unchanged in 6 of 8 (0.27°), because the geometry rotates to absorb it.
+  In a smoke test on 300 scenarios of seed 5, also not the validation seed, the bias state moved
+  median range error only from 19.2% to 18.9%. Phase 9 is therefore expected to stop at
+  validation, and the owner chose to run it and record the result.
+- **If G8 fails,** the owner decides. C.14's and C.15's results stand either way.
+- **Outcome (2026-11-12): phase 9 stopped at validation, as forecast**
+  (`experiments/20261112-p9-research/`).
+  - **The best score is −0.368** (0.25°, 600 s, r 8); the tie rule selects 0.25°, 1,200 s, r 8.
+    The binding check is always candidate/T2 range.
+  - **At best the candidate equals the frozen IMM** (range 0.998, course 0.996) and stays
+    1.37–1.53 × T2's range error. A larger bias sd or a smaller r is worse.
+  - **The bias is nearly unobservable:** the geometry rotates to absorb it.
+  - **Seeds.** Seed 222 was never generated; 222–223 stay reserved.
+  - **Next.** The owner decides. C.14's and C.15's results stand.
+
