@@ -43,11 +43,22 @@ export interface ImmParams {
    * and speed from the combined covariance by the delta method. The estimates are unchanged.
    */
   reportSd?: boolean;
+  /**
+   * Bearing-bias state (spec 021, phase 9; name suffix `-b<sd>-tb<τ>`): a sixth state b, a
+   * Gauss–Markov bias with stationary sd `biasSdDeg` (degrees) and time constant `biasTauS` (s),
+   * added to the predicted bearing. Both or neither; absent, the filter is the 5-state IMM, unchanged.
+   */
+  biasSdDeg?: number;
+  biasTauS?: number;
 }
+
+/** Whether `p` declares the bearing-bias state (spec 021). */
+export const hasBias = (p: ImmParams): boolean =>
+  p.biasSdDeg !== undefined && p.biasTauS !== undefined;
 
 /** Estimator name of the IMM with `p`. */
 export const immName = (p: ImmParams): string =>
-  `${IMM}-cv${String(p.sigmaCv)}-ct${String(p.sigmaCt)}-w${String(p.sigmaOmega)}-s${String(p.switchPerS)}${scaleSuffix(p)}${p.reportSd === true ? "-sd" : ""}`;
+  `${IMM}-cv${String(p.sigmaCv)}-ct${String(p.sigmaCt)}-w${String(p.sigmaOmega)}-s${String(p.switchPerS)}${scaleSuffix(p)}${hasBias(p) ? `-b${String(p.biasSdDeg)}-tb${String(p.biasTauS)}` : ""}${p.reportSd === true ? "-sd" : ""}`;
 
 /** Prior turn-rate standard deviation at initialisation (rad/s): about the generator's 3°/s. */
 export const IMM_OMEGA0_SD = 0.05;
@@ -78,26 +89,33 @@ export interface ImmState {
   innovation?: number | null;
 }
 
-const at = (a: Float64Array, i: number, j: number): number => a[N * i + j] ?? 0;
+/** State dimension of a covariance (n × n, stored row-major). */
+const dimOf = (p: Float64Array): number => Math.round(Math.sqrt(p.length));
+
+const at = (a: Float64Array, i: number, j: number, n = dimOf(a)): number => a[n * i + j] ?? 0;
 
 function mul(a: Float64Array, b: Float64Array): Float64Array {
-  const c = new Float64Array(N * N);
-  for (let i = 0; i < N; i++)
-    for (let j = 0; j < N; j++) {
+  const n = dimOf(a);
+  const c = new Float64Array(n * n);
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < n; j++) {
       let s = 0;
-      for (let k = 0; k < N; k++) s += at(a, i, k) * at(b, k, j);
-      c[N * i + j] = s;
+      for (let k = 0; k < n; k++) s += at(a, i, k, n) * at(b, k, j, n);
+      c[n * i + j] = s;
     }
   return c;
 }
 
-const transpose = (a: Float64Array): Float64Array =>
-  Float64Array.from({ length: N * N }, (_, k) => at(a, k % N, Math.floor(k / N)));
+const transpose = (a: Float64Array): Float64Array => {
+  const n = dimOf(a);
+  return Float64Array.from({ length: n * n }, (_, k) => at(a, k % n, Math.floor(k / n), n));
+};
 
 function symmetrise(p: Float64Array): Float64Array {
-  const s = new Float64Array(N * N);
-  for (let i = 0; i < N; i++)
-    for (let j = 0; j < N; j++) s[N * i + j] = (at(p, i, j) + at(p, j, i)) / 2;
+  const n = dimOf(p);
+  const s = new Float64Array(n * n);
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < n; j++) s[n * i + j] = (at(p, i, j, n) + at(p, j, i, n)) / 2;
   return s;
 }
 
@@ -127,8 +145,9 @@ export function cvMotion(s: Float64Array, tau: number): Float64Array {
 
 /** Jacobian of `f` at `s` by central differences (column j from a step in state j). */
 function jacobian(f: (s: Float64Array) => Float64Array, s: Float64Array): Float64Array {
-  const j = new Float64Array(N * N);
-  for (let c = 0; c < N; c++) {
+  const n = s.length;
+  const j = new Float64Array(n * n);
+  for (let c = 0; c < n; c++) {
     const h = c === 4 ? 1e-7 : 1e-4 * Math.max(1, Math.abs(s[c] ?? 0));
     const up = Float64Array.from(s);
     const dn = Float64Array.from(s);
@@ -136,27 +155,36 @@ function jacobian(f: (s: Float64Array) => Float64Array, s: Float64Array): Float6
     dn[c] = (dn[c] ?? 0) - h;
     const fu = f(up);
     const fd = f(dn);
-    for (let r = 0; r < N; r++) j[N * r + c] = ((fu[r] ?? 0) - (fd[r] ?? 0)) / (2 * h);
+    for (let r = 0; r < n; r++) j[n * r + c] = ((fu[r] ?? 0) - (fd[r] ?? 0)) / (2 * h);
   }
   return j;
 }
 
 /** White-noise acceleration over τ on (x, y, vx, vy), plus σ_ω²τ on ω. */
-function processNoise(tau: number, sigmaA: number, sigmaOmega: number): Float64Array {
-  const q = new Float64Array(N * N);
+function processNoise(
+  tau: number,
+  sigmaA: number,
+  sigmaOmega: number,
+  n = N,
+  bias?: { sd: number; tau: number },
+): Float64Array {
+  const q = new Float64Array(n * n);
   const q2 = sigmaA * sigmaA;
   const a = (q2 * tau ** 4) / 4;
   const b = (q2 * tau ** 3) / 2;
   const c = q2 * tau * tau;
-  q[N * 0 + 0] = a;
-  q[N * 1 + 1] = a;
-  q[N * 0 + 2] = b;
-  q[N * 2 + 0] = b;
-  q[N * 1 + 3] = b;
-  q[N * 3 + 1] = b;
-  q[N * 2 + 2] = c;
-  q[N * 3 + 3] = c;
-  q[N * 4 + 4] = sigmaOmega * sigmaOmega * tau;
+  q[n * 0 + 0] = a;
+  q[n * 1 + 1] = a;
+  q[n * 0 + 2] = b;
+  q[n * 2 + 0] = b;
+  q[n * 1 + 3] = b;
+  q[n * 3 + 1] = b;
+  q[n * 2 + 2] = c;
+  q[n * 3 + 3] = c;
+  q[n * 4 + 4] = sigmaOmega * sigmaOmega * tau;
+  // The bias's discrete Gauss–Markov noise keeps its variance stationary: sd²(1 − e^(−2τ/τ_b)).
+  if (bias !== undefined && n > N)
+    q[n * N + N] = bias.sd * bias.sd * (1 - Math.exp((-2 * tau) / bias.tau));
   return q;
 }
 
@@ -165,10 +193,21 @@ function predictModel(
   tau: number,
   motion: (s: Float64Array, tau: number) => Float64Array,
   q: Float64Array,
+  biasTau?: number,
 ): Gaussian {
-  const f = jacobian((s) => motion(s, tau), g.x);
+  // With a bias state (spec 021), the motion acts on the first five states and the bias decays.
+  const full =
+    g.x.length > N && biasTau !== undefined
+      ? (s: Float64Array): Float64Array => {
+          const out = new Float64Array(N + 1);
+          out.set(motion(s.subarray(0, N), tau));
+          out[N] = (s[N] ?? 0) * Math.exp(-tau / biasTau);
+          return out;
+        }
+      : (s: Float64Array): Float64Array => motion(s, tau);
+  const f = jacobian(full, g.x);
   const p = mul(mul(f, g.p), transpose(f)).map((v, k) => v + (q[k] ?? 0));
-  return { x: motion(g.x, tau), p: symmetrise(p) };
+  return { x: full(g.x), p: symmetrise(p) };
 }
 
 /** Bearing update; returns the updated estimate and the innovation's likelihood. */
@@ -183,20 +222,22 @@ function updateModel(
   const dx = x - ox;
   const dy = y - oy;
   const rho2 = dx * dx + dy * dy;
-  const h = [dy / rho2, -dx / rho2, 0, 0, 0];
-  const ph = new Float64Array(N);
-  for (let i = 0; i < N; i++)
-    for (let k = 0; k < N; k++) ph[i] = (ph[i] ?? 0) + at(g.p, i, k) * (h[k] ?? 0);
+  const n = g.x.length;
+  // With a bias state (spec 021) the predicted bearing is bearingOf(dx, dy) + b, so H has a 1 there.
+  const h = n > N ? [dy / rho2, -dx / rho2, 0, 0, 0, 1] : [dy / rho2, -dx / rho2, 0, 0, 0];
+  const ph = new Float64Array(n);
+  for (let i = 0; i < n; i++)
+    for (let k = 0; k < n; k++) ph[i] = (ph[i] ?? 0) + at(g.p, i, k, n) * (h[k] ?? 0);
   let s = r2;
-  for (let k = 0; k < N; k++) s += (h[k] ?? 0) * (ph[k] ?? 0);
+  for (let k = 0; k < n; k++) s += (h[k] ?? 0) * (ph[k] ?? 0);
   const kg = ph.map((v) => v / s);
-  const nu = angleDiff(z, bearingOf(dx, dy));
+  const nu = angleDiff(z, bearingOf(dx, dy) + (n > N ? (g.x[N] ?? 0) : 0));
   const xn = g.x.map((v, i) => v + (kg[i] ?? 0) * nu);
-  const ikh = new Float64Array(N * N);
-  for (let i = 0; i < N; i++)
-    for (let j = 0; j < N; j++) ikh[N * i + j] = (i === j ? 1 : 0) - (kg[i] ?? 0) * (h[j] ?? 0);
+  const ikh = new Float64Array(n * n);
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < n; j++) ikh[n * i + j] = (i === j ? 1 : 0) - (kg[i] ?? 0) * (h[j] ?? 0);
   const p = mul(mul(ikh, g.p), transpose(ikh)).map(
-    (v, k) => v + r2 * (kg[Math.floor(k / N)] ?? 0) * (kg[k % N] ?? 0),
+    (v, k) => v + r2 * (kg[Math.floor(k / n)] ?? 0) * (kg[k % n] ?? 0),
   );
   const likelihood = Math.exp((-0.5 * nu * nu) / s) / Math.sqrt(2 * Math.PI * s);
   return {
@@ -209,18 +250,19 @@ function updateModel(
 
 /** Mixture of `gs` with weights `w` (summing to 1): its mean and covariance with the spread. */
 function mix(gs: readonly Gaussian[], w: readonly number[]): Gaussian {
-  const x = new Float64Array(N);
+  const n = gs[0]?.x.length ?? N;
+  const x = new Float64Array(n);
   gs.forEach((g, i) => {
-    for (let k = 0; k < N; k++) x[k] = (x[k] ?? 0) + (w[i] ?? 0) * (g.x[k] ?? 0);
+    for (let k = 0; k < n; k++) x[k] = (x[k] ?? 0) + (w[i] ?? 0) * (g.x[k] ?? 0);
   });
-  const p = new Float64Array(N * N);
+  const p = new Float64Array(n * n);
   gs.forEach((g, i) => {
     const wi = w[i] ?? 0;
-    for (let a = 0; a < N; a++)
-      for (let b = 0; b < N; b++) {
+    for (let a = 0; a < n; a++)
+      for (let b = 0; b < n; b++) {
         const da = (g.x[a] ?? 0) - (x[a] ?? 0);
         const db = (g.x[b] ?? 0) - (x[b] ?? 0);
-        p[N * a + b] = (p[N * a + b] ?? 0) + wi * (at(g.p, a, b) + da * db);
+        p[n * a + b] = (p[n * a + b] ?? 0) + wi * (at(g.p, a, b, n) + da * db);
       }
   });
   return { x, p: symmetrise(p) };
@@ -247,8 +289,25 @@ export function immStep(
   });
   const [m0, m1] = mixed;
   if (m0 === undefined || m1 === undefined) throw new Error("IMM: mixing failed");
-  let cv = predictModel(m0, tau, cvMotion, processNoise(tau, params.sigmaCv, 0));
-  let ct = predictModel(m1, tau, ctMotion, processNoise(tau, params.sigmaCt, params.sigmaOmega));
+  const n = m0.x.length;
+  const bias =
+    n > N && hasBias(params)
+      ? { sd: ((params.biasSdDeg ?? 0) * Math.PI) / 180, tau: params.biasTauS ?? 1 }
+      : undefined;
+  let cv = predictModel(
+    m0,
+    tau,
+    cvMotion,
+    processNoise(tau, params.sigmaCv, 0, n, bias),
+    bias?.tau,
+  );
+  let ct = predictModel(
+    m1,
+    tau,
+    ctMotion,
+    processNoise(tau, params.sigmaCt, params.sigmaOmega, n, bias),
+    bias?.tau,
+  );
   let like = [1, 1];
   let nis: number | null = null;
   let innovation: number | null = null;
@@ -294,20 +353,21 @@ export function immRangeUpdate(
     const dx = (g.x[0] ?? 0) - ox;
     const dy = (g.x[1] ?? 0) - oy;
     const rho2 = dx * dx + dy * dy;
-    const h = [dx / rho2, dy / rho2, 0, 0, 0];
-    const ph = new Float64Array(N);
-    for (let i = 0; i < N; i++)
-      for (let k = 0; k < 2; k++) ph[i] = (ph[i] ?? 0) + at(g.p, i, k) * (h[k] ?? 0);
+    const n = g.x.length;
+    const h = [dx / rho2, dy / rho2, 0, 0, 0, 0];
+    const ph = new Float64Array(n);
+    for (let i = 0; i < n; i++)
+      for (let k = 0; k < 2; k++) ph[i] = (ph[i] ?? 0) + at(g.p, i, k, n) * (h[k] ?? 0);
     const s = r2 + (h[0] ?? 0) * (ph[0] ?? 0) + (h[1] ?? 0) * (ph[1] ?? 0);
     const kg = ph.map((v) => v / s);
     const nu = z - 0.5 * Math.log(rho2);
     nis += (nu * nu) / s / st.models.length;
     const xn = g.x.map((v, i) => v + (kg[i] ?? 0) * nu);
-    const ikh = new Float64Array(N * N);
-    for (let i = 0; i < N; i++)
-      for (let j = 0; j < N; j++) ikh[N * i + j] = (i === j ? 1 : 0) - (kg[i] ?? 0) * (h[j] ?? 0);
+    const ikh = new Float64Array(n * n);
+    for (let i = 0; i < n; i++)
+      for (let j = 0; j < n; j++) ikh[n * i + j] = (i === j ? 1 : 0) - (kg[i] ?? 0) * (h[j] ?? 0);
     const p = mul(mul(ikh, g.p), transpose(ikh)).map(
-      (v, k) => v + r2 * (kg[Math.floor(k / N)] ?? 0) * (kg[k % N] ?? 0),
+      (v, k) => v + r2 * (kg[Math.floor(k / n)] ?? 0) * (kg[k % n] ?? 0),
     );
     return { x: xn, p: symmetrise(p) };
   }) as [Gaussian, Gaussian];
@@ -330,16 +390,20 @@ export function immInitialise(
   p0Scale = 1,
   level: GuardedInit = 0,
   reinit = false,
+  biasSdRad?: number,
 ): ImmState | null {
   const e = initialiseAt(d, i, sigma, p0Scale, level, reinit);
   if (e === null) return null;
-  const x = new Float64Array(N);
-  const p = new Float64Array(N * N);
+  // With a bias state (spec 021): b = 0 with its stationary variance, uncorrelated at the start.
+  const n = biasSdRad === undefined ? N : N + 1;
+  const x = new Float64Array(n);
+  const p = new Float64Array(n * n);
   for (let a = 0; a < 4; a++) {
     x[a] = e.x[a] ?? 0;
-    for (let b = 0; b < 4; b++) p[N * a + b] = e.p[4 * a + b] ?? 0;
+    for (let b = 0; b < 4; b++) p[n * a + b] = e.p[4 * a + b] ?? 0;
   }
-  p[N * 4 + 4] = IMM_OMEGA0_SD * IMM_OMEGA0_SD;
+  p[n * 4 + 4] = IMM_OMEGA0_SD * IMM_OMEGA0_SD;
+  if (biasSdRad !== undefined) p[n * N + N] = biasSdRad * biasSdRad;
   const g = (): Gaussian => ({ x: Float64Array.from(x), p: Float64Array.from(p) });
   return { t: e.t, models: [g(), g()], mu: [IMM_MU0[0], IMM_MU0[1]] };
 }
@@ -422,6 +486,11 @@ export function immPredict(
   for (const [k, v] of Object.entries(params))
     if (k !== "reportSd" && !(typeof v === "number" && v >= 0))
       throw new Error(`IMM ${k} must be ≥ 0`);
+  if ((params.biasSdDeg === undefined) !== (params.biasTauS === undefined))
+    throw new Error("IMM biasSdDeg and biasTauS go together");
+  if (params.biasTauS !== undefined && !(params.biasTauS > 0))
+    throw new Error("IMM biasTauS must be > 0");
+  const biasSdRad = hasBias(params) ? ((params.biasSdDeg ?? 0) * Math.PI) / 180 : undefined;
   if (params.p0Scale === 0 || params.rScale === 0) throw new Error("IMM scales must be > 0");
   const level = params.guardedInit ?? 0;
   if (![0, 1, 2].includes(level)) throw new Error("IMM guardedInit must be 0, 1 or 2");
@@ -432,7 +501,8 @@ export function immPredict(
   const r2 = Math.max(sigma, EKF_MIN_SIGMA_RAD) ** 2 * (params.rScale ?? 1);
   const rows: PredictionRow[] = [];
   const first = s.metadata.zig_index + 1;
-  let st = first - 1 < n ? immInitialise(d, first - 1, sigma, p0Scale, level, false) : null;
+  let st =
+    first - 1 < n ? immInitialise(d, first - 1, sigma, p0Scale, level, false, biasSdRad) : null;
   let lastTry = first - 1;
   for (let i = first; i < n; i++) {
     if (st !== null) {
@@ -458,7 +528,7 @@ export function immPredict(
     }
     rows.push(row(d, new Float64Array(N), i, false));
     if (i - lastTry >= EKF_REINIT_EVERY) {
-      st = immInitialise(d, i, sigma, p0Scale, level, true);
+      st = immInitialise(d, i, sigma, p0Scale, level, true, biasSdRad);
       lastTry = i;
     }
   }

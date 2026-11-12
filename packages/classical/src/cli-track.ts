@@ -36,13 +36,15 @@ export function main(argv: string[]): unknown {
       "r-scale": { type: "string" },
       "guarded-init": { type: "string" },
       "report-sd": { type: "boolean" },
+      "bias-sd": { type: "string" },
+      "bias-tau": { type: "string" },
     },
   });
   if (values.in === undefined || values.out === undefined)
     throw new UsageError(
       "usage: tma-track --in <split.f32pack> --out <pred.ndjson> " +
         "(--filter ekf --sigma-a <m/s²> | --filter imm --sigma-cv <m/s²> --sigma-ct <m/s²> " +
-        "--sigma-omega <rad/s/√s> --switch <1/s>) [--p0-scale k] [--r-scale k] [--guarded-init 1|2] [--report-sd]",
+        "--sigma-omega <rad/s/√s> --switch <1/s>) [--p0-scale k] [--r-scale k] [--guarded-init 1|2] [--report-sd] [--bias-sd <deg> --bias-tau <s>]",
     );
   /** Optional scales (spec 010 FR-011); absent means 1, and names stay unchanged. */
   const scale = (key: "p0-scale" | "r-scale"): number | undefined => {
@@ -63,6 +65,15 @@ export function main(argv: string[]): unknown {
       ? {}
       : { guardedInit: guarded === "2" ? (2 as const) : (1 as const) }),
   };
+  // The IMM's bearing-bias state (spec 021): both flags or neither.
+  if ((values["bias-sd"] === undefined) !== (values["bias-tau"] === undefined))
+    throw new UsageError("--bias-sd and --bias-tau go together (spec 021)");
+  const bias =
+    values["bias-sd"] === undefined
+      ? {}
+      : { biasSdDeg: num(values, "bias-sd"), biasTauS: num(values, "bias-tau") };
+  if (values.filter === "ekf" && values["bias-sd"] !== undefined)
+    throw new UsageError("--bias-sd is for --filter imm");
   let name: string;
   let predict: (s: Scenario) => Prediction;
   if (values.filter === "ekf") {
@@ -79,6 +90,7 @@ export function main(argv: string[]): unknown {
       switchPerS: num(values, "switch"),
       ...scales,
       ...(values["report-sd"] === true ? { reportSd: true } : {}),
+      ...bias,
     };
     name = immName(p);
     predict = (s) => immPredict(s, p);
