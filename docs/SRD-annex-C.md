@@ -682,3 +682,22 @@ it before the decision record is committed.
   the fused tracker under this error. It would not give one coherent track state, because range and
   velocity come from different estimators, as in phase 4b.
 - **If G8 fails,** the owner decides. Earlier results stand.
+- **Outcome (2026-11-12): G8 passes on seed 224** (decision 38; agent panel rounds 1–2,
+  `experiments/20261112-p10-g8/`).
+  - **Against the IMM:** range 0.689 [0.675, 0.702] and course 0.895; settled range 0.724, course
+    0.887, speed 0.898.
+  - **Against the fused tracker:** range 0.908 [0.893, 0.921].
+  - **Mostly a replay.** The range is T2's row for row, so the beat check repeats phase 7's T2/fused
+    result. The velocity is the fused tracker's. Only the pairing is new.
+  - **The scoring convention helps.** Counting a missing estimate as infinitely wrong moves each
+    ratio about 1 pp in the hybrid's favour. On rows where every estimator converged the ratios are
+    0.700 and 0.918.
+  - **Not shown:**
+    - a range gain over T2;
+    - overall course, where T2 is better (1.02 ×);
+    - settled course and speed against the EKF (1.25 × and 1.09 ×);
+    - one coherent state: the 60 s kinematic gap has median 18 kt, and the bearing rate is the
+      worst of the four estimators;
+    - uncertainty.
+  - **Next.** The owner decides. Seeds 224–225 are reserved.
+

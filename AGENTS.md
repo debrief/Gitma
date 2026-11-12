@@ -401,7 +401,25 @@ G8's rules. The bias state is opt-in, `ImmParams.biasSdDeg`/`biasTauS` (name suf
   error.
 - **Why.** A bearing bias is nearly unobservable here: the geometry rotates to absorb it.
 - **Seeds.** 222–223 stay reserved, and seed 222 was never generated. Write-up:
-  `site/blog/2026-11-12-phase-9.md`. The owner decides the follow-on.
+  `site/blog/2026-11-12-phase-9.md`.
+
+**Phase 10** (SRD Annex C §C.17, spec 022, owner 2026-11-12): the hybrid of T2's range with the
+frozen fused tracker's velocity, θ 180.
+- **The estimator.** `tma-hybrid-track --course-deg 180` builds it. It is judged by G8, with the
+  fused tracker as `beat_estimator` (decision 38, `experiments/20261112-p10-decision/`, plan
+  `configs/phase4/z`, seed 224).
+- **Recomputation.** `tma-g5 --beat` re-computes the beaten file too.
+- **G8 passed** (panel rounds 1–2, `experiments/20261112-p10-g8/`; write-up
+  `site/blog/2026-11-12-phase-10.md`):
+  - against the IMM: range 0.689 and course 0.895; settled 0.724 / 0.887 / 0.898;
+  - against the fused tracker: range 0.908.
+- **Mostly a replay.** The range is T2's, so the beat check repeats phase 7. Only the pairing is
+  new.
+- **Not shown:** a gain over T2, settled course and speed against the EKF, or one coherent state
+  (kinematic gap of 18 kt).
+- **Reported:** `baselines.json`, `lsq.json`, `coherence.txt` (`scripts/research/spec022-coherence.mjs`)
+  and `convergence.json` (`spec022-convergence.mjs`).
+- **Seeds 224–225** are reserved. The owner decides the follow-on.
 
 Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
