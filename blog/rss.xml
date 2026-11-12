@@ -4,10 +4,88 @@
         <title>TMA via ML Blog</title>
         <link>https://debrief.github.io/Gitma/blog</link>
         <description>TMA via ML Blog</description>
-        <lastBuildDate>Sun, 08 Nov 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 10 Nov 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Phase 8: re-tuning the fusion cannot make it beat T2 on range under realistic error]]></title>
+            <link>https://debrief.github.io/Gitma/blog/2026/11/10/phase-8</link>
+            <guid>https://debrief.github.io/Gitma/blog/2026/11/10/phase-8</guid>
+            <pubDate>Tue, 10 Nov 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Phase 7 found a gap. Under realistic bearing error (correlated noise plus a drifting bias), T2 on]]></description>
+            <content:encoded><![CDATA[<p>Phase 7 found a gap. Under realistic bearing error (correlated noise plus a drifting bias), T2 on
+its own had lower range error than the fused tracker that feeds T2's range into the IMM: 12.1%
+against 13.2%. The fusion's weighting had been tuned on clean data and then frozen, so the obvious
+question was whether re-tuning it closes the gap.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-test">The test<a href="https://debrief.github.io/Gitma/blog/2026/11/10/phase-8#the-test" class="hash-link" aria-label="Direct link to The test" title="Direct link to The test" translate="no">​</a></h2>
+<p>The owner chose to re-tune only the fusion's two settings, on validation data with realistic error:</p>
+<ul>
+<li class="">k, how much to trust T2's range;</li>
+<li class="">M, how often to feed it in.</li>
+</ul>
+<p>The gate would require both of these:</p>
+<ul>
+<li class=""><strong>beat T2 alone</strong> on median range error;</li>
+<li class=""><strong>still pass G5</strong> against the reference IMM.</li>
+</ul>
+<p>The grid had 24 settings. The rule for choosing between them was written and committed before any
+of them was scored. A setting went to the gate only if its estimated margin on every check was
+positive.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-no-setting-qualifies">Result: no setting qualifies<a href="https://debrief.github.io/Gitma/blog/2026/11/10/phase-8#result-no-setting-qualifies" class="hash-link" aria-label="Direct link to Result: no setting qualifies" title="Direct link to Result: no setting qualifies" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Setting</th><th>Fused / IMM range</th><th>Fused / T2 range</th></tr></thead><tbody><tr><td>Frozen (k 4, every 6 samples)</td><td>0.777</td><td>1.064</td></tr><tr><td><strong>Best re-tune (k 3, every sample)</strong></td><td>0.740</td><td><strong>1.014</strong></td></tr><tr><td>Heaviest weight on T2 (k 0.5, every sample)</td><td>0.749</td><td>1.027</td></tr></tbody></table>
+<ul>
+<li class=""><strong>Re-tuning helps against the IMM.</strong> Feeding T2's range at every sample cuts the fused
+tracker's range error further (0.74 × the IMM's), and cuts its shortfall against T2 from 6.4%
+to 1.4%.</li>
+<li class=""><strong>It never beats T2.</strong> The best setting is still 1.4% worse on range. Trusting T2 more does not
+help either: course and velocity then fall apart (course up to 1.27 × the IMM's on settled
+rows), and range still trails T2.</li>
+<li class=""><strong>So phase 8 stops at validation.</strong> No fresh test data were generated, and phase 7's verdict
+stands.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="why-plausibly">Why, plausibly<a href="https://debrief.github.io/Gitma/blog/2026/11/10/phase-8#why-plausibly" class="hash-link" aria-label="Direct link to Why, plausibly" title="Direct link to Why, plausibly" translate="no">​</a></h2>
+<p>Under the drifting bias, the IMM's range ends up about 7% short. Every bearing update pulls the
+shared track state back towards that biased range, so a single filter state cannot hold T2's less
+biased range, however the two are weighted. This explanation was not tested here.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-it-means">What it means<a href="https://debrief.github.io/Gitma/blog/2026/11/10/phase-8#what-it-means" class="hash-link" aria-label="Direct link to What it means" title="Direct link to What it means" translate="no">​</a></h2>
+<p>Within this design, fusing T2's range into a filter that assumes white noise costs some range
+accuracy under correlated error. The filter's state stays coherent, and it still beats the IMM
+clearly.</p>
+<p>Two further changes might close the gap:</p>
+<ul>
+<li class="">a filter that models the bias;</li>
+<li class="">reporting T2's range directly, as the phase-4b hybrid did.</li>
+</ul>
+<p>Either would be a new decision for the owner.</p>
+<p>Record: <code>experiments/20261110-p8-research/</code> (grid, selection, validation note); spec 020; SRD
+Annex C §C.15.</p>]]></content:encoded>
+        </item>
         <item>
             <title><![CDATA[Phase 7: realistic bearing error — the frozen fused tracker still beats the frozen IMM, but T2 alone is more robust]]></title>
             <link>https://debrief.github.io/Gitma/blog/2026/11/08/phase-7</link>
