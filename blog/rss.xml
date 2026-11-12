@@ -4,10 +4,76 @@
         <title>TMA via ML Blog</title>
         <link>https://debrief.github.io/Gitma/blog</link>
         <description>TMA via ML Blog</description>
-        <lastBuildDate>Tue, 10 Nov 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 12 Nov 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Phase 9: a bias-aware IMM cannot see the bias]]></title>
+            <link>https://debrief.github.io/Gitma/blog/2026/11/12/phase-9</link>
+            <guid>https://debrief.github.io/Gitma/blog/2026/11/12/phase-9</guid>
+            <pubDate>Thu, 12 Nov 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Under realistic bearing error (correlated noise plus a drifting bias), the learned range estimate]]></description>
+            <content:encoded><![CDATA[<p>Under realistic bearing error (correlated noise plus a drifting bias), the learned range estimate
+T2 beat the classical IMM, and no fusion setting could close the gap (phase 8). The natural
+classical answer is to model the error: give the IMM a sixth state for the bearing bias and let
+it estimate the bias.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-test">The test<a href="https://debrief.github.io/Gitma/blog/2026/11/12/phase-9#the-test" class="hash-link" aria-label="Direct link to The test" title="Direct link to The test" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The filter:</strong> the reference IMM, plus a drifting bias added to every predicted bearing.</li>
+<li class=""><strong>Tuning:</strong> the bias's size and time constant and the measurement noise scale, 18 settings in
+all, on validation data with realistic error.</li>
+<li class=""><strong>The rule, fixed before any setting was scored:</strong> to go to a gate, a setting must beat T2 on
+range and still pass G5 against the plain IMM.</li>
+<li class=""><strong>The forecast</strong>, recorded beforehand: this would probably fail. A quick check had shown that a
+1° offset barely changes how well a straight-line track fits the bearings.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-it-stops-at-validation">Result: it stops at validation<a href="https://debrief.github.io/Gitma/blog/2026/11/12/phase-9#result-it-stops-at-validation" class="hash-link" aria-label="Direct link to Result: it stops at validation" title="Direct link to Result: it stops at validation" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Bias-state IMM</th><th>vs plain IMM, range</th><th>vs T2, range</th></tr></thead><tbody><tr><td>Best setting (0.25°, 10 min, r 8)</td><td>0.998</td><td>1.37</td></tr><tr><td>Larger bias (1°)</td><td>1.05–1.12</td><td>1.44–1.53</td></tr></tbody></table>
+<ul>
+<li class=""><strong>At best it matches the plain IMM.</strong> It never improves on it.</li>
+<li class=""><strong>It stays about 1.4 × T2's range error.</strong></li>
+<li class=""><strong>Allowing a larger bias makes it worse.</strong> The extra freedom is not pinned down by the bearings.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="why">Why<a href="https://debrief.github.io/Gitma/blog/2026/11/12/phase-9#why" class="hash-link" aria-label="Direct link to Why" title="Direct link to Why" translate="no">​</a></h2>
+<p>From bearings alone, a slowly drifting bias looks almost exactly like a slightly rotated target
+track. One or two ownship zigs do not separate the two, so the filter cannot learn the bias. T2
+does better on range, plausibly because it learns range from the whole bearing history. That
+explanation was not tested.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="where-this-leaves-things">Where this leaves things<a href="https://debrief.github.io/Gitma/blog/2026/11/12/phase-9#where-this-leaves-things" class="hash-link" aria-label="Direct link to Where this leaves things" title="Direct link to Where this leaves things" translate="no">​</a></h2>
+<p>Phases 7–9 tell one story. Under this error model:</p>
+<ul>
+<li class="">the learned range is the most robust estimate;</li>
+<li class="">fusing it into a filter that assumes white noise loses some of that advantage;</li>
+<li class="">modelling the bias inside the filter does not help, because the bias cannot be observed.</li>
+</ul>
+<p>Two options remain for the owner:</p>
+<ul>
+<li class="">report T2's range directly, as a hybrid;</li>
+<li class="">close out the project.</li>
+</ul>
+<p>Record: <code>experiments/20261112-p9-research/</code>; spec 021; SRD Annex C §C.16.</p>]]></content:encoded>
+        </item>
         <item>
             <title><![CDATA[Phase 8: re-tuning the fusion cannot make it beat T2 on range under realistic error]]></title>
             <link>https://debrief.github.io/Gitma/blog/2026/11/10/phase-8</link>
@@ -3387,34 +3453,6 @@ on the held-out 20–30 km set; G2 is to include a range-extrapolation check.</l
 <li class="">Engineering: training budgets in epochs rather than wall-clock time; the runner CPU recorded in
 re-scored manifests; a cross-process bidirectional resume test; a git commit in model manifests.</li>
 </ul>]]></content:encoded>
-        </item>
-        <item>
-            <title><![CDATA[Iteration 0: G0 passes — the pipeline is verified]]></title>
-            <link>https://debrief.github.io/Gitma/blog/2026/10/11/g0-pipeline-verified</link>
-            <guid>https://debrief.github.io/Gitma/blog/2026/10/11/g0-pipeline-verified</guid>
-            <pubDate>Sun, 11 Oct 2026 00:00:00 GMT</pubDate>
-            <description><![CDATA[The first gate asks a narrow question: can we trust the data before training anything on it?]]></description>
-            <content:encoded><![CDATA[<p>The first gate asks a narrow question: can we trust the data before training anything on it?</p>
-<p><strong>Verdict: G0 pass</strong> (machine verdict; team review pending). Experiment:
-<code>experiments/20261011-g0/</code>.</p>
-<ul>
-<li class="">100,000 noise-free scenarios generated (seed 42); the 10,000-scenario test split was scored.</li>
-<li class="">The least-squares solver recovered truth on <strong>10,000 / 10,000</strong> scenarios. Worst cases: 2.9×10⁻⁴
-relative range, 0.016° course, 0.002 kt speed (tolerances 10⁻³, 0.1°, 0.01 kt). Median range
-error 1.9×10⁻⁷.</li>
-<li class="">The naive baseline reproduced exactly across two independent fits.</li>
-</ul>
-<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="yardsticks-for-iteration-1">Yardsticks for iteration 1<a href="https://debrief.github.io/Gitma/blog/2026/10/11/g0-pipeline-verified#yardsticks-for-iteration-1" class="hash-link" aria-label="Direct link to Yardsticks for iteration 1" title="Direct link to Yardsticks for iteration 1" translate="no">​</a></h2>
-<p>On the same noise-free test set, the naive baseline's median range error is 40% (P90 139%), its
-median course error 90° and its gross-error rate 37%. Any model must beat these to pass G1.</p>
-<p>On noisy data (σ 0.5–2°, up to 10% dropouts) the classical solver's median range error is about 5%,
-with P90 ≈ 43% and gross-error rate ≈ 9%. None of those gross errors were optimiser failures:
-starting from the true state never found a lower cost. The tail comes from the information in the
-bearings, not from a weak solver.</p>
-<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="caveat">Caveat<a href="https://debrief.github.io/Gitma/blog/2026/10/11/g0-pipeline-verified#caveat" class="hash-link" aria-label="Direct link to Caveat" title="Direct link to Caveat" translate="no">​</a></h2>
-<p>Passing G0 shows that generator and solver agree. On its own it would not catch an error shared by
-both; hand-computed geometry tests cover that separately.</p>
-<p>Generation plus the G0 run took about 70 seconds on a laptop-class machine.</p>]]></content:encoded>
         </item>
     </channel>
 </rss>
