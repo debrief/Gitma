@@ -633,3 +633,13 @@ it before the decision record is committed.
   median range error only from 19.2% to 18.9%. Phase 9 is therefore expected to stop at
   validation, and the owner chose to run it and record the result.
 - **If G8 fails,** the owner decides. C.14's and C.15's results stand either way.
+- **Outcome (2026-11-12): phase 9 stopped at validation, as forecast**
+  (`experiments/20261112-p9-research/`).
+  - **The best score is −0.368** (0.25°, 600 s, r 8); the tie rule selects 0.25°, 1,200 s, r 8.
+    The binding check is always candidate/T2 range.
+  - **At best the candidate equals the frozen IMM** (range 0.998, course 0.996) and stays
+    1.37–1.53 × T2's range error. A larger bias sd or a smaller r is worse.
+  - **The bias is nearly unobservable:** the geometry rotates to absorb it.
+  - **Seeds.** Seed 222 was never generated; 222–223 stay reserved.
+  - **Next.** The owner decides. C.14's and C.15's results stand.
+
