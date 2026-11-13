@@ -7,10 +7,10 @@
     "ranges": "configs/phase7-ranges.json",
     "heldout_ranges": "configs/phase7-heldout-ranges.json",
     "digests": {
-      "train.f32pack": "PLACEHOLDER",
-      "validation.f32pack": "PLACEHOLDER",
-      "test.f32pack": "PLACEHOLDER",
-      "heldout.f32pack": "PLACEHOLDER"
+      "train.f32pack": "698bc34faa61236af38fb654f16fcd6f06c75fa4b13a52d870b405237315e4e7",
+      "validation.f32pack": "2fcb700318f64c68a82ad67bea6d023884f0d0089b96fec90f9f81e4ab06f310",
+      "test.f32pack": "49091e577c4b804e0c93a10a7077c35c24e4c3b93a43ad8a1824bf7f5cac03c5",
+      "heldout.f32pack": "ea95730e373373a70e3ecba368b541673fb627faf19135a3ca2b7984c3d6ebf0"
     }
   },
   "feature_set": "derived",
