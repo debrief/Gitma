@@ -1,0 +1,16 @@
+{
+  "carried_models": [
+    "lstm-gaussian-re"
+  ],
+  "carried_set_rule": "One model is trained: lstm-gaussian-re, T2's configuration unchanged apart from its id, from scratch on plan configs/phase11/a (seed 226, phase-7 ranges). After training it is validated on seed 217 (tma-g5 --beat against the frozen T2, reference the -g1 IMM); it is carried to G8 if every one of the six point estimates is within its limit. The gate itself is set by a later decision (40) that freezes both T2s by model_digests before the fresh test seed 227 is generated.",
+  "change": "Phase 11 (SRD Annex C §C.18, owner decisions 2026-11-13): retrain T2's architecture and configuration from scratch on realistic-bearing-error data (generator 0.6.0, configs/phase7-ranges.json), to test whether training on the error helps; G8 with the frozen T2 as the estimator to beat.",
+  "decided_at": "2026-11-13T07:44:54Z",
+  "git_commit": "febedf0cb3e28a573cb6dab276149f17d6cf579b",
+  "phase_a_experiment": "20261112-p10-g8",
+  "plans": [
+    "configs/phase11/a/plan.json"
+  ],
+  "rationale": "Under realistic bearing error the frozen T2 (trained on white noise) has the most robust range of every estimator (phases 7-10: 1.47 x its clean error against the IMM's 1.82 x), and neither fusion re-tuning nor a bias-state IMM closed the gap to it. Training on the error is the remaining learning step. No forecast of the outcome is made: T2's range advantage is partly robustness the network may keep or lose when trained on the error.",
+  "reference_estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1",
+  "stalled": false
+}
