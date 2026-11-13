@@ -643,3 +643,66 @@ it before the decision record is committed.
   - **Seeds.** Seed 222 was never generated; 222–223 stay reserved.
   - **Next.** The owner decides. C.14's and C.15's results stand.
 
+
+## C.17 Phase 10: T2's range with the fused tracker's velocity, gate G8 (owner decisions 2026-11-12)
+
+Phases 7–9 found the same thing each time: under realistic bearing error T2's learned range is the
+most robust estimate, and neither re-tuning the fusion nor modelling the bias closes the gap. On
+2026-11-12 the owner chose:
+- **the hybrid:** report T2's range, with the frozen fused tracker's course and speed;
+- **the gate, G8 with the frozen fused tracker as the one to beat:** pass G5 against the frozen
+  `-g1` IMM, and have a median range error wholly below the fused tracker's.
+
+The rest of this section was written by the implementing agent. It stands unless the owner amends
+it before the decision record is committed.
+
+- **The estimator:**
+  `hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180`.
+  - It is spec 013's tracker hybrid, with the frozen phase-7 fused tracker as its tracker and T2 as
+    its network.
+  - θ = 180°, so the velocity is always the fused tracker's while that tracker is converged. Where
+    it is not, the row is T2's.
+  - The range, and the position, is always T2's.
+  - Nothing is trained or tuned. `tma-hybrid-track --course-deg` now accepts 180 (spec 022).
+- **Validation first.** `tma-g5 --beat <fused>` runs as a diagnostic on seed 217's validation split
+  with the phase-7 ranges. **Carry rule:** every one of the six point estimates is within its
+  limit. Otherwise phase 10 stops at validation.
+- **The gate, G8.** It uses the 40,000-scenario test split of fresh seed 224 (400,000 scenarios,
+  phase-7 ranges, plan `configs/phase4/z`).
+  - The checks are G5's five against the `-g1` IMM, plus g8-range-vs-network against the fused
+    tracker, at 97.5% each.
+  - The bindings are spec 015's. The beaten fused file is also recomputed byte for byte, and T2 is
+    bound by `model_digests`.
+  - **The re-score**, if inconclusive: seed 225, 1,100,000 scenarios, a 110,000-scenario test
+    split. Seeds 224–225 are reserved from the decision record on.
+  - **False passes:** at most about 2.5% per look, at most about 5% with the re-score.
+- **Reported, not gated:** the hybrid against T2, the EKF, batch least squares and naive
+  (`spec019-baselines.mjs`, `spec014-lsq.mjs`); settled rows before any manoeuvre and after one.
+- **What a pass would show:** T2's range and a filter's velocity together beat both the IMM and
+  the fused tracker under this error. It would not give one coherent track state, because range and
+  velocity come from different estimators, as in phase 4b.
+- **If G8 fails,** the owner decides. Earlier results stand.
+- **Outcome (2026-11-12): G8 passes on seed 224** (decision 38; agent panel rounds 1–2,
+  `experiments/20261112-p10-g8/`).
+  - **Against the IMM:** range 0.689 [0.675, 0.702] and course 0.895; settled range 0.724, course
+    0.887, speed 0.898.
+  - **Against the fused tracker:** range 0.908 [0.893, 0.921].
+  - **Mostly a replay.** The range is T2's row for row, so the beat check repeats phase 7's T2/fused
+    result. The velocity is the fused tracker's. Only the pairing is new.
+  - **Composition and coverage.** The velocity is T2's on the 618 of 67,292 G5 rows (0.9%) where the
+    fused tracker has no estimate. T2 converged on every row. The G5 rows come from the 20,161
+    σ = 1° scenarios.
+  - **The estimator to beat changed.** It was T2 in phases 8–9 and is the fused tracker here (the
+    owner's choice before validation). T2 is still not beaten on range.
+  - **The scoring convention helps.** Counting a missing estimate as infinitely wrong moves each
+    ratio about 1 pp in the hybrid's favour. On rows where every estimator converged the ratios are
+    0.700 and 0.918.
+  - **Not shown:**
+    - a range gain over T2;
+    - overall course, where T2 is better (1.02 ×);
+    - settled course and speed against the EKF (1.25 × and 1.09 ×);
+    - one coherent state: the 60 s kinematic gap has median 18 kt, and the bearing rate is the
+      worst of the four estimators;
+    - uncertainty.
+  - **Next.** The owner decides. Seeds 224–225 are reserved.
+

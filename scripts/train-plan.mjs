@@ -51,6 +51,12 @@ export const RESERVED_SEEDS = {
   217: "phase 7 validation research (spec 019)",
   218: "the phase-7 G5 test (fresh test only; spec 019)",
   219: "the phase-7 G5 re-score (fresh test only; spec 019)",
+  220: "phase 8 (spec 020; never generated)",
+  221: "phase 8 (spec 020; never generated)",
+  222: "phase 9 (spec 021; never generated)",
+  223: "phase 9 (spec 021; never generated)",
+  224: "the phase-10 G8 test (fresh test only; spec 022)",
+  225: "the phase-10 G8 re-score (fresh test only; spec 022)",
 };
 /** Dataset seeds owned by one iteration's plans: its test split decided that iteration's gate. */
 export const ITERATION_DATASET_SEEDS = { 201: "2", 204: "3", 205: "4" };
@@ -98,6 +104,16 @@ export const RESERVED_TEST_SEEDS = {
     plan: "configs/phase4/w/plan.json",
   },
   219: { for: "phase 7 G5 re-score, if needed (spec 019, fresh test, 1,100,000)" },
+  // Phase 8 (220-221) and phase 9 (222-223) stopped at validation; their seeds stay unused.
+  220: { for: "phase 8 G8 (spec 020; never generated)" },
+  221: { for: "phase 8 G8 re-score (spec 020; never generated)" },
+  222: { for: "phase 9 G8 (spec 021; never generated)" },
+  223: { for: "phase 9 G8 re-score (spec 021; never generated)" },
+  224: {
+    for: "phase 10 hybrid G8 (spec 022, fresh test)",
+    plan: "configs/phase4/z/plan.json",
+  },
+  225: { for: "phase 10 G8 re-score, if needed (spec 022, fresh test, 1,100,000)" },
 };
 
 class PlanError extends Error {}

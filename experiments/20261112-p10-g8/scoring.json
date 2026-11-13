@@ -1,0 +1,24 @@
+{
+  "decision": "experiments/20261112-p10-decision/decision.json",
+  "decision_sha256": "f64eb150ade4efb36eac52866598f831d00d739950243f63b09b63b13a33a431",
+  "gate": "G8",
+  "recomputed": [
+    {
+      "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180",
+      "sample_sha256": "01e662453e20a99da00e37f07e02116ba99eff5daff50bd2e5ab437117de6b8b",
+      "scenarios": 200
+    },
+    {
+      "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1",
+      "sample_sha256": "01e662453e20a99da00e37f07e02116ba99eff5daff50bd2e5ab437117de6b8b",
+      "scenarios": 200
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6",
+      "sample_sha256": "01e662453e20a99da00e37f07e02116ba99eff5daff50bd2e5ab437117de6b8b",
+      "scenarios": 200
+    }
+  ],
+  "test_seed": "224",
+  "truth_sha256": "f9e62f81c433dac804dc57f07932a5280a066b4d071c4c505b104efca96f8fbd"
+}

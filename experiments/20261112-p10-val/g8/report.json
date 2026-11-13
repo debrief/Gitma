@@ -1,0 +1,2837 @@
+[
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.12164923663274184,
+    "metric": "range_rel",
+    "n": 16711,
+    "non_converged": 0,
+    "p90": 0.34913883815499575,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 26.004712629121773,
+    "metric": "course_deg",
+    "n": 16711,
+    "non_converged": 0,
+    "p90": 102.02816370835654,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 2.610583954186985,
+    "metric": "speed_kt",
+    "n": 16711,
+    "non_converged": 0,
+    "p90": 8.47017183159649,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.11860731482044881,
+    "metric": "range_rel",
+    "n": 7509,
+    "non_converged": 0,
+    "p90": 0.33657481336867207,
+    "rows": "settled"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 12.421108817018387,
+    "metric": "course_deg",
+    "n": 7509,
+    "non_converged": 0,
+    "p90": 65.57549874951187,
+    "rows": "settled"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 2.1303176879882812,
+    "metric": "speed_kt",
+    "n": 7509,
+    "non_converged": 0,
+    "p90": 7.636075735607106,
+    "rows": "settled"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.12351949580457085,
+    "metric": "range_rel",
+    "n": 9202,
+    "non_converged": 0,
+    "p90": 0.3595715308627553,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 43.81074578942939,
+    "metric": "course_deg",
+    "n": 9202,
+    "non_converged": 0,
+    "p90": 117.53175055818004,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 3.0466483427175435,
+    "metric": "speed_kt",
+    "n": 9202,
+    "non_converged": 0,
+    "p90": 9.052891762158783,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.10375045139543558,
+    "metric": "range_rel",
+    "n": 4205,
+    "non_converged": 0,
+    "p90": 0.2903177338224012,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 8.930506490737521,
+    "metric": "course_deg",
+    "n": 4205,
+    "non_converged": 0,
+    "p90": 36.255477397506425,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 1.5557099624534918,
+    "metric": "speed_kt",
+    "n": 4205,
+    "non_converged": 0,
+    "p90": 6.5405811655856105,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.14230154401833203,
+    "metric": "range_rel",
+    "n": 3304,
+    "non_converged": 0,
+    "p90": 0.38614032696218403,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 22.078053737310956,
+    "metric": "course_deg",
+    "n": 3304,
+    "non_converged": 0,
+    "p90": 94.60206785401688,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 3.0945698591854347,
+    "metric": "speed_kt",
+    "n": 3304,
+    "non_converged": 0,
+    "p90": 8.697604618113704,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.10380093446280317,
+    "metric": "range_rel",
+    "n": 4995,
+    "non_converged": 0,
+    "p90": 0.2976138220300314,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 21.723785485440736,
+    "metric": "course_deg",
+    "n": 4995,
+    "non_converged": 0,
+    "p90": 91.26442078400926,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 2.153602274653721,
+    "metric": "speed_kt",
+    "n": 4995,
+    "non_converged": 0,
+    "p90": 7.74810957857136,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.11854520870479088,
+    "metric": "range_rel",
+    "n": 4859,
+    "non_converged": 0,
+    "p90": 0.3306816492767583,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 26.99145959978635,
+    "metric": "course_deg",
+    "n": 4859,
+    "non_converged": 0,
+    "p90": 99.9853770710108,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 2.6146850112189997,
+    "metric": "speed_kt",
+    "n": 4859,
+    "non_converged": 0,
+    "p90": 8.645668709509831,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.1356257161174332,
+    "metric": "range_rel",
+    "n": 4104,
+    "non_converged": 0,
+    "p90": 0.378664954534997,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 28.675804739679002,
+    "metric": "course_deg",
+    "n": 4104,
+    "non_converged": 0,
+    "p90": 111.7412359355248,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 2.907678169514139,
+    "metric": "speed_kt",
+    "n": 4104,
+    "non_converged": 0,
+    "p90": 8.75737373566267,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.1475329085154929,
+    "metric": "range_rel",
+    "n": 2753,
+    "non_converged": 0,
+    "p90": 0.4142154302974639,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 27.553345111857446,
+    "metric": "course_deg",
+    "n": 2753,
+    "non_converged": 0,
+    "p90": 114.96519086433184,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 3.045973561494963,
+    "metric": "speed_kt",
+    "n": 2753,
+    "non_converged": 0,
+    "p90": 8.750959606459022,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.09890876963542566,
+    "metric": "range_rel",
+    "n": 2182,
+    "non_converged": 0,
+    "p90": 0.2781853861953716,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 9.131651292926167,
+    "metric": "course_deg",
+    "n": 2182,
+    "non_converged": 0,
+    "p90": 41.568340043400845,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 1.6206177985436456,
+    "metric": "speed_kt",
+    "n": 2182,
+    "non_converged": 0,
+    "p90": 6.456487482618821,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.11363789194593163,
+    "metric": "range_rel",
+    "n": 1897,
+    "non_converged": 0,
+    "p90": 0.3130794003453705,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 10.94952919241351,
+    "metric": "course_deg",
+    "n": 1897,
+    "non_converged": 0,
+    "p90": 57.54655673864851,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 1.964395659016224,
+    "metric": "speed_kt",
+    "n": 1897,
+    "non_converged": 0,
+    "p90": 7.825324756795335,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.13102606871084405,
+    "metric": "range_rel",
+    "n": 1780,
+    "non_converged": 0,
+    "p90": 0.3522257565507408,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 15.231103283074994,
+    "metric": "course_deg",
+    "n": 1780,
+    "non_converged": 0,
+    "p90": 72.34096504694956,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 2.5387531222843966,
+    "metric": "speed_kt",
+    "n": 1780,
+    "non_converged": 0,
+    "p90": 7.8605380480541776,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.14953460063260968,
+    "metric": "range_rel",
+    "n": 1650,
+    "non_converged": 0,
+    "p90": 0.40150541970990594,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 19.61463160747726,
+    "metric": "course_deg",
+    "n": 1650,
+    "non_converged": 0,
+    "p90": 96.30107741005754,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 2.8351248211788564,
+    "metric": "speed_kt",
+    "n": 1650,
+    "non_converged": 0,
+    "p90": 8.290965510753525,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.11999249545031986,
+    "metric": "range_rel",
+    "n": 915,
+    "non_converged": 0,
+    "p90": 0.3248672319164762,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 9.81347919569092,
+    "metric": "course_deg",
+    "n": 915,
+    "non_converged": 0,
+    "p90": 34.9309329627117,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 2.692679246609978,
+    "metric": "speed_kt",
+    "n": 915,
+    "non_converged": 0,
+    "p90": 7.416726188577276,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.11481081090334407,
+    "metric": "range_rel",
+    "n": 3140,
+    "non_converged": 0,
+    "p90": 0.3252941427687138,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 22.743887898360484,
+    "metric": "course_deg",
+    "n": 3140,
+    "non_converged": 0,
+    "p90": 87.07506301225051,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 2.1964314174446122,
+    "metric": "speed_kt",
+    "n": 3140,
+    "non_converged": 0,
+    "p90": 7.9899137336800985,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.11822623733904156,
+    "metric": "range_rel",
+    "n": 1553,
+    "non_converged": 0,
+    "p90": 0.3486169381347628,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 23.356596848045644,
+    "metric": "course_deg",
+    "n": 1553,
+    "non_converged": 0,
+    "p90": 88.00929287183027,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 3.174585194103661,
+    "metric": "speed_kt",
+    "n": 1553,
+    "non_converged": 0,
+    "p90": 8.468382919838824,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.12877891658928314,
+    "metric": "range_rel",
+    "n": 3400,
+    "non_converged": 0,
+    "p90": 0.35693547096850475,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 38.380400702087265,
+    "metric": "course_deg",
+    "n": 3400,
+    "non_converged": 0,
+    "p90": 118.0403913305763,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 2.638487270017422,
+    "metric": "speed_kt",
+    "n": 3400,
+    "non_converged": 0,
+    "p90": 8.797523218406198,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.13114835787142912,
+    "metric": "range_rel",
+    "n": 1688,
+    "non_converged": 0,
+    "p90": 0.40171597063193026,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 35.98302115151461,
+    "metric": "course_deg",
+    "n": 1688,
+    "non_converged": 0,
+    "p90": 112.79370319982665,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 3.4641358558868998,
+    "metric": "speed_kt",
+    "n": 1688,
+    "non_converged": 0,
+    "p90": 9.376446577694194,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.12215297452371257,
+    "metric": "range_rel",
+    "n": 2585,
+    "non_converged": 0,
+    "p90": 0.37787344804917894,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 45.76053257103625,
+    "metric": "course_deg",
+    "n": 2585,
+    "non_converged": 0,
+    "p90": 123.35891961838725,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 2.880310136865076,
+    "metric": "speed_kt",
+    "n": 2585,
+    "non_converged": 0,
+    "p90": 8.997985611209087,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.13309018013247673,
+    "metric": "range_rel",
+    "n": 1226,
+    "non_converged": 0,
+    "p90": 0.38264115697260787,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 40.427493546333615,
+    "metric": "course_deg",
+    "n": 1226,
+    "non_converged": 0,
+    "p90": 122.00628944572543,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 3.341404459646402,
+    "metric": "speed_kt",
+    "n": 1226,
+    "non_converged": 0,
+    "p90": 9.376517485336402,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 0.10818016686032933,
+    "metric": "range_rel",
+    "n": 2204,
+    "non_converged": 0,
+    "p90": 0.30222435303303996,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 9.142631675790607,
+    "metric": "course_deg",
+    "n": 2204,
+    "non_converged": 0,
+    "p90": 35.84337110374453,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "hybrid-lstm-gaussian-fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6-c180:per_timestep",
+    "median": 1.5817228712736915,
+    "metric": "speed_kt",
+    "n": 2204,
+    "non_converged": 0,
+    "p90": 6.623984773524636,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.16672242282125183,
+    "metric": "range_rel",
+    "n": 16711,
+    "non_converged": 151,
+    "p90": 0.5517564759678187,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 28.717844554020438,
+    "metric": "course_deg",
+    "n": 16711,
+    "non_converged": 151,
+    "p90": 110.68105738765001,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 2.823826175014092,
+    "metric": "speed_kt",
+    "n": 16711,
+    "non_converged": 151,
+    "p90": 9.809708955735934,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.15065121030147974,
+    "metric": "range_rel",
+    "n": 7509,
+    "non_converged": 50,
+    "p90": 0.5244429990337915,
+    "rows": "settled"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 14.366594180273728,
+    "metric": "course_deg",
+    "n": 7509,
+    "non_converged": 50,
+    "p90": 78.41905328651934,
+    "rows": "settled"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 2.4027935114586585,
+    "metric": "speed_kt",
+    "n": 7509,
+    "non_converged": 50,
+    "p90": 8.852197181586313,
+    "rows": "settled"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.18089343160591723,
+    "metric": "range_rel",
+    "n": 9202,
+    "non_converged": 101,
+    "p90": 0.5728175759230496,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 46.26057072017288,
+    "metric": "course_deg",
+    "n": 9202,
+    "non_converged": 101,
+    "p90": 124.20578817075904,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 3.2251752478515097,
+    "metric": "speed_kt",
+    "n": 9202,
+    "non_converged": 101,
+    "p90": 10.520771718694633,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.11460649561656965,
+    "metric": "range_rel",
+    "n": 4205,
+    "non_converged": 20,
+    "p90": 0.422040987968062,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 9.757936097360377,
+    "metric": "course_deg",
+    "n": 4205,
+    "non_converged": 20,
+    "p90": 46.320485139572234,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 1.7792386576114925,
+    "metric": "speed_kt",
+    "n": 4205,
+    "non_converged": 20,
+    "p90": 7.631041524734662,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.20745718558528864,
+    "metric": "range_rel",
+    "n": 3304,
+    "non_converged": 30,
+    "p90": 0.612054488675644,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 25.774757021796958,
+    "metric": "course_deg",
+    "n": 3304,
+    "non_converged": 30,
+    "p90": 106.33134767770599,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 3.31625773633788,
+    "metric": "speed_kt",
+    "n": 3304,
+    "non_converged": 30,
+    "p90": 10.076875048116268,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.1301402937739797,
+    "metric": "range_rel",
+    "n": 4995,
+    "non_converged": 59,
+    "p90": 0.46471096361799324,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 23.638448019240805,
+    "metric": "course_deg",
+    "n": 4995,
+    "non_converged": 59,
+    "p90": 99.08578332808327,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 2.3705796598100766,
+    "metric": "speed_kt",
+    "n": 4995,
+    "non_converged": 59,
+    "p90": 9.649186103441803,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.15536329369302962,
+    "metric": "range_rel",
+    "n": 4859,
+    "non_converged": 43,
+    "p90": 0.5058814750797936,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 28.966504420943917,
+    "metric": "course_deg",
+    "n": 4859,
+    "non_converged": 43,
+    "p90": 104.10648098976472,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 2.8006312656608565,
+    "metric": "speed_kt",
+    "n": 4859,
+    "non_converged": 43,
+    "p90": 9.558399758637595,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.19675728079709284,
+    "metric": "range_rel",
+    "n": 4104,
+    "non_converged": 28,
+    "p90": 0.5949228290638331,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 32.13690064874542,
+    "metric": "course_deg",
+    "n": 4104,
+    "non_converged": 28,
+    "p90": 119.18062567193917,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 3.0728202144219083,
+    "metric": "speed_kt",
+    "n": 4104,
+    "non_converged": 28,
+    "p90": 9.899252910593415,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.23382123370911687,
+    "metric": "range_rel",
+    "n": 2753,
+    "non_converged": 21,
+    "p90": 0.6743412568593061,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 32.01061045099188,
+    "metric": "course_deg",
+    "n": 2753,
+    "non_converged": 21,
+    "p90": 125.73722928079721,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 3.3738043859246996,
+    "metric": "speed_kt",
+    "n": 2753,
+    "non_converged": 21,
+    "p90": 10.105476317601378,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.11284437283000022,
+    "metric": "range_rel",
+    "n": 2182,
+    "non_converged": 19,
+    "p90": 0.4177363281395349,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 10.09221921571914,
+    "metric": "course_deg",
+    "n": 2182,
+    "non_converged": 19,
+    "p90": 53.4707779552268,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 1.8057608964891205,
+    "metric": "speed_kt",
+    "n": 2182,
+    "non_converged": 19,
+    "p90": 8.029310749622452,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.13727232467038517,
+    "metric": "range_rel",
+    "n": 1897,
+    "non_converged": 13,
+    "p90": 0.4652890649648772,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 12.665544211940219,
+    "metric": "course_deg",
+    "n": 1897,
+    "non_converged": 13,
+    "p90": 64.43507572417317,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 2.195676923055628,
+    "metric": "speed_kt",
+    "n": 1897,
+    "non_converged": 13,
+    "p90": 8.865334328513423,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.1690049327564268,
+    "metric": "range_rel",
+    "n": 1780,
+    "non_converged": 5,
+    "p90": 0.5470508265904668,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 17.870049549118068,
+    "metric": "course_deg",
+    "n": 1780,
+    "non_converged": 5,
+    "p90": 82.29856806431692,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 2.6785593568377566,
+    "metric": "speed_kt",
+    "n": 1780,
+    "non_converged": 5,
+    "p90": 9.026568806197163,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.2188743400065922,
+    "metric": "range_rel",
+    "n": 1650,
+    "non_converged": 13,
+    "p90": 0.648657890696944,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 23.403943719372172,
+    "metric": "course_deg",
+    "n": 1650,
+    "non_converged": 13,
+    "p90": 110.75644878833751,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 3.1627352757793776,
+    "metric": "speed_kt",
+    "n": 1650,
+    "non_converged": 13,
+    "p90": 9.50204857482251,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.12295542343739768,
+    "metric": "range_rel",
+    "n": 915,
+    "non_converged": 1,
+    "p90": 0.37138404587508866,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 10.475659205534486,
+    "metric": "course_deg",
+    "n": 915,
+    "non_converged": 1,
+    "p90": 42.85495408985695,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 2.8080881543087393,
+    "metric": "speed_kt",
+    "n": 915,
+    "non_converged": 1,
+    "p90": 7.657660624378443,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.16003699836660795,
+    "metric": "range_rel",
+    "n": 3140,
+    "non_converged": 28,
+    "p90": 0.5283279626692584,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 27.064371869176234,
+    "metric": "course_deg",
+    "n": 3140,
+    "non_converged": 28,
+    "p90": 97.44087570045826,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 2.5181820274171764,
+    "metric": "speed_kt",
+    "n": 3140,
+    "non_converged": 28,
+    "p90": 9.821816551505103,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.16073131947102998,
+    "metric": "range_rel",
+    "n": 1553,
+    "non_converged": 10,
+    "p90": 0.5139982121761187,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 25.355028236921335,
+    "metric": "course_deg",
+    "n": 1553,
+    "non_converged": 10,
+    "p90": 96.009107313607,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 3.0717033031949725,
+    "metric": "speed_kt",
+    "n": 1553,
+    "non_converged": 10,
+    "p90": 9.708418547463468,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.17838428803624695,
+    "metric": "range_rel",
+    "n": 3400,
+    "non_converged": 35,
+    "p90": 0.5698696467187689,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 41.30716066709983,
+    "metric": "course_deg",
+    "n": 3400,
+    "non_converged": 35,
+    "p90": 125.2335879795023,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 3.0273524267884615,
+    "metric": "speed_kt",
+    "n": 3400,
+    "non_converged": 35,
+    "p90": 10.249451272688468,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.20548682786590575,
+    "metric": "range_rel",
+    "n": 1688,
+    "non_converged": 12,
+    "p90": 0.5838430602300541,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 38.01158050481923,
+    "metric": "course_deg",
+    "n": 1688,
+    "non_converged": 12,
+    "p90": 120.77266165897274,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 3.4827525878313033,
+    "metric": "speed_kt",
+    "n": 1688,
+    "non_converged": 12,
+    "p90": 10.25711254218742,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.19128796788328542,
+    "metric": "range_rel",
+    "n": 2585,
+    "non_converged": 40,
+    "p90": 0.6153261334836059,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 49.1959947801476,
+    "metric": "course_deg",
+    "n": 2585,
+    "non_converged": 40,
+    "p90": 134.14762369642742,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 3.0959203485278795,
+    "metric": "speed_kt",
+    "n": 2585,
+    "non_converged": 40,
+    "p90": 10.412993956333102,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.20814899470420514,
+    "metric": "range_rel",
+    "n": 1226,
+    "non_converged": 13,
+    "p90": 0.6402096791404129,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 45.111186486643135,
+    "metric": "course_deg",
+    "n": 1226,
+    "non_converged": 13,
+    "p90": 128.58621388173086,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 3.6150384412728425,
+    "metric": "speed_kt",
+    "n": 1226,
+    "non_converged": 13,
+    "p90": 11.50424866645434,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 0.12130333518342447,
+    "metric": "range_rel",
+    "n": 2204,
+    "non_converged": 12,
+    "p90": 0.4465712232649989,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 9.97935033968468,
+    "metric": "course_deg",
+    "n": 2204,
+    "non_converged": 12,
+    "p90": 45.368520693812535,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1:per_timestep",
+    "median": 1.8641113977452848,
+    "metric": "speed_kt",
+    "n": 2204,
+    "non_converged": 12,
+    "p90": 7.560834616873228,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.12164923663274184,
+    "metric": "range_rel",
+    "n": 16711,
+    "non_converged": 0,
+    "p90": 0.34913883815499575,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 25.07833044345495,
+    "metric": "course_deg",
+    "n": 16711,
+    "non_converged": 0,
+    "p90": 86.74736396888055,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.874890568446907,
+    "metric": "speed_kt",
+    "n": 16711,
+    "non_converged": 0,
+    "p90": 7.707251019405752,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.11860731482044881,
+    "metric": "range_rel",
+    "n": 7509,
+    "non_converged": 0,
+    "p90": 0.33657481336867207,
+    "rows": "settled"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 17.6548915327024,
+    "metric": "course_deg",
+    "n": 7509,
+    "non_converged": 0,
+    "p90": 54.3411557913507,
+    "rows": "settled"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.6400620685025373,
+    "metric": "speed_kt",
+    "n": 7509,
+    "non_converged": 0,
+    "p90": 7.292100677737406,
+    "rows": "settled"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.12351949580457085,
+    "metric": "range_rel",
+    "n": 9202,
+    "non_converged": 0,
+    "p90": 0.3595715308627553,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 35.07291210498876,
+    "metric": "course_deg",
+    "n": 9202,
+    "non_converged": 0,
+    "p90": 102.98903472079394,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 3.1029035926637585,
+    "metric": "speed_kt",
+    "n": 9202,
+    "non_converged": 0,
+    "p90": 8.02655462054918,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.10375045139543558,
+    "metric": "range_rel",
+    "n": 4205,
+    "non_converged": 0,
+    "p90": 0.2903177338224012,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 15.354593103268824,
+    "metric": "course_deg",
+    "n": 4205,
+    "non_converged": 0,
+    "p90": 44.32855609078639,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.4178583730116774,
+    "metric": "speed_kt",
+    "n": 4205,
+    "non_converged": 0,
+    "p90": 6.747117052840363,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.14230154401833203,
+    "metric": "range_rel",
+    "n": 3304,
+    "non_converged": 0,
+    "p90": 0.38614032696218403,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 21.72537691951735,
+    "metric": "course_deg",
+    "n": 3304,
+    "non_converged": 0,
+    "p90": 71.29707991533984,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.8994653961313466,
+    "metric": "speed_kt",
+    "n": 3304,
+    "non_converged": 0,
+    "p90": 7.908342775464315,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.10380093446280317,
+    "metric": "range_rel",
+    "n": 4995,
+    "non_converged": 0,
+    "p90": 0.2976138220300314,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 22.20920702975354,
+    "metric": "course_deg",
+    "n": 4995,
+    "non_converged": 0,
+    "p90": 78.54198451137742,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.635581447032821,
+    "metric": "speed_kt",
+    "n": 4995,
+    "non_converged": 0,
+    "p90": 6.770188568992697,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.11854520870479088,
+    "metric": "range_rel",
+    "n": 4859,
+    "non_converged": 0,
+    "p90": 0.3306816492767583,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 25.526930437952217,
+    "metric": "course_deg",
+    "n": 4859,
+    "non_converged": 0,
+    "p90": 86.76114751799673,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.9572018279370167,
+    "metric": "speed_kt",
+    "n": 4859,
+    "non_converged": 0,
+    "p90": 7.793585013107398,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.1356257161174332,
+    "metric": "range_rel",
+    "n": 4104,
+    "non_converged": 0,
+    "p90": 0.378664954534997,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 28.118235907163356,
+    "metric": "course_deg",
+    "n": 4104,
+    "non_converged": 0,
+    "p90": 93.28514955280157,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 3.161331489843117,
+    "metric": "speed_kt",
+    "n": 4104,
+    "non_converged": 0,
+    "p90": 8.377586842613137,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.1475329085154929,
+    "metric": "range_rel",
+    "n": 2753,
+    "non_converged": 0,
+    "p90": 0.4142154302974639,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 26.359257290209968,
+    "metric": "course_deg",
+    "n": 2753,
+    "non_converged": 0,
+    "p90": 92.16539786761481,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.928461523859341,
+    "metric": "speed_kt",
+    "n": 2753,
+    "non_converged": 0,
+    "p90": 8.182999588243389,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.09890876963542566,
+    "metric": "range_rel",
+    "n": 2182,
+    "non_converged": 0,
+    "p90": 0.2781853861953716,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 14.314184537946632,
+    "metric": "course_deg",
+    "n": 2182,
+    "non_converged": 0,
+    "p90": 42.45198893708207,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.3984069700632444,
+    "metric": "speed_kt",
+    "n": 2182,
+    "non_converged": 0,
+    "p90": 6.4396142444651785,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.11363789194593163,
+    "metric": "range_rel",
+    "n": 1897,
+    "non_converged": 0,
+    "p90": 0.3130794003453705,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 16.80917750967142,
+    "metric": "course_deg",
+    "n": 1897,
+    "non_converged": 0,
+    "p90": 50.10690295880635,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.558914992000835,
+    "metric": "speed_kt",
+    "n": 1897,
+    "non_converged": 0,
+    "p90": 7.115328852610248,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.13102606871084405,
+    "metric": "range_rel",
+    "n": 1780,
+    "non_converged": 0,
+    "p90": 0.3522257565507408,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 20.01835555158025,
+    "metric": "course_deg",
+    "n": 1780,
+    "non_converged": 0,
+    "p90": 62.94038444696426,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.8875084211707884,
+    "metric": "speed_kt",
+    "n": 1780,
+    "non_converged": 0,
+    "p90": 7.9687746245711715,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.14953460063260968,
+    "metric": "range_rel",
+    "n": 1650,
+    "non_converged": 0,
+    "p90": 0.40150541970990594,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 21.97861984337391,
+    "metric": "course_deg",
+    "n": 1650,
+    "non_converged": 0,
+    "p90": 71.50185581684599,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.8348458250964432,
+    "metric": "speed_kt",
+    "n": 1650,
+    "non_converged": 0,
+    "p90": 7.665183786182115,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.11999249545031986,
+    "metric": "range_rel",
+    "n": 915,
+    "non_converged": 0,
+    "p90": 0.3248672319164762,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 17.179344947825548,
+    "metric": "course_deg",
+    "n": 915,
+    "non_converged": 0,
+    "p90": 45.947146999539335,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 3.177194873406099,
+    "metric": "speed_kt",
+    "n": 915,
+    "non_converged": 0,
+    "p90": 7.378049545617649,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.11481081090334407,
+    "metric": "range_rel",
+    "n": 3140,
+    "non_converged": 0,
+    "p90": 0.3252941427687138,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 20.73175515000974,
+    "metric": "course_deg",
+    "n": 3140,
+    "non_converged": 0,
+    "p90": 71.90679724216854,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.6454306575700994,
+    "metric": "speed_kt",
+    "n": 3140,
+    "non_converged": 0,
+    "p90": 7.307443145026913,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.11822623733904156,
+    "metric": "range_rel",
+    "n": 1553,
+    "non_converged": 0,
+    "p90": 0.3486169381347628,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 20.76089979456929,
+    "metric": "course_deg",
+    "n": 1553,
+    "non_converged": 0,
+    "p90": 75.44269055283576,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.9689947420783485,
+    "metric": "speed_kt",
+    "n": 1553,
+    "non_converged": 0,
+    "p90": 7.681842447614566,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.12877891658928314,
+    "metric": "range_rel",
+    "n": 3400,
+    "non_converged": 0,
+    "p90": 0.35693547096850475,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 31.55427185216498,
+    "metric": "course_deg",
+    "n": 3400,
+    "non_converged": 0,
+    "p90": 101.13516792816726,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.8286791774675604,
+    "metric": "speed_kt",
+    "n": 3400,
+    "non_converged": 0,
+    "p90": 8.041448469553343,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.13114835787142912,
+    "metric": "range_rel",
+    "n": 1688,
+    "non_converged": 0,
+    "p90": 0.40171597063193026,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 30.904997057871338,
+    "metric": "course_deg",
+    "n": 1688,
+    "non_converged": 0,
+    "p90": 96.37268511331595,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 3.3713747564196326,
+    "metric": "speed_kt",
+    "n": 1688,
+    "non_converged": 0,
+    "p90": 7.915659239173707,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.12215297452371257,
+    "metric": "range_rel",
+    "n": 2585,
+    "non_converged": 0,
+    "p90": 0.37787344804917894,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 36.48397454600003,
+    "metric": "course_deg",
+    "n": 2585,
+    "non_converged": 0,
+    "p90": 104.22305865851848,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 3.008144102652696,
+    "metric": "speed_kt",
+    "n": 2585,
+    "non_converged": 0,
+    "p90": 8.22340582153452,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.13309018013247673,
+    "metric": "range_rel",
+    "n": 1226,
+    "non_converged": 0,
+    "p90": 0.38264115697260787,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 35.260113929760465,
+    "metric": "course_deg",
+    "n": 1226,
+    "non_converged": 0,
+    "p90": 109.43975907108829,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 3.2067689215905206,
+    "metric": "speed_kt",
+    "n": 1226,
+    "non_converged": 0,
+    "p90": 7.981039329429939,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 0.10818016686032933,
+    "metric": "range_rel",
+    "n": 2204,
+    "non_converged": 0,
+    "p90": 0.30222435303303996,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 16.681808142029023,
+    "metric": "course_deg",
+    "n": 2204,
+    "non_converged": 0,
+    "p90": 47.013366849735,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "lstm-gaussian:per_timestep",
+    "median": 2.504502413854743,
+    "metric": "speed_kt",
+    "n": 2204,
+    "non_converged": 0,
+    "p90": 6.932968763759274,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.16058841530416487,
+    "metric": "range_rel",
+    "n": 16711,
+    "non_converged": 92,
+    "p90": 0.5223612478155621,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 29.690859642802106,
+    "metric": "course_deg",
+    "n": 16711,
+    "non_converged": 92,
+    "p90": 106.7280478394647,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.401013868673831,
+    "metric": "speed_kt",
+    "n": 16711,
+    "non_converged": 92,
+    "p90": 8.482769292580128,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.14267010160773796,
+    "metric": "range_rel",
+    "n": 7509,
+    "non_converged": 33,
+    "p90": 0.501871474431076,
+    "rows": "settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 9.78663655225277,
+    "metric": "course_deg",
+    "n": 7509,
+    "non_converged": 33,
+    "p90": 67.58073983699005,
+    "rows": "settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.9057314030295056,
+    "metric": "speed_kt",
+    "n": 7509,
+    "non_converged": 33,
+    "p90": 7.832068861432003,
+    "rows": "settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.17712906956613592,
+    "metric": "range_rel",
+    "n": 9202,
+    "non_converged": 59,
+    "p90": 0.5332064129123171,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 51.731900585000766,
+    "metric": "course_deg",
+    "n": 9202,
+    "non_converged": 59,
+    "p90": 121.20432961451755,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.811885652480321,
+    "metric": "speed_kt",
+    "n": 9202,
+    "non_converged": 59,
+    "p90": 8.793912026588654,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.10218993928928692,
+    "metric": "range_rel",
+    "n": 4205,
+    "non_converged": 21,
+    "p90": 0.384629125065387,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 5.156280559171876,
+    "metric": "course_deg",
+    "n": 4205,
+    "non_converged": 21,
+    "p90": 28.689062136858,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.3279439563627633,
+    "metric": "speed_kt",
+    "n": 4205,
+    "non_converged": 21,
+    "p90": 6.098021080890432,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.2117258282948379,
+    "metric": "range_rel",
+    "n": 3304,
+    "non_converged": 12,
+    "p90": 0.58793118796632,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 25.778827814542286,
+    "metric": "course_deg",
+    "n": 3304,
+    "non_converged": 12,
+    "p90": 96.7342343468414,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.9648406201768385,
+    "metric": "speed_kt",
+    "n": 3304,
+    "non_converged": 12,
+    "p90": 9.538146357814384,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.12246564497713243,
+    "metric": "range_rel",
+    "n": 4995,
+    "non_converged": 55,
+    "p90": 0.4600972517064329,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 22.570879206684054,
+    "metric": "course_deg",
+    "n": 4995,
+    "non_converged": 55,
+    "p90": 96.86845803668703,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.880960073120908,
+    "metric": "speed_kt",
+    "n": 4995,
+    "non_converged": 55,
+    "p90": 7.971332861074361,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.15392302106836098,
+    "metric": "range_rel",
+    "n": 4859,
+    "non_converged": 24,
+    "p90": 0.48021381274319536,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 29.848773616412803,
+    "metric": "course_deg",
+    "n": 4859,
+    "non_converged": 24,
+    "p90": 103.43743663980528,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.346953974944211,
+    "metric": "speed_kt",
+    "n": 4859,
+    "non_converged": 24,
+    "p90": 8.280404443102315,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.19077760401215366,
+    "metric": "range_rel",
+    "n": 4104,
+    "non_converged": 9,
+    "p90": 0.5419550648505842,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 33.97609300731143,
+    "metric": "course_deg",
+    "n": 4104,
+    "non_converged": 9,
+    "p90": 116.10857841914144,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.7220693056835725,
+    "metric": "speed_kt",
+    "n": 4104,
+    "non_converged": 9,
+    "p90": 8.605333847309549,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.23114911230297674,
+    "metric": "range_rel",
+    "n": 2753,
+    "non_converged": 4,
+    "p90": 0.6300882467219272,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 31.873815422294857,
+    "metric": "course_deg",
+    "n": 2753,
+    "non_converged": 4,
+    "p90": 121.58706609484838,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 3.0028237122438894,
+    "metric": "speed_kt",
+    "n": 2753,
+    "non_converged": 4,
+    "p90": 9.420836152062302,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.10330694015038537,
+    "metric": "range_rel",
+    "n": 2182,
+    "non_converged": 20,
+    "p90": 0.3898821290975257,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 4.968539149455736,
+    "metric": "course_deg",
+    "n": 2182,
+    "non_converged": 20,
+    "p90": 30.44745335754276,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.386571599906773,
+    "metric": "speed_kt",
+    "n": 2182,
+    "non_converged": 20,
+    "p90": 6.7371473456561946,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.12851628289630154,
+    "metric": "range_rel",
+    "n": 1897,
+    "non_converged": 10,
+    "p90": 0.43963112483125205,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 8.425103228007842,
+    "metric": "course_deg",
+    "n": 1897,
+    "non_converged": 10,
+    "p90": 56.95730265857317,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.6927368955014848,
+    "metric": "speed_kt",
+    "n": 1897,
+    "non_converged": 10,
+    "p90": 7.644385138031731,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.16183377172167135,
+    "metric": "range_rel",
+    "n": 1780,
+    "non_converged": 1,
+    "p90": 0.5189747308203874,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 15.75459630182145,
+    "metric": "course_deg",
+    "n": 1780,
+    "non_converged": 1,
+    "p90": 77.36765642699879,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.2518760957161756,
+    "metric": "speed_kt",
+    "n": 1780,
+    "non_converged": 1,
+    "p90": 8.265605253483255,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.21916365315378297,
+    "metric": "range_rel",
+    "n": 1650,
+    "non_converged": 2,
+    "p90": 0.6024346512600717,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 22.125031778422304,
+    "metric": "course_deg",
+    "n": 1650,
+    "non_converged": 2,
+    "p90": 102.09358326022694,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.769130198023489,
+    "metric": "speed_kt",
+    "n": 1650,
+    "non_converged": 2,
+    "p90": 8.783561364620859,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.11053667038981924,
+    "metric": "range_rel",
+    "n": 915,
+    "non_converged": 1,
+    "p90": 0.3590021864405847,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 6.285549885595934,
+    "metric": "course_deg",
+    "n": 915,
+    "non_converged": 1,
+    "p90": 29.077235447768164,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.5778570648918397,
+    "metric": "speed_kt",
+    "n": 915,
+    "non_converged": 1,
+    "p90": 6.7081512179282,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.15593032863504375,
+    "metric": "range_rel",
+    "n": 3140,
+    "non_converged": 22,
+    "p90": 0.5188172697523236,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 28.07386039549688,
+    "metric": "course_deg",
+    "n": 3140,
+    "non_converged": 22,
+    "p90": 91.40316241661974,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.107592020384951,
+    "metric": "speed_kt",
+    "n": 3140,
+    "non_converged": 22,
+    "p90": 8.73388476814616,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.15977189230665248,
+    "metric": "range_rel",
+    "n": 1553,
+    "non_converged": 5,
+    "p90": 0.47542883694564153,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 25.895050313459222,
+    "metric": "course_deg",
+    "n": 1553,
+    "non_converged": 5,
+    "p90": 92.49465760921015,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.8460705512028275,
+    "metric": "speed_kt",
+    "n": 1553,
+    "non_converged": 5,
+    "p90": 8.645184869127705,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.1720562549135354,
+    "metric": "range_rel",
+    "n": 3400,
+    "non_converged": 20,
+    "p90": 0.5367665276439023,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 44.73503430867219,
+    "metric": "course_deg",
+    "n": 3400,
+    "non_converged": 20,
+    "p90": 122.37097396345102,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.4170060909592563,
+    "metric": "speed_kt",
+    "n": 3400,
+    "non_converged": 20,
+    "p90": 8.828969135655182,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.20396037533841682,
+    "metric": "range_rel",
+    "n": 1688,
+    "non_converged": 3,
+    "p90": 0.5416193750309659,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 38.81787750615007,
+    "metric": "course_deg",
+    "n": 1688,
+    "non_converged": 3,
+    "p90": 117.78814902943314,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 3.1969401027934854,
+    "metric": "speed_kt",
+    "n": 1688,
+    "non_converged": 3,
+    "p90": 8.847487616487507,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.19515622869317123,
+    "metric": "range_rel",
+    "n": 2585,
+    "non_converged": 21,
+    "p90": 0.5796852108708034,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 53.78454170514265,
+    "metric": "course_deg",
+    "n": 2585,
+    "non_converged": 21,
+    "p90": 127.81289280634172,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 2.6519773330853256,
+    "metric": "speed_kt",
+    "n": 2585,
+    "non_converged": 21,
+    "p90": 8.928292204442858,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.21199807169469093,
+    "metric": "range_rel",
+    "n": 1226,
+    "non_converged": 7,
+    "p90": 0.6026043754566338,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 50.61577937272898,
+    "metric": "course_deg",
+    "n": 1226,
+    "non_converged": 7,
+    "p90": 129.96959698113062,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 3.1298670346484583,
+    "metric": "speed_kt",
+    "n": 1226,
+    "non_converged": 7,
+    "p90": 9.43822735200433,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 0.10527478925441124,
+    "metric": "range_rel",
+    "n": 2204,
+    "non_converged": 13,
+    "p90": 0.39136044139144416,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 5.572464475868262,
+    "metric": "course_deg",
+    "n": 2204,
+    "non_converged": 13,
+    "p90": 30.437139771896035,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "ekf-sa0.03-p4-r8-g1:per_timestep",
+    "median": 1.3792120354736854,
+    "metric": "speed_kt",
+    "n": 2204,
+    "non_converged": 13,
+    "p90": 5.971861091597291,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.12948817743984234,
+    "metric": "range_rel",
+    "n": 16711,
+    "non_converged": 130,
+    "p90": 0.40796899241880774,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 26.478922204468592,
+    "metric": "course_deg",
+    "n": 16711,
+    "non_converged": 130,
+    "p90": 105.69814752018056,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 2.6262364686179107,
+    "metric": "speed_kt",
+    "n": 16711,
+    "non_converged": 130,
+    "p90": 8.692319449801682,
+    "rows": "all G5 rows"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.11718640369117042,
+    "metric": "range_rel",
+    "n": 7509,
+    "non_converged": 42,
+    "p90": 0.37750062138530077,
+    "rows": "settled"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 12.581625092702856,
+    "metric": "course_deg",
+    "n": 7509,
+    "non_converged": 42,
+    "p90": 68.42453457686426,
+    "rows": "settled"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 2.1367559165213073,
+    "metric": "speed_kt",
+    "n": 7509,
+    "non_converged": 42,
+    "p90": 7.749866744097056,
+    "rows": "settled"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.13950889670519134,
+    "metric": "range_rel",
+    "n": 9202,
+    "non_converged": 88,
+    "p90": 0.42902723848917107,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 44.49868244263307,
+    "metric": "course_deg",
+    "n": 9202,
+    "non_converged": 88,
+    "p90": 121.01028758266318,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 3.0805839060707174,
+    "metric": "speed_kt",
+    "n": 9202,
+    "non_converged": 88,
+    "p90": 9.43638346365152,
+    "rows": "not settled"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.0940285896575756,
+    "metric": "range_rel",
+    "n": 4205,
+    "non_converged": 16,
+    "p90": 0.316088435390736,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 8.957048605852194,
+    "metric": "course_deg",
+    "n": 4205,
+    "non_converged": 16,
+    "p90": 37.002672771949136,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 1.5589188808498835,
+    "metric": "speed_kt",
+    "n": 4205,
+    "non_converged": 16,
+    "p90": 6.602470097222544,
+    "rows": "settled, before any manoeuvre"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.15088473550691545,
+    "metric": "range_rel",
+    "n": 3304,
+    "non_converged": 26,
+    "p90": 0.44293181776223045,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 22.404495798502545,
+    "metric": "course_deg",
+    "n": 3304,
+    "non_converged": 26,
+    "p90": 98.1565939207399,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 3.0999560593013884,
+    "metric": "speed_kt",
+    "n": 3304,
+    "non_converged": 26,
+    "p90": 8.840299528051915,
+    "rows": "settled, after a manoeuvre"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.11092880199096228,
+    "metric": "range_rel",
+    "n": 4995,
+    "non_converged": 52,
+    "p90": 0.3701458537741526,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 22.166361253090052,
+    "metric": "course_deg",
+    "n": 4995,
+    "non_converged": 52,
+    "p90": 94.28082015168908,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 2.179341285326568,
+    "metric": "speed_kt",
+    "n": 4995,
+    "non_converged": 52,
+    "p90": 8.091434649720819,
+    "rows": "zig+5min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.12215755500650398,
+    "metric": "range_rel",
+    "n": 4859,
+    "non_converged": 34,
+    "p90": 0.36759918754727683,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 27.36101039992447,
+    "metric": "course_deg",
+    "n": 4859,
+    "non_converged": 34,
+    "p90": 103.53419309958768,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 2.6262364686179107,
+    "metric": "speed_kt",
+    "n": 4859,
+    "non_converged": 34,
+    "p90": 8.820693333257093,
+    "rows": "zig+10min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.13960851152675102,
+    "metric": "range_rel",
+    "n": 4104,
+    "non_converged": 28,
+    "p90": 0.4321634000350854,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 28.91169727549644,
+    "metric": "course_deg",
+    "n": 4104,
+    "non_converged": 28,
+    "p90": 114.5217340022796,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 2.9224114335638913,
+    "metric": "speed_kt",
+    "n": 4104,
+    "non_converged": 28,
+    "p90": 8.936180563776333,
+    "rows": "zig+15min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.16359320536767724,
+    "metric": "range_rel",
+    "n": 2753,
+    "non_converged": 16,
+    "p90": 0.48085126289664637,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 27.74978135238701,
+    "metric": "course_deg",
+    "n": 2753,
+    "non_converged": 16,
+    "p90": 117.25331106647529,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 3.067744524896016,
+    "metric": "speed_kt",
+    "n": 2753,
+    "non_converged": 16,
+    "p90": 8.898962857141349,
+    "rows": "zig+20min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.09699414149442316,
+    "metric": "range_rel",
+    "n": 2182,
+    "non_converged": 16,
+    "p90": 0.34041313267298395,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 9.186385867613708,
+    "metric": "course_deg",
+    "n": 2182,
+    "non_converged": 16,
+    "p90": 43.252719334239345,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 1.6250594903274436,
+    "metric": "speed_kt",
+    "n": 2182,
+    "non_converged": 16,
+    "p90": 6.582351791678443,
+    "rows": "settled, zig+5min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.10447796504667141,
+    "metric": "range_rel",
+    "n": 1897,
+    "non_converged": 11,
+    "p90": 0.3432027934549832,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 11.030062245369836,
+    "metric": "course_deg",
+    "n": 1897,
+    "non_converged": 11,
+    "p90": 58.93406868740158,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 1.96544861433058,
+    "metric": "speed_kt",
+    "n": 1897,
+    "non_converged": 11,
+    "p90": 7.939759495448859,
+    "rows": "settled, zig+10min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.1236140671131181,
+    "metric": "range_rel",
+    "n": 1780,
+    "non_converged": 6,
+    "p90": 0.3740735221001202,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 15.242332114070495,
+    "metric": "course_deg",
+    "n": 1780,
+    "non_converged": 6,
+    "p90": 74.998530181299,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 2.5416459687070247,
+    "metric": "speed_kt",
+    "n": 1780,
+    "non_converged": 6,
+    "p90": 8.078835798391255,
+    "rows": "settled, zig+15min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.15861084657059724,
+    "metric": "range_rel",
+    "n": 1650,
+    "non_converged": 9,
+    "p90": 0.46549421611839953,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 19.795964592204637,
+    "metric": "course_deg",
+    "n": 1650,
+    "non_converged": 9,
+    "p90": 98.91544524037232,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 2.8399236001412245,
+    "metric": "speed_kt",
+    "n": 1650,
+    "non_converged": 9,
+    "p90": 8.386124956942531,
+    "rows": "settled, zig+20min"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.10817569813272886,
+    "metric": "range_rel",
+    "n": 915,
+    "non_converged": 0,
+    "p90": 0.3091428396959778,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 9.81347919569092,
+    "metric": "course_deg",
+    "n": 915,
+    "non_converged": 0,
+    "p90": 34.9309329627117,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 2.692679246609978,
+    "metric": "speed_kt",
+    "n": 915,
+    "non_converged": 0,
+    "p90": 7.416726188577276,
+    "rows": "manoeuvre=0turns+speed"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.11660695208136998,
+    "metric": "range_rel",
+    "n": 3140,
+    "non_converged": 25,
+    "p90": 0.38470626516920026,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 23.014199464952902,
+    "metric": "course_deg",
+    "n": 3140,
+    "non_converged": 25,
+    "p90": 89.55465134607599,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 2.206391855655942,
+    "metric": "speed_kt",
+    "n": 3140,
+    "non_converged": 25,
+    "p90": 8.28155101504233,
+    "rows": "manoeuvre=1turn"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.13389817351843233,
+    "metric": "range_rel",
+    "n": 1553,
+    "non_converged": 9,
+    "p90": 0.3740735221001202,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 23.51054931193773,
+    "metric": "course_deg",
+    "n": 1553,
+    "non_converged": 9,
+    "p90": 89.46506891887194,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 3.187878059774444,
+    "metric": "speed_kt",
+    "n": 1553,
+    "non_converged": 9,
+    "p90": 8.645668709509831,
+    "rows": "manoeuvre=1turn+speed"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.13989371656056704,
+    "metric": "range_rel",
+    "n": 3400,
+    "non_converged": 32,
+    "p90": 0.4203827703226356,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 39.1362462837427,
+    "metric": "course_deg",
+    "n": 3400,
+    "non_converged": 32,
+    "p90": 123.2885481793686,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 2.6658886709687004,
+    "metric": "speed_kt",
+    "n": 3400,
+    "non_converged": 32,
+    "p90": 9.030398745773677,
+    "rows": "manoeuvre=2turns"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.15034131143792767,
+    "metric": "range_rel",
+    "n": 1688,
+    "non_converged": 11,
+    "p90": 0.4547953935224487,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 36.4962347355602,
+    "metric": "course_deg",
+    "n": 1688,
+    "non_converged": 11,
+    "p90": 114.81403194781029,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 3.485567574882095,
+    "metric": "speed_kt",
+    "n": 1688,
+    "non_converged": 11,
+    "p90": 9.585980977661922,
+    "rows": "manoeuvre=2turns+speed"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.14804338019274418,
+    "metric": "range_rel",
+    "n": 2585,
+    "non_converged": 34,
+    "p90": 0.472132727457078,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 46.723575583629696,
+    "metric": "course_deg",
+    "n": 2585,
+    "non_converged": 34,
+    "p90": 129.39085774991142,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 2.9164748881857028,
+    "metric": "speed_kt",
+    "n": 2585,
+    "non_converged": 34,
+    "p90": 9.418281159699607,
+    "rows": "manoeuvre=3turns"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.15858996941774267,
+    "metric": "range_rel",
+    "n": 1226,
+    "non_converged": 10,
+    "p90": 0.47095140765711546,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 41.258495341892385,
+    "metric": "course_deg",
+    "n": 1226,
+    "non_converged": 10,
+    "p90": 124.61935270990875,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 3.3971712347240732,
+    "metric": "speed_kt",
+    "n": 1226,
+    "non_converged": 10,
+    "p90": 9.648933987380618,
+    "rows": "manoeuvre=3turns+speed"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 0.09684933549219782,
+    "metric": "range_rel",
+    "n": 2204,
+    "non_converged": 9,
+    "p90": 0.32698655745820393,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 9.21211519021715,
+    "metric": "course_deg",
+    "n": 2204,
+    "non_converged": 9,
+    "p90": 36.255477397506425,
+    "rows": "manoeuvre=held"
+  },
+  {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep",
+    "median": 1.5887380933658608,
+    "metric": "speed_kt",
+    "n": 2204,
+    "non_converged": 9,
+    "p90": 6.744098727697945,
+    "rows": "manoeuvre=held"
+  }
+]

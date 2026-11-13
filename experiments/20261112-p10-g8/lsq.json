@@ -1,0 +1,30 @@
+{
+  "truth": "data/p10/test.f32pack",
+  "estimator": "lsq (solveBatch at each G5 row)",
+  "rows": 67292,
+  "failed": 3159,
+  "all": {
+    "n": 67292,
+    "range_pct": 18.01,
+    "course_deg": 46.64,
+    "speed_kt": 2.498
+  },
+  "settled": {
+    "n": 29997,
+    "range_pct": 14.15,
+    "course_deg": 8.2,
+    "speed_kt": 1.876
+  },
+  "settled-before": {
+    "n": 16340,
+    "range_pct": 7.28,
+    "course_deg": 2.22,
+    "speed_kt": 0.92
+  },
+  "settled-after": {
+    "n": 13657,
+    "range_pct": 35.02,
+    "course_deg": 60.75,
+    "speed_kt": 4.129
+  }
+}

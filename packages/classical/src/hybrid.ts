@@ -68,7 +68,10 @@ export const trackerHybridName = (network: string, tracker: string, deg: number)
 
 const wrapAbs = (a: number): number => Math.abs(Math.atan2(Math.sin(a), Math.cos(a)));
 
-/** Whether the hybrid takes the network's velocity (course and speed) at this row. */
+/**
+ * Whether the hybrid takes the network's velocity (course and speed) at this row. At deg 180
+ * (spec 022) a converged tracker's velocity is always kept: wrapped course differences are ≤ 180°.
+ */
 export function useNetworkVelocity(
   tracker: PredictionRow,
   network: PredictionRow,

@@ -79,3 +79,16 @@ it is 0.13, against 0.10 and 0.14. Propagated 5 min at constant velocity, the hy
 bearing is off by a median of 1.5°, against 1.0° for the IMM, 0.9° for the EKF and 1.6° for T2.
 Mixing the two estimators adds little inconsistency beyond T2's own. On settled rows, though, its
 state is less consistent with the bearings than either tracker's.
+
+## T2's range with the fused tracker's velocity (spec 022, phase 10)
+
+At θ = 180° (`tma-hybrid-track --course-deg 180`) the tracker hybrid always keeps the tracker's
+velocity while that tracker is converged. With the frozen fused tracker as the tracker, the result
+is T2's range and position with the fused tracker's course and speed. Where the fused tracker is
+not converged, about 2.5% of rows, the whole row is T2's.
+
+Under realistic bearing error it passed G8 on seed 224 (`experiments/20261112-p10-g8/`): range
+0.689 × the IMM's and 0.908 × the fused tracker's. Range and velocity still come from different
+estimators. The position change over 60 s disagrees with the stated velocity by a median 18 kt,
+against 8 kt for the fused tracker, so it is not a track that can be extrapolated.
+

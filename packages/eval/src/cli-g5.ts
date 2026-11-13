@@ -450,7 +450,8 @@ export function main(argv: string[]): unknown {
     // Re-compute a seeded sample of the carried trackers' and the reference's rows (FR-001).
     const sample = sampleScenarios([...new Set(g5Rows(scenarios).map((r) => r.s.metadata.index))]);
     const given = [...sets, ref, ...also, ...(beat === undefined ? [] : [beat])];
-    const recomputed = [...sets, ref]
+    // The beaten file (G8) is re-computed too, so the tracker it is compared with is bound.
+    const recomputed = [...sets, ref, ...(beat === undefined ? [] : [beat])]
       .map((t) => requireRecomputed(t, given, scenarios, sample, digestOf))
       .filter((r): r is GateRecomputation => r !== null);
     scoring = { ...scoring, recomputed };
