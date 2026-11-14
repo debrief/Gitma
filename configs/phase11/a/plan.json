@@ -1,0 +1,23 @@
+{
+  "id": "p11a",
+  "description": "Spec 023 (phase 11, SRD Annex C \u00a7C.18, decision 39): T2's architecture and configuration (configs/phase4/b/tracker.json, id lstm-gaussian-re) trained from scratch on generator 0.6.0 data with realistic bearing error (seed 226, configs/phase7-ranges.json: Gauss-Markov 1.0 deg / 30 s plus a drifting bias 0.5 deg / 20 min). Normalisation from this dataset's train split (inputs only). The evaluation job only commits the model; validation (seed 217) and G8 (fresh seed 227) are scored with tma-g5 under a later decision that freezes both T2s by digest.",
+  "dataset": {
+    "seed": "226",
+    "count": 100000,
+    "ranges": "configs/phase7-ranges.json",
+    "heldout_ranges": "configs/phase7-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "698bc34faa61236af38fb654f16fcd6f06c75fa4b13a52d870b405237315e4e7",
+      "validation.f32pack": "2fcb700318f64c68a82ad67bea6d023884f0d0089b96fec90f9f81e4ab06f310",
+      "test.f32pack": "49091e577c4b804e0c93a10a7077c35c24e4c3b93a43ad8a1824bf7f5cac03c5",
+      "heldout.f32pack": "ea95730e373373a70e3ecba368b541673fb627faf19135a3ca2b7984c3d6ebf0"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/phase11/a",
+  "models": ["tracker"],
+  "evaluate": {
+    "command": "models",
+    "split": "validation"
+  }
+}

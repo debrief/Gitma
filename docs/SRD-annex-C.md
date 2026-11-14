@@ -706,3 +706,57 @@ it before the decision record is committed.
     - uncertainty.
   - **Next.** The owner decides. Seeds 224–225 are reserved.
 
+
+## C.18 Phase 11: T2 retrained on realistic bearing error, gate G8 (owner decisions 2026-11-13)
+
+Phases 7–10 found T2's learned range the most robust estimate under realistic bearing error, though
+T2 was trained only on white noise. On 2026-11-13 the owner chose:
+- **to retrain T2 from scratch on realistic-error data,** with the same architecture and
+  configuration, on a fresh dataset generated entirely with the phase-7 ranges;
+- **the gate: G8, with the frozen T2 as the estimator to beat.** The retrained T2 must have a
+  median range error wholly below the frozen T2's, and pass G5 against the frozen `-g1` IMM, on
+  realistic-error test data.
+
+The rest of this section was written by the implementing agent. It stands unless the owner amends
+it before the decision records are committed.
+
+- **Training** (decision 39, before training; plan `configs/phase11/a`, branch `train/p11a`):
+  - **Config:** `configs/phase4/b/tracker.json` unchanged, apart from its id, which is
+    `lstm-gaussian-re`. That is the same architecture, features, losses, train seed and stopping
+    rule.
+  - **Data:** fresh dataset seed 226 (100,000 scenarios, phase-7 ranges). It has its own
+    normalisation, computed from its train split's inputs only, and early stopping on its own
+    validation split. Seed 226's test split is never scored.
+- **Validation** (after training, before the gate decision). This is the `tma-g5 --beat` diagnostic
+  on seed 217's validation split with the phase-7 ranges, the split that phases 7–10 used.
+  - **The candidate:** the retrained T2. **The estimator to beat:** the frozen T2. **The
+    reference:** the `-g1` IMM.
+  - **Carry rule:** every one of the six point estimates within its limit. Otherwise phase 11 stops
+    at validation.
+- **The gate** (decision 40, committed after training and validation and before the test data):
+  - both T2s are frozen by `model_digests`;
+  - G8 is scored on the 40,000-scenario test split of fresh seed 227 (400,000 scenarios, phase-7
+    ranges), with spec 015's bindings;
+  - the re-score, if needed, is seed 228 (1,100,000 scenarios, a 110,000-scenario test split);
+  - false passes: at most about 2.5% per look, at most about 5% with the re-score.
+- **Reported, not gated:**
+  - the retrained T2 on the clean twin of the validation rows (phase-4 ranges). A model trained on
+    the error may do worse on white noise;
+  - the fused tracker and the phase-10 hybrid rebuilt on the retrained T2;
+  - the EKF, batch least squares and naive.
+- **If G8 fails,** the owner decides. Earlier results stand.
+- **Outcome (2026-11-14): phase 11 stopped at validation** (`experiments/20261114-p11-val/`;
+  model `experiments/20261113-p11a-models/`, best epoch 48 of 55).
+  - **The retrained T2 does not beat the frozen T2 on range.** The ratio is 1.021
+    [0.991, 1.052], so the carry rule fails. The other five points pass: range 0.745 and course
+    0.857 against the IMM; settled 0.804 / 1.079 / 1.073.
+  - **Retraining helps only settled course** (0.878 × the frozen T2's), mostly before any
+    manoeuvre.
+  - **It costs a lot on white noise.** On the clean twin, retrained/frozen range is 1.287
+    [1.244, 1.331], and the retrained T2 is worse than the IMM (10.3% against 9.1%). Its smaller
+    degradation under the error (1.21 × against 1.52 ×) comes from starting worse.
+  - **The fused tracker and the hybrid rebuilt on it are unchanged** (within 0.3 pp in range).
+  - **Limits.** There is one training seed, one error model, and validation only.
+  - **No G8 was scored.** Seed 227 was never generated, and seeds 227–228 stay unused. C.17's
+    verdict stands.
+  - **Next.** The owner decides.

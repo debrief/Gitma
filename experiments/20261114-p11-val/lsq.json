@@ -1,0 +1,30 @@
+{
+  "truth": "data/p11val/real/validation.f32pack",
+  "estimator": "lsq (solveBatch at each G5 row)",
+  "rows": 16711,
+  "failed": 794,
+  "all": {
+    "n": 16711,
+    "range_pct": 17.08,
+    "course_deg": 46.04,
+    "speed_kt": 2.412
+  },
+  "settled": {
+    "n": 7509,
+    "range_pct": 13.12,
+    "course_deg": 7.12,
+    "speed_kt": 1.695
+  },
+  "settled-before": {
+    "n": 4205,
+    "range_pct": 6.89,
+    "course_deg": 1.99,
+    "speed_kt": 0.834
+  },
+  "settled-after": {
+    "n": 3304,
+    "range_pct": 33.82,
+    "course_deg": 61.78,
+    "speed_kt": 4.068
+  }
+}

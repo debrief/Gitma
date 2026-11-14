@@ -61,7 +61,7 @@ export const RESERVED_SEEDS = {
 /** Dataset seeds owned by one iteration's plans: its test split decided that iteration's gate. */
 export const ITERATION_DATASET_SEEDS = { 201: "2", 204: "3", 205: "4" };
 /** Dataset seeds owned by one phase's plans (spec 010: phase 3, gate G4). */
-export const PHASE_DATASET_SEEDS = { 208: "3", 211: "4" };
+export const PHASE_DATASET_SEEDS = { 208: "3", 211: "4", 226: "11" };
 /**
  * Seeds whose test split has already decided a gate: a fresh test split may use one only in the
  * plan that decided it (so the committed plan of record still validates), never in another.
@@ -114,6 +114,11 @@ export const RESERVED_TEST_SEEDS = {
     plan: "configs/phase4/z/plan.json",
   },
   225: { for: "phase 10 G8 re-score, if needed (spec 022, fresh test, 1,100,000)" },
+  // Phase 11 (spec 023): 226 is the retraining dataset (its own test split is never scored); 227
+  // the G8 test and 228 its re-score, both under the gate decision.
+  226: { for: "phase 11 training dataset (spec 023; its own test split is never scored)" },
+  227: { for: "phase 11 G8 (spec 023, fresh test)", plans: [] },
+  228: { for: "phase 11 G8 re-score, if needed (spec 023, fresh test, 1,100,000)" },
 };
 
 class PlanError extends Error {}
