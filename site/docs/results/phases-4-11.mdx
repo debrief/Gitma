@@ -1,0 +1,121 @@
+---
+title: "Results: phases 4–11 (end-to-end trackers, synthesis)"
+description: What eight phases of Annex C showed about learned trackers for bearings-only TMA. A learned range estimate is the one consistent gain; classical filters still win on straight legs; under realistic bearing error nothing tried beat the network's own range, and retraining on that error did not help.
+---
+
+# Results: phases 4–11 (end-to-end trackers, synthesis)
+
+**Question (SRD Annex C).** Can a learned tracker, or a learned component inside a classical
+one, beat a re-tuned classical tracker on manoeuvring targets? Phases 7–11 also asked whether
+that holds under realistic, correlated bearing error.
+
+This page closes that line of work. It adds no new data and no new scoring. Every figure below
+comes from a committed experiment.
+
+## What each phase found
+
+Every gate below was scored once on a fresh test seed, with a pre-registered decision and an agent
+review panel. "Stopped" means the pre-registered validation rule failed, so no test data were
+generated.
+
+| Phase | What was tried | Outcome | Headline (ratio to the reference IMM unless stated) |
+| --- | --- | --- | --- |
+| 4 | Two trackers trained from scratch: T1 (learned gain) and T2 (recurrent, Gaussian head) | Stopped | T2 range 0.85, but settled course 1.44 and speed 1.66; T1 range 2.18 |
+| 4b | Hybrid: T2's range always, T2's velocity on large course disagreement | **G5 pass** (seed 213) | Range 0.862, course 0.904; settled 1.02 / 0.98 / 0.99 |
+| 4c | Fused tracker: T2's range as a measurement inside the IMM | **G5 pass** (seed 214) | Range 0.824, course 0.947; settled 0.86 / 0.95 / 0.90 |
+| 5 | Manoeuvre detection from T2, against a CUSUM | Stopped | Detects 19.2% of course changes within 5 min, against the CUSUM's 28.2% |
+| 6 | Recalibrated stated uncertainty | **G7 pass** on the re-score (seed 216); the first look was inconclusive | All nine coverage checks within ± 2 pp; widths 0.73–0.94 × |
+| 7 | Realistic bearing error; trackers frozen | **G5 pass** (seed 218) | Fused range 0.766, course 0.907 |
+| 8 | Re-tune the fusion so it beats T2 alone | Stopped | Best fused/T2 range 1.014 |
+| 9 | IMM with a bearing-bias state | Stopped | Range 0.998 × the IMM's, 1.37 × T2's |
+| 10 | T2's range with the fused tracker's velocity | **G8 pass** (seed 224) | Range 0.689, course 0.895; 0.908 × the fused tracker's range |
+| 11 | T2 retrained on realistic error | Stopped | Retrained/frozen T2 range 1.021 [0.991, 1.052]; 1.29 × on white noise |
+
+Detailed write-ups are in the blog, from phase 4 (2026-11-01) to phase 11 (2026-11-14).
+
+## What the evidence supports
+
+### 1. A learned range estimate is the one consistent gain
+
+Every pass on range traces to T2's range estimate, whether reported directly (4b, 10) or fused into
+the IMM (4c, 7). The range ratios against the IMM run from 0.69 to 0.86. On its own, T2 never passed
+G5 (phase 4). Neither the learned-gain filter (T1) nor the learned detector (phase 5) was competitive.
+
+### 2. Learning wins around manoeuvres, and classical methods win on straight legs
+
+- **On straight legs.** Before any target manoeuvre, batch least squares is the best estimator in
+  phases 7, 10 and 11: 6.9–7.3% range and 2.0–2.2° course on settled rows, under realistic error.
+- **Against the EKF.** Every carried estimator loses to the EKF on settled course: the hybrid by
+  1.44 × (4b), the fused tracker by 1.41 × (4c) and 1.27 × (7), the phase-10 hybrid by 1.25 ×.
+- **The gates did not catch this.** G5 compares against the IMM, chosen on validation as the
+  better tracker over all rows. That IMM is weaker than the EKF on straight legs.
+- **Where the gain comes from.** The learned advantage sits in the minutes after a manoeuvre,
+  where the classical filters lag.
+
+### 3. Under realistic error, nothing beat T2's own range
+
+T2 was trained on white noise only, yet it is the most robust estimator under correlated error
+plus a drifting bias. Its error grows 1.47–1.52 × against the IMM's 1.82 ×.
+
+Three phases tried to beat it on range, and all failed:
+
+| Phase | Approach | Range against T2 |
+| --- | --- | --- |
+| 8 | Fusion re-tuned | 1.014 × |
+| 9 | Explicit bias state in the IMM | 1.37 × |
+| 11 | T2 retrained on the error | 1.021 × |
+
+- **A plausible reading.** The drifting bias is nearly unobservable from the bearings, since
+  phase 9 found the geometry rotates to absorb it. If so, T2 sits near what this data allows.
+- **Not tested.** This was never checked against a bound.
+- **What retraining did.** It traded white-noise accuracy for nothing on the realistic error.
+
+### 4. Accuracy and a coherent track pull in different directions
+
+- **The per-output hybrids (4b, 10)** post the best numbers but are not tracks. The phase-10
+  hybrid's position and velocity disagree by a median 18 kt over a minute.
+- **The fused tracker** keeps one state, with a bearing rate as good as the IMM's. Under realistic
+  error that costs it about 6–10% in range against T2 alone.
+
+### 5. Uncertainty and detection are weaker results
+
+- **Uncertainty (G7).** The pass is pooled coverage, not calibration. Log-range 50% coverage is
+  67% before any manoeuvre and 39% after one. 17% of course 90% intervals are vacuous.
+- **Detection.** The learned detector loses to a classical CUSUM at the pre-registered false-alarm
+  rate.
+
+## What it does not show
+
+- **Real data.** Everything is simulated: one generator family, flat earth, a known ownship
+  track.
+- **Other error models.** Realistic error means one model at one severity (Gauss–Markov 1.0°/30 s
+  plus a drifting bias 0.5°/20 min). Phase 7's severity was itself doubled by the owner after the
+  G0 panel.
+- **An adapted reference.** The IMM reference was tuned on white noise and frozen. It was never
+  re-tuned for the correlated error.
+- **Run-to-run variation.** Each trained model is a single training run, so the spread between
+  runs is unknown. That matters most for phase 11, whose margin was 2%.
+- **Multiplicity across the programme.** Each gate controls its own false-pass rate (about 2.5% per
+  look). But eleven phases chose among many designs, and phases 7–11 all selected on the same
+  seed-217 validation split. Fresh test seeds protect each verdict, not the programme's overall
+  choice of what to test.
+- **A consistent estimator to beat.** Under G8 it moved from T2 (phases 8–9) to the fused tracker
+  (phase 10), by the owner's choice before validation. Phase 10's pass is therefore mostly a
+  replay of phase 7's finding.
+
+## Bottom line
+
+Within this programme, the useful learned component is a **range aid for a classical tracker**,
+not a learned tracker that replaces one.
+
+| Situation | Best choice found |
+| --- | --- |
+| A single coherent track | The fused tracker (G5 under white and realistic error, with calibratable stated uncertainty) |
+| Straight legs | The EKF or batch least squares |
+| Range alone, under realistic error | T2's range reported directly |
+
+Further gains on range under this error model probably need more information in the data, not
+another model.
+
+Records: SRD Annex C §C.10–C.19; `experiments/` from `20261031-p4-val` to `20261114-p11-val`;
+specs 012–023.

@@ -442,6 +442,11 @@ beat.
 - Each T2 keeps its own normalisation: the frozen one seed 211's train split, the retrained one
   seed 226's.
 
+**Annex C closed** (owner 2026-11-14, SRD Annex C §C.19). There is no further phase. The synthesis
+is `site/docs/results/phases-4-11.mdx`: T2's learned range is the consistent gain, the classical
+EKF and batch least squares win on straight legs, and nothing tried beat T2's range under
+realistic error. The usable result is the fused tracker, a range aid to a classical tracker.
+
 Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted

@@ -760,3 +760,36 @@ it before the decision records are committed.
   - **No G8 was scored.** Seed 227 was never generated, and seeds 227–228 stay unused. C.17's
     verdict stands.
   - **Next.** The owner decides.
+
+## C.19 Close of Annex C (owner decision 2026-11-14)
+
+After phase 11 the owner chose to close this line of work with a synthesis, and no further
+phase. The synthesis is the site page `site/docs/results/phases-4-11.mdx`. It adds no data or
+scoring.
+
+**Gates passed:**
+- G5 for the hybrid (4b) and the fused tracker (4c), and again under realistic error (7);
+- G7 on the re-score (6);
+- G8 for the phase-10 hybrid.
+
+**Stopped at validation:** phases 4, 5, 8, 9 and 11.
+
+**What the synthesis concludes:**
+- **The consistent gain is T2's learned range.** Against the IMM, ratios run 0.69–0.86.
+- **Classical methods still win on straight legs.** The EKF is better on settled course, and batch
+  least squares before any manoeuvre.
+- **Under realistic error, nothing tried beat T2's own range:** re-tuned fusion, a bias state in
+  the IMM, or T2 retrained on the error.
+- **The usable result is a range aid for a classical tracker** (the fused tracker), not a
+  replacement for it.
+
+**The limits it states:**
+- simulated data only;
+- one error model;
+- a reference tuned on white noise;
+- a single training run per model;
+- multiplicity across phases, with phases 7–11 all selecting on one validation split.
+
+Reserved seeds (201–228) stay reserved. Annex C §C.6 (incremental if passed) is satisfied by the
+4b, 4c and 7 passes, and nothing further is planned under this annex.
+
