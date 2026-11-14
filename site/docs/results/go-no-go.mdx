@@ -1,0 +1,100 @@
+---
+title: "Go/no-go: the project's answer"
+description: The answer to SRD §1's question, across iterations 0–5 and phases 3–11. A network trained on simulated bearings-only data does produce usable range estimates, and helps after manoeuvres, but it is not a usable stand-alone TMA solution. Qualified go for a learned range aid inside a classical tracker; no-go for a network replacing one.
+---
+
+# Go/no-go: the project's answer
+
+**The question (SRD §1).** Can a neural network trained on large volumes of simulated
+bearings-only data produce usable target range, course and speed estimates?
+
+:::info The answer
+- **No-go for a network as a stand-alone TMA solution.** On straight legs, where classical
+  methods are near-optimal, the network is 1.6–3.5 × worse than classical least squares. That holds
+  for range, course and especially speed. It never reached classical parity alone.
+- **Qualified go for a learned range aid inside a classical tracker.** A fused tracker uses the
+  network's range as an extra measurement in a classical IMM. It beats the tuned IMM on range and
+  course, under white noise and under realistic correlated error. That is the one result worth
+  carrying forward. The qualifications are listed below.
+:::
+
+## How the answer was reached
+
+Each step was pre-registered, judged on a fresh test seed, and reviewed by an agent panel. The
+detailed pages are under Results.
+
+| Step | Question | Outcome |
+| --- | --- | --- |
+| G0 | Is the pipeline correct? | Passed, re-run on every generator change |
+| G1 | Is there any signal? | Passed: range error well under half the naive baseline's |
+| G2 | Is it useful (range < 20%, course < 10°, speed < 1 kt at σ = 1°)? | Failed three times on speed, then stopped at validation once and was inconclusive once. Passed on iteration 4's re-score, at 0.94 kt |
+| G3 | Is it at classical parity? | **Not for the network.** On a straight-leg problem the LSTM is 2.1 × classical on range, 3.5 × on course and 3.0 × on speed (BiLSTM 1.6 / 2.3 / 2.3 ×). G3 passed only for a hybrid that uses classical least squares and falls back to the network when classical fails. That hybrid halves gross errors at zig + 5 min. |
+| G4 | Can it beat a tuned tracker after a target turn? | After the turn, yes (range 0.77 ×, course 0.60 ×). But it fails on targets that hold course, by hedging towards a turn, so it stopped at validation twice |
+| G5 | Can an end-to-end learned tracker beat a re-tuned IMM? | **Not alone.** It fails settled course (1.44 ×) and speed (1.66 ×). It passed only combined with the IMM, as a hybrid (4b) or fused (4c) |
+| G6 | Can it detect manoeuvres better than a CUSUM? | No: 19% against 28% detected within 5 min |
+| G7 | Is the uncertainty calibrated? | Pooled coverage passed on a re-score. Conditional calibration was not achieved |
+| G5/G8 under realistic error | Does it hold up under correlated error and bias? | The network's range is the most robust estimate. The fused tracker passes against the IMM. Nothing tried improved on the network's own range |
+
+## The pattern
+
+The network is strong exactly where classical methods are weak, and weak where they are strong:
+
+| Network strongest | Classical strongest |
+| --- | --- |
+| Range, and early range convergence | Speed and course on long straight legs, near the Cramér–Rao bound (classical speed 0.3–0.6 kt against the network's 0.9–1.5 kt) |
+| The minutes after a target manoeuvre, while filters lag | Before any manoeuvre (batch least squares: about 7% range and 2° course under realistic error) |
+| Gross-error suppression on hard geometries | Coherent, consistent track states |
+| Robustness to correlated bearing error and slow bias | |
+
+This is why every pass after G2 combines the network with a classical estimator. It is also why
+"usable" depends on what the estimate is for.
+
+## Conditions on the "go"
+
+The fused tracker is the candidate. Before it is used outside this project, each of the following
+needs closing:
+
+1. **Real or representative data.** Everything here is simulated: one generator family, flat
+   earth, a perfectly known ownship and one realistic-error model. Testing on recorded or
+   independently simulated data is outside this public repository (OFFICIAL, mock data only).
+2. **A stronger reference.** The gated reference IMM was tuned on white noise and is weaker than
+   the EKF on straight legs. Against the EKF, the fused tracker loses on settled course by
+   1.27–1.41 ×. A fair go needs a reference tuned to the real error.
+3. **The size of the gain.** Range error falls to 0.77–0.82 × the IMM's. That is real but
+   moderate, and it comes from the network's range alone.
+4. **Run-to-run spread.** Each model is a single training run.
+5. **Consistency.** The fused tracker's stated uncertainty passes pooled coverage only, and its
+   covariance is not calibrated (NEES median 1.1, where 3.36 is expected).
+
+## How much to trust this answer
+
+- **What supports it.** Every gate was pre-registered and scored once on a fresh seed, beside naive
+  and classical baselines. Verdicts are byte-reproducible from committed weights, and every gate
+  had a five-reviewer panel.
+- **What weakens it:**
+  - **Stopping rules were relaxed mid-project.** G2's stop was amended twice (2c, then Annex A)
+    before it passed. Each amendment was recorded before the scoring it affected, but "G2 passed"
+    means "passed after three fails, a stop and an inconclusive", not "passed as first planned". G2's speed threshold was
+    also moved from 5 to 10 minutes after the zig, on the evidence that classical itself needs
+    that long.
+  - **Many looks.** Eleven post-G2 phases chose among many designs. Phases 7–11 all selected on
+    the same validation split. Fresh test seeds protect each verdict, not the programme's choice
+    of what to test.
+  - **The reviewers are not fully independent.** The panels were AI agents of the same model
+    family as the implementer, reviewing read-only. They found real problems (several majors per
+    gate), but they are not an external review.
+  - **The owner chose key settings,** including the realistic-error severity (doubled after the G0
+    panel) and, in phase 10, the estimator to beat.
+
+None of these turns a no-go into a go. The no-go for a stand-alone network rests on large, repeated
+gaps against classical methods (1.6–3.5 ×) that no amendment touched.
+
+## Recommendation
+
+- **Stop** developing learned stand-alone TMA estimators on this simulated problem.
+- **If the work continues,** take the fused tracker forward as a range aid to a classical tracker.
+  Use representative bearing error, re-tune the reference to it, and run several training runs.
+  Start where the network's advantage lives: after manoeuvres, and under correlated error.
+
+Records: [phases 4–11](phases-4-11.mdx), [iteration 4](iteration-4.mdx),
+[iteration 5](iteration-5.mdx), [phase 3](phase-3.mdx); SRD §5 and Annexes A–C; `docs/history.md`.
