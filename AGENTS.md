@@ -222,6 +222,9 @@ named estimator on range. The full history, with every number, is in
 least squares win on straight legs; nothing tried beat T2's range under realistic error; the usable
 result is the fused tracker, a range aid to a classical tracker.
 
+**The project's answer** (2026-11-14, SRD §1): no-go for a stand-alone network; qualified go for a
+learned range aid inside a classical tracker. Report: `site/docs/results/go-no-go.mdx`.
+
 ### Operational rules from the gates
 
 - **Seeds.** 201–228 are reserved (used or deliberately never generated); 900 is the viewer's
