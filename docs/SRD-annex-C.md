@@ -745,3 +745,18 @@ it before the decision records are committed.
   - the fused tracker and the phase-10 hybrid rebuilt on the retrained T2;
   - the EKF, batch least squares and naive.
 - **If G8 fails,** the owner decides. Earlier results stand.
+- **Outcome (2026-11-14): phase 11 stopped at validation** (`experiments/20261114-p11-val/`;
+  model `experiments/20261113-p11a-models/`, best epoch 48 of 55).
+  - **The retrained T2 does not beat the frozen T2 on range.** The ratio is 1.021
+    [0.991, 1.052], so the carry rule fails. The other five points pass: range 0.745 and course
+    0.857 against the IMM; settled 0.804 / 1.079 / 1.073.
+  - **Retraining helps only settled course** (0.878 × the frozen T2's), mostly before any
+    manoeuvre.
+  - **It costs a lot on white noise.** On the clean twin, retrained/frozen range is 1.287
+    [1.244, 1.331], and the retrained T2 is worse than the IMM (10.3% against 9.1%). Its smaller
+    degradation under the error (1.21 × against 1.52 ×) comes from starting worse.
+  - **The fused tracker and the hybrid rebuilt on it are unchanged** (within 0.3 pp in range).
+  - **Limits.** There is one training seed, one error model, and validation only.
+  - **No G8 was scored.** Seed 227 was never generated, and seeds 227–228 stay unused. C.17's
+    verdict stands.
+  - **Next.** The owner decides.

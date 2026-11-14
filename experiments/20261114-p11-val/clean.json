@@ -1,0 +1,151 @@
+{
+  "resamples": 2000,
+  "seed": "20261011",
+  "level": 0.95,
+  "results": [
+    {
+      "rows": "all",
+      "n": 16711,
+      "scenarios": 4995,
+      "metric": "range_rel",
+      "statistic": "lstm-gaussian-re realistic/clean",
+      "value": 1.2061659920188041,
+      "ci95": [
+        1.175874206979321,
+        1.236703416551725
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 16711,
+      "scenarios": 4995,
+      "metric": "range_rel",
+      "statistic": "lstm-gaussian realistic/clean",
+      "value": 1.5197918315442405,
+      "ci95": [
+        1.4734740793808783,
+        1.564060487865888
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 16711,
+      "scenarios": 4995,
+      "metric": "range_rel",
+      "statistic": "interaction (tracker/reference realistic ÷ clean)",
+      "value": 0.7936389490876753,
+      "ci95": [
+        0.7690914578044125,
+        0.8200385027970235
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 16711,
+      "scenarios": 4995,
+      "metric": "course_deg",
+      "statistic": "lstm-gaussian-re realistic/clean",
+      "value": 1.1442984161102472,
+      "ci95": [
+        1.11988318520199,
+        1.1636398298506139
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 16711,
+      "scenarios": 4995,
+      "metric": "course_deg",
+      "statistic": "lstm-gaussian realistic/clean",
+      "value": 1.3199044210477884,
+      "ci95": [
+        1.2925363219733643,
+        1.3518987606141435
+      ]
+    },
+    {
+      "rows": "all",
+      "n": 16711,
+      "scenarios": 4995,
+      "metric": "course_deg",
+      "statistic": "interaction (tracker/reference realistic ÷ clean)",
+      "value": 0.8669555142499343,
+      "ci95": [
+        0.8434358137085451,
+        0.8849273501171089
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 7509,
+      "scenarios": 3894,
+      "metric": "range_rel",
+      "statistic": "lstm-gaussian-re realistic/clean",
+      "value": 1.245157182513195,
+      "ci95": [
+        1.2028705606240992,
+        1.287525745447963
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 7509,
+      "scenarios": 3894,
+      "metric": "range_rel",
+      "statistic": "lstm-gaussian realistic/clean",
+      "value": 1.5899539985066917,
+      "ci95": [
+        1.5162994270385657,
+        1.6581580468975312
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 7509,
+      "scenarios": 3894,
+      "metric": "range_rel",
+      "statistic": "interaction (tracker/reference realistic ÷ clean)",
+      "value": 0.7831403824781504,
+      "ci95": [
+        0.7458924311336518,
+        0.822007544820113
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 7509,
+      "scenarios": 3894,
+      "metric": "course_deg",
+      "statistic": "lstm-gaussian-re realistic/clean",
+      "value": 1.2609661845413138,
+      "ci95": [
+        1.224494410139675,
+        1.3070816781902215
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 7509,
+      "scenarios": 3894,
+      "metric": "course_deg",
+      "statistic": "lstm-gaussian realistic/clean",
+      "value": 1.6533824582949546,
+      "ci95": [
+        1.5922469381899456,
+        1.7224206548007246
+      ]
+    },
+    {
+      "rows": "settled",
+      "n": 7509,
+      "scenarios": 3894,
+      "metric": "course_deg",
+      "statistic": "interaction (tracker/reference realistic ÷ clean)",
+      "value": 0.7626584993781059,
+      "ci95": [
+        0.7328422779976745,
+        0.7966337756430265
+      ]
+    }
+  ]
+}

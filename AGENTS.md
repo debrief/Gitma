@@ -427,6 +427,21 @@ frozen fused tracker's velocity, θ 180.
   and `convergence.json` (`spec022-convergence.mjs`).
 - **Seeds 224–225** are reserved. The owner decides the follow-on.
 
+**Phase 11** (SRD Annex C §C.18, spec 023, owner 2026-11-13): T2 retrained from scratch on
+realistic-error data (`lstm-gaussian-re`, seed 226, phase-7 ranges, plan `configs/phase11/a`,
+decision 39 `experiments/20261113-p11-decision/`), under G8 with the frozen T2 as the estimator to
+beat.
+- **Phase 11 stopped at validation** (`experiments/20261114-p11-val/validation.md`; model
+  `experiments/20261113-p11a-models/`, best epoch 48 of 55). On seed 217, retrained/frozen T2 range
+  is 1.021 [0.991, 1.052], so the carry rule fails. The other five points pass.
+- **Retraining costs on white noise.** On the clean twin, retrained/frozen range is 1.287, and the
+  retrained T2 is worse than the IMM there. Its smaller degradation (1.21 × against 1.52 ×) comes
+  from starting worse. It helps only settled course (0.878 ×).
+- **Seeds.** 226 is the training data; 227–228 were never generated and stay reserved. Write-up:
+  `site/blog/2026-11-14-phase-11.md`. The owner decides the follow-on.
+- Each T2 keeps its own normalisation: the frozen one seed 211's train split, the retrained one
+  seed 226's.
+
 Prediction files are streamed (`openPredictionStream`): a 40,000-scenario per-timestep file exceeds V8's string limit when joined. `tma-g2 --rescore-of <gate>` binds the frozen weights by digest in place
 of training ancestry; scoring streams from files (predictions written as made), and a preflight
 refuses a run whose features are not built. Cloud containers live about 4–4.6 h, so an aborted
