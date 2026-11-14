@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="blog-wrapper blog-post-page plugin-blog plugin-id-default" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.10.2">
+<title data-rh="true">Phase 4b: a hybrid passes G5 — a learned range with a tuned tracker&#x27;s velocity | TMA via ML</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://debrief.github.io/Gitma/pr/87/blog/2026/11/01/phase-4b"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docusaurus_tag" content="default"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docsearch:docusaurus_tag" content="default"><meta data-rh="true" property="og:title" content="Phase 4b: a hybrid passes G5 — a learned range with a tuned tracker&#x27;s velocity | TMA via ML"><meta data-rh="true" name="description" content="Phase 4&#x27;s recurrent tracker T2 beat a tuned IMM tracker overall but lost on straight legs, so it"><meta data-rh="true" property="og:description" content="Phase 4&#x27;s recurrent tracker T2 beat a tuned IMM tracker overall but lost on straight legs, so it"><meta data-rh="true" property="og:type" content="article"><meta data-rh="true" property="article:published_time" content="2026-11-01T00:00:00.000Z"><link data-rh="true" rel="canonical" href="https://debrief.github.io/Gitma/pr/87/blog/2026/11/01/phase-4b"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/87/blog/2026/11/01/phase-4b" hreflang="en"><link data-rh="true" rel="alternate" href="https://debrief.github.io/Gitma/pr/87/blog/2026/11/01/phase-4b" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","@id":"https://debrief.github.io/Gitma/pr/87/blog/2026/11/01/phase-4b","mainEntityOfPage":"https://debrief.github.io/Gitma/pr/87/blog/2026/11/01/phase-4b","url":"https://debrief.github.io/Gitma/pr/87/blog/2026/11/01/phase-4b","headline":"Phase 4b: a hybrid passes G5 — a learned range with a tuned tracker's velocity","name":"Phase 4b: a hybrid passes G5 — a learned range with a tuned tracker's velocity","description":"Phase 4's recurrent tracker T2 beat a tuned IMM tracker overall but lost on straight legs, so it","datePublished":"2026-11-01T00:00:00.000Z","author":[],"keywords":[],"isPartOf":{"@type":"Blog","@id":"https://debrief.github.io/Gitma/pr/87/blog","name":"Blog"}}</script><link rel="alternate" type="application/rss+xml" href="/Gitma/pr/87/blog/rss.xml" title="TMA via ML RSS Feed">
+<link rel="alternate" type="application/atom+xml" href="/Gitma/pr/87/blog/atom.xml" title="TMA via ML Atom Feed"><link rel="stylesheet" href="/Gitma/pr/87/assets/css/styles.d219d845.css">
+<script src="/Gitma/pr/87/assets/js/runtime~main.8635f7a7.js" defer="defer"></script>
+<script src="/Gitma/pr/87/assets/js/main.90c970b4.js" defer="defer"></script>
+</head>
+<body>
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||"light"),document.documentElement.setAttribute("data-theme-choice",t||"light")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_JWeg" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/Gitma/pr/87/"><b class="navbar__title text--truncate">TMA via ML</b></a><a class="navbar__item navbar__link" href="/Gitma/pr/87/docs/glossary">Glossary</a><a class="navbar__item navbar__link" href="/Gitma/pr/87/docs/data-dictionary">Data dictionary</a><a class="navbar__item navbar__link" href="/Gitma/pr/87/docs/algorithms/generator">Algorithms</a><a class="navbar__item navbar__link" href="/Gitma/pr/87/docs/results/iteration-1">Results</a><a class="navbar__item navbar__link" href="/Gitma/pr/87/viewer">Viewer</a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/Gitma/pr/87/blog">Blog</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://github.com/debrief/Gitma" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_ny9m"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_Lxsn colorModeToggle_wCyq"><button class="clean-btn toggleButton_BEJb toggleButtonDisabled_wzmd" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_Lr3m lightToggleIcon_ViIh"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_Lr3m darkToggleIcon_Xnlu"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_Lr3m systemToggleIcon_LOzk"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_agmU"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_ra6T"><div class="container margin-vert--lg"><div class="row"><aside class="col col--3"><nav class="sidebar_WZvC thin-scrollbar" aria-label="Blog recent posts navigation"><div class="sidebarItemTitle_K1Mb margin-bottom--md">Recent posts</div><div role="group"><h3 class="yearGroupHeading_NsJf">2026</h3><ul class="sidebarItemList_CugS clean-list"><li class="sidebarItem_e6qr"><a class="sidebarItemLink_Klnn" href="/Gitma/pr/87/blog/2026/11/14/phase-11">Phase 11: retraining T2 on realistic bearing error does not improve its range</a></li><li class="sidebarItem_e6qr"><a class="sidebarItemLink_Klnn" href="/Gitma/pr/87/blog/2026/11/12/phase-10">Phase 10: T2&#x27;s range with a filter&#x27;s velocity passes G8, but adds little that was not known</a></li><li class="sidebarItem_e6qr"><a class="sidebarItemLink_Klnn" href="/Gitma/pr/87/blog/2026/11/12/phase-9">Phase 9: a bias-aware IMM cannot see the bias</a></li><li class="sidebarItem_e6qr"><a class="sidebarItemLink_Klnn" href="/Gitma/pr/87/blog/2026/11/10/phase-8">Phase 8: re-tuning the fusion cannot make it beat T2 on range under realistic error</a></li><li class="sidebarItem_e6qr"><a class="sidebarItemLink_Klnn" href="/Gitma/pr/87/blog/2026/11/08/phase-7">Phase 7: realistic bearing error — the frozen fused tracker still beats the frozen IMM, but T2 alone is more robust</a></li></ul></div></nav></aside><main class="col col--7"><article class=""><header><h1 class="title_LyMS">Phase 4b: a hybrid passes G5 — a learned range with a tuned tracker&#x27;s velocity</h1><div class="container_oQwR margin-vert--md"><time datetime="2026-11-01T00:00:00.000Z">November 1, 2026</time> · <!-- -->4 min read</div></header><div id="__blog-post-container" class="markdown"><p>Phase 4&#x27;s recurrent tracker T2 beat a tuned IMM tracker overall but lost on straight legs, so it
+did not reach the test. The owner chose a follow-on: a <strong>hybrid</strong> of the two frozen estimators,
+judged by G5 unchanged. The hybrid takes T2&#x27;s range always, and T2&#x27;s course and speed only where the
+two estimators&#x27; courses differ by more than 45°. Elsewhere it takes the IMM&#x27;s.</p>
+<p><strong>It passed</strong>, on a fresh 40,000-scenario test split (seed 213), decided by the agent review panel
+in two rounds:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Hybrid / IMM, 97.5% interval</th><th>Limit</th><th>Result</th></tr></thead><tbody><tr><td>Range, all gate rows</td><td>&lt; 1</td><td>0.86 [0.84, 0.88]</td></tr><tr><td>Course, all gate rows</td><td>&lt; 1</td><td>0.90 [0.89, 0.92]</td></tr><tr><td>Range, settled rows</td><td>&lt; 1.1</td><td>1.02 [0.99, 1.06]</td></tr><tr><td>Course, settled rows</td><td>&lt; 1.1</td><td>0.98 [0.97, 0.99]</td></tr><tr><td>Speed, settled rows</td><td>&lt; 1.1</td><td>0.99 [0.99, 1.00]</td></tr></tbody></table>
+<p>It also makes 3.4 percentage points fewer gross range errors than the IMM.</p>
+<p>Records: the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261101-p4h-g5/g5.md" target="_blank" rel="noopener noreferrer" class="">gate record</a> and the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261101-p4h-g5/review.md" target="_blank" rel="noopener noreferrer" class="">panel review</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="how-it-was-set-up">How it was set up<a href="#how-it-was-set-up" class="hash-link" aria-label="Direct link to How it was set up" title="Direct link to How it was set up" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Nothing was trained.</strong> Both estimators were frozen: the IMM since decision 29, T2 since phase 4.
+<code>tma-g5</code> checked T2&#x27;s weights by file digest.</li>
+<li class=""><strong>Why a course disagreement.</strong> The IMM lags a manoeuvre by minutes, and while it lags its course
+disagrees with T2&#x27;s. A disagreement above θ is therefore a sign that T2&#x27;s velocity is the better one.</li>
+<li class=""><strong>Choosing θ.</strong> θ = 45° was chosen on validation by a criterion stated in advance: the largest
+smallest margin over the five checks. Every θ from 25° to 90° passed there, so 45° sits on a
+plateau, not a spike.</li>
+<li class=""><strong>Freezing it.</strong> The decision, θ and the test seed were committed and pushed before the test split
+was scored.</li>
+<li class=""><strong>Forecast:</strong> an 85% chance of passing.</li>
+<li class=""><strong>No sign of over-fitting.</strong> The three checks that depend on θ moved by less than 0.01 between
+validation and test.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-it-does-not-show">What it does not show<a href="#what-it-does-not-show" class="hash-link" aria-label="Direct link to What it does not show" title="Direct link to What it does not show" translate="no">​</a></h2>
+<p>The panel insisted on these, and they matter as much as the pass.</p>
+<ul>
+<li class=""><strong>It is a hybrid, not a learned tracker.</strong> On its own, T2 still fails the straight-leg checks (phase
+4). The result shows that a learned estimator adds value beside a tuned tracker, as G3&#x27;s hybrid
+did for classical least squares.</li>
+<li class=""><strong>It is three numbers per row, not a track.</strong> Range comes from one estimator and velocity from
+another, so together they do not satisfy either one&#x27;s bearing-rate relation. Measured afterwards,
+the cost is small but real: on settled rows, projected 5 min ahead, its bearing is a median of 1.5°
+off, against 1.0° for the IMM and 1.6° for T2 alone.</li>
+<li class=""><strong>Before a target manoeuvres, its range is worse.</strong> On settled rows before any manoeuvre, the
+hybrid&#x27;s range error is 6.0% against the IMM&#x27;s 4.1% (1.47 ×). After a manoeuvre it is 10.3% against
+15.2% (0.68 ×). The pooled settled check passes only because the second group carries it, even
+though the first group is 55% of settled rows. For a target holding course, the commonest case, a
+tuned filter is better.</li>
+<li class=""><strong>Against the EKF it would fail two settled checks:</strong> course 1.44 × and speed 1.21 ×. The IMM was the
+pre-registered reference, chosen on overall range, so the gate stands. But &quot;better than a tuned
+tracker on straight legs&quot; is not shown. Batch least squares is also better on settled range: 6.6%
+against 7.6%.</li>
+<li class=""><strong>The settled velocity checks pass largely by construction.</strong> The hybrid uses the IMM&#x27;s velocity
+on most rows.</li>
+<li class=""><strong>The rule family was chosen after seeing phase 4&#x27;s result.</strong> The fresh seed controls the choice
+of θ, not the choice of family.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-long-view">The long view<a href="#the-long-view" class="hash-link" aria-label="Direct link to The long view" title="Direct link to The long view" translate="no">​</a></h2>
+<p>The programme&#x27;s question was whether a network trained on simulated bearings could give usable
+range, course and speed. After G0 to G5, the answer is consistent.</p>
+<ul>
+<li class=""><strong>Where networks win.</strong> They are better where tracking is hardest: after target manoeuvres, and
+late in long engagements. In range they reach about 0.7 × a tuned tracker after a manoeuvre.</li>
+<li class=""><strong>Where they lose.</strong> On clean geometry, a target holding course after an ownship zig, a tuned
+filter or a batch fit is better, especially on speed.</li>
+<li class=""><strong>What works.</strong> Combining them works, as a hybrid that takes each one&#x27;s strength. A network alone
+does not.</li>
+</ul>
+<p>Real or recorded data remain the untested step.</p></div></article><nav class="pagination-nav docusaurus-mt-lg" aria-label="Blog post page navigation"><a class="pagination-nav__link pagination-nav__link--prev" href="/Gitma/pr/87/blog/2026/11/01/phase-4"><div class="pagination-nav__sublabel">Newer post</div><div class="pagination-nav__label">Phase 4: an end-to-end learned tracker wins overall, loses on straight legs</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Gitma/pr/87/blog/2026/10/30/phase-3b"><div class="pagination-nav__sublabel">Older post</div><div class="pagination-nav__label">Phase 3b: two hypotheses fix the course, not the speed</div></a></nav></main><div class="col col--2"><div class="tableOfContents_kFBU thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#how-it-was-set-up" class="table-of-contents__link toc-highlight">How it was set up</a></li><li><a href="#what-it-does-not-show" class="table-of-contents__link toc-highlight">What it does not show</a></li><li><a href="#the-long-view" class="table-of-contents__link toc-highlight">The long view</a></li></ul></div></div></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Mock data only; nothing above OFFICIAL. Apache-2.0.</div></div></div></footer></div>
+</body>
+</html>
