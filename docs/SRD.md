@@ -21,6 +21,11 @@ The project answers one question: can a neural network trained on high volumes o
 - Stone Soup integration (a later phase; the TS generator mimics its track and detection shapes so the swap is cheap).
 - Performance tuning for runtime deployment — training throughput only needs to be adequate for experimentation.
 
+**Answer (2026-11-14).** No-go for a network as a stand-alone TMA estimator: alone it never
+reached classical parity on straight legs, at 1.6–3.5 × classical error. Qualified go for a learned
+range aid inside a classical tracker (the fused tracker, Annex C), subject to representative data
+and a re-tuned reference. Report: `site/docs/results/go-no-go.mdx`.
+
 ## 2. Problem definition
 
 Ownship holds a sequence of noisy bearings to a single target that moves at constant course and speed (up to G3; from phase 3 the target may make one course change, Annex B §B.2; from phase 4 up to three course changes and one speed change, Annex C §C.2). Ownship's own track is known exactly. The task is to recover the target's state from bearings alone.
