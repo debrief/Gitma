@@ -1,5 +1,7 @@
 // Spec 025: the composite solver (composite.ts) and its name.
-import type { Prediction, PredictionRow } from "@tma/types";
+import { readFileSync } from "node:fs";
+import { generateScenario, noiseFree } from "@tma/sim";
+import type { ParameterRanges, Prediction, PredictionRow } from "@tma/types";
 import { describe, expect, it } from "vitest";
 import {
   compositeName,
@@ -108,5 +110,76 @@ describe("composite solver", () => {
     expect(() =>
       compositePredict(s, { ...c, mode: "final" }, f, { window: 30, threshold: 4 }),
     ).toThrow(/per-timestep/);
+  });
+});
+
+describe("re-armed composite (§D.7)", () => {
+  const ranges = noiseFree(
+    JSON.parse(
+      readFileSync(new URL("../../../configs/phase4-ranges.json", import.meta.url), "utf8"),
+    ) as ParameterRanges,
+  );
+  // A noise-free scenario with one target manoeuvre that ends well before the window does.
+  const sc = Array.from({ length: 60 }, (_, i) => generateScenario(17n, i, ranges).scenario).find(
+    (x) => {
+      const m = x.metadata.manoeuvres ?? [];
+      const last = m[m.length - 1];
+      return m.length === 1 && last !== undefined && x.metadata.samples - last.end_index > 120;
+    },
+  );
+  if (sc === undefined) throw new Error("no scenario with one early manoeuvre");
+  const dtS = sc.metadata.parameters.dt_s;
+  /** A perfect stand-in for the fused tracker: the truth at every sample. */
+  const truthFused: Prediction = {
+    record: "prediction",
+    scenario_index: sc.metadata.index,
+    estimator: "fused-net-imm",
+    mode: "per_timestep",
+    rows: sc.target.states.map((t, i): PredictionRow => {
+      const o = sc.ownship.states[i];
+      if (o === undefined) throw new Error("ownship");
+      return {
+        timestamp_s: i * dtS,
+        range_m: Math.hypot(t.x_m - o.x_m, t.y_m - o.y_m),
+        course_rad: t.course_rad,
+        speed_mps: t.speed_mps,
+        x_m: t.x_m,
+        y_m: t.y_m,
+        converged: true,
+      };
+    }),
+  };
+  const lsq = classicalPredict(sc, "per_timestep");
+  const p = { window: 6, threshold: 8, leg: 18, priorSd: 0.2 };
+
+  it("names the leg settings and round-trips them", () => {
+    const n = compositeName("classical", "fused-net-imm", p);
+    expect(n).toBe("composite-classical-fused-net-imm-w6-c8-l18-p0.2");
+    expect(parseCompositeName(n, "classical", "fused-net-imm")).toEqual(p);
+  });
+
+  it("matches the first design until the first switch, then hands back to an accurate new leg", () => {
+    const first = compositePredict(sc, lsq, truthFused, { window: 6, threshold: 8 });
+    const re = compositePredict(sc, lsq, truthFused, p);
+    const sw = first.rows.findIndex((r, j) => r !== lsq.rows[j] && lsq.rows[j]?.converged);
+    expect(sw).toBeGreaterThan(0);
+    expect(re.rows.slice(0, sw)).toEqual(first.rows.slice(0, sw));
+    const fusedTs = new Set(truthFused.rows);
+    const legRows = re.rows
+      .map((r, j) => ({ r, j }))
+      .filter(({ r, j }) => j > sw && r !== lsq.rows[j] && !fusedTs.has(r));
+    expect(legRows.length).toBeGreaterThan(0);
+    for (const { r } of legRows) {
+      const k = Math.round(r.timestamp_s / dtS);
+      const t = truthFused.rows[k];
+      if (t === undefined) throw new Error("truth row");
+      expect(Math.abs(r.range_m - t.range_m) / t.range_m).toBeLessThan(0.02);
+    }
+  });
+
+  it("refuses leg without priorSd", () => {
+    expect(() =>
+      compositePredict(sc, lsq, truthFused, { window: 6, threshold: 8, leg: 18 }),
+    ).toThrow(/together/);
   });
 });

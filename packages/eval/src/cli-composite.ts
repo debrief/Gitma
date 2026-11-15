@@ -3,12 +3,18 @@
 // own; the fit check's window and threshold are part of the estimator name, so a gate binds them
 // with the decision, and the inputs' digests bind the files it was built from.
 import { parseArgs } from "node:util";
-import { CLASSICAL, compositeName, compositePredict, fileDigest } from "@tma/classical";
+import {
+  CLASSICAL,
+  type CompositeParams,
+  compositeName,
+  compositePredict,
+  fileDigest,
+} from "@tma/classical";
 import { isMain, runCli, UsageError } from "@tma/data";
 import { openPredictionSet, openPredictionWriter, scenarioSource } from "./prediction-file.js";
 
 const USAGE =
-  "usage: tma-composite --truth <split.f32pack> --classical <lsq.ndjson> --fused <fused.ndjson> --out <composite.ndjson> --window <samples> --threshold <mean r²/σ²>";
+  "usage: tma-composite --truth <split.f32pack> --classical <lsq.ndjson> --fused <fused.ndjson> --out <composite.ndjson> --window <samples> --threshold <mean r²/σ²> [--leg <samples> --prior-sd <log-range sd>] (re-armed, §D.7)";
 
 export function main(argv: string[]): unknown {
   const { values } = parseArgs({
@@ -21,6 +27,8 @@ export function main(argv: string[]): unknown {
       out: { type: "string" },
       window: { type: "string" },
       threshold: { type: "string" },
+      leg: { type: "string" },
+      "prior-sd": { type: "string" },
     },
   });
   const { truth, classical, fused, out } = values;
@@ -38,7 +46,18 @@ export function main(argv: string[]): unknown {
     throw new UsageError(`${classical}: estimator ${c.estimator}, not ${CLASSICAL}`);
   if (!f.estimator.startsWith("fused-"))
     throw new UsageError(`${fused}: estimator ${f.estimator} is not a fused tracker`);
-  const p = { window, threshold };
+  if ((values.leg === undefined) !== (values["prior-sd"] === undefined))
+    throw new UsageError("--leg and --prior-sd are given together");
+  const leg = values.leg === undefined ? undefined : Number(values.leg);
+  const priorSd = values["prior-sd"] === undefined ? undefined : Number(values["prior-sd"]);
+  if (leg !== undefined && (!Number.isInteger(leg) || leg < 1))
+    throw new UsageError("--leg must be an integer ≥ 1");
+  if (priorSd !== undefined && !(Number.isFinite(priorSd) && priorSd > 0))
+    throw new UsageError("--prior-sd must be > 0");
+  const p: CompositeParams =
+    leg === undefined || priorSd === undefined
+      ? { window, threshold }
+      : { window, threshold, leg, priorSd };
   const name = compositeName(c.estimator, f.estimator, p);
   const w = openPredictionWriter(out, name, "per_timestep", truth, {
     inputs: [
