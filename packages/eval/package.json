@@ -25,7 +25,9 @@
     "tma-g5": "./dist/cli-g5.js",
     "tma-detect": "./dist/cli-detect.js",
     "tma-g6": "./dist/cli-g6.js",
-    "tma-g7": "./dist/cli-g7.js"
+    "tma-g7": "./dist/cli-g7.js",
+    "tma-composite": "./dist/cli-composite.js",
+    "tma-g9": "./dist/cli-g9.js"
   },
   "scripts": {},
   "dependencies": {

@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.22.0
+version: 0.23.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -83,6 +83,10 @@ enums:
       G6:
         {
           description: "A manoeuvre detector from frozen models faster than a CUSUM on the reference's innovations at matched false alarms (SRD Annex C §C.12).",
+        }
+      G9:
+        {
+          description: "The composite solver keeps the best of both: median range and course below the fused tracker's over all G5 rows, and within 1.1 × of batch least squares on straight legs (SRD Annex D §D.3).",
         }
   ModelKind:
     description: Model families of SRD §4.

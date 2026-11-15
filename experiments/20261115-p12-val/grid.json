@@ -1,0 +1,569 @@
+{
+  "truth": "data/p11val/real/validation.f32pack",
+  "rows": 16711,
+  "straight_rows": 4205,
+  "reference_medians": {
+    "fusedRange": 0.12948817743984234,
+    "fusedCourse": 26.478922204468592,
+    "lsqRange": 0.0690411932882567,
+    "lsqCourse": 1.9934316904032414,
+    "lsqSpeed": 0.8332417284180742
+  },
+  "variants": [
+    {
+      "window": 6,
+      "threshold": 2,
+      "points": {
+        "g9-range-vs-fused": 0.9996532220742045,
+        "g9-course-vs-fused": 1.000417876013607,
+        "g9-straight-range": 1.3594084294526025,
+        "g9-straight-course": 4.368099336659174,
+        "g9-straight-speed": 1.8609868314203777
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.00034677792579551614,
+        "g9-course-vs-fused": -0.00041787601360709914,
+        "g9-straight-range": -0.2358258449569113,
+        "g9-straight-course": -2.970999396962885,
+        "g9-straight-speed": -0.6918062103821614
+      },
+      "score": -2.970999396962885,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 6,
+      "threshold": 3,
+      "points": {
+        "g9-range-vs-fused": 0.9878224311710158,
+        "g9-course-vs-fused": 1.0003492618039656,
+        "g9-straight-range": 1.2814462818570926,
+        "g9-straight-course": 3.591462913217477,
+        "g9-straight-speed": 1.661397974098901
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.012177568828984242,
+        "g9-course-vs-fused": -0.0003492618039655504,
+        "g9-straight-range": -0.16495116532462958,
+        "g9-straight-course": -2.264966284743161,
+        "g9-straight-speed": -0.5103617946353646
+      },
+      "score": -2.264966284743161,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 6,
+      "threshold": 4,
+      "points": {
+        "g9-range-vs-fused": 0.9745704977849576,
+        "g9-course-vs-fused": 0.9869457596934338,
+        "g9-straight-range": 1.2031939125128186,
+        "g9-straight-course": 2.317022357049835,
+        "g9-straight-speed": 1.4531137717223717
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.025429502215042366,
+        "g9-course-vs-fused": 0.013054240306566212,
+        "g9-straight-range": -0.0938126477389259,
+        "g9-straight-course": -1.1063839609543955,
+        "g9-straight-speed": -0.32101251974761047
+      },
+      "score": -1.1063839609543955,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 6,
+      "threshold": 6,
+      "points": {
+        "g9-range-vs-fused": 0.9535970817386535,
+        "g9-course-vs-fused": 0.9945036406802815,
+        "g9-straight-range": 1.0573586643101904,
+        "g9-straight-course": 1.2116180582204923,
+        "g9-straight-speed": 1.1167718625341785
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.04640291826134646,
+        "g9-course-vs-fused": 0.00549635931971848,
+        "g9-straight-range": 0.03876485062709968,
+        "g9-straight-course": -0.10147096201862926,
+        "g9-straight-speed": -0.015247147758343994
+      },
+      "score": -0.10147096201862926,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 6,
+      "threshold": 8,
+      "points": {
+        "g9-range-vs-fused": 0.9634535884138787,
+        "g9-course-vs-fused": 1.0134163995183592,
+        "g9-straight-range": 1.0206839678212456,
+        "g9-straight-course": 1.0692944465763938,
+        "g9-straight-speed": 1.0402541053085905
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.036546411586121264,
+        "g9-course-vs-fused": -0.013416399518359157,
+        "g9-straight-range": 0.07210548379886772,
+        "g9-straight-course": 0.027914139476005687,
+        "g9-straight-speed": 0.05431444971946323
+      },
+      "score": -0.013416399518359157,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 6,
+      "threshold": 12,
+      "points": {
+        "g9-range-vs-fused": 0.9991285148921213,
+        "g9-course-vs-fused": 1.0660009368677046,
+        "g9-straight-range": 0.9948797935765012,
+        "g9-straight-course": 1.012615810536703,
+        "g9-straight-speed": 1.0019978686434738
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.0008714851078787111,
+        "g9-course-vs-fused": -0.06600093686770458,
+        "g9-straight-range": 0.09556382402136257,
+        "g9-straight-course": 0.07944017223936106,
+        "g9-straight-speed": 0.08909284668775112
+      },
+      "score": -0.06600093686770458,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 12,
+      "threshold": 2,
+      "points": {
+        "g9-range-vs-fused": 0.9947334644203218,
+        "g9-course-vs-fused": 1.000417876013607,
+        "g9-straight-range": 1.337263882295036,
+        "g9-straight-course": 4.169310379091058,
+        "g9-straight-speed": 1.8018394630227441
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.0052665355796781554,
+        "g9-course-vs-fused": -0.00041787601360709914,
+        "g9-straight-range": -0.21569443845003264,
+        "g9-straight-course": -2.790282162810053,
+        "g9-straight-speed": -0.6380358754752218
+      },
+      "score": -2.790282162810053,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 12,
+      "threshold": 3,
+      "points": {
+        "g9-range-vs-fused": 0.9745785815992642,
+        "g9-course-vs-fused": 0.9961054987324427,
+        "g9-straight-range": 1.2068250955068203,
+        "g9-straight-course": 2.502905542459295,
+        "g9-straight-speed": 1.4724442076270525
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.02542141840073575,
+        "g9-course-vs-fused": 0.0038945012675573043,
+        "g9-straight-range": -0.09711372318801834,
+        "g9-straight-course": -1.2753686749629953,
+        "g9-straight-speed": -0.3385856432973204
+      },
+      "score": -1.2753686749629953,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 12,
+      "threshold": 4,
+      "points": {
+        "g9-range-vs-fused": 0.9576500351387782,
+        "g9-course-vs-fused": 0.9880962084716365,
+        "g9-straight-range": 1.0985464206111661,
+        "g9-straight-course": 1.3796718244613781,
+        "g9-straight-speed": 1.1876528158156443
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.04234996486122178,
+        "g9-course-vs-fused": 0.011903791528363517,
+        "g9-straight-range": 0.0013214358080308613,
+        "g9-straight-course": -0.2542471131467073,
+        "g9-straight-speed": -0.07968437801422201
+      },
+      "score": -0.2542471131467073,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 12,
+      "threshold": 6,
+      "points": {
+        "g9-range-vs-fused": 0.9726447198892099,
+        "g9-course-vs-fused": 1.0339862173140992,
+        "g9-straight-range": 1.0005450969975755,
+        "g9-straight-course": 1.0378679896935474,
+        "g9-straight-speed": 1.0190637382391614
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.027355280110790137,
+        "g9-course-vs-fused": -0.03398621731409923,
+        "g9-straight-range": 0.09041354818402231,
+        "g9-straight-course": 0.05648364573313877,
+        "g9-straight-speed": 0.07357841978258062
+      },
+      "score": -0.03398621731409923,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 12,
+      "threshold": 8,
+      "points": {
+        "g9-range-vs-fused": 0.9985393594016435,
+        "g9-course-vs-fused": 1.0726394906246164,
+        "g9-straight-range": 0.9942708171989417,
+        "g9-straight-course": 1.005009319664492,
+        "g9-straight-speed": 0.9966355491580251
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.0014606405983564885,
+        "g9-course-vs-fused": -0.07263949062461639,
+        "g9-straight-range": 0.09611743891005305,
+        "g9-straight-course": 0.08635516394137095,
+        "g9-straight-speed": 0.09396768258361361
+      },
+      "score": -0.07263949062461639,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 12,
+      "threshold": 12,
+      "points": {
+        "g9-range-vs-fused": 1.0321278775619667,
+        "g9-course-vs-fused": 1.1388609731661694,
+        "g9-straight-range": 0.9942215691780111,
+        "g9-straight-course": 0.9995956910257113,
+        "g9-straight-speed": 0.9963268584294259
+      },
+      "margins": {
+        "g9-range-vs-fused": -0.03212787756196667,
+        "g9-course-vs-fused": -0.1388609731661694,
+        "g9-straight-range": 0.09616220983817182,
+        "g9-straight-course": 0.09127664452208069,
+        "g9-straight-speed": 0.09424831051870378
+      },
+      "score": -0.1388609731661694,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 30,
+      "threshold": 2,
+      "points": {
+        "g9-range-vs-fused": 1.0005850735328365,
+        "g9-course-vs-fused": 1.002135810736215,
+        "g9-straight-range": 1.3146215349654315,
+        "g9-straight-course": 3.66271037772052,
+        "g9-straight-speed": 1.7073350479110259
+      },
+      "margins": {
+        "g9-range-vs-fused": -0.0005850735328365442,
+        "g9-course-vs-fused": -0.002135810736215049,
+        "g9-straight-range": -0.1951104863322104,
+        "g9-straight-course": -2.3297367070186543,
+        "g9-straight-speed": -0.5521227708282052
+      },
+      "score": -2.3297367070186543,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 30,
+      "threshold": 3,
+      "points": {
+        "g9-range-vs-fused": 0.9666823082103045,
+        "g9-course-vs-fused": 0.993899139175412,
+        "g9-straight-range": 1.1036867447639438,
+        "g9-straight-course": 1.3914585730262066,
+        "g9-straight-speed": 1.2059106209633819
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.03331769178969546,
+        "g9-course-vs-fused": 0.00610086082458805,
+        "g9-straight-range": -0.003351586149039732,
+        "g9-straight-course": -0.26496233911473316,
+        "g9-straight-speed": -0.09628238269398343
+      },
+      "score": -0.26496233911473316,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 30,
+      "threshold": 4,
+      "points": {
+        "g9-range-vs-fused": 0.9732656766557543,
+        "g9-course-vs-fused": 1.031015170446983,
+        "g9-straight-range": 0.9981732035114499,
+        "g9-straight-course": 1.0490241763061237,
+        "g9-straight-speed": 1.0116768525337112
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.026734323344245747,
+        "g9-course-vs-fused": -0.031015170446982987,
+        "g9-straight-range": 0.09256981498959108,
+        "g9-straight-course": 0.04634165790352403,
+        "g9-straight-speed": 0.08029377042389899
+      },
+      "score": -0.031015170446982987,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 30,
+      "threshold": 6,
+      "points": {
+        "g9-range-vs-fused": 1.0214142026833044,
+        "g9-course-vs-fused": 1.1085156940817407,
+        "g9-straight-range": 0.9942215691780111,
+        "g9-straight-course": 1,
+        "g9-straight-speed": 0.9966355491580251
+      },
+      "margins": {
+        "g9-range-vs-fused": -0.021414202683304406,
+        "g9-course-vs-fused": -0.10851569408174067,
+        "g9-straight-range": 0.09616220983817182,
+        "g9-straight-course": 0.09090909090909098,
+        "g9-straight-speed": 0.09396768258361361
+      },
+      "score": -0.10851569408174067,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 30,
+      "threshold": 8,
+      "points": {
+        "g9-range-vs-fused": 1.043111589789366,
+        "g9-course-vs-fused": 1.1682874409169748,
+        "g9-straight-range": 0.9942215691780111,
+        "g9-straight-course": 0.9995956910257113,
+        "g9-straight-speed": 0.9963268584294259
+      },
+      "margins": {
+        "g9-range-vs-fused": -0.04311158978936591,
+        "g9-course-vs-fused": -0.16828744091697478,
+        "g9-straight-range": 0.09616220983817182,
+        "g9-straight-course": 0.09127664452208069,
+        "g9-straight-speed": 0.09424831051870378
+      },
+      "score": -0.16828744091697478,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 30,
+      "threshold": 12,
+      "points": {
+        "g9-range-vs-fused": 1.0773871365206638,
+        "g9-course-vs-fused": 1.2213318998294447,
+        "g9-straight-range": 0.9942215691780111,
+        "g9-straight-course": 0.9995956910257113,
+        "g9-straight-speed": 0.9963268584294259
+      },
+      "margins": {
+        "g9-range-vs-fused": -0.07738713652066376,
+        "g9-course-vs-fused": -0.22133189982944468,
+        "g9-straight-range": 0.09616220983817182,
+        "g9-straight-course": 0.09127664452208069,
+        "g9-straight-speed": 0.09424831051870378
+      },
+      "score": -0.22133189982944468,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 60,
+      "threshold": 2,
+      "points": {
+        "g9-range-vs-fused": 0.9854877948719547,
+        "g9-course-vs-fused": 0.999916682745435,
+        "g9-straight-range": 1.2574900599595458,
+        "g9-straight-course": 3.136481689600351,
+        "g9-straight-speed": 1.5661955286008913
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.014512205128045297,
+        "g9-course-vs-fused": 0.00008331725456500738,
+        "g9-straight-range": -0.14317278178140516,
+        "g9-straight-course": -1.8513469905457733,
+        "g9-straight-speed": -0.42381411690990106
+      },
+      "score": -1.8513469905457733,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 60,
+      "threshold": 3,
+      "points": {
+        "g9-range-vs-fused": 0.9670950505185513,
+        "g9-course-vs-fused": 1.0187105274833443,
+        "g9-straight-range": 1.0235999954062769,
+        "g9-straight-course": 1.09645852749301,
+        "g9-straight-speed": 1.0629946004151474
+      },
+      "margins": {
+        "g9-range-vs-fused": 0.03290494948144873,
+        "g9-course-vs-fused": -0.01871052748334434,
+        "g9-straight-range": 0.06945454963065745,
+        "g9-straight-course": 0.0032195204608999957,
+        "g9-straight-speed": 0.0336412723498661
+      },
+      "score": -0.01871052748334434,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 60,
+      "threshold": 4,
+      "points": {
+        "g9-range-vs-fused": 1.0021444334449168,
+        "g9-course-vs-fused": 1.0777575689727577,
+        "g9-straight-range": 0.9948797935765012,
+        "g9-straight-course": 1.006921221424264,
+        "g9-straight-speed": 0.9980444025193612
+      },
+      "margins": {
+        "g9-range-vs-fused": -0.0021444334449167712,
+        "g9-course-vs-fused": -0.07775756897275765,
+        "g9-straight-range": 0.09556382402136257,
+        "g9-straight-course": 0.08461707143248735,
+        "g9-straight-speed": 0.09268690680058078
+      },
+      "score": -0.07775756897275765,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 60,
+      "threshold": 6,
+      "points": {
+        "g9-range-vs-fused": 1.0377813005635501,
+        "g9-course-vs-fused": 1.1598184870412005,
+        "g9-straight-range": 0.9942215691780111,
+        "g9-straight-course": 0.9995956910257113,
+        "g9-straight-speed": 0.9963268584294259
+      },
+      "margins": {
+        "g9-range-vs-fused": -0.03778130056355011,
+        "g9-course-vs-fused": -0.1598184870412005,
+        "g9-straight-range": 0.09616220983817182,
+        "g9-straight-course": 0.09127664452208069,
+        "g9-straight-speed": 0.09424831051870378
+      },
+      "score": -0.1598184870412005,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 60,
+      "threshold": 8,
+      "points": {
+        "g9-range-vs-fused": 1.0685988658517593,
+        "g9-course-vs-fused": 1.202699982046808,
+        "g9-straight-range": 0.9942215691780111,
+        "g9-straight-course": 0.9995956910257113,
+        "g9-straight-speed": 0.9963268584294259
+      },
+      "margins": {
+        "g9-range-vs-fused": -0.06859886585175934,
+        "g9-course-vs-fused": -0.20269998204680806,
+        "g9-straight-range": 0.09616220983817182,
+        "g9-straight-course": 0.09127664452208069,
+        "g9-straight-speed": 0.09424831051870378
+      },
+      "score": -0.20269998204680806,
+      "rows_from_lsq": 0
+    },
+    {
+      "window": 60,
+      "threshold": 12,
+      "points": {
+        "g9-range-vs-fused": 1.101756243978738,
+        "g9-course-vs-fused": 1.2558440734347447,
+        "g9-straight-range": 0.9942215691780111,
+        "g9-straight-course": 0.9995956910257113,
+        "g9-straight-speed": 0.9963268584294259
+      },
+      "margins": {
+        "g9-range-vs-fused": -0.10175624397873806,
+        "g9-course-vs-fused": -0.2558440734347447,
+        "g9-straight-range": 0.09616220983817182,
+        "g9-straight-course": 0.09127664452208069,
+        "g9-straight-speed": 0.09424831051870378
+      },
+      "score": -0.2558440734347447,
+      "rows_from_lsq": 0
+    }
+  ],
+  "rule": "max score; within 0.005: larger c, then larger W; carried iff score > 0",
+  "best_score": -0.013416399518359157,
+  "chosen": {
+    "window": 6,
+    "threshold": 8,
+    "score": -0.013416399518359157
+  },
+  "carried": false,
+  "chosen_diagnostic": {
+    "gate": "G9",
+    "result": "inconclusive",
+    "checks": [
+      {
+        "name": "g9-range-vs-fused",
+        "result": "pass",
+        "value": 0.9634535884138787,
+        "threshold": 1,
+        "ci_low": 0.942766281249863,
+        "ci_high": 0.9858687670857922,
+        "ci_level": 0.95,
+        "detail": "composite-w6-c8 / fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep median range_rel on σ = 1° rows at zig + 5/10/15/20 min 0.9635 vs limit 1; 95% CI [0.9428, 0.9859] (scenario-clustered paired bootstrap, 2000 resamples, 16711 rows in 4995 scenarios)"
+      },
+      {
+        "name": "g9-course-vs-fused",
+        "result": "inconclusive",
+        "value": 1.0134163995183592,
+        "threshold": 1,
+        "ci_low": 0.9928364407927408,
+        "ci_high": 1.0392309684474792,
+        "ci_level": 0.95,
+        "detail": "composite-w6-c8 / fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep median course_deg on σ = 1° rows at zig + 5/10/15/20 min 1.0134 vs limit 1; 95% CI [0.9928, 1.0392] (scenario-clustered paired bootstrap, 2000 resamples, 16711 rows in 4995 scenarios)"
+      },
+      {
+        "name": "g9-speed-vs-fused-reported",
+        "result": "pass",
+        "value": 0.851751434602626,
+        "threshold": 1,
+        "ci_low": 0.8288976565558007,
+        "ci_high": 0.871580953506314,
+        "ci_level": 0.95,
+        "detail": "reported, not gated: composite-w6-c8 / fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6:per_timestep median speed_kt on σ = 1° rows at zig + 5/10/15/20 min 0.8518 vs limit 1; 95% CI [0.8289, 0.8716] (scenario-clustered paired bootstrap, 2000 resamples, 16711 rows in 4995 scenarios)"
+      },
+      {
+        "name": "g9-straight-range",
+        "result": "pass",
+        "value": 1.0206839678212456,
+        "threshold": 1.1,
+        "ci_low": 1.0002549612855112,
+        "ci_high": 1.0355632119823774,
+        "ci_level": 0.95,
+        "detail": "composite-w6-c8 / classical:per_timestep median range_rel on straight-leg (settled, before any manoeuvre) σ = 1° rows at zig + 5/10/15/20 min 1.0207 vs limit 1.1; 95% CI [1.0003, 1.0356] (scenario-clustered paired bootstrap, 2000 resamples, 4205 rows in 2182 scenarios)"
+      },
+      {
+        "name": "g9-straight-course",
+        "result": "pass",
+        "value": 1.0692944465763938,
+        "threshold": 1.1,
+        "ci_low": 1.0382615546218488,
+        "ci_high": 1.0948276472253682,
+        "ci_level": 0.95,
+        "detail": "composite-w6-c8 / classical:per_timestep median course_deg on straight-leg (settled, before any manoeuvre) σ = 1° rows at zig + 5/10/15/20 min 1.0693 vs limit 1.1; 95% CI [1.0383, 1.0948] (scenario-clustered paired bootstrap, 2000 resamples, 4205 rows in 2182 scenarios)"
+      },
+      {
+        "name": "g9-straight-speed",
+        "result": "pass",
+        "value": 1.0402541053085905,
+        "threshold": 1.1,
+        "ci_low": 1.0149901301721795,
+        "ci_high": 1.066067410880485,
+        "ci_level": 0.95,
+        "detail": "composite-w6-c8 / classical:per_timestep median speed_kt on straight-leg (settled, before any manoeuvre) σ = 1° rows at zig + 5/10/15/20 min 1.0403 vs limit 1.1; 95% CI [1.0150, 1.0661] (scenario-clustered paired bootstrap, 2000 resamples, 4205 rows in 2182 scenarios)"
+      }
+    ],
+    "decided_by": "harness (pending agent panel review)"
+  }
+}

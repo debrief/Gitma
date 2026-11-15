@@ -337,7 +337,7 @@ export const GateCheck = z.strictObject({
 });
 export type GateCheck = z.infer<typeof GateCheck>;
 
-export const GateId = z.enum(["G0", "G1", "G2", "G3", "G4", "G5", "G8", "G7", "G6"]);
+export const GateId = z.enum(["G0", "G1", "G2", "G3", "G4", "G5", "G8", "G7", "G6", "G9"]);
 export type GateId = z.infer<typeof GateId>;
 
 /** One estimator re-computed by a gate on a sample of scenarios (schema 0.18.0). */

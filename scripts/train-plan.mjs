@@ -117,8 +117,14 @@ export const RESERVED_TEST_SEEDS = {
   // Phase 11 (spec 023): 226 is the retraining dataset (its own test split is never scored); 227
   // the G8 test and 228 its re-score, both under the gate decision.
   226: { for: "phase 11 training dataset (spec 023; its own test split is never scored)" },
-  227: { for: "phase 11 G8 (spec 023, fresh test)", plans: [] },
-  228: { for: "phase 11 G8 re-score, if needed (spec 023, fresh test, 1,100,000)" },
+  227: {
+    for: "phase 11 G8 (spec 023; never generated: phase 11 stopped at validation)",
+    plans: [],
+  },
+  228: { for: "phase 11 G8 re-score (spec 023; never generated)" },
+  // Annex D (spec 025): the composite solver's G9 test and its re-score, under decision 41.
+  229: { for: "Annex D composite G9 (spec 025, fresh test, 400,000)", plans: [] },
+  230: { for: "Annex D G9 re-score, if needed (spec 025, fresh test, 1,100,000)" },
 };
 
 class PlanError extends Error {}

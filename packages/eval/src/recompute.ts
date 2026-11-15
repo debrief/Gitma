@@ -7,12 +7,16 @@
 // enter as stored, bound by the weights digest the prediction chain checks.
 import { createHash } from "node:crypto";
 import {
+  CLASSICAL,
+  classicalPredict,
+  compositePredict,
   ekfPredict,
   fileDigest,
   fusedPredict,
   immPredict,
   parseEkfName,
   parseFusedName,
+  parseCompositeName,
   parseImmName,
   parseTrackerHybridName,
   trackerHybrid,
@@ -126,6 +130,21 @@ export function recipeFor(
     return {
       kind: "recompute",
       run: (s) => trackerHybrid(rowsOf(tr, s), rowsOf(net, s), deg),
+    };
+  }
+  // Per-timestep batch least squares (spec 025): the solver's default settings, which tma-solve
+  // writes under the plain name.
+  if (name === CLASSICAL && inputs.length === 0 && set.header?.mode === "per_timestep")
+    return { kind: "recompute", run: (s) => classicalPredict(s, "per_timestep") };
+  if (name.startsWith("composite-") && inputs.length === 2) {
+    const [c, f] = inputs;
+    const p = c && f ? parseCompositeName(name, c.estimator, f.estimator) : null;
+    if (p === null) throw new UsageError(`${where}: ${name} is not a canonical composite name`);
+    const cl = input(0);
+    const fu = input(1);
+    return {
+      kind: "recompute",
+      run: (s) => compositePredict(s, rowsOf(cl, s), rowsOf(fu, s), p),
     };
   }
   if (set.header?.model_weights_sha256 != null && inputs.length === 0)

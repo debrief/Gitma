@@ -3,6 +3,7 @@
 // names. These parsers invert them so that a gate can re-compute rows from the settings a name
 // declares. Each parse is checked by a round trip: the settings must give back the very same name,
 // so an ambiguous or non-canonical name is refused rather than read loosely.
+import { type CompositeParams, compositeName } from "./composite.js";
 import { ekfName, type TrackerScales } from "./ekf.js";
 import { type FusionParams, fusedName } from "./fused.js";
 import { type CusumParams, courseRateName, cusumName } from "./detect.js";
@@ -107,4 +108,24 @@ export function parseCourseRateName(name: string, network: string): number | nul
   if (!name.startsWith(prefix) || !/^\d+$/.test(name.slice(prefix.length))) return null;
   const w = Number(name.slice(prefix.length));
   return courseRateName(network, w) === name ? w : null;
+}
+
+const COMPOSITE_RE = new RegExp(String.raw`^-w(\d+)-c${NUM}$`);
+
+/**
+ * The composite's settings (spec 025) that `name` declares for these classical and fused input
+ * names, or null if it is not their composite's canonical name.
+ */
+export function parseCompositeName(
+  name: string,
+  classical: string,
+  fused: string,
+): CompositeParams | null {
+  const prefix = `composite-${classical}-${fused}`;
+  if (!name.startsWith(prefix)) return null;
+  const m = COMPOSITE_RE.exec(name.slice(prefix.length));
+  if (m === null) return null;
+  const p: CompositeParams = { window: Number(m[1]), threshold: Number(m[2]) };
+  if (!(p.window >= 1) || !(p.threshold > 0)) return null;
+  return compositeName(classical, fused, p) === name ? p : null;
 }

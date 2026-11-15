@@ -36,7 +36,7 @@ export const G5_LEVEL = 0.975;
 /** A row is settled this long after the most recent manoeuvre ended (s). */
 export const G5_SETTLE_S = 300;
 
-type Metric = "range_rel" | "course_deg" | "speed_kt";
+export type Metric = "range_rel" | "course_deg" | "speed_kt";
 
 /**
  * Settled (Annex C §C.5): at row k no manoeuvre is in progress (no span has start_index ≤ k <
@@ -81,7 +81,7 @@ export function g5Rows(truth: Iterable<Scenario>): G5Row[] {
   return rows;
 }
 
-function rowAt(set: PredictionSet, s: Scenario, k: number): PredictionRow | undefined {
+export function rowAt(set: PredictionSet, s: Scenario, k: number): PredictionRow | undefined {
   const p = set.byIndex.get(s.metadata.index);
   if (p === undefined)
     throw new Error(`${set.label}: no prediction for scenario ${String(s.metadata.index)}`);
@@ -89,11 +89,11 @@ function rowAt(set: PredictionSet, s: Scenario, k: number): PredictionRow | unde
   return p.rows.find((r) => Math.round(r.timestamp_s / dt) === k);
 }
 
-const errorOf = (s: Scenario, r: PredictionRow | undefined, m: Metric): number =>
+export const errorOf = (s: Scenario, r: PredictionRow | undefined, m: Metric): number =>
   r === undefined || !r.converged ? Infinity : rowError(s, r)[m];
 
 /** Clusters renumbered 0, 1, … over a subset of rows. */
-function clustersOf(rows: G5Row[]): Int32Array {
+export function clustersOf(rows: G5Row[]): Int32Array {
   const ids = new Map<number, number>();
   return Int32Array.from(rows, (r) => {
     const c = ids.get(r.cluster);
