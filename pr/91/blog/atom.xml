@@ -1,0 +1,1819 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://debrief.github.io/Gitma/pr/91/blog</id>
+    <title>TMA via ML Blog</title>
+    <updated>2026-11-15T00:00:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://debrief.github.io/Gitma/pr/91/blog"/>
+    <subtitle>TMA via ML Blog</subtitle>
+    <entry>
+        <title type="html"><![CDATA[Re-arming the composite solver makes it worse]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/composite-rearm</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/composite-rearm"/>
+        <updated>2026-11-15T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[The first composite solver almost passed: it missed its gate by 1.3% on course. Its weakness]]></summary>
+        <content type="html"><![CDATA[<p>The first composite solver almost passed: it missed its gate by 1.3% on course. Its weakness
+seemed clear. Once it handed over to the fused tracker after a manoeuvre, it never came back to
+least squares, even when the target settled on a new straight leg.</p>
+<p>The owner chose to let it <strong>re-arm</strong>:</p>
+<ul>
+<li class="">after a switch, fit a new straight leg, borrowing the fused tracker's range to pin it down;</li>
+<li class="">hand back to that leg once it is a few minutes long and fits the bearings well.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-worse-not-better">Result: worse, not better<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/composite-rearm#result-worse-not-better" class="hash-link" aria-label="Direct link to Result: worse, not better" title="Direct link to Result: worse, not better" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The score.</strong> The best re-armed setting scores −0.031, against −0.013 for the original. It
+fails overall course against the fused tracker (1.034).</li>
+<li class=""><strong>The pattern.</strong> Every setting does worse than without re-arming, and handing back sooner does
+worst.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="why">Why<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/composite-rearm#why" class="hash-link" aria-label="Direct link to Why" title="Direct link to Why" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The new legs look right but aren't.</strong> Where the composite uses one, it is about twice as
+wrong as the fused tracker on the same rows: range 31% against 16%, speed 5.9 kt against
+3.0 kt.</li>
+<li class=""><strong>A good fit isn't a right answer.</strong> Without the listening platform manoeuvring again, many
+different tracks explain a short leg's bearings equally well. Borrowing the range fixes the
+distance but not the velocity. This is the basic limit of bearings-only tracking, and it is
+why least squares needs an ownship manoeuvre in the first place.</li>
+<li class=""><strong>The real cost is unchanged.</strong> 44% of the rows after a manoeuvre still come from the stale
+least-squares answer before the switch trips. Re-arming does nothing for those.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-it-means">What it means<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/composite-rearm#what-it-means" class="hash-link" aria-label="Direct link to What it means" title="Direct link to What it means" translate="no">​</a></h2>
+<p>Both composite designs are recorded as failing their gate on validation. No test data were
+generated. The lesson is narrow: a residual check can say when a straight-line fit has broken,
+but not when a new one is trustworthy.</p>
+<p>Record: <code>experiments/20261115-p12b-val/</code>; SRD Annex D §D.7–D.8; spec 025.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[A composite solver: the best of both, nearly — stopped at validation]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/composite-solver</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/composite-solver"/>
+        <updated>2026-11-15T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Spec 024 found that batch least squares reaches the information limit while the target sails]]></summary>
+        <content type="html"><![CDATA[<p>Spec 024 found that batch least squares reaches the information limit while the target sails
+straight, and that the fused tracker is best once the target has manoeuvred. The obvious next
+step was a <strong>composite</strong>:</p>
+<ul>
+<li class="">report least squares while its straight-line fit still explains the bearings;</li>
+<li class="">hand over to the fused tracker once the fit breaks.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-test">The test<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/composite-solver#the-test" class="hash-link" aria-label="Direct link to The test" title="Direct link to The test" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The switch:</strong> a residual check over the last W bearings against a threshold c. Once tripped,
+it latches. Nothing is trained.</li>
+<li class=""><strong>The gate (G9):</strong> better than the fused tracker overall on range and course, <strong>and</strong> within
+1.1 × of least squares on straight legs, under realistic bearing error.</li>
+<li class=""><strong>Pre-registration.</strong> W and c are picked on validation by a rule written down first. The
+composite goes to a fresh test set only if every check clears on validation.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-no-setting-clears-all-five-checks">Result: no setting clears all five checks<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/composite-solver#result-no-setting-clears-all-five-checks" class="hash-link" aria-label="Direct link to Result: no setting clears all five checks" title="Direct link to Result: no setting clears all five checks" translate="no">​</a></h2>
+<p>The best setting (a 1-minute window, threshold 8) misses by 1.3% on overall course:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Composite against</th><th>Range</th><th>Course</th><th>Speed</th></tr></thead><tbody><tr><td>The fused tracker, all rows</td><td><strong>0.964</strong></td><td>1.013</td><td>0.85 (reported)</td></tr><tr><td>Least squares, straight legs (limit 1.1)</td><td>1.02</td><td>1.07</td><td>1.04</td></tr></tbody></table>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="why">Why<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/composite-solver#why" class="hash-link" aria-label="Direct link to Why" title="Direct link to Why" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>On straight legs it works.</strong> It keeps least squares' accuracy, with course errors 4 × smaller
+than the fused tracker's.</li>
+<li class=""><strong>After a manoeuvre it pays for being late.</strong> Until the residual check trips, it keeps
+reporting least squares' out-of-date straight-line answer. Course there is 12% worse than the
+fused tracker's.</li>
+<li class=""><strong>Most of the rows that count come after a manoeuvre,</strong> so the late switch outweighs the
+straight-leg gain on course.</li>
+<li class=""><strong>Tuning the threshold only trades one failure for the other.</strong>
+<ul>
+<li class="">Switch earlier, and false alarms from the correlated error throw away least squares on
+straight legs.</li>
+<li class="">Switch later, and the stale answers last longer.</li>
+</ul>
+</li>
+</ul>
+<p>This matches phase 5: detecting a manoeuvre from bearings alone is slow, whatever the detector.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-it-means">What it means<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/composite-solver#what-it-means" class="hash-link" aria-label="Direct link to What it means" title="Direct link to What it means" translate="no">​</a></h2>
+<p>The composite is better than the fused tracker on range (about 4%) and clearly better on speed
+(about 15%). It is not better on course, and the pre-registered rule asked for all three. No test
+data were generated, and earlier results stand.</p>
+<p>Possible next steps, each needing a new decision:</p>
+<ul>
+<li class="">a gate that judges straight legs and post-manoeuvre rows separately;</li>
+<li class="">a switch that can return to least squares on a new straight leg.</li>
+</ul>
+<p>Record: <code>experiments/20261115-p12-val/</code> (grid, diagnostic, slices); SRD Annex D; spec 025.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[The project in plain English: can AI track a ship from bearings alone?]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/plain-english-summary</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/plain-english-summary"/>
+        <updated>2026-11-15T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[A non-technical summary of what this project set out to do, what it found, and what it means. The]]></summary>
+        <content type="html"><![CDATA[<p>A non-technical summary of what this project set out to do, what it found, and what it means. The
+full, technical answer is the <a class="" href="https://debrief.github.io/Gitma/pr/91/docs/results/go-no-go">go/no-go report</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-question">The question<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/plain-english-summary#the-question" class="hash-link" aria-label="Direct link to The question" title="Direct link to The question" translate="no">​</a></h2>
+<p>A submarine listening to a ship hears only which direction the sound comes from, not how far away
+the ship is. Working out the ship's range, course and speed from those directions alone is a
+classic problem called target motion analysis. Well-established mathematical methods already
+exist for it.</p>
+<p>We asked whether an AI model, trained on large amounts of computer-simulated data, could do the
+job well enough to be useful.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="how-we-worked">How we worked<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/plain-english-summary#how-we-worked" class="hash-link" aria-label="Direct link to How we worked" title="Direct link to How we worked" translate="no">​</a></h2>
+<p>Every step was set up as a fair test:</p>
+<ul>
+<li class="">the rules were written down before the test ran;</li>
+<li class="">the score came from fresh data the model had never seen;</li>
+<li class="">the AI was always compared with the existing mathematical methods.</li>
+</ul>
+<p>Each result was then checked by a panel of AI reviewers.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-we-found">What we found<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/plain-english-summary#what-we-found" class="hash-link" aria-label="Direct link to What we found" title="Direct link to What we found" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The AI does learn something real.</strong> It clearly beats guesswork, and it is good at judging how
+far away the ship is.</li>
+<li class=""><strong>On its own, it isn't good enough.</strong> When the ship sails straight, the traditional methods are
+1.6 to 3.5 times more accurate, especially on speed. The AI never caught up, despite many
+attempts.</li>
+<li class=""><strong>It shines where the traditional methods struggle.</strong> That is in the minutes just after the ship
+turns, and when the direction measurements carry realistic, drifting errors.</li>
+<li class=""><strong>The best result combines the two.</strong> Feeding the AI's range estimate into a traditional tracker
+made it 18–23% more accurate on range than the tracker alone.</li>
+<li class=""><strong>A final check measured the theoretical best possible accuracy.</strong>
+<ul>
+<li class="">On straight legs, the traditional method already reaches that limit, and the AI is about 1.5
+times worse.</li>
+<li class="">After the ship turns, it is still unknown how much better anything could do.</li>
+</ul>
+</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-verdict">The verdict<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/plain-english-summary#the-verdict" class="hash-link" aria-label="Direct link to The verdict" title="Direct link to The verdict" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>No:</strong> the AI should not replace the traditional methods.</li>
+<li class=""><strong>A qualified yes:</strong> it is worth using as a helper inside a traditional tracker, mainly for
+judging range and for coping after the ship turns.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-would-come-next">What would come next<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/plain-english-summary#what-would-come-next" class="hash-link" aria-label="Direct link to What would come next" title="Direct link to What would come next" translate="no">​</a></h2>
+<p>The next step is testing on real or more realistic data, against a traditional tracker tuned for
+those conditions. That cannot happen here, because this project is public and uses simulated data
+only.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="honest-caveats">Honest caveats<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/plain-english-summary#honest-caveats" class="hash-link" aria-label="Direct link to Honest caveats" title="Direct link to Honest caveats" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Everything is simulated.</strong></li>
+<li class=""><strong>Some rules were relaxed along the way.</strong> That always happened before the affected result was
+known, but it still matters.</li>
+<li class=""><strong>The reviewers were not fully independent.</strong> They were AI agents of the same family as the
+one doing the work.</li>
+</ul>
+<p>None of these changes the main "no".</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[How the trackers cope as bearing error gets worse]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/severity-sweep</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/severity-sweep"/>
+        <updated>2026-11-15T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[The project's "qualified go" for the fused tracker rested on one level of realistic bearing]]></summary>
+        <content type="html"><![CDATA[<p>The project's "qualified go" for the fused tracker rested on one level of realistic bearing
+error. We re-ran every frozen estimator on the same scenarios at four levels: no correlated error
+(×0), half (×0.5), the usual level (×1) and double (×2).</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-we-found">What we found<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/severity-sweep#what-we-found" class="hash-link" aria-label="Direct link to What we found" title="Direct link to What we found" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The fused tracker keeps its edge over the classical IMM</strong> at every level: its range error is
+0.84, 0.79, 0.78 and 0.77 × the IMM's. The edge grows a little, then levels off.</li>
+<li class=""><strong>Batch least squares stays at the information limit on straight legs</strong> at every level. Nothing
+can do better there.</li>
+<li class=""><strong>The network on its own overtakes the fused tracker as error grows.</strong> At ×0 the fused tracker
+is better; at ×0.5 they tie; at ×2 the network alone has 20% less range error. The fused
+tracker inherits the IMM's weakness under heavy error, and its settings were chosen on white
+noise.</li>
+<li class=""><strong>The composite solver's switch breaks under heavy error.</strong> Correlated error looks like a
+manoeuvre to its fit check, so at ×2 it gives up least squares on straight legs.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-it-means">What it means<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/15/severity-sweep#what-it-means" class="hash-link" aria-label="Direct link to What it means" title="Direct link to What it means" translate="no">​</a></h2>
+<p>The qualified go survives. Two conditions get sharper: the fusion's settings, and the classical
+reference it is judged against, both need tuning to the error level of real data. Part of the
+network's robustness is a learned prior about typical geometry, which only helps while real
+engagements look like the simulated ones.</p>
+<p>Results: <code>experiments/20261115-p13-sweep/results.md</code>.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 11: retraining T2 on realistic bearing error does not improve its range]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/14/phase-11</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/14/phase-11"/>
+        <updated>2026-11-14T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Phases 7–10 showed that under realistic bearing error (correlated noise plus a drifting bias), the]]></summary>
+        <content type="html"><![CDATA[<p>Phases 7–10 showed that under realistic bearing error (correlated noise plus a drifting bias), the
+learned network T2 gives the most robust range estimate. T2 had been trained only on white noise.
+The obvious next question: does training it on the realistic error make it better still?</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-test">The test<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/14/phase-11#the-test" class="hash-link" aria-label="Direct link to The test" title="Direct link to The test" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The model.</strong> T2's architecture and configuration, unchanged, trained from scratch on a fresh
+100,000-scenario dataset generated entirely with realistic error. Training took about 16 hours
+on GitHub Actions and stopped early at epoch 48.</li>
+<li class=""><strong>The gate (G8).</strong> The retrained T2 must:
+<ul>
+<li class="">have a median range error wholly below the frozen T2's;</li>
+<li class="">pass G5 against the reference IMM.</li>
+</ul>
+</li>
+<li class=""><strong>The validation step first.</strong> The six point estimates on the shared validation split must all be
+within their limits before any test data are generated.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-no-gain-on-range-so-it-stops-at-validation">Result: no gain on range, so it stops at validation<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/14/phase-11#result-no-gain-on-range-so-it-stops-at-validation" class="hash-link" aria-label="Direct link to Result: no gain on range, so it stops at validation" title="Direct link to Result: no gain on range, so it stops at validation" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Retrained T2 against</th><th>Range</th><th>Course</th><th>Settled course</th></tr></thead><tbody><tr><td>The frozen T2</td><td><strong>1.021</strong> [0.991, 1.052]</td><td>0.981</td><td><strong>0.878</strong></td></tr><tr><td>The IMM</td><td>0.745</td><td>0.857</td><td>1.079</td></tr></tbody></table>
+<ul>
+<li class=""><strong>Range is unchanged.</strong> 12.4% against the frozen T2's 12.2%, and the interval also rules out a
+gain of more than 1%.</li>
+<li class=""><strong>Settled course improves</strong> by about 12%, mostly on straight legs before any manoeuvre.</li>
+<li class=""><strong>It still beats the IMM</strong> on overall range and course, and passes G5's settled limits.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-cost-worse-on-white-noise">The cost: worse on white noise<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/14/phase-11#the-cost-worse-on-white-noise" class="hash-link" aria-label="Direct link to The cost: worse on white noise" title="Direct link to The cost: worse on white noise" translate="no">​</a></h2>
+<p>On the same scenarios with white noise only, the retrained T2 is clearly worse:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Median range error</th><th>White noise</th><th>Realistic error</th></tr></thead><tbody><tr><td>Retrained T2</td><td>10.3%</td><td>12.4%</td></tr><tr><td>Frozen T2</td><td><strong>8.0%</strong></td><td>12.2%</td></tr><tr><td>IMM</td><td>9.1%</td><td>16.7%</td></tr></tbody></table>
+<p>The retrained T2 looks more robust (it degrades 1.21 × against 1.52 ×), but only because it starts
+worse. On white noise it loses to the IMM on range.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="baselines-realistic-error-all-gated-rows">Baselines (realistic error, all gated rows)<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/14/phase-11#baselines-realistic-error-all-gated-rows" class="hash-link" aria-label="Direct link to Baselines (realistic error, all gated rows)" title="Direct link to Baselines (realistic error, all gated rows)" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Batch least squares:</strong> 17.1% and 46.0°. It is best before any manoeuvre (6.9%, 2.0°).</li>
+<li class=""><strong>EKF:</strong> 16.1% and 29.7°. It is best on settled course (9.8°) and speed (1.91 kt).</li>
+<li class=""><strong>Naive:</strong> 38.7% and 88.3°.</li>
+<li class=""><strong>Fused tracker and hybrid:</strong> rebuilt on the retrained T2, they are unchanged (within 0.3
+points in range).</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-it-means">What it means<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/14/phase-11#what-it-means" class="hash-link" aria-label="Direct link to What it means" title="Direct link to What it means" translate="no">​</a></h2>
+<p>Seeing the error in training did not buy range accuracy. A plausible reading is that the frozen
+T2 is already near what the bearings allow under this error model: phase 9 found the drifting bias
+nearly unobservable, and a network cannot learn what the data do not contain.</p>
+<p><strong>Limits:</strong></p>
+<ul>
+<li class="">one training run, so the run-to-run spread is unknown;</li>
+<li class="">one error model at one severity;</li>
+<li class="">validation data only;</li>
+<li class="">an architecture that was not re-tuned.</li>
+</ul>
+<p>No test data were generated. Phase 10's verdict stands, and the owner decides what comes next.</p>
+<p>Record: <code>experiments/20261114-p11-val/</code> (diagnostic, baselines, clean twin); model
+<code>experiments/20261113-p11a-models/</code>; decision <code>experiments/20261113-p11-decision/</code>; spec 023; SRD
+Annex C §C.18.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 10: T2's range with a filter's velocity passes G8, but adds little that was not known]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/12/phase-10</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/12/phase-10"/>
+        <updated>2026-11-12T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Phases 7–9 left one clear lesson. Under realistic bearing error (correlated noise plus a drifting]]></summary>
+        <content type="html"><![CDATA[<p>Phases 7–9 left one clear lesson. Under realistic bearing error (correlated noise plus a drifting
+bias), the learned network T2 gives the most robust range, and no change to the filters closes
+the gap. Phase 10 takes the direct route and reports T2's range alongside the fused tracker's
+course and speed.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-test">The test<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/12/phase-10#the-test" class="hash-link" aria-label="Direct link to The test" title="Direct link to The test" translate="no">​</a></h2>
+<ul>
+<li class="">
+<p><strong>The estimator:</strong></p>
+<ul>
+<li class="">range and position from T2;</li>
+<li class="">course and speed from the frozen fused tracker;</li>
+<li class="">T2's whole row wherever the fused tracker has no estimate (0.9% of the gated rows, 2.5% of
+all rows).</li>
+</ul>
+<p>Nothing is trained or tuned.</p>
+</li>
+<li class="">
+<p><strong>The gate (G8):</strong> pass G5 against the reference IMM, <strong>and</strong> have a median range error wholly
+below the fused tracker's.</p>
+</li>
+<li class="">
+<p><strong>Pre-registration.</strong> The rules, the validation run and the decision record were all committed
+before the test data existed.</p>
+</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-g8-passes-seed-224-40000-scenarios">Result: G8 passes (seed 224, 40,000 scenarios)<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/12/phase-10#result-g8-passes-seed-224-40000-scenarios" class="hash-link" aria-label="Direct link to Result: G8 passes (seed 224, 40,000 scenarios)" title="Direct link to Result: G8 passes (seed 224, 40,000 scenarios)" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Hybrid against</th><th>Range</th><th>Course</th><th>Settled range</th><th>Settled course</th><th>Settled speed</th></tr></thead><tbody><tr><td>The IMM (limit 1 / 1.1)</td><td><strong>0.689</strong></td><td><strong>0.895</strong></td><td>0.724</td><td>0.887</td><td>0.898</td></tr><tr><td>The fused tracker (limit 1)</td><td><strong>0.908</strong> [0.893, 0.921]</td><td></td><td></td><td></td><td></td></tr></tbody></table>
+<p>The checks use 67,292 rows from the 20,161 test scenarios at σ = 1°. T2 converged on every row.
+Every 97.5% interval sits wholly within its limit. Five independent reviewers agreed that the
+verdict is right.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="why-this-is-mostly-a-replay">Why this is mostly a replay<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/12/phase-10#why-this-is-mostly-a-replay" class="hash-link" aria-label="Direct link to Why this is mostly a replay" title="Direct link to Why this is mostly a replay" translate="no">​</a></h2>
+<p>The panel was blunt about how much this pass adds:</p>
+<ul>
+<li class=""><strong>The range is T2's, row for row.</strong> The check against the fused tracker is therefore T2 against
+the fused tracker. Phase 7 already showed that (fused/T2 1.095), and phase 8 showed no tuning
+closes it. Seed 224 replicates that result.</li>
+<li class=""><strong>The velocity is the fused tracker's,</strong> which already passed G5 in phase 7.</li>
+<li class=""><strong>The estimator to beat changed.</strong> In phases 8–9 it was T2; here it is the fused tracker, by the
+owner's choice before validation. T2 is still not beaten on range.</li>
+<li class=""><strong>What is new</strong> is only that the pair, assembled per output, passes every G5 check at once.</li>
+<li class=""><strong>About 1 point of each margin comes from the scoring convention.</strong> A row with no estimate counts
+as infinitely wrong, and the hybrid never lacks one. On rows where every estimator converged the
+ratios are 0.700 against the IMM and 0.918 against the fused tracker. Both still pass.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-it-does-not-show">What it does not show<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/12/phase-10#what-it-does-not-show" class="hash-link" aria-label="Direct link to What it does not show" title="Direct link to What it does not show" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Median error, all G5 rows</th><th>Range</th><th>Course</th><th>Speed</th></tr></thead><tbody><tr><td>Hybrid</td><td>12.0%</td><td>26.6°</td><td>2.58 kt</td></tr><tr><td>Fused tracker</td><td>13.2%</td><td>27.1°</td><td>2.60 kt</td></tr><tr><td>T2 alone</td><td>12.0%</td><td><strong>25.9°</strong></td><td>2.85 kt</td></tr><tr><td>IMM</td><td>17.4%</td><td>29.7°</td><td>2.87 kt</td></tr><tr><td>EKF</td><td>16.6%</td><td>30.2°</td><td><strong>2.41 kt</strong></td></tr><tr><td>Batch least squares</td><td>18.0%</td><td>46.6°</td><td>2.50 kt</td></tr><tr><td>Naive</td><td>40.2%</td><td>89.9°</td><td>3.99 kt</td></tr></tbody></table>
+<ul>
+<li class=""><strong>No gain over T2 on range,</strong> since the range is T2's. T2 alone is also slightly better on overall
+course.</li>
+<li class=""><strong>Classical filters still win on straight legs.</strong> The EKF is better on settled course (10.7°
+against 13.3°) and speed. Before any manoeuvre, batch least squares is best (7.3%, 2.2°).</li>
+<li class=""><strong>It is not a track.</strong> The position comes from one estimator and the velocity from another. The
+position change over a minute disagrees with the stated velocity by a median 18 kt (8 kt for the
+fused tracker; 17 kt for T2 alone, whose position track is itself jumpy), and the implied bearing rate is the worst of the four estimators. It is a set of
+per-output estimates, not a state you could extrapolate.</li>
+<li class=""><strong>No uncertainty</strong> is stated for the combined estimate.</li>
+<li class=""><strong>Scope:</strong> one error model at one severity, on simulated data.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-arc-phases-710">The arc, phases 7–10<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/12/phase-10#the-arc-phases-710" class="hash-link" aria-label="Direct link to The arc, phases 7–10" title="Direct link to The arc, phases 7–10" translate="no">​</a></h2>
+<p>Under realistic bearing error:</p>
+<ul>
+<li class="">the learned range estimate is the most robust;</li>
+<li class="">feeding it into a filter costs some of that robustness;</li>
+<li class="">tuning the fusion doesn't recover it;</li>
+<li class="">modelling the bias inside the filter fails, because the bias can't be observed.</li>
+</ul>
+<p>Reporting the learned range directly keeps its accuracy, at the cost of a coherent track.</p>
+<p>Record: <code>experiments/20261112-p10-g8/</code> (verdict, baselines, coherence, panel review); validation
+<code>experiments/20261112-p10-val/</code>; decision <code>experiments/20261112-p10-decision/</code>; spec 022.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 9: a bias-aware IMM cannot see the bias]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/12/phase-9</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/12/phase-9"/>
+        <updated>2026-11-12T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Under realistic bearing error (correlated noise plus a drifting bias), the learned range estimate]]></summary>
+        <content type="html"><![CDATA[<p>Under realistic bearing error (correlated noise plus a drifting bias), the learned range estimate
+T2 beat the classical IMM, and no fusion setting could close the gap (phase 8). The natural
+classical answer is to model the error: give the IMM a sixth state for the bearing bias and let
+it estimate the bias.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-test">The test<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/12/phase-9#the-test" class="hash-link" aria-label="Direct link to The test" title="Direct link to The test" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The filter:</strong> the reference IMM, plus a drifting bias added to every predicted bearing.</li>
+<li class=""><strong>Tuning:</strong> the bias's size and time constant and the measurement noise scale, 18 settings in
+all, on validation data with realistic error.</li>
+<li class=""><strong>The rule, fixed before any setting was scored:</strong> to go to a gate, a setting must beat T2 on
+range and still pass G5 against the plain IMM.</li>
+<li class=""><strong>The forecast</strong>, recorded beforehand: this would probably fail. A quick check had shown that a
+1° offset barely changes how well a straight-line track fits the bearings.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-it-stops-at-validation">Result: it stops at validation<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/12/phase-9#result-it-stops-at-validation" class="hash-link" aria-label="Direct link to Result: it stops at validation" title="Direct link to Result: it stops at validation" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Bias-state IMM</th><th>vs plain IMM, range</th><th>vs T2, range</th></tr></thead><tbody><tr><td>Best setting (0.25°, 10 min, r 8)</td><td>0.998</td><td>1.37</td></tr><tr><td>Larger bias (1°)</td><td>1.05–1.12</td><td>1.44–1.53</td></tr></tbody></table>
+<ul>
+<li class=""><strong>At best it matches the plain IMM.</strong> It never improves on it.</li>
+<li class=""><strong>It stays about 1.4 × T2's range error.</strong></li>
+<li class=""><strong>Allowing a larger bias makes it worse.</strong> The extra freedom is not pinned down by the bearings.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="why">Why<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/12/phase-9#why" class="hash-link" aria-label="Direct link to Why" title="Direct link to Why" translate="no">​</a></h2>
+<p>From bearings alone, a slowly drifting bias looks almost exactly like a slightly rotated target
+track. One or two ownship zigs do not separate the two, so the filter cannot learn the bias. T2
+does better on range, plausibly because it learns range from the whole bearing history. That
+explanation was not tested.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="where-this-leaves-things">Where this leaves things<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/12/phase-9#where-this-leaves-things" class="hash-link" aria-label="Direct link to Where this leaves things" title="Direct link to Where this leaves things" translate="no">​</a></h2>
+<p>Phases 7–9 tell one story. Under this error model:</p>
+<ul>
+<li class="">the learned range is the most robust estimate;</li>
+<li class="">fusing it into a filter that assumes white noise loses some of that advantage;</li>
+<li class="">modelling the bias inside the filter does not help, because the bias cannot be observed.</li>
+</ul>
+<p>Two options remain for the owner:</p>
+<ul>
+<li class="">report T2's range directly, as a hybrid;</li>
+<li class="">close out the project.</li>
+</ul>
+<p>Record: <code>experiments/20261112-p9-research/</code>; spec 021; SRD Annex C §C.16.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 8: re-tuning the fusion cannot make it beat T2 on range under realistic error]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/10/phase-8</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/10/phase-8"/>
+        <updated>2026-11-10T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Phase 7 found a gap. Under realistic bearing error (correlated noise plus a drifting bias), T2 on]]></summary>
+        <content type="html"><![CDATA[<p>Phase 7 found a gap. Under realistic bearing error (correlated noise plus a drifting bias), T2 on
+its own had lower range error than the fused tracker that feeds T2's range into the IMM: 12.1%
+against 13.2%. The fusion's weighting had been tuned on clean data and then frozen, so the obvious
+question was whether re-tuning it closes the gap.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-test">The test<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/10/phase-8#the-test" class="hash-link" aria-label="Direct link to The test" title="Direct link to The test" translate="no">​</a></h2>
+<p>The owner chose to re-tune only the fusion's two settings, on validation data with realistic error:</p>
+<ul>
+<li class="">k, how much to trust T2's range;</li>
+<li class="">M, how often to feed it in.</li>
+</ul>
+<p>The gate would require both of these:</p>
+<ul>
+<li class=""><strong>beat T2 alone</strong> on median range error;</li>
+<li class=""><strong>still pass G5</strong> against the reference IMM.</li>
+</ul>
+<p>The grid had 24 settings. The rule for choosing between them was written and committed before any
+of them was scored. A setting went to the gate only if its estimated margin on every check was
+positive.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-no-setting-qualifies">Result: no setting qualifies<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/10/phase-8#result-no-setting-qualifies" class="hash-link" aria-label="Direct link to Result: no setting qualifies" title="Direct link to Result: no setting qualifies" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Setting</th><th>Fused / IMM range</th><th>Fused / T2 range</th></tr></thead><tbody><tr><td>Frozen (k 4, every 6 samples)</td><td>0.777</td><td>1.064</td></tr><tr><td><strong>Best re-tune (k 3, every sample)</strong></td><td>0.740</td><td><strong>1.014</strong></td></tr><tr><td>Heaviest weight on T2 (k 0.5, every sample)</td><td>0.749</td><td>1.027</td></tr></tbody></table>
+<ul>
+<li class=""><strong>Re-tuning helps against the IMM.</strong> Feeding T2's range at every sample cuts the fused
+tracker's range error further (0.74 × the IMM's), and cuts its shortfall against T2 from 6.4%
+to 1.4%.</li>
+<li class=""><strong>It never beats T2.</strong> The best setting is still 1.4% worse on range. Trusting T2 more does not
+help either: course and velocity then fall apart (course up to 1.27 × the IMM's on settled
+rows), and range still trails T2.</li>
+<li class=""><strong>So phase 8 stops at validation.</strong> No fresh test data were generated, and phase 7's verdict
+stands.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="why-plausibly">Why, plausibly<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/10/phase-8#why-plausibly" class="hash-link" aria-label="Direct link to Why, plausibly" title="Direct link to Why, plausibly" translate="no">​</a></h2>
+<p>Under the drifting bias, the IMM's range ends up about 7% short. Every bearing update pulls the
+shared track state back towards that biased range, so a single filter state cannot hold T2's less
+biased range, however the two are weighted. This explanation was not tested here.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-it-means">What it means<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/10/phase-8#what-it-means" class="hash-link" aria-label="Direct link to What it means" title="Direct link to What it means" translate="no">​</a></h2>
+<p>Within this design, fusing T2's range into a filter that assumes white noise costs some range
+accuracy under correlated error. The filter's state stays coherent, and it still beats the IMM
+clearly.</p>
+<p>Two further changes might close the gap:</p>
+<ul>
+<li class="">a filter that models the bias;</li>
+<li class="">reporting T2's range directly, as the phase-4b hybrid did.</li>
+</ul>
+<p>Either would be a new decision for the owner.</p>
+<p>Record: <code>experiments/20261110-p8-research/</code> (grid, selection, validation note); spec 020; SRD
+Annex C §C.15.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 7: realistic bearing error — the frozen fused tracker still beats the frozen IMM, but T2 alone is more robust]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/08/phase-7</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/08/phase-7"/>
+        <updated>2026-11-08T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[So far every tracker in this project has seen only white bearing noise. Real bearings also carry]]></summary>
+        <content type="html"><![CDATA[<p>So far every tracker in this project has seen only white bearing noise. Real bearings also carry
+correlated error and a slowly drifting bias. Phase 7 asks one question: <strong>does the fused tracker's
+G5 advantage over the reference IMM survive that error, with nothing re-trained or re-tuned?</strong></p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-setup">The setup<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/08/phase-7#the-setup" class="hash-link" aria-label="Direct link to The setup" title="Direct link to The setup" translate="no">​</a></h2>
+<p>The owner chose three things:</p>
+<ul>
+<li class=""><strong>frozen trackers;</strong></li>
+<li class=""><strong>an error model</strong> made of a correlated term (sd 1.0°, 30 s) and a drifting bias (sd 0.5°,
+20 min). This setting is double the one first proposed. At σ = 1° the total bearing error goes
+from 1.0° to 1.5°;</li>
+<li class=""><strong>G5's rules, unchanged.</strong></li>
+</ul>
+<p>The generator adds the error from its own random stream, so each scenario can be regenerated
+without it. The two versions have identical geometry and identical white noise, which makes a
+paired clean comparison possible.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-g5-passes-seed-218-40000-scenarios">Result: G5 passes (seed 218, 40,000 scenarios)<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/08/phase-7#result-g5-passes-seed-218-40000-scenarios" class="hash-link" aria-label="Direct link to Result: G5 passes (seed 218, 40,000 scenarios)" title="Direct link to Result: G5 passes (seed 218, 40,000 scenarios)" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Fused / IMM</th><th>Ratio (97.5% CI)</th><th>Limit</th></tr></thead><tbody><tr><td>Overall range</td><td><strong>0.766</strong> [0.755, 0.778]</td><td>&lt; 1</td></tr><tr><td>Overall course</td><td><strong>0.907</strong> [0.897, 0.918]</td><td>&lt; 1</td></tr><tr><td>Settled range</td><td>0.774</td><td>&lt; 1.1</td></tr><tr><td>Settled course</td><td>0.875</td><td>&lt; 1.1</td></tr><tr><td>Settled speed</td><td>0.907</td><td>&lt; 1.1</td></tr></tbody></table>
+<p>Validation on seed 217 had already shown much the same: 0.777 for range and 0.922 for course. Five
+independent reviewers agreed the verdict is right, and one reproduced it byte for byte.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-the-pass-does-not-show">What the pass does not show<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/08/phase-7#what-the-pass-does-not-show" class="hash-link" aria-label="Direct link to What the pass does not show" title="Direct link to What the pass does not show" translate="no">​</a></h2>
+<p>The absolute errors are large: the fused tracker's 90th-percentile course error is 106°. The panel
+narrowed the claim.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Median error, all G5 rows</th><th>Range</th><th>Course</th><th>Speed</th></tr></thead><tbody><tr><td>Fused tracker</td><td>13.2%</td><td>27°</td><td>2.6 kt</td></tr><tr><td>IMM (reference)</td><td>17.3%</td><td>30°</td><td>2.9 kt</td></tr><tr><td>T2 alone</td><td><strong>12.1%</strong></td><td><strong>26°</strong></td><td>2.9 kt</td></tr><tr><td>EKF</td><td>16.8%</td><td>31°</td><td><strong>2.4 kt</strong></td></tr><tr><td>Batch least squares</td><td>17.6%</td><td>47°</td><td>2.4 kt</td></tr><tr><td>Naive</td><td>40%</td><td>90°</td><td>3.9 kt</td></tr></tbody></table>
+<ul>
+<li class=""><strong>T2 alone beats the fused tracker on range</strong>, by 1.10 × [1.08, 1.11] overall. Its error grows
+least under realistic error (1.47 × its clean value, against the IMM's 1.82 ×). The IMM's range
+ends up biased about 7% short under the drifting bias, while T2 stays nearly unbiased. The fusion
+setting, frozen from clean data, plausibly gives T2 too little weight; k was not re-swept. Fusing keeps one coherent track
+state, but under this error it is not the best range estimator.</li>
+<li class=""><strong>On straight legs, classical methods still win.</strong> On settled rows the EKF beats the fused
+tracker on course (10.6° against 13.5°) and on speed, and batch least squares does too (8.1°,
+1.8 kt). Before any manoeuvre, batch least squares
+is best of all: 7.3% range and 2.2° course.</li>
+<li class=""><strong>The reference was frozen, not adapted.</strong> Neither filter models correlated or bias error. An
+IMM with an inflated measurement noise or a bias state might close the gap; this phase does not
+test that.</li>
+<li class=""><strong>Every tracker is much worse.</strong> Median range error rises 1.5–1.8 × overall and about 2 × on
+settled rows.</li>
+<li class=""><strong>Not measured.</strong> Filter consistency (NIS, NEES) and covariance health (non-PD steps) under
+correlated error.</li>
+<li class=""><strong>Scope.</strong> The result covers one error model at one severity, σ = 1° rows and simulated data.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-one-line-version">The one-line version<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/08/phase-7#the-one-line-version" class="hash-link" aria-label="Direct link to The one-line version" title="Direct link to The one-line version" translate="no">​</a></h2>
+<p>Under one setting of realistic bearing error, the frozen fused tracker keeps its G5 advantage over
+the frozen IMM, which was not adapted to this error. The learned range (T2) is likely what makes it robust (a hypothesis), and on its
+own T2 is more robust still. The classical filters remain better on straight legs.</p>
+<p>Record: <code>experiments/20261108-p7-g5/</code> (verdict, baselines, clean comparison, panel review);
+validation <code>experiments/20261108-p7-val/</code>; decision <code>experiments/20261108-p7-decision/</code>; G0
+<code>experiments/20261108-g0-p7-r1/</code>; spec 019.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 6 re-score: G7 passes, with coverage within tolerance on average but not calibrated]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/07/phase-6-rescore</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/07/phase-6-rescore"/>
+        <updated>2026-11-07T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[G7 on seed 215 was inconclusive: the fused tracker's 50% range interval covered 48.3%, and its]]></summary>
+        <content type="html"><![CDATA[<p>G7 on seed 215 was inconclusive: the fused tracker's 50% range interval covered 48.3%, and its
+confidence interval straddled the 48% floor. The rules allow one re-score on a larger fresh seed.
+The owner chose to run it. Decision 34 fixed the details before the data existed:</p>
+<ul>
+<li class=""><strong>What stayed the same:</strong> the tracker, the reference, the frozen models, the multipliers and the
+rules.</li>
+<li class=""><strong>What changed:</strong> a fresh seed, 216, and a test split of 110,000 scenarios instead of 40,000.
+That is large enough to resolve a coverage of about 48.3% against the floor.</li>
+<li class=""><strong>The forecast:</strong> about an even chance of passing.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-pass">Result: pass<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/07/phase-6-rescore#result-pass" class="hash-link" aria-label="Direct link to Result: pass" title="Direct link to Result: pass" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Coverage on seed 216 (184,667 G5 rows)</th><th>50%</th><th>90%</th></tr></thead><tbody><tr><td>Range (log)</td><td><strong>48.6%</strong> [48.3, 48.9]</td><td>89.9%</td></tr><tr><td>Course</td><td>50.5%</td><td>90.3%</td></tr><tr><td>Speed</td><td>49.4%</td><td>89.9%</td></tr></tbody></table>
+<p>All nine gated checks pass. The fused tracker's 90% intervals are narrower than the IMM's: 0.73 ×
+for range, 0.94 × for course and 0.89 × for speed. This was the one re-score, so the verdict is
+final.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-the-pass-does-and-does-not-show">What the pass does and does not show<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/07/phase-6-rescore#what-the-pass-does-and-does-not-show" class="hash-link" aria-label="Direct link to What the pass does and does not show" title="Direct link to What the pass does and does not show" translate="no">​</a></h2>
+<p>Five independent reviewers agreed that the pass is correct. One recomputed every value with code
+of its own, and another re-ran the gate. All five also agreed on how far the claim goes.</p>
+<ul>
+<li class="">
+<p><strong>Range intervals run about 1.5 points short.</strong> At 50%, the two seeds together give about 48.5%
+[48.3, 48.8]. That is inside the ±2-point tolerance but not centred on 50%. The pass rests on
+the tolerance. The reference IMM, fitted on the same validation data, lands on 50%. So reusing
+validation data does not explain the fused tracker's shortfall.</p>
+</li>
+<li class="">
+<p><strong>The intervals cover within tolerance only on the pooled mix of rows.</strong> Range at 50% covers:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Rows</th><th>Coverage</th></tr></thead><tbody><tr><td>Settled, before any manoeuvre (quiet legs)</td><td>67%</td></tr><tr><td>Settled, after a manoeuvre</td><td>39%</td></tr><tr><td>At zig + 5 min</td><td>61%</td></tr><tr><td>At zig + 20 min</td><td>40%</td></tr></tbody></table>
+<p>Seed 215 showed the same pattern within a point.</p>
+</li>
+<li class="">
+<p><strong>Course and speed intervals are often uninformative.</strong></p>
+<ul>
+<li class="">17% of course 90% intervals span the whole circle, and the median course 90% interval is
+188° wide. The course width ratio of 0.94 therefore compares two mostly vague intervals.</li>
+<li class="">27% of speed 90% intervals reach below zero.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>This was a second look.</strong> Over both seeds, the chance of a false pass is about 5% at most, not
+2.5%. A smaller re-score would probably have been inconclusive again.</p>
+</li>
+<li class="">
+<p><strong>The pass judges these frozen multipliers.</strong> The 0.3-point margin is smaller than the
+multipliers' own sampling error. So the pass does not show that the recalibration procedure works
+in general.</p>
+</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="phase-6-in-one-line">Phase 6 in one line<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/07/phase-6-rescore#phase-6-in-one-line" class="hash-link" aria-label="Direct link to Phase 6 in one line" title="Direct link to Phase 6 in one line" translate="no">​</a></h2>
+<p>On average over the G5 rows, the fused tracker's recalibrated intervals cover within the
+tolerance, with range about 1.5 points short, and they are tighter than the IMM's. Within a regime they do not: the intervals are too wide
+on quiet legs and too narrow after a manoeuvre, and its course intervals are often vacuous.
+Conditional calibration, for example a multiplier that depends on time since the last manoeuvre,
+would be a new design. The owner decides on the follow-on.</p>
+<p>Record: <code>experiments/20261106-p6v-g7/</code> (verdict, regimes, panel review); decision
+<code>experiments/20261106-p6v-rescore-decision/</code>; spec 018.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 6: the fused tracker's uncertainty, recalibrated, is inconclusive at G7]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/06/phase-6</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/06/phase-6"/>
+        <updated>2026-11-06T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[C.6's second follow-on asks whether the tracker that passed G5 can say how sure it is. The fused]]></summary>
+        <content type="html"><![CDATA[<p>C.6's second follow-on asks whether the tracker that passed G5 can say how sure it is. The fused
+tracker is the frozen IMM with T2's range fused in.</p>
+<p>The owner chose two things:</p>
+<ul>
+<li class=""><strong>Calibrate the fused tracker's stated uncertainty</strong>, without training.</li>
+<li class=""><strong>The test: calibrated and sharper.</strong> Its 50% and 90% intervals for range, course and speed must
+cover within ±2 points of nominal, and be narrower than the reference IMM's after the same
+recalibration.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-was-done">What was done<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/06/phase-6#what-was-done" class="hash-link" aria-label="Direct link to What was done" title="Direct link to What was done" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Stated sds.</strong> Both trackers now write them, from their covariance by the delta method. They
+are badly miscalibrated as stated: typical errors are a fraction of the stated sd, with heavy
+tails.</li>
+<li class=""><strong>Recalibration, post hoc.</strong> One pair of multipliers per output, fitted on validation, scales
+the sd into 50% and 90% intervals. A two-fold check on validation passed, and decision 33 froze
+the multipliers before seed 215 was generated for scoring.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-inconclusive">Result: inconclusive<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/06/phase-6#result-inconclusive" class="hash-link" aria-label="Direct link to Result: inconclusive" title="Direct link to Result: inconclusive" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Coverage on seed 215 (G5 rows)</th><th>50%</th><th>90%</th></tr></thead><tbody><tr><td>Range (log)</td><td><strong>48.3%</strong> [47.8, 48.8]</td><td>89.8%</td></tr><tr><td>Course</td><td>50.5%</td><td>90.2%</td></tr><tr><td>Speed</td><td>49.3%</td><td>89.6%</td></tr></tbody></table>
+<p>The fused tracker's intervals are narrower than the IMM's: 0.73 × for range, 0.95 × for course and
+0.89 × for speed. Eight of the nine checks pass. Range at 50% falls just short: its interval
+straddles the 48% floor.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-the-panel-added">What the panel added<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/06/phase-6#what-the-panel-added" class="hash-link" aria-label="Direct link to What the panel added" title="Direct link to What the panel added" translate="no">​</a></h2>
+<p>Five independent reviewers agreed the verdict is right, and reproduced it byte for byte. They also
+narrowed what can be claimed:</p>
+<ul>
+<li class=""><strong>The intervals are calibrated only on the pooled mix of rows.</strong> On quiet straight legs before
+any manoeuvre they are far too wide: range 50% covers 67%. After a manoeuvre they are too narrow:
+38%. One multiplier cannot fix that shape.</li>
+<li class=""><strong>Course and speed intervals are often uninformative.</strong> 17% of course 90% intervals span the
+whole circle, and 27% of speed 90% intervals reach below zero.</li>
+<li class=""><strong>The shortfall looks systematic, not noise.</strong> The likely cause is that T2's training epoch, the
+fusion settings and the multipliers were all chosen on the same validation split.</li>
+<li class=""><strong>The rules were the agent's.</strong> The owner did not get to review them before the decision record.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/06/phase-6#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>The rules allow one re-score on a larger fresh seed. It would probably land near 48.3% again, so a
+pass would mean the range coverage just reaches the floor, not that the tracker is well calibrated.
+The owner decides whether to run it.</p>
+<p>Record: <code>experiments/20261106-p6u-g7/</code>; spec 018.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 5: frozen models do not beat a CUSUM at detecting manoeuvres]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/05/phase-5</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/05/phase-5"/>
+        <updated>2026-11-05T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[G5 passed in phases 4b and 4c. SRD Annex C §C.6 therefore lists incremental follow-ons, and the]]></summary>
+        <content type="html"><![CDATA[<p>G5 passed in phases 4b and 4c. SRD Annex C §C.6 therefore lists incremental follow-ons, and the
+first is <strong>manoeuvre detection, judged against a CUSUM on the reference tracker's innovations</strong>.</p>
+<p>The owner chose two things for this attempt:</p>
+<ul>
+<li class=""><strong>No training.</strong> The detector is built from models that already exist: the frozen recurrent
+tracker T2, and the reference IMM, which now uses decision 32's guarded initialisation.</li>
+<li class=""><strong>The test.</strong> Detection delay, with every detector's threshold set for the same false-alarm
+rate: one alarm per 2 h of quiet tracking.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-was-compared">What was compared<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/05/phase-5#what-was-compared" class="hash-link" aria-label="Direct link to What was compared" title="Direct link to What was compared" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The baseline.</strong> A CUSUM on the IMM's innovations, tuned on validation from 12 declared
+settings to favour it.
+<ul>
+<li class=""><strong>Clipping.</strong> The innovations are heavy-tailed: a few huge values otherwise hold an alarm for
+hours. So both the variance kind and the mean-shift kind are clipped.</li>
+<li class=""><strong>The winner.</strong> The two-sided mean-shift CUSUM, since a turn biases the bearings to one side.</li>
+</ul>
+</li>
+<li class=""><strong>The learned detectors.</strong> Two candidates, declared in advance:
+<ul>
+<li class="">T2's course disagreement with the IMM;</li>
+<li class="">T2's own course change over the last minute.</li>
+</ul>
+</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="result-it-stopped-at-validation">Result: it stopped at validation<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/05/phase-5#result-it-stopped-at-validation" class="hash-link" aria-label="Direct link to Result: it stopped at validation" title="Direct link to Result: it stopped at validation" translate="no">​</a></h2>
+<p>At 0.5 false alarms per hour, on 7,479 course changes in seed-211 validation:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th>Detected within 5 min</th></tr></thead><tbody><tr><td>CUSUM (mean shift)</td><td><strong>28.2%</strong></td></tr><tr><td>T2's course change over 1 min</td><td><strong>19.2%</strong></td></tr><tr><td>T2 against the IMM</td><td>5.9%</td></tr></tbody></table>
+<ul>
+<li class=""><strong>The learned detector is not carried.</strong> It is 9 points behind, with interval [−10.2, −7.7]
+pp, so it was not taken to a test split, and fresh seed 215 was never generated.</li>
+<li class=""><strong>The delay check could not be judged.</strong> Every detector misses more than half the course
+changes at this rate, so the median delays are infinite. That rule was the agent's, written
+before the data; any later attempt should declare a delay statistic defined at its operating
+point.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reported-not-used-a-crossover">Reported, not used: a crossover<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/05/phase-5#reported-not-used-a-crossover" class="hash-link" aria-label="Direct link to Reported, not used: a crossover" title="Direct link to Reported, not used: a crossover" translate="no">​</a></h2>
+<p>The same detectors were also calibrated at looser rates:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>False alarms per hour</th><th>0.5</th><th>1</th><th>2</th><th>5</th></tr></thead><tbody><tr><td>CUSUM</td><td>28.2%</td><td>38.0%</td><td>47.8%</td><td>62.6%</td></tr><tr><td>T2's course change</td><td>19.2%</td><td>39.0%</td><td>58.1%</td><td>71.7%</td></tr></tbody></table>
+<p>From about 1 false alarm per hour, T2's course change catches more manoeuvres in time, though about
+20–40 s later among those both catch. Moving the operating point after seeing this would choose the
+rule from the result, so it stays a reported observation.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/05/phase-5#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>The owner decides. Annex C's other follow-ons remain:</p>
+<ul>
+<li class="">calibration of the learned uncertainty;</li>
+<li class="">realistic bearing error.</li>
+</ul>
+<p>Record: <code>experiments/20261105-p5-research/validation.md</code>; spec 017.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 4c: one track, a tracker that listens to a network's range]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/02/phase-4c</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/02/phase-4c"/>
+        <updated>2026-11-02T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Phase 4b's hybrid passed G5, but it was two estimators stitched together: T2's range beside the]]></summary>
+        <content type="html"><![CDATA[<p>Phase 4b's hybrid passed G5, but it was two estimators stitched together: T2's range beside the
+IMM's velocity. Phase 4c keeps <strong>one filter</strong>. The frozen IMM takes the frozen network T2's range
+as an extra measurement, weighted by T2's own stated uncertainty and inflated four-fold, once a
+minute. Nothing was trained.</p>
+<p><strong>It passed G5</strong> on a fresh 40,000-scenario test split (seed 214), decided by the agent review
+panel:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Fused tracker / IMM, 97.5% interval</th><th>Limit</th><th>Result</th></tr></thead><tbody><tr><td>Range, all gate rows</td><td>&lt; 1</td><td>0.82 [0.81, 0.84]</td></tr><tr><td>Course, all gate rows</td><td>&lt; 1</td><td>0.95 [0.94, 0.96]</td></tr><tr><td>Range, settled rows</td><td>&lt; 1.1</td><td>0.86 [0.84, 0.89]</td></tr><tr><td>Course, settled rows</td><td>&lt; 1.1</td><td>0.95 [0.93, 0.97]</td></tr><tr><td>Speed, settled rows</td><td>&lt; 1.1</td><td>0.90 [0.87, 0.92]</td></tr></tbody></table>
+<p>Records: the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261102-p4f-g5/g5.md" target="_blank" rel="noopener noreferrer" class="">gate record</a> and the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261102-p4f-g5/review.md" target="_blank" rel="noopener noreferrer" class="">panel review</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-improved-on-phase-4b">What improved on phase 4b<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/02/phase-4c#what-improved-on-phase-4b" class="hash-link" aria-label="Direct link to What improved on phase 4b" title="Direct link to What improved on phase 4b" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>One state.</strong> Range, course and speed come from one filter. Projected forward, its bearing stays
+as close to the truth as the IMM's own (1.02° after 5 min against 1.06°), where the hybrid's
+drifted to 1.49°.</li>
+<li class=""><strong>Settled rows improved because of estimation, not copying.</strong> Settled range, course and speed are
+all better than the IMM's and the hybrid's. The hybrid's settled velocity was mostly the IMM's.</li>
+<li class=""><strong>The hybrid's worst case is gone.</strong> Before any target manoeuvre the hybrid's range was 1.43 × the
+IMM's. The fused tracker's is 1.03 × [0.99, 1.07]: parity.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-it-does-not-show">What it does not show<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/02/phase-4c#what-it-does-not-show" class="hash-link" aria-label="Direct link to What it does not show" title="Direct link to What it does not show" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>It does not beat the IMM before a target manoeuvres.</strong> On validation it seemed to (0.94 ×), but
+on the fresh seed it only matches it. The gains come after manoeuvres: 0.74 × the IMM's range
+error there.</li>
+<li class=""><strong>The EKF and batch least squares are still better before any manoeuvre.</strong> Against the EKF it
+would fail settled course (1.41 ×). Overall it beats the EKF by a wide margin (range 0.80 ×,
+course 0.78 ×).</li>
+<li class=""><strong>The hybrid is still better on overall course</strong> (fused 1.04 × the hybrid).</li>
+<li class=""><strong>The settings were chosen in-sample</strong>, from 18 variants on validation. The decision record says
+12; the panel found the error after scoring, and it is corrected around the frozen record.
+Only the fresh seed decides, and it did.</li>
+<li class=""><strong>Its uncertainty is not calibrated.</strong> Like the IMM's, its covariance is too wide on typical rows
+and too narrow in a small tail.</li>
+<li class=""><strong>It is not a learned tracker.</strong> It is a filter that listens to a frozen network. Phases 4b and 4c
+use the same T2 and IMM, so they are not independent replications. Both show that T2's range helps
+this IMM. Neither shows that a network alone tracks better.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-long-view">The long view<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/02/phase-4c#the-long-view" class="hash-link" aria-label="Direct link to The long view" title="Direct link to The long view" translate="no">​</a></h2>
+<p>After G0 to G5 and three phase-4 attempts:</p>
+<ul>
+<li class=""><strong>What networks add.</strong> A learned range estimate is genuinely useful to a tuned tracker, mostly
+after the target manoeuvres. Folded into the filter as a measurement, it gives one consistent track
+that beats the tuned IMM on every G5 check.</li>
+<li class=""><strong>What they do not do.</strong> On clean, straight-leg geometry the classical tools (an EKF, a batch fit)
+remain better.</li>
+</ul>
+<p>Real or recorded data are still the untested step.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 4: an end-to-end learned tracker wins overall, loses on straight legs]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/01/phase-4</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/01/phase-4"/>
+        <updated>2026-11-01T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Phase 4 asked whether a learned tracker, trained end to end, could beat a tuned IMM tracker on]]></summary>
+        <content type="html"><![CDATA[<p>Phase 4 asked whether a learned tracker, trained end to end, could beat a tuned IMM tracker on
+targets that manoeuvre up to three times. Two trackers were trained from scratch and compared
+with the frozen reference on the same validation split:</p>
+<ul>
+<li class=""><strong>T1</strong>, a learned-gain filter: Kalman-style physics with a gain computed by a small recurrent
+network;</li>
+<li class=""><strong>T2</strong>, a pure recurrent tracker (2 × 128 LSTM) that also states its own uncertainty.</li>
+</ul>
+<p><strong>Neither reached the test.</strong> The pre-registered rule needs every gated check to pass on
+validation.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Median error, ratio to the IMM</th><th>Limit</th><th>T2</th><th>T1</th></tr></thead><tbody><tr><td>Range, all gate rows</td><td>&lt; 1</td><td><strong>0.85</strong></td><td>2.18</td></tr><tr><td>Course, all gate rows</td><td>&lt; 1</td><td><strong>0.84</strong></td><td>1.32</td></tr><tr><td>Range, settled rows</td><td>&lt; 1.1</td><td><strong>0.97</strong></td><td>2.80</td></tr><tr><td>Course, settled rows</td><td>&lt; 1.1</td><td>1.44</td><td>2.12</td></tr><tr><td>Speed, settled rows</td><td>&lt; 1.1</td><td>1.66</td><td>2.30</td></tr></tbody></table>
+<p>"Settled" rows are at least five minutes after the target's last manoeuvre. Both of T2's
+failures have their whole 97.5% interval above the limit, so the fresh test split (seed 212) was
+never scored.</p>
+<p>Record: the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261031-p4-val/validation.md" target="_blank" rel="noopener noreferrer" class="">validation record</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-was-tested">What was tested<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/01/phase-4#what-was-tested" class="hash-link" aria-label="Direct link to What was tested" title="Direct link to What was tested" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Data.</strong> Generator 0.5.0 gives the target 0–3 course changes and, in 30% of scenarios, a speed
+change, in 20–60 min windows.</li>
+<li class=""><strong>Reference.</strong> An IMM (constant velocity plus coordinated turn), tuned on validation over all
+gate rows and frozen. Its median range error there is 9.2%.</li>
+<li class=""><strong>Gate rows.</strong> σ = 1° bearings at 5, 10, 15 and 20 min after ownship's zig.</li>
+<li class=""><strong>Forecast,</strong> recorded before training: T1 carried with probability about 35%, T2 about 10%,
+G5 passed about 20%.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-happened">What happened<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/01/phase-4#what-happened" class="hash-link" aria-label="Direct link to What happened" title="Direct link to What happened" translate="no">​</a></h2>
+<p><strong>T2 is the best estimator yet on manoeuvring targets.</strong></p>
+<ul>
+<li class=""><strong>Range.</strong> 7.8% median against the IMM's 9.2%. The lead grows with time and with each turn: at
+20 min after the zig, 10.8% against 16.6%.</li>
+<li class=""><strong>Course.</strong> After three turns, 34° against the IMM's 46°.</li>
+<li class=""><strong>Gross errors.</strong> 3.5 percentage points fewer than the IMM.</li>
+<li class=""><strong>Its stated uncertainty is honest.</strong> 71% of its errors fall within one stated standard
+deviation (68% expected) and 95% within two (95% expected).</li>
+</ul>
+<p><strong>On straight legs it still loses.</strong> On settled rows its speed error is 2.16 kt against the
+IMM's 1.30 kt, and its course error 10.7° against 7.4°. Before the first manoeuvre the gap is
+widest: 2.0 kt against 0.7 kt.</p>
+<p><strong>T1 never learned range.</strong> Its range error is 19–22% at every gate time and does not fall after
+ownship's zig, as a working tracker's does.</p>
+<ul>
+<li class=""><strong>Why.</strong> Its gain is expressed along and across the line of sight. The cross term is kept
+positive, so the bearing loop is stable at any range. The range term has to change sign with
+the geometry, and the network did not learn that from what it saw.</li>
+<li class=""><strong>The first run diverged in epoch 0.</strong> It was fixed before any result was seen, and the fix is
+recorded as an amendment to the decision.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reading-it-critically">Reading it critically<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/01/phase-4#reading-it-critically" class="hash-link" aria-label="Direct link to Reading it critically" title="Direct link to Reading it critically" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>This is the third time the same pattern has appeared.</strong> Phases 3, 3b and now 4 each found a
+network that beats a tuned tracker after manoeuvres and gives accuracy back when the target
+holds course. More turns per scenario moved the overall checks in the network's favour; they
+did not touch the straight-leg deficit.</li>
+<li class=""><strong>The settled gap is mostly speed.</strong> A Kalman filter on a straight leg gets velocity almost for
+free from a long, consistent bearing history. The networks have the same history but do not
+match it, even with a speed loss weight of 4.</li>
+<li class=""><strong>A stronger straight-leg reference exists.</strong> Batch least squares reaches 6.7% settled range,
+better than both the IMM and T2. The settled checks compare against a reference that is not the
+best achievable there.</li>
+<li class=""><strong>The gate asked for dominance, not a trade.</strong> On a mix of manoeuvring and straight targets, T2
+is better overall and worse when settled. Whether that trade is useful is an operational
+question that G5 deliberately did not answer.</li>
+<li class=""><strong>Training was slower and less robust than planned.</strong> There were four restarts: a diverging
+filter, a 2 GiB file limit, a refused cross-commit resume and a lost CI runner. None changed a
+result. T2's fresh run reproduced its first run's epochs to the last digit.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/01/phase-4#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>SRD Annex C leaves the follow-on to the owner if G5 is not passed. Options include:</p>
+<ul>
+<li class=""><strong>A hybrid.</strong> T2's manoeuvre advantage switched in only when it reports high uncertainty or a
+manoeuvre, with the tracker otherwise, as G3's hybrid did for classical estimates.</li>
+<li class=""><strong>A narrower question.</strong> Manoeuvre detection and recovery only, where the network already wins.</li>
+<li class=""><strong>Stopping here</strong> and writing up the programme.</li>
+</ul>
+<p>Real or recorded data stay deferred.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 4b: a hybrid passes G5 — a learned range with a tuned tracker's velocity]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/11/01/phase-4b</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/01/phase-4b"/>
+        <updated>2026-11-01T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Phase 4's recurrent tracker T2 beat a tuned IMM tracker overall but lost on straight legs, so it]]></summary>
+        <content type="html"><![CDATA[<p>Phase 4's recurrent tracker T2 beat a tuned IMM tracker overall but lost on straight legs, so it
+did not reach the test. The owner chose a follow-on: a <strong>hybrid</strong> of the two frozen estimators,
+judged by G5 unchanged. The hybrid takes T2's range always, and T2's course and speed only where the
+two estimators' courses differ by more than 45°. Elsewhere it takes the IMM's.</p>
+<p><strong>It passed</strong>, on a fresh 40,000-scenario test split (seed 213), decided by the agent review panel
+in two rounds:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Hybrid / IMM, 97.5% interval</th><th>Limit</th><th>Result</th></tr></thead><tbody><tr><td>Range, all gate rows</td><td>&lt; 1</td><td>0.86 [0.84, 0.88]</td></tr><tr><td>Course, all gate rows</td><td>&lt; 1</td><td>0.90 [0.89, 0.92]</td></tr><tr><td>Range, settled rows</td><td>&lt; 1.1</td><td>1.02 [0.99, 1.06]</td></tr><tr><td>Course, settled rows</td><td>&lt; 1.1</td><td>0.98 [0.97, 0.99]</td></tr><tr><td>Speed, settled rows</td><td>&lt; 1.1</td><td>0.99 [0.99, 1.00]</td></tr></tbody></table>
+<p>It also makes 3.4 percentage points fewer gross range errors than the IMM.</p>
+<p>Records: the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261101-p4h-g5/g5.md" target="_blank" rel="noopener noreferrer" class="">gate record</a> and the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261101-p4h-g5/review.md" target="_blank" rel="noopener noreferrer" class="">panel review</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="how-it-was-set-up">How it was set up<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/01/phase-4b#how-it-was-set-up" class="hash-link" aria-label="Direct link to How it was set up" title="Direct link to How it was set up" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Nothing was trained.</strong> Both estimators were frozen: the IMM since decision 29, T2 since phase 4.
+<code>tma-g5</code> checked T2's weights by file digest.</li>
+<li class=""><strong>Why a course disagreement.</strong> The IMM lags a manoeuvre by minutes, and while it lags its course
+disagrees with T2's. A disagreement above θ is therefore a sign that T2's velocity is the better one.</li>
+<li class=""><strong>Choosing θ.</strong> θ = 45° was chosen on validation by a criterion stated in advance: the largest
+smallest margin over the five checks. Every θ from 25° to 90° passed there, so 45° sits on a
+plateau, not a spike.</li>
+<li class=""><strong>Freezing it.</strong> The decision, θ and the test seed were committed and pushed before the test split
+was scored.</li>
+<li class=""><strong>Forecast:</strong> an 85% chance of passing.</li>
+<li class=""><strong>No sign of over-fitting.</strong> The three checks that depend on θ moved by less than 0.01 between
+validation and test.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-it-does-not-show">What it does not show<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/01/phase-4b#what-it-does-not-show" class="hash-link" aria-label="Direct link to What it does not show" title="Direct link to What it does not show" translate="no">​</a></h2>
+<p>The panel insisted on these, and they matter as much as the pass.</p>
+<ul>
+<li class=""><strong>It is a hybrid, not a learned tracker.</strong> On its own, T2 still fails the straight-leg checks (phase
+4). The result shows that a learned estimator adds value beside a tuned tracker, as G3's hybrid
+did for classical least squares.</li>
+<li class=""><strong>It is three numbers per row, not a track.</strong> Range comes from one estimator and velocity from
+another, so together they do not satisfy either one's bearing-rate relation. Measured afterwards,
+the cost is small but real: on settled rows, projected 5 min ahead, its bearing is a median of 1.5°
+off, against 1.0° for the IMM and 1.6° for T2 alone.</li>
+<li class=""><strong>Before a target manoeuvres, its range is worse.</strong> On settled rows before any manoeuvre, the
+hybrid's range error is 6.0% against the IMM's 4.1% (1.47 ×). After a manoeuvre it is 10.3% against
+15.2% (0.68 ×). The pooled settled check passes only because the second group carries it, even
+though the first group is 55% of settled rows. For a target holding course, the commonest case, a
+tuned filter is better.</li>
+<li class=""><strong>Against the EKF it would fail two settled checks:</strong> course 1.44 × and speed 1.21 ×. The IMM was the
+pre-registered reference, chosen on overall range, so the gate stands. But "better than a tuned
+tracker on straight legs" is not shown. Batch least squares is also better on settled range: 6.6%
+against 7.6%.</li>
+<li class=""><strong>The settled velocity checks pass largely by construction.</strong> The hybrid uses the IMM's velocity
+on most rows.</li>
+<li class=""><strong>The rule family was chosen after seeing phase 4's result.</strong> The fresh seed controls the choice
+of θ, not the choice of family.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="the-long-view">The long view<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/11/01/phase-4b#the-long-view" class="hash-link" aria-label="Direct link to The long view" title="Direct link to The long view" translate="no">​</a></h2>
+<p>The programme's question was whether a network trained on simulated bearings could give usable
+range, course and speed. After G0 to G5, the answer is consistent.</p>
+<ul>
+<li class=""><strong>Where networks win.</strong> They are better where tracking is hardest: after target manoeuvres, and
+late in long engagements. In range they reach about 0.7 × a tuned tracker after a manoeuvre.</li>
+<li class=""><strong>Where they lose.</strong> On clean geometry, a target holding course after an ownship zig, a tuned
+filter or a batch fit is better, especially on speed.</li>
+<li class=""><strong>What works.</strong> Combining them works, as a hybrid that takes each one's strength. A network alone
+does not.</li>
+</ul>
+<p>Real or recorded data remain the untested step.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 3b: two hypotheses fix the course, not the speed]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/10/30/phase-3b</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/30/phase-3b"/>
+        <updated>2026-10-30T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Phase 3 found a network that beats a tuned IMM tracker after a target turns, but that averages]]></summary>
+        <content type="html"><![CDATA[<p>Phase 3 found a network that beats a tuned IMM tracker after a target turns, but that averages
+"turned" and "not turned" on targets that hold course. Phase 3b gave the network a way out. It
+outputs two estimates and the probability that the target has turned, and reports the more
+probable estimate.</p>
+<p><strong>It half worked.</strong> On the same validation split:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Measure</th><th>Phase 3b</th><th>Phase 3a</th><th>IMM tracker</th><th>Limit</th></tr></thead><tbody><tr><td>After a turn: median range error</td><td>10.3%</td><td>10.5%</td><td>13.6%</td><td>below the IMM</td></tr><tr><td>After a turn: median course error</td><td>14.5°</td><td>14.4°</td><td>24.1°</td><td>below the IMM</td></tr><tr><td>Held course: course error</td><td>6.1°</td><td>11.1°</td><td>5.0°</td><td>10°</td></tr><tr><td>Held course: speed error</td><td><strong>1.15 kt</strong></td><td>1.60 kt</td><td>0.71 kt</td><td>1 kt</td></tr></tbody></table>
+<p>The speed interval, [1.05, 1.25] kt, lies wholly above the limit. The pre-registered rule
+therefore stopped phase 3b at validation, and its test split was never scored. Under SRD Annex
+B, this was the last phase-3 attempt.</p>
+<p>Records: <a class="" href="https://debrief.github.io/Gitma/pr/91/docs/results/phase-3">results</a> and the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261030-p3b-val/validation.md" target="_blank" rel="noopener noreferrer" class="">validation record</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-was-tested">What was tested<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/30/phase-3b#what-was-tested" class="hash-link" aria-label="Direct link to What was tested" title="Direct link to What was tested" translate="no">​</a></h2>
+<p>Only the network's output changed. The data, the frozen IMM reference and the gate were all as
+in phase 3.</p>
+<ul>
+<li class=""><strong>The network</strong> gives a held-course estimate, a turned estimate, and P(turned).</li>
+<li class=""><strong>The flag's training.</strong> The training label is the truth: has the target's course changed yet?</li>
+<li class=""><strong>The forecast</strong> in the decision record, written before training, was held-course course about
+6° and speed about 0.95 kt (0.8–1.2), with a 40% chance of reaching the test split.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-happened">What happened<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/30/phase-3b#what-happened" class="hash-link" aria-label="Direct link to What happened" title="Direct link to What happened" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Course: fixed.</strong> Held-course course error fell from 11.1° to 6.1°, as forecast. It no longer
+grows with time.</li>
+<li class=""><strong>After a turn: unchanged.</strong> The network still beats the IMM by about a quarter on range and
+40% on course.</li>
+<li class=""><strong>Speed: not fixed.</strong> Speed fell from 1.60 to 1.15 kt, inside the forecast band but above the
+limit.</li>
+</ul>
+<p>The flag explains the speed failure:</p>
+<ul>
+<li class=""><strong>It detects real turns well.</strong> The median delay is 70 s, and it misses 0.5%.</li>
+<li class=""><strong>It also false-alarms.</strong> On 29–31% of held-course rows five and ten minutes after the zig,
+it calls "turned". In this data, those minutes are when targets usually start to turn.</li>
+<li class=""><strong>A false alarm is costly.</strong> The turned estimate is biased slow, so each one costs about
+1.8 kt.</li>
+<li class=""><strong>Even without false alarms, speed sits at the limit.</strong> Where the network says "held", its
+speed error is 1.00 kt, so a perfect flag would leave it there too. The IMM manages 0.71 kt and
+batch least squares 0.31 kt.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reading-it-critically">Reading it critically<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/30/phase-3b#reading-it-critically" class="hash-link" aria-label="Direct link to Reading it critically" title="Direct link to Reading it critically" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Switching moves the failure rather than removing it.</strong> An averaged output blurs every
+estimate a little. A switched output is sharp, but sometimes sharply wrong: held-course course
+P90 rose from 34° to 51°.</li>
+<li class=""><strong>No threshold tuning.</strong> A stricter threshold than 0.5 would cut false alarms but slow
+detection. Choosing it on this split would make validation a training signal, so it was not
+done.</li>
+<li class=""><strong>Two changes at once.</strong> The output form and its supervision changed together, as declared,
+so this result cannot separate them.</li>
+<li class=""><strong>The finding is consistent.</strong> Two different network designs beat a tuned tracker after a
+turn, and both give back accuracy on targets that hold course. Neither dominates the tracker,
+and dominating it is what gate G4 asks.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/30/phase-3b#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>SRD Annex B §B.5's second branch applies, as it did for phase 3:</p>
+<ol>
+<li class="">publish the negative result, which this post does;</li>
+<li class="">the owner then decides separately whether an end-to-end learned tracker is a new project.</li>
+</ol>
+<p>Real or recorded data stay deferred either way.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 4 plan: two learned trackers, judged on manoeuvring targets]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/10/30/phase-4-plan</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/30/phase-4-plan"/>
+        <updated>2026-10-30T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Phases 3 and 3b ended the same way. A network beats a tuned IMM tracker after a target turns,]]></summary>
+        <content type="html"><![CDATA[<p>Phases 3 and 3b ended the same way. A network beats a tuned IMM tracker after a target turns,
+but gives that back on targets that hold course. SRD Annex B left the next step to the owner,
+who chose the separate project it names: <strong>an end-to-end learned tracker</strong>.</p>
+<p><a href="https://github.com/debrief/Gitma/blob/main/docs/SRD-annex-C.md" target="_blank" rel="noopener noreferrer" class="">SRD Annex C</a> fixes the design
+before any code is written.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="two-trackers-one-gate">Two trackers, one gate<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/30/phase-4-plan#two-trackers-one-gate" class="hash-link" aria-label="Direct link to Two trackers, one gate" title="Direct link to Two trackers, one gate" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>A learned-gain filter</strong> (KalmanNet-style). The bearing and motion physics stay explicit, and a
+recurrent network learns the gain: how fast to adapt when the bearings stop fitting a straight
+track. The hope is filter accuracy on straight legs and network agility after a manoeuvre.</li>
+<li class=""><strong>A pure recurrent tracker.</strong> The LSTM family we already have, outputting position, velocity
+and its own uncertainty at every step. It is the simpler bet, carrying the known weakness: on
+straight-leg speed it has stayed at about 3 × classical for six iterations.</li>
+</ul>
+<p>Both are trained from scratch on the same data and judged on the same rows.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="a-harder-problem">A harder problem<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/30/phase-4-plan#a-harder-problem" class="hash-link" aria-label="Direct link to A harder problem" title="Direct link to A harder problem" translate="no">​</a></h2>
+<p>Generator 0.5.0 gives the target 0–3 course changes and, in 30% of scenarios, a speed change.
+Manoeuvres become the norm, which is where a constant-velocity model should struggle most. The
+IMM and EKF are re-tuned for it, and the better one is frozen before training.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="gate-g5">Gate G5<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/30/phase-4-plan#gate-g5" class="hash-link" aria-label="Direct link to Gate G5" title="Direct link to Gate G5" translate="no">​</a></h2>
+<p>A tracker passes if:</p>
+<ul>
+<li class=""><strong>it is better overall:</strong> its median range and course error, over rows at 5, 10, 15 and
+20 minutes after the zig, is below the reference's;</li>
+<li class=""><strong>and it does not lose much once things settle:</strong> on rows more than 5 minutes after the last
+manoeuvre, it is within 1.1 × the reference on range, course and speed.</li>
+</ul>
+<p>The second condition stops phase 3's trade, winning after turns by losing on straight legs, from
+counting as a pass.</p>
+<p>The statistics are stricter than before:</p>
+<ul>
+<li class=""><strong>The bootstrap resamples whole scenarios</strong>, because one scenario contributes several rows.</li>
+<li class=""><strong>Each tracker's intervals are 97.5%,</strong> because two trackers get a shot at the gate.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reading-it-critically">Reading it critically<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/30/phase-4-plan#reading-it-critically" class="hash-link" aria-label="Direct link to Reading it critically" title="Direct link to Reading it critically" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>What follows a failure is not fixed in advance.</strong> If G5 fails, the owner decides what follows
+then. That is weaker than Annex B, where both branches were set before the result. The write-up
+will say so.</li>
+<li class=""><strong>The speed bar is demanding.</strong> The settled-speed check asks the trackers to come within 10% of
+a reference that is already about 2 × least squares on straight-leg speed.</li>
+<li class=""><strong>The learned-gain filter is a risk.</strong> Backpropagation through about 300 filter steps may be
+slow or unstable in tfjs. Its cost is measured before the decision record commits to it.</li>
+</ul>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Phase 3: better than the tracker after a turn, worse when there is none]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/10/29/phase-3</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/29/phase-3"/>
+        <updated>2026-10-29T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Phase 3 asked the question the earlier gates could not: does a learned estimator have an edge]]></summary>
+        <content type="html"><![CDATA[<p>Phase 3 asked the question the earlier gates could not: does a learned estimator have an edge
+where the classical model breaks, when the target turns?</p>
+<p><strong>After a turn, yes.</strong> Five minutes after the turn ends, on the validation split:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Measure</th><th>Network</th><th>Tuned IMM tracker</th><th>Ratio</th></tr></thead><tbody><tr><td>Median range error</td><td>10.5%</td><td>13.6%</td><td>0.77</td></tr><tr><td>Median course error</td><td>14.4°</td><td>24.1°</td><td>0.60</td></tr><tr><td>Gross errors</td><td></td><td></td><td>5.7 points fewer</td></tr></tbody></table>
+<p>The IMM was the better of two tracking filters tuned on the same data.</p>
+<p><strong>On targets that never turn, no.</strong> Its course error is 11.1° and its speed error 1.60 kt, both
+past G2's limits (10°, 1 kt). The pre-registered rule therefore stopped the phase at validation.
+The test split was never scored.</p>
+<p>Records: <a class="" href="https://debrief.github.io/Gitma/pr/91/docs/results/phase-3">results</a> and the
+<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261029-p3a-val/validation.md" target="_blank" rel="noopener noreferrer" class="">validation record</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-was-tested">What was tested<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/29/phase-3#what-was-tested" class="hash-link" aria-label="Direct link to What was tested" title="Direct link to What was tested" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The data.</strong> The target makes one course change of 30–120° in 80% of scenarios (generator
+0.4.0).</li>
+<li class=""><strong>The reference.</strong> We tuned two tracking filters on validation, a single Cartesian EKF and an
+IMM (constant velocity plus coordinated turn). We froze the better one: the IMM.</li>
+<li class=""><strong>The network.</strong> It is the iteration-4 LSTM design, unchanged, trained from scratch on the new
+data. Its decision record was committed before training. It forecast about a 30% chance of a
+pass, with range the likely failure.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-happened">What happened<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/29/phase-3#what-happened" class="hash-link" aria-label="Direct link to What happened" title="Direct link to What happened" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>After a turn.</strong> The network beats the tracker on range, course, speed and gross errors. Its
+lead holds whether or not ownship manoeuvres after the turn. The network has learned something
+the tracker's model does not hold, for example that the target's speed is unchanged through a
+turn.</li>
+<li class=""><strong>On held course.</strong> It regresses. It reports speeds 1.2 kt too low on median, and its course
+error rises to 11° five minutes after the zig, which in this data is exactly when targets
+usually turn.</li>
+</ul>
+<p>A network trained to minimise squared error reports an average when it cannot tell whether a
+turn has started. An averaged velocity is shorter, and its direction is hedged. This is the
+dilemma every tracking filter faces, between following a turn quickly and staying steady on a
+straight leg, now inside the network.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reading-it-critically">Reading it critically<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/29/phase-3#reading-it-critically" class="hash-link" aria-label="Direct link to Reading it critically" title="Direct link to Reading it critically" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The forecast was wrong in an informative way.</strong> We expected range to be the obstacle. Range
+and course both cleared easily; the held-course control failed instead.</li>
+<li class=""><strong>The control is strict but fair.</strong> It asks the network not to regress below G2's absolute bar
+on the 20% of targets that hold course. A tracker that is tuned for turns pays a similar price:
+the IMM is 5.0° and 0.71 kt on those rows, against batch least squares' 1.2° and 0.31 kt.</li>
+<li class=""><strong>One validation look.</strong> This is not a test-split result, and the test split remains unseen.
+The margins on the failing checks are wide: both intervals lie wholly beyond the limits.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/29/phase-3#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>SRD Annex B §B.5 fixed this branch in advance:</p>
+<ol>
+<li class="">publish the result;</li>
+<li class="">then decide separately whether a different design is a new project.</li>
+</ol>
+<p>The new design could be an end-to-end tracker, a network that outputs "turned or not" rather
+than an average, or a hybrid that uses the network only after a detected turn. That decision is
+the owner's.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Iteration 5: a hybrid passes G3; the network adds robustness, not accuracy]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/10/28/iteration-5</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/28/iteration-5"/>
+        <updated>2026-10-28T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[G2 left the models usable but about 3 × worse than the classical least-squares solver. G3]]></summary>
+        <content type="html"><![CDATA[<p>G2 left the models usable but about 3 × worse than the classical least-squares solver. G3
+asks for parity: within 1.2 × classical on every metric, and a lower gross-error rate.</p>
+<p>Iteration 5 trained nothing. It combined the two estimators: classical's estimate, except where
+classical fails or the network disagrees by more than 50% on range, where the network's is used.</p>
+<p><strong>G3 passes for that hybrid</strong> on a fresh test set of 20,000 scenarios (seed 207):</p>
+<ul>
+<li class=""><strong>Parity.</strong> Every median and 90th percentile of range, course and speed is within 0.97–1.02 ×
+classical.</li>
+<li class=""><strong>Gross errors.</strong> Five minutes after the zig they fall from 1.19% to 0.57% (−0.62 pp
+[−0.82, −0.42]).</li>
+<li class=""><strong>Validation agreed.</strong> It forecast 1.25% → 0.55% on seed 205.</li>
+</ul>
+<p>Records: <a href="https://github.com/debrief/Gitma/tree/main/experiments/20261028-i5-g3" target="_blank" rel="noopener noreferrer" class=""><code>experiments/20261028-i5-g3/</code></a>.
+Figures: <a class="" href="https://debrief.github.io/Gitma/pr/91/docs/results/iteration-5">iteration-5 results</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="how-we-got-here">How we got here<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/28/iteration-5#how-we-got-here" class="hash-link" aria-label="Direct link to How we got here" title="Direct link to How we got here" translate="no">​</a></h2>
+<p>The owner first chose a model lever for G3: a per-leg steady-track fit as an extra input (Annex A
+B.2.3). Three pieces of research reshaped the plan before anything was trained:</p>
+<ol>
+<li class=""><strong>The per-leg fit doesn't help where it matters.</strong> On a long first leg it measures the
+range-rate ratio well, about 28% error. At the gate points the current leg is only about four
+minutes old, and the same quantity is pure noise: 37–64 /h of error against a true value near
+1 /h. Classical does better because it fits all the legs together.</li>
+<li class=""><strong>Starting the solver from the network changes nothing.</strong> It gave classical's answer in 99.9%
+of rows. Classical's gross errors are not bad starting points. They are cases where the
+least-squares optimum itself is far from the truth: near-unobservable geometry, where any start
+converges to the same wrong answer. In 91% of those rows the network was still within 50% of
+the true range.</li>
+<li class=""><strong>So the hybrid has to sometimes overrule least squares.</strong> The disagreement switch does,
+without a tuned parameter. Its 50% threshold is the gross-error bound itself.</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reading-it-critically">Reading it critically<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/28/iteration-5#reading-it-critically" class="hash-link" aria-label="Direct link to Reading it critically" title="Direct link to Reading it critically" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>It is a hybrid result.</strong> The network alone is still 0.956 kt on speed against classical's
+0.307 kt. Nothing here says a network matches classical.</li>
+<li class=""><strong>No accuracy gain.</strong> The hybrid's medians are about 1% <em>worse</em> than classical's on course and
+speed: measurable, and immaterial against 1.2. What it adds is fewer gross errors: the 1.4% of
+rows where it switches.</li>
+<li class=""><strong>The switch aims at the metric that is gated.</strong> The threshold equals the gross-error
+definition. That was fixed in the decision record before seed 207 existed, but it means the
+lower gross rate is partly by design.</li>
+<li class=""><strong>It costs something at short range.</strong> At zig + 300 s the switch fixes 82 classical gross
+errors and causes 21. Those 21 are mostly under 4 km, where classical is sharp and the network's
+relative range error is large.</li>
+<li class=""><strong>The gain is early only.</strong> Ten minutes after the zig the gross rates are 0.17% against 0.14%:
+no evidence of a difference. The "lower gross-error rate" is shown at the pre-registered
+five-minute point only.</li>
+<li class=""><strong>It grows with noise.</strong> At σ = 2° gross errors fall from 4.63% to 1.80%. That is the case SRD
+§5 calls interesting for ML over classical methods.</li>
+<li class=""><strong>Still simulation.</strong> The target holds course and speed (SRD §3), and the data are mock.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/28/iteration-5#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>All four gates are passed: G0, G1, G2, and G3 for the hybrid. The proof of concept has its
+answer.</p>
+<ul>
+<li class=""><strong>The network alone</strong> extracts usable range, course and speed, but is about 3 × worse than
+classical.</li>
+<li class=""><strong>As a fallback</strong> it makes least squares more robust in near-unobservable geometry, without
+costing accuracy.</li>
+</ul>
+<p>SRD §5 says G3 defines the bar for the next phase. Natural next steps are target manoeuvres
+(where classical's constant-velocity model breaks) and an EKF reference. Both are the owner's
+choice.</p>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Iteration 4: velocity outputs pass G2, still 3 × classical]]></title>
+        <id>https://debrief.github.io/Gitma/pr/91/blog/2026/10/25/iteration-4</id>
+        <link href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/25/iteration-4"/>
+        <updated>2026-10-25T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Iteration 4 changed the models, not the problem. It kept iteration 3's three-leg engagements, made]]></summary>
+        <content type="html"><![CDATA[<p>Iteration 4 changed the models, not the problem. It kept iteration 3's three-leg engagements, made
+the models output a velocity (vx, vy) instead of a course and a speed, and added the derived
+features (bearing rate, its validity flag, the bearing-line intercept).</p>
+<p><strong>G2 passes.</strong> The seed-205 test split was inconclusive at 0.981 kt [0.940, 1.031]. The rules
+allow one re-score on a larger fresh-seed test set, and on seed 206, with 100,000 scenarios and the
+same frozen models, every check passes.</p>
+<ul>
+<li class=""><strong>Speed passes.</strong> The instantaneous LSTM reaches 0.939 kt [0.926, 0.951] at zig + 600 s on the
+σ = 1° slice, against 1 kt. The BiLSTM reaches 0.740 kt.</li>
+<li class=""><strong>Range and course pass easily:</strong> 7.3% and 4.7° for the LSTM, 5.3% and 3.1° for the BiLSTM.</li>
+<li class=""><strong>Better than iteration 3 on the same rows.</strong> Range, course and speed are 16–27% better.</li>
+<li class=""><strong>Still about 3 × classical.</strong> Classical reaches 0.32 kt on the same rows. The LSTM is
+2.1 × classical on range, 3.5 × on course and 2.9 × on speed.</li>
+</ul>
+<p>Records: <a href="https://github.com/debrief/Gitma/tree/main/experiments/20261025-i4-g2-rescore" target="_blank" rel="noopener noreferrer" class=""><code>experiments/20261025-i4-g2-rescore/</code></a>
+and <a href="https://github.com/debrief/Gitma/tree/main/experiments/20261024-i4-g2" target="_blank" rel="noopener noreferrer" class=""><code>experiments/20261024-i4-g2/</code></a>.
+Figures: <a class="" href="https://debrief.github.io/Gitma/pr/91/docs/results/iteration-4">iteration-4 results</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-changed">What changed<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/25/iteration-4#what-changed" class="hash-link" aria-label="Direct link to What changed" title="Direct link to What changed" translate="no">​</a></h2>
+<p>Iteration 3 stopped at 1.10 kt. Its LSTM shrank speed estimates towards the middle of the range:
+slow targets were overestimated and fast ones underestimated, while classical was unbiased.</p>
+<ul>
+<li class="">
+<p><strong>Velocity components.</strong> They give one smooth target for course and speed, with no wrap-around
+and no out-of-range values. Course and speed are derived from the vector.</p>
+</li>
+<li class="">
+<p><strong>Not enough on its own.</strong> Research R1 showed that removing the bias alone would only reach
+about 1.01 kt.</p>
+</li>
+<li class="">
+<p><strong>Derived features.</strong> The owner therefore added them, to target the remaining scatter.</p>
+</li>
+<li class="">
+<p><strong>Models.</strong> The iteration-3 configuration (two stacked 128-unit recurrent layers), from scratch
+on seed 205.</p>
+</li>
+<li class="">
+<p><strong>Outputs.</strong> Log range plus vx and vy divided by the top of the target speed range. The loss
+weights each component 4×.</p>
+</li>
+<li class="">
+<p><strong>Pre-registered.</strong> The decision record, forecast and validation rule were committed before
+training. Validation gave 0.94 kt [0.91, 0.98] and carried the pair to test.</p>
+</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="seed-206-test-split-σ--1">Seed-206 test split (σ = 1°)<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/25/iteration-4#seed-206-test-split-%CF%83--1" class="hash-link" aria-label="Direct link to Seed-206 test split (σ = 1°)" title="Direct link to Seed-206 test split (σ = 1°)" translate="no">​</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Estimator</th><th>Range, zig+300 s</th><th>Course, zig+300 s</th><th>Speed, zig+600 s</th></tr></thead><tbody><tr><td>G2 threshold</td><td>&lt; 20%</td><td>&lt; 10°</td><td>&lt; 1 kt</td></tr><tr><td>lstm-instantaneous</td><td><strong>7.26%</strong></td><td><strong>4.70°</strong></td><td><strong>0.939 kt</strong> [0.926, 0.951]</td></tr><tr><td>bilstm-time-late</td><td><strong>5.30%</strong></td><td><strong>3.13°</strong></td><td><strong>0.740 kt</strong></td></tr><tr><td>iteration-3 models (reported)</td><td>8.7% / 7.2%</td><td>6.24° / 4.31°</td><td>1.12 / 1.00 kt</td></tr><tr><td>classical</td><td>3.40%</td><td>1.36°</td><td>0.319 kt</td></tr><tr><td>naive</td><td>39.9%</td><td>89.8°</td><td>4.23 kt</td></tr></tbody></table>
+<p>n = 49,574 at zig + 300 s and 32,266 at zig + 600 s.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reading-it-critically">Reading it critically<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/25/iteration-4#reading-it-critically" class="hash-link" aria-label="Direct link to Reading it critically" title="Direct link to Reading it critically" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>A narrow pass.</strong> 52.6% of the LSTM's speed estimates are within 1 kt, and the P90 is 2.9 kt
+(classical 1.9 kt). The interval's upper bound is well below the threshold, so the pass is not
+in statistical doubt. The margin itself is small.</li>
+<li class=""><strong>The bias is still there.</strong> The LSTM's median signed speed error is −0.33 kt, and −1.5 kt for
+18–20 kt targets: fast targets are called slow. The re-score's forecast predicted this. Removing
+the bias would leave 0.86 kt; most of the error is scatter.</li>
+<li class=""><strong>Short range is hardest.</strong> Under 2 km the LSTM is 0.97 kt against 0.72–0.78 kt at 2–8 km, and
+about 20 × classical. Near closest approach the bearing rate changes fast, and the 3-minute
+trailing rate lags it.</li>
+<li class=""><strong>It took two looks.</strong> Seed 205 was inconclusive and seed 206 passed. The rule allowed exactly
+this. Allowing two looks roughly doubles the false-pass rate at a true median of exactly 1 kt,
+from about 1.8% to about 3.7%. The two points differ by 0.04 kt, about 1.8 standard errors. Most
+of the difference is chance: seed 205's validation split also gave 0.94.</li>
+<li class=""><strong>Two levers at once.</strong> The record cannot say whether velocity outputs or derived features moved
+speed.</li>
+<li class=""><strong>The re-score needed four attempts.</strong> Cloud containers were reclaimed mid-run three times, on a
+run of about 4.5–5.3 hours against containers that live about 4–4.6 hours. The scoring is
+deterministic and every input is bound by digest. Every attempt produced byte-identical files,
+and the result was fixed before anyone saw it. The last attempt reused the verified prediction
+files (<code>tma-g2 --reuse-predictions</code>).</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/pr/91/blog/2026/10/25/iteration-4#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
+<p>G2 is passed: the models give usable range, course and speed on the problem as posed. G3 asks for
+parity with classical, which is about 3 × better on speed and course. That is a much larger step
+than any lever so far has given. Under SRD §7, the plan moves to G3, and the owner chooses whether
+and how to pursue it.</p>]]></content>
+    </entry>
+</feed>
