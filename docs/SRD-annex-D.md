@@ -186,3 +186,19 @@ The rest of this section was written by the implementing agent.
 - **The gate** is §D.3's G9, unchanged. Decision 41 is committed only if a variant is carried,
   and only then is seed 229 generated.
 
+## D.8 Outcome of §D.7 (2026-11-15): stopped at validation
+
+`experiments/20261115-p12b-val/validation.md`.
+
+- **No variant is carried.** The best score is −0.031 (W 60, c 3, L 36), worse than §D.6's
+  −0.013. The chosen variant fails overall course against the fused tracker: 1.034 [1.008, 1.063].
+- **Why.**
+  - **Re-armed legs are worse than the fused tracker on the rows they cover:** range 31% against
+    16%, course 49° against 35°, and speed 5.9 kt against 3.0 kt.
+  - **The fit check passes legs that are wrong.** Without another ownship manoeuvre a short leg's
+    bearings fit many tracks. The range anchor fixes range, not velocity.
+  - **Re-arming leaves detection delay as it was.** 44% of rows after a manoeuvre still report the
+    original least-squares fit.
+- **Seeds.** 229–230 were never generated, and no G9 was scored. §D.6's result stands as Annex D's.
+- **Next.** The owner decides.
+

@@ -234,7 +234,10 @@ fused tracker overall, and within 1.1 × of least squares on straight legs, unde
 **Stopped at validation** (`experiments/20261115-p12-val/validation.md`): best variant W 6, c 8,
 score −0.0134. Overall course is 1.013 × the fused tracker's, because detection lag costs more after a manoeuvre
 than least squares gains on straight legs. Range is 0.964 × and speed 0.85 ×. Seeds 229–230 were never
-generated and stay reserved. `tma-solve --workers n` streams per-timestep least squares in parallel.
+generated and stay reserved. **The re-armed variant (§D.7) also stopped at validation**
+(`experiments/20261115-p12b-val/validation.md`): best score −0.031, worse than the first design. Its
+new legs, anchored to the fused range, pass the fit check while wrong. Without another ownship manoeuvre, a
+short leg's bearings do not fix velocity. `tma-solve --workers n` streams per-timestep least squares in parallel.
 
 ### Operational rules from the gates
 
