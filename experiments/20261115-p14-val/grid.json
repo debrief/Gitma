@@ -1,0 +1,2049 @@
+{
+  "truth": "data/p11val/real/validation.f32pack",
+  "rows": 16711,
+  "settled_rows": 7509,
+  "references": {
+    "imm": "imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1",
+    "ekf": "ekf-sa0.03-p16-r64-g1"
+  },
+  "rule": "score = min over both references of the smallest G5 margin; largest score; ties within 0.005 to the larger k, then the larger M; reference = the one with the smaller margin (ties: EKF); carried if score > 0",
+  "medians": {
+    "imm": {
+      "all": [
+        0.15117038892725568,
+        28.60916941413636,
+        2.5376028427552453
+      ],
+      "settled": [
+        0.1341002181453173,
+        11.685005669787774,
+        2.1032685080048332
+      ]
+    },
+    "ekf": {
+      "all": [
+        0.1579314479524454,
+        35.23858517349658,
+        2.3071663297278318
+      ],
+      "settled": [
+        0.1364562766587332,
+        8.269064141324318,
+        1.7827089610419056
+      ]
+    },
+    "t2": {
+      "all": [
+        0.12164923663274184,
+        25.07833044345495,
+        2.874890568446907
+      ],
+      "settled": [
+        0.11860731482044881,
+        17.6548915327024,
+        2.6400620685025373
+      ]
+    },
+    "frozen_fused": {
+      "all": [
+        0.12948817743984234,
+        26.478922204468592,
+        2.6262364686179107
+      ],
+      "settled": [
+        0.11718640369117042,
+        12.581625092702856,
+        2.1367559165213073
+      ]
+    },
+    "chosen": {
+      "all": [
+        0.12503125824235542,
+        26.459721062535493,
+        2.2799949151650876
+      ],
+      "settled": [
+        0.1153580830722756,
+        10.667635332536033,
+        1.8743855906871687
+      ]
+    }
+  },
+  "frozen_fused": {
+    "estimator": "fused-lstm-gaussian-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-k4-m6",
+    "vs": {
+      "imm": {
+        "points": [
+          {
+            "check": "overall range",
+            "point": 0.8565710411855394,
+            "limit": 1,
+            "margin": 0.1434289588144606
+          },
+          {
+            "check": "overall course",
+            "point": 0.9255397044621935,
+            "limit": 1,
+            "margin": 0.07446029553780653
+          },
+          {
+            "check": "settled range",
+            "point": 0.8738718349002365,
+            "limit": 1.1,
+            "margin": 0.2055710591816033
+          },
+          {
+            "check": "settled course",
+            "point": 1.076732476496211,
+            "limit": 1.1,
+            "margin": 0.021152294094353756
+          },
+          {
+            "check": "settled speed",
+            "point": 1.0159216041076182,
+            "limit": 1.1,
+            "margin": 0.07643490535671078
+          }
+        ],
+        "margin": 0.021152294094353756
+      },
+      "ekf": {
+        "points": [
+          {
+            "check": "overall range",
+            "point": 0.8199011603998743,
+            "limit": 1,
+            "margin": 0.18009883960012574
+          },
+          {
+            "check": "overall course",
+            "point": 0.7514184259697165,
+            "limit": 1,
+            "margin": 0.24858157403028347
+          },
+          {
+            "check": "settled range",
+            "point": 0.8587835353608888,
+            "limit": 1.1,
+            "margin": 0.2192876951264648
+          },
+          {
+            "check": "settled course",
+            "point": 1.521529507774246,
+            "limit": 1.1,
+            "margin": -0.38320864343113253
+          },
+          {
+            "check": "settled speed",
+            "point": 1.1986005361595753,
+            "limit": 1.1,
+            "margin": -0.08963685105415926
+          }
+        ],
+        "margin": -0.38320864343113253
+      }
+    }
+  },
+  "variants": [
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k0.5-m1",
+      "k": 0.5,
+      "m": 1,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8142538115434556,
+              "limit": 1,
+              "margin": 0.18574618845654445
+            },
+            {
+              "check": "overall course",
+              "point": 1.2015312864453456,
+              "limit": 1,
+              "margin": -0.20153128644534557
+            },
+            {
+              "check": "settled range",
+              "point": 0.8942178925258836,
+              "limit": 1.1,
+              "margin": 0.18707464315828773
+            },
+            {
+              "check": "settled course",
+              "point": 1.6242784027009776,
+              "limit": 1.1,
+              "margin": -0.4766167297281613
+            },
+            {
+              "check": "settled speed",
+              "point": 1.4241525293948238,
+              "limit": 1.1,
+              "margin": -0.2946841176316579
+            }
+          ],
+          "margin": -0.4766167297281613
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.779395535039914,
+              "limit": 1,
+              "margin": 0.220604464960086
+            },
+            {
+              "check": "overall course",
+              "point": 0.9754878625533995,
+              "limit": 1,
+              "margin": 0.024512137446600524
+            },
+            {
+              "check": "settled range",
+              "point": 0.8787782972934602,
+              "limit": 1.1,
+              "margin": 0.2011106388241271
+            },
+            {
+              "check": "settled course",
+              "point": 2.295266068867993,
+              "limit": 1.1,
+              "margin": -1.0866055171527207
+            },
+            {
+              "check": "settled speed",
+              "point": 1.680237902613622,
+              "limit": 1.1,
+              "margin": -0.5274890023760199
+            }
+          ],
+          "margin": -1.0866055171527207
+        }
+      },
+      "range_vs_t2": 1.0118523451826957,
+      "score": -1.0866055171527207
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k0.5-m12",
+      "k": 0.5,
+      "m": 12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8462119820085272,
+              "limit": 1,
+              "margin": 0.1537880179914728
+            },
+            {
+              "check": "overall course",
+              "point": 1.099850428600248,
+              "limit": 1,
+              "margin": -0.09985042860024795
+            },
+            {
+              "check": "settled range",
+              "point": 0.9219830002240963,
+              "limit": 1.1,
+              "margin": 0.16183363615991253
+            },
+            {
+              "check": "settled course",
+              "point": 1.2905779578119185,
+              "limit": 1.1,
+              "margin": -0.17325268891992585
+            },
+            {
+              "check": "settled speed",
+              "point": 1.2384719473088925,
+              "limit": 1.1,
+              "margin": -0.12588358846262948
+            }
+          ],
+          "margin": -0.17325268891992585
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8099855734473572,
+              "limit": 1,
+              "margin": 0.19001442655264278
+            },
+            {
+              "check": "overall course",
+              "point": 0.8929361688930928,
+              "limit": 1,
+              "margin": 0.1070638311069072
+            },
+            {
+              "check": "settled range",
+              "point": 0.9060640117386101,
+              "limit": 1.1,
+              "margin": 0.1763054438739909
+            },
+            {
+              "check": "settled course",
+              "point": 1.8237143280787538,
+              "limit": 1.1,
+              "margin": -0.6579221164352306
+            },
+            {
+              "check": "settled speed",
+              "point": 1.4611689859346502,
+              "limit": 1.1,
+              "margin": -0.3283354417587728
+            }
+          ],
+          "margin": -0.6579221164352306
+        }
+      },
+      "range_vs_t2": 1.0515659446456629,
+      "score": -0.6579221164352306
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k0.5-m3",
+      "k": 0.5,
+      "m": 3,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8239473480043753,
+              "limit": 1,
+              "margin": 0.1760526519956247
+            },
+            {
+              "check": "overall course",
+              "point": 1.132167878079613,
+              "limit": 1,
+              "margin": -0.13216787807961294
+            },
+            {
+              "check": "settled range",
+              "point": 0.9028284245442182,
+              "limit": 1.1,
+              "margin": 0.17924688677798353
+            },
+            {
+              "check": "settled course",
+              "point": 1.4052844361779484,
+              "limit": 1.1,
+              "margin": -0.2775313056163166
+            },
+            {
+              "check": "settled speed",
+              "point": 1.3029286964124664,
+              "limit": 1.1,
+              "margin": -0.18448063310224214
+            }
+          ],
+          "margin": -0.2775313056163166
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.788674090361708,
+              "limit": 1,
+              "margin": 0.211325909638292
+            },
+            {
+              "check": "overall course",
+              "point": 0.9191737542738854,
+              "limit": 1,
+              "margin": 0.08082624572611463
+            },
+            {
+              "check": "settled range",
+              "point": 0.8872401595857582,
+              "limit": 1.1,
+              "margin": 0.1934180367402199
+            },
+            {
+              "check": "settled course",
+              "point": 1.9858059296386112,
+              "limit": 1.1,
+              "margin": -0.8052781178532828
+            },
+            {
+              "check": "settled speed",
+              "point": 1.5372160881148522,
+              "limit": 1.1,
+              "margin": -0.39746917101350193
+            }
+          ],
+          "margin": -0.8052781178532828
+        }
+      },
+      "range_vs_t2": 1.0238982545318989,
+      "score": -0.8052781178532828
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k0.5-m6",
+      "k": 0.5,
+      "m": 6,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8423784892377685,
+              "limit": 1,
+              "margin": 0.15762151076223152
+            },
+            {
+              "check": "overall course",
+              "point": 1.0967229180866798,
+              "limit": 1,
+              "margin": -0.09672291808667977
+            },
+            {
+              "check": "settled range",
+              "point": 0.9119323575735507,
+              "limit": 1.1,
+              "margin": 0.17097058402404486
+            },
+            {
+              "check": "settled course",
+              "point": 1.3057666993221837,
+              "limit": 1.1,
+              "margin": -0.18706063574743964
+            },
+            {
+              "check": "settled speed",
+              "point": 1.233665300589494,
+              "limit": 1.1,
+              "margin": -0.12151390962681262
+            }
+          ],
+          "margin": -0.18706063574743964
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8063161928355875,
+              "limit": 1,
+              "margin": 0.19368380716441247
+            },
+            {
+              "check": "overall course",
+              "point": 0.8903970352222421,
+              "limit": 1,
+              "margin": 0.10960296477775788
+            },
+            {
+              "check": "settled range",
+              "point": 0.8961869038111416,
+              "limit": 1.1,
+              "margin": 0.18528463289896221
+            },
+            {
+              "check": "settled course",
+              "point": 1.8451775224174503,
+              "limit": 1.1,
+              "margin": -0.677434111288591
+            },
+            {
+              "check": "settled speed",
+              "point": 1.4554980273570328,
+              "limit": 1.1,
+              "margin": -0.3231800248700297
+            }
+          ],
+          "margin": -0.677434111288591
+        }
+      },
+      "range_vs_t2": 1.0468021614181942,
+      "score": -0.677434111288591
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k1-m1",
+      "k": 1,
+      "m": 1,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8187294875977176,
+              "limit": 1,
+              "margin": 0.18127051240228242
+            },
+            {
+              "check": "overall course",
+              "point": 1.1027191734300072,
+              "limit": 1,
+              "margin": -0.10271917343000725
+            },
+            {
+              "check": "settled range",
+              "point": 0.8960224645626919,
+              "limit": 1.1,
+              "margin": 0.18543412312482566
+            },
+            {
+              "check": "settled course",
+              "point": 1.3512393119428006,
+              "limit": 1.1,
+              "margin": -0.22839937449345496
+            },
+            {
+              "check": "settled speed",
+              "point": 1.2479935764479158,
+              "limit": 1.1,
+              "margin": -0.1345396149526506
+            }
+          ],
+          "margin": -0.22839937449345496
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7836796070129572,
+              "limit": 1,
+              "margin": 0.21632039298704275
+            },
+            {
+              "check": "overall course",
+              "point": 0.8952652183267302,
+              "limit": 1,
+              "margin": 0.10473478167326977
+            },
+            {
+              "check": "settled range",
+              "point": 0.8805517115307557,
+              "limit": 1.1,
+              "margin": 0.1994984440629494
+            },
+            {
+              "check": "settled course",
+              "point": 1.909434822543662,
+              "limit": 1.1,
+              "margin": -0.7358498386760561
+            },
+            {
+              "check": "settled speed",
+              "point": 1.4724027560848287,
+              "limit": 1.1,
+              "margin": -0.3385479600771169
+            }
+          ],
+          "margin": -0.7358498386760561
+        }
+      },
+      "range_vs_t2": 1.0174141531197058,
+      "score": -0.7358498386760561
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k1-m12",
+      "k": 1,
+      "m": 12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8387167512093399,
+              "limit": 1,
+              "margin": 0.16128324879066014
+            },
+            {
+              "check": "overall course",
+              "point": 0.9947383813581273,
+              "limit": 1,
+              "margin": 0.00526161864187269
+            },
+            {
+              "check": "settled range",
+              "point": 0.9071295239267845,
+              "limit": 1.1,
+              "margin": 0.175336796430196
+            },
+            {
+              "check": "settled course",
+              "point": 1.052901937586656,
+              "limit": 1.1,
+              "margin": 0.04281642037576739
+            },
+            {
+              "check": "settled speed",
+              "point": 1.0194542051989082,
+              "limit": 1.1,
+              "margin": 0.07322344981917446
+            }
+          ],
+          "margin": 0.00526161864187269
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8028112141306879,
+              "limit": 1,
+              "margin": 0.1971887858693121
+            },
+            {
+              "check": "overall course",
+              "point": 0.8075987936207659,
+              "limit": 1,
+              "margin": 0.19240120637923408
+            },
+            {
+              "check": "settled range",
+              "point": 0.8914669960464165,
+              "limit": 1.1,
+              "margin": 0.18957545813962137
+            },
+            {
+              "check": "settled course",
+              "point": 1.4878545987986758,
+              "limit": 1.1,
+              "margin": -0.35259508981697785
+            },
+            {
+              "check": "settled speed",
+              "point": 1.2027683553544206,
+              "limit": 1.1,
+              "margin": -0.09342577759492775
+            }
+          ],
+          "margin": -0.35259508981697785
+        }
+      },
+      "range_vs_t2": 1.0422518134075573,
+      "score": -0.35259508981697785
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k1-m3",
+      "k": 1,
+      "m": 3,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8244582982245612,
+              "limit": 1,
+              "margin": 0.17554170177543882
+            },
+            {
+              "check": "overall course",
+              "point": 1.0284283543445538,
+              "limit": 1,
+              "margin": -0.02842835434455382
+            },
+            {
+              "check": "settled range",
+              "point": 0.9008021390756242,
+              "limit": 1.1,
+              "margin": 0.1810889644767053
+            },
+            {
+              "check": "settled course",
+              "point": 1.1640577324601296,
+              "limit": 1.1,
+              "margin": -0.05823430223648133
+            },
+            {
+              "check": "settled speed",
+              "point": 1.0966888695522263,
+              "limit": 1.1,
+              "margin": 0.0030101185888852344
+            }
+          ],
+          "margin": -0.05823430223648133
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7891631667585205,
+              "limit": 1,
+              "margin": 0.2108368332414795
+            },
+            {
+              "check": "overall course",
+              "point": 0.8349506904117662,
+              "limit": 1,
+              "margin": 0.16504930958823383
+            },
+            {
+              "check": "settled range",
+              "point": 0.8852488600280054,
+              "limit": 1.1,
+              "margin": 0.1952283090654497
+            },
+            {
+              "check": "settled course",
+              "point": 1.644928733323201,
+              "limit": 1.1,
+              "margin": -0.49538975756654624
+            },
+            {
+              "check": "settled speed",
+              "point": 1.2938910460519064,
+              "limit": 1.1,
+              "margin": -0.17626458731991482
+            }
+          ],
+          "margin": -0.49538975756654624
+        }
+      },
+      "range_vs_t2": 1.0245331992766913,
+      "score": -0.49538975756654624
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k1-m6",
+      "k": 1,
+      "m": 6,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8354914348954473,
+              "limit": 1,
+              "margin": 0.1645085651045527
+            },
+            {
+              "check": "overall course",
+              "point": 1.0080505940479416,
+              "limit": 1,
+              "margin": -0.008050594047941617
+            },
+            {
+              "check": "settled range",
+              "point": 0.9087789161378194,
+              "limit": 1.1,
+              "margin": 0.17383734896561884
+            },
+            {
+              "check": "settled course",
+              "point": 1.0705429310937415,
+              "limit": 1.1,
+              "margin": 0.026779153551144127
+            },
+            {
+              "check": "settled speed",
+              "point": 1.0487242026142394,
+              "limit": 1.1,
+              "margin": 0.04661436125978246
+            }
+          ],
+          "margin": -0.008050594047941617
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7997239738887612,
+              "limit": 1,
+              "margin": 0.20027602611123885
+            },
+            {
+              "check": "overall course",
+              "point": 0.8184065870166924,
+              "limit": 1,
+              "margin": 0.18159341298330756
+            },
+            {
+              "check": "settled range",
+              "point": 0.8930879097978605,
+              "limit": 1.1,
+              "margin": 0.1881019001837633
+            },
+            {
+              "check": "settled course",
+              "point": 1.5127830678041139,
+              "limit": 1.1,
+              "margin": -0.3752573343673761
+            },
+            {
+              "check": "settled speed",
+              "point": 1.2373015658438482,
+              "limit": 1.1,
+              "margin": -0.12481960531258919
+            }
+          ],
+          "margin": -0.3752573343673761
+        }
+      },
+      "range_vs_t2": 1.038243795477642,
+      "score": -0.3752573343673761
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k1.5-m1",
+      "k": 1.5,
+      "m": 1,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8200080644902127,
+              "limit": 1,
+              "margin": 0.17999193550978732
+            },
+            {
+              "check": "overall course",
+              "point": 1.0509734078046904,
+              "limit": 1,
+              "margin": -0.050973407804690396
+            },
+            {
+              "check": "settled range",
+              "point": 0.8969329946378317,
+              "limit": 1.1,
+              "margin": 0.18460636851106213
+            },
+            {
+              "check": "settled course",
+              "point": 1.2100710315947973,
+              "limit": 1.1,
+              "margin": -0.1000645741770884
+            },
+            {
+              "check": "settled speed",
+              "point": 1.1215118263472723,
+              "limit": 1.1,
+              "margin": -0.019556205770247474
+            }
+          ],
+          "margin": -0.1000645741770884
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7849034479174621,
+              "limit": 1,
+              "margin": 0.21509655208253786
+            },
+            {
+              "check": "overall course",
+              "point": 0.85325435529264,
+              "limit": 1,
+              "margin": 0.14674564470735996
+            },
+            {
+              "check": "settled range",
+              "point": 0.8814465203639873,
+              "limit": 1.1,
+              "margin": 0.19868498148728433
+            },
+            {
+              "check": "settled course",
+              "point": 1.7099500769825482,
+              "limit": 1.1,
+              "margin": -0.5545000699841346
+            },
+            {
+              "check": "settled speed",
+              "point": 1.3231775669835513,
+              "limit": 1.1,
+              "margin": -0.20288869725777378
+            }
+          ],
+          "margin": -0.5545000699841346
+        }
+      },
+      "range_vs_t2": 1.0190030078586418,
+      "score": -0.5545000699841346
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k1.5-m12",
+      "k": 1.5,
+      "m": 12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8356275125347815,
+              "limit": 1,
+              "margin": 0.1643724874652185
+            },
+            {
+              "check": "overall course",
+              "point": 0.9535660185239343,
+              "limit": 1,
+              "margin": 0.0464339814760657
+            },
+            {
+              "check": "settled range",
+              "point": 0.8986999185282225,
+              "limit": 1.1,
+              "margin": 0.18300007406525234
+            },
+            {
+              "check": "settled course",
+              "point": 0.9700746088936794,
+              "limit": 1.1,
+              "margin": 0.11811399191483701
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9529552812628695,
+              "limit": 1.1,
+              "margin": 0.13367701703375504
+            }
+          ],
+          "margin": 0.0464339814760657
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7998542260325182,
+              "limit": 1,
+              "margin": 0.2001457739674818
+            },
+            {
+              "check": "overall course",
+              "point": 0.7741721648925036,
+              "limit": 1,
+              "margin": 0.22582783510749638
+            },
+            {
+              "check": "settled range",
+              "point": 0.8831829364889865,
+              "limit": 1.1,
+              "margin": 0.1971064213736487
+            },
+            {
+              "check": "settled course",
+              "point": 1.3708113894523994,
+              "limit": 1.1,
+              "margin": -0.24619217222945394
+            },
+            {
+              "check": "settled speed",
+              "point": 1.1243118626865796,
+              "limit": 1.1,
+              "margin": -0.022101693351435886
+            }
+          ],
+          "margin": -0.24619217222945394
+        }
+      },
+      "range_vs_t2": 1.0384128956728578,
+      "score": -0.24619217222945394
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k1.5-m3",
+      "k": 1.5,
+      "m": 3,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8222887344344001,
+              "limit": 1,
+              "margin": 0.1777112655655999
+            },
+            {
+              "check": "overall course",
+              "point": 0.9892139085883587,
+              "limit": 1,
+              "margin": 0.01078609141164133
+            },
+            {
+              "check": "settled range",
+              "point": 0.8919181599072576,
+              "limit": 1.1,
+              "margin": 0.1891653091752204
+            },
+            {
+              "check": "settled course",
+              "point": 1.0611718108848087,
+              "limit": 1.1,
+              "margin": 0.03529835374108306
+            },
+            {
+              "check": "settled speed",
+              "point": 1.0073836034161696,
+              "limit": 1.1,
+              "margin": 0.08419672416711861
+            }
+          ],
+          "margin": 0.01078609141164133
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.787086482182945,
+              "limit": 1,
+              "margin": 0.21291351781705503
+            },
+            {
+              "check": "overall course",
+              "point": 0.8031136368922555,
+              "limit": 1,
+              "margin": 0.19688636310774454
+            },
+            {
+              "check": "settled range",
+              "point": 0.8765182719330665,
+              "limit": 1.1,
+              "margin": 0.20316520733357596
+            },
+            {
+              "check": "settled course",
+              "point": 1.4995407478871097,
+              "limit": 1.1,
+              "margin": -0.3632188617155541
+            },
+            {
+              "check": "settled speed",
+              "point": 1.1885272665636497,
+              "limit": 1.1,
+              "margin": -0.08047933323968147
+            }
+          ],
+          "margin": -0.3632188617155541
+        }
+      },
+      "range_vs_t2": 1.0218371379528435,
+      "score": -0.3632188617155541
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k1.5-m6",
+      "k": 1.5,
+      "m": 6,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8309035411507248,
+              "limit": 1,
+              "margin": 0.16909645884927516
+            },
+            {
+              "check": "overall course",
+              "point": 0.9616341680020188,
+              "limit": 1,
+              "margin": 0.03836583199798116
+            },
+            {
+              "check": "settled range",
+              "point": 0.898539702538416,
+              "limit": 1.1,
+              "margin": 0.18314572496507645
+            },
+            {
+              "check": "settled course",
+              "point": 0.9917745506748937,
+              "limit": 1.1,
+              "margin": 0.09838677211373305
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9629510968757237,
+              "limit": 1.1,
+              "margin": 0.12458991193116037
+            }
+          ],
+          "margin": 0.03836583199798116
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7953324882743479,
+              "limit": 1,
+              "margin": 0.20466751172565212
+            },
+            {
+              "check": "overall course",
+              "point": 0.7807224578211397,
+              "limit": 1,
+              "margin": 0.2192775421788603
+            },
+            {
+              "check": "settled range",
+              "point": 0.8830254867936738,
+              "limit": 1.1,
+              "margin": 0.19724955746029665
+            },
+            {
+              "check": "settled course",
+              "point": 1.4014755539109116,
+              "limit": 1.1,
+              "margin": -0.2740686853735559
+            },
+            {
+              "check": "settled speed",
+              "point": 1.136105085612913,
+              "limit": 1.1,
+              "margin": -0.03282280510264801
+            }
+          ],
+          "margin": -0.2740686853735559
+        }
+      },
+      "range_vs_t2": 1.0325425374924362,
+      "score": -0.2740686853735559
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k2-m1",
+      "k": 2,
+      "m": 1,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8160126806451417,
+              "limit": 1,
+              "margin": 0.18398731935485835
+            },
+            {
+              "check": "overall course",
+              "point": 1.0081840504126045,
+              "limit": 1,
+              "margin": -0.008184050412604504
+            },
+            {
+              "check": "settled range",
+              "point": 0.8897257686879394,
+              "limit": 1.1,
+              "margin": 0.19115839210187333
+            },
+            {
+              "check": "settled course",
+              "point": 1.1059523447674404,
+              "limit": 1.1,
+              "margin": -0.005411222515854847
+            },
+            {
+              "check": "settled speed",
+              "point": 1.0486457591269327,
+              "limit": 1.1,
+              "margin": 0.046685673520970354
+            }
+          ],
+          "margin": -0.008184050412604504
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7810791068023543,
+              "limit": 1,
+              "margin": 0.21892089319764574
+            },
+            {
+              "check": "overall course",
+              "point": 0.8185149363084486,
+              "limit": 1,
+              "margin": 0.18148506369155137
+            },
+            {
+              "check": "settled range",
+              "point": 0.8743637346118869,
+              "limit": 1.1,
+              "margin": 0.20512387762555745
+            },
+            {
+              "check": "settled course",
+              "point": 1.562820072290908,
+              "limit": 1.1,
+              "margin": -0.4207455202644617
+            },
+            {
+              "check": "settled speed",
+              "point": 1.2372090169645213,
+              "limit": 1.1,
+              "margin": -0.12473546996774659
+            }
+          ],
+          "margin": -0.4207455202644617
+        }
+      },
+      "range_vs_t2": 1.0140380467418164,
+      "score": -0.4207455202644617
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k2-m12",
+      "k": 2,
+      "m": 12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8341874530896933,
+              "limit": 1,
+              "margin": 0.16581254691030667
+            },
+            {
+              "check": "overall course",
+              "point": 0.9358687336779491,
+              "limit": 1,
+              "margin": 0.0641312663220509
+            },
+            {
+              "check": "settled range",
+              "point": 0.8914697152828354,
+              "limit": 1.1,
+              "margin": 0.18957298610651338
+            },
+            {
+              "check": "settled course",
+              "point": 0.9585354818948929,
+              "limit": 1.1,
+              "margin": 0.12860410736827924
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9088506508716151,
+              "limit": 1.1,
+              "margin": 0.17377213557125906
+            }
+          ],
+          "margin": 0.0641312663220509
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.798475815657544,
+              "limit": 1,
+              "margin": 0.201524184342456
+            },
+            {
+              "check": "overall course",
+              "point": 0.7598042605672807,
+              "limit": 1,
+              "margin": 0.24019573943271932
+            },
+            {
+              "check": "settled range",
+              "point": 0.8760775701681229,
+              "limit": 1.1,
+              "margin": 0.2035658453017065
+            },
+            {
+              "check": "settled course",
+              "point": 1.354505461465774,
+              "limit": 1.1,
+              "margin": -0.23136860133252182
+            },
+            {
+              "check": "settled speed",
+              "point": 1.072276515253927,
+              "limit": 1.1,
+              "margin": 0.025203167950975453
+            }
+          ],
+          "margin": -0.23136860133252182
+        }
+      },
+      "range_vs_t2": 1.0366233707040364,
+      "score": -0.23136860133252182
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k2-m3",
+      "k": 2,
+      "m": 3,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8220200383084995,
+              "limit": 1,
+              "margin": 0.17797996169150054
+            },
+            {
+              "check": "overall course",
+              "point": 0.9530083189392249,
+              "limit": 1,
+              "margin": 0.046991681060775115
+            },
+            {
+              "check": "settled range",
+              "point": 0.8850546560507108,
+              "limit": 1.1,
+              "margin": 0.19540485813571756
+            },
+            {
+              "check": "settled course",
+              "point": 1.0043816066046756,
+              "limit": 1.1,
+              "margin": 0.08692581217756774
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9560044413116014,
+              "limit": 1.1,
+              "margin": 0.13090505335308966
+            }
+          ],
+          "margin": 0.046991681060775115
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7868292889615679,
+              "limit": 1,
+              "margin": 0.2131707110384321
+            },
+            {
+              "check": "overall course",
+              "point": 0.7737193850257016,
+              "limit": 1,
+              "margin": 0.2262806149742984
+            },
+            {
+              "check": "settled range",
+              "point": 0.8697732735574623,
+              "limit": 1.1,
+              "margin": 0.20929702403867073
+            },
+            {
+              "check": "settled course",
+              "point": 1.4192905711246055,
+              "limit": 1.1,
+              "margin": -0.29026415556782315
+            },
+            {
+              "check": "settled speed",
+              "point": 1.1279093104172602,
+              "limit": 1.1,
+              "margin": -0.025372100379327345
+            }
+          ],
+          "margin": -0.29026415556782315
+        }
+      },
+      "range_vs_t2": 1.0215032361629106,
+      "score": -0.29026415556782315
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k2-m6",
+      "k": 2,
+      "m": 6,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8322002624482481,
+              "limit": 1,
+              "margin": 0.16779973755175193
+            },
+            {
+              "check": "overall course",
+              "point": 0.9461225435016418,
+              "limit": 1,
+              "margin": 0.05387745649835818
+            },
+            {
+              "check": "settled range",
+              "point": 0.8929339984947694,
+              "limit": 1.1,
+              "margin": 0.18824181955020972
+            },
+            {
+              "check": "settled course",
+              "point": 0.9567903796379212,
+              "limit": 1.1,
+              "margin": 0.13019056396552622
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9343619713024638,
+              "limit": 1.1,
+              "margin": 0.15058002608866936
+            }
+          ],
+          "margin": 0.05387745649835818
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7965736968203233,
+              "limit": 1,
+              "margin": 0.2034263031796767
+            },
+            {
+              "check": "overall course",
+              "point": 0.7681290267558788,
+              "limit": 1,
+              "margin": 0.2318709732441212
+            },
+            {
+              "check": "settled range",
+              "point": 0.8775165710184684,
+              "limit": 1.1,
+              "margin": 0.20225766271048337
+            },
+            {
+              "check": "settled course",
+              "point": 1.352039459338016,
+              "limit": 1.1,
+              "margin": -0.22912678121637814
+            },
+            {
+              "check": "settled speed",
+              "point": 1.1023751785985396,
+              "limit": 1.1,
+              "margin": -0.0021592532713995715
+            }
+          ],
+          "margin": -0.22912678121637814
+        }
+      },
+      "range_vs_t2": 1.0341539398185242,
+      "score": -0.22912678121637814
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k3-m1",
+      "k": 3,
+      "m": 1,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8146414910750434,
+              "limit": 1,
+              "margin": 0.18535850892495664
+            },
+            {
+              "check": "overall course",
+              "point": 0.9699742278809206,
+              "limit": 1,
+              "margin": 0.03002577211907942
+            },
+            {
+              "check": "settled range",
+              "point": 0.883732147363425,
+              "limit": 1.1,
+              "margin": 0.1966071387605228
+            },
+            {
+              "check": "settled course",
+              "point": 1.0325294542631818,
+              "limit": 1.1,
+              "margin": 0.06133685976074393
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9790989972234089,
+              "limit": 1.1,
+              "margin": 0.10991000252417382
+            }
+          ],
+          "margin": 0.03002577211907942
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7797666179770306,
+              "limit": 1,
+              "margin": 0.22023338202296938
+            },
+            {
+              "check": "overall course",
+              "point": 0.7874935067955746,
+              "limit": 1,
+              "margin": 0.21250649320442538
+            },
+            {
+              "check": "settled range",
+              "point": 0.8684735993482088,
+              "limit": 1.1,
+              "margin": 0.210478546047083
+            },
+            {
+              "check": "settled course",
+              "point": 1.4590662644631376,
+              "limit": 1.1,
+              "margin": -0.32642387678467044
+            },
+            {
+              "check": "settled speed",
+              "point": 1.1551566363785728,
+              "limit": 1.1,
+              "margin": -0.05014239670779337
+            }
+          ],
+          "margin": -0.32642387678467044
+        }
+      },
+      "range_vs_t2": 1.0123341046017555,
+      "score": -0.32642387678467044
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k3-m12",
+      "k": 3,
+      "m": 12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8278222586972552,
+              "limit": 1,
+              "margin": 0.17217774130274477
+            },
+            {
+              "check": "overall course",
+              "point": 0.9278163411230628,
+              "limit": 1,
+              "margin": 0.07218365887693723
+            },
+            {
+              "check": "settled range",
+              "point": 0.8743563982598695,
+              "limit": 1.1,
+              "margin": 0.20513054703648229
+            },
+            {
+              "check": "settled course",
+              "point": 0.9504617170567015,
+              "limit": 1.1,
+              "margin": 0.13594389358481693
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8979721256796874,
+              "limit": 1.1,
+              "margin": 0.18366170392755696
+            }
+          ],
+          "margin": 0.07218365887693723
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7923831157907499,
+              "limit": 1,
+              "margin": 0.20761688420925006
+            },
+            {
+              "check": "overall course",
+              "point": 0.7532667602204977,
+              "limit": 1,
+              "margin": 0.24673323977950234
+            },
+            {
+              "check": "settled range",
+              "point": 0.8592597322337855,
+              "limit": 1.1,
+              "margin": 0.2188547888783769
+            },
+            {
+              "check": "settled course",
+              "point": 1.3430964330317907,
+              "limit": 1.1,
+              "margin": -0.22099675730162782
+            },
+            {
+              "check": "settled speed",
+              "point": 1.0594418574664068,
+              "limit": 1.1,
+              "margin": 0.036871038666902944
+            }
+          ],
+          "margin": -0.22099675730162782
+        }
+      },
+      "range_vs_t2": 1.028713506749794,
+      "score": -0.22099675730162782
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k3-m3",
+      "k": 3,
+      "m": 3,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8187492555439768,
+              "limit": 1,
+              "margin": 0.18125074445602318
+            },
+            {
+              "check": "overall course",
+              "point": 0.9347649055121775,
+              "limit": 1,
+              "margin": 0.0652350944878225
+            },
+            {
+              "check": "settled range",
+              "point": 0.8837430441369298,
+              "limit": 1.1,
+              "margin": 0.19659723260279113
+            },
+            {
+              "check": "settled course",
+              "point": 0.9530216485034966,
+              "limit": 1.1,
+              "margin": 0.13361668317863953
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9113264683530107,
+              "limit": 1.1,
+              "margin": 0.171521392406354
+            }
+          ],
+          "margin": 0.0652350944878225
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7836985286917174,
+              "limit": 1,
+              "margin": 0.2163014713082826
+            },
+            {
+              "check": "overall course",
+              "point": 0.7589080949907351,
+              "limit": 1,
+              "margin": 0.24109190500926492
+            },
+            {
+              "check": "settled range",
+              "point": 0.8684843079776676,
+              "limit": 1.1,
+              "margin": 0.21046881092939312
+            },
+            {
+              "check": "settled course",
+              "point": 1.346713869413809,
+              "limit": 1.1,
+              "margin": -0.22428533583073534
+            },
+            {
+              "check": "settled speed",
+              "point": 1.0751975242654843,
+              "limit": 1.1,
+              "margin": 0.022547705213196153
+            }
+          ],
+          "margin": -0.22428533583073534
+        }
+      },
+      "range_vs_t2": 1.01743871823994,
+      "score": -0.22428533583073534
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k3-m6",
+      "k": 3,
+      "m": 6,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8215060814085028,
+              "limit": 1,
+              "margin": 0.1784939185914972
+            },
+            {
+              "check": "overall course",
+              "point": 0.9203394423242893,
+              "limit": 1,
+              "margin": 0.07966055767571067
+            },
+            {
+              "check": "settled range",
+              "point": 0.8828292317573059,
+              "limit": 1.1,
+              "margin": 0.197427971129722
+            },
+            {
+              "check": "settled course",
+              "point": 0.9416631400267013,
+              "limit": 1.1,
+              "margin": 0.1439425999757262
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8649681301298129,
+              "limit": 1.1,
+              "margin": 0.21366533624562473
+            }
+          ],
+          "margin": 0.07966055767571067
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7863373346011688,
+              "limit": 1,
+              "margin": 0.21366266539883116
+            },
+            {
+              "check": "overall course",
+              "point": 0.7471964863041844,
+              "limit": 1,
+              "margin": 0.25280351369581555
+            },
+            {
+              "check": "settled range",
+              "point": 0.8675862735123281,
+              "limit": 1.1,
+              "margin": 0.21128520589788363
+            },
+            {
+              "check": "settled course",
+              "point": 1.3306631732669014,
+              "limit": 1.1,
+              "margin": -0.2096937938790012
+            },
+            {
+              "check": "settled speed",
+              "point": 1.0205032163335255,
+              "limit": 1.1,
+              "margin": 0.07226980333315873
+            }
+          ],
+          "margin": -0.2096937938790012
+        }
+      },
+      "range_vs_t2": 1.0208645550941677,
+      "score": -0.2096937938790012
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k4-m1",
+      "k": 4,
+      "m": 1,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8158313383017263,
+              "limit": 1,
+              "margin": 0.18416866169827373
+            },
+            {
+              "check": "overall course",
+              "point": 0.9518948296998901,
+              "limit": 1,
+              "margin": 0.048105170300109856
+            },
+            {
+              "check": "settled range",
+              "point": 0.8763140279363607,
+              "limit": 1.1,
+              "margin": 0.2033508836942176
+            },
+            {
+              "check": "settled course",
+              "point": 0.9765061480440592,
+              "limit": 1.1,
+              "margin": 0.11226713814176442
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9403197100940242,
+              "limit": 1.1,
+              "margin": 0.14516389991452355
+            }
+          ],
+          "margin": 0.048105170300109856
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7809055277404353,
+              "limit": 1,
+              "margin": 0.2190944722595647
+            },
+            {
+              "check": "overall course",
+              "point": 0.7728153759080795,
+              "limit": 1,
+              "margin": 0.22718462409192053
+            },
+            {
+              "check": "settled range",
+              "point": 0.8611835614125762,
+              "limit": 1.1,
+              "margin": 0.2171058532612944
+            },
+            {
+              "check": "settled course",
+              "point": 1.3798997905281727,
+              "limit": 1.1,
+              "margin": -0.2544543550256114
+            },
+            {
+              "check": "settled speed",
+              "point": 1.1094042139896472,
+              "limit": 1.1,
+              "margin": -0.00854928544513371
+            }
+          ],
+          "margin": -0.2544543550256114
+        }
+      },
+      "range_vs_t2": 1.013812697258812,
+      "score": -0.2544543550256114
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k4-m12",
+      "k": 4,
+      "m": 12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8270882884512615,
+              "limit": 1,
+              "margin": 0.17291171154873852
+            },
+            {
+              "check": "overall course",
+              "point": 0.9248685510408847,
+              "limit": 1,
+              "margin": 0.07513144895911528
+            },
+            {
+              "check": "settled range",
+              "point": 0.8602378479896889,
+              "limit": 1.1,
+              "margin": 0.21796559273664648
+            },
+            {
+              "check": "settled course",
+              "point": 0.9129336890368648,
+              "limit": 1.1,
+              "margin": 0.17006028269375936
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8911775094589404,
+              "limit": 1.1,
+              "margin": 0.18983862776459973
+            }
+          ],
+          "margin": 0.07513144895911528
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7916805668748347,
+              "limit": 1,
+              "margin": 0.20831943312516532
+            },
+            {
+              "check": "overall course",
+              "point": 0.7508735362745553,
+              "limit": 1,
+              "margin": 0.24912646372544467
+            },
+            {
+              "check": "settled range",
+              "point": 0.8453849533120226,
+              "limit": 1.1,
+              "margin": 0.23146822426179772
+            },
+            {
+              "check": "settled course",
+              "point": 1.2900656168846183,
+              "limit": 1.1,
+              "margin": -0.17278692444056198
+            },
+            {
+              "check": "settled speed",
+              "point": 1.0514254607166402,
+              "limit": 1.1,
+              "margin": 0.04415867207578169
+            }
+          ],
+          "margin": -0.17278692444056198
+        }
+      },
+      "range_vs_t2": 1.0278014207341382,
+      "score": -0.17278692444056198
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k4-m3",
+      "k": 4,
+      "m": 3,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8195958865186357,
+              "limit": 1,
+              "margin": 0.18040411348136431
+            },
+            {
+              "check": "overall course",
+              "point": 0.9339978298419411,
+              "limit": 1,
+              "margin": 0.06600217015805887
+            },
+            {
+              "check": "settled range",
+              "point": 0.875128386083726,
+              "limit": 1.1,
+              "margin": 0.20442873992388552
+            },
+            {
+              "check": "settled course",
+              "point": 0.9362515986785035,
+              "limit": 1.1,
+              "margin": 0.14886218301954235
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8779719009258754,
+              "limit": 1.1,
+              "margin": 0.2018437264310224
+            }
+          ],
+          "margin": 0.06600217015805887
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7845089153207034,
+              "limit": 1,
+              "margin": 0.21549108467929656
+            },
+            {
+              "check": "overall course",
+              "point": 0.7582853288468844,
+              "limit": 1,
+              "margin": 0.24171467115311562
+            },
+            {
+              "check": "settled range",
+              "point": 0.8600183908907528,
+              "limit": 1.1,
+              "margin": 0.21816509919022475
+            },
+            {
+              "check": "settled course",
+              "point": 1.3230161299914753,
+              "limit": 1.1,
+              "margin": -0.20274193635588658
+            },
+            {
+              "check": "settled speed",
+              "point": 1.0358452728320164,
+              "limit": 1.1,
+              "margin": 0.058322479243621494
+            }
+          ],
+          "margin": -0.20274193635588658
+        }
+      },
+      "range_vs_t2": 1.018490804856015,
+      "score": -0.20274193635588658
+    },
+    {
+      "estimator": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k4-m6",
+      "k": 4,
+      "m": 6,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8230056622125845,
+              "limit": 1,
+              "margin": 0.17699433778741547
+            },
+            {
+              "check": "overall course",
+              "point": 0.9217600125100419,
+              "limit": 1,
+              "margin": 0.07823998748995808
+            },
+            {
+              "check": "settled range",
+              "point": 0.8650378382890141,
+              "limit": 1.1,
+              "margin": 0.21360196519180538
+            },
+            {
+              "check": "settled course",
+              "point": 0.9412411122827609,
+              "limit": 1.1,
+              "margin": 0.14432626156112655
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8844961515316642,
+              "limit": 1.1,
+              "margin": 0.195912589516669
+            }
+          ],
+          "margin": 0.07823998748995808
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7877727182205804,
+              "limit": 1,
+              "margin": 0.21222728177941963
+            },
+            {
+              "check": "overall course",
+              "point": 0.7483498053976942,
+              "limit": 1,
+              "margin": 0.25165019460230575
+            },
+            {
+              "check": "settled range",
+              "point": 0.850102066822636,
+              "limit": 1.1,
+              "margin": 0.22717993925214916
+            },
+            {
+              "check": "settled course",
+              "point": 1.330066806314551,
+              "limit": 1.1,
+              "margin": -0.20915164210413725
+            },
+            {
+              "check": "settled speed",
+              "point": 1.0435426879106207,
+              "limit": 1.1,
+              "margin": 0.05132482917216311
+            }
+          ],
+          "margin": -0.20915164210413725
+        }
+      },
+      "range_vs_t2": 1.0227280457304901,
+      "score": -0.20915164210413725
+    }
+  ],
+  "best_score": -0.17278692444056198,
+  "chosen": "fused-lstm-gaussian-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-k4-m12",
+  "reference": "ekf-sa0.03-p16-r64-g1",
+  "carried": false
+}

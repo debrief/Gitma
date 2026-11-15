@@ -84,6 +84,27 @@ split, with every estimator frozen (`experiments/20261115-p13-sweep/results.md`)
 So the qualified go holds, with two sharper conditions: the fusion and the reference both need
 re-tuning to the error level that real data show.
 
+## Re-tuned references (spec 027)
+
+Spec 026 showed the reference IMM was tuned on white noise. Annex E re-tuned the IMM and the EKF
+to the realistic error on seed 217's validation split, rebuilt the fused tracker on the re-tuned
+IMM over phase 8's 24 fusion settings, and required a setting to beat both
+(`experiments/20261115-p14-val/validation.md`):
+
+| Median, G5 rows | Range | Settled course |
+| --- | --- | --- |
+| Re-tuned EKF | 15.8% | 8.3° |
+| Re-tuned IMM | 15.1% | 11.7° |
+| Best fused tracker (k 4, M 12) | 12.5% | 10.7° |
+| T2 | 12.2% | 17.7° |
+| Least squares | 17.3% | |
+| Naive | 38.7% | |
+
+The range gain survives (0.79 × the EKF, 0.83 × the IMM), but no setting matches the EKF's course
+after a manoeuvre (best 1.29 ×, limit 1.1), so it stopped before the gate. The network fixes range;
+the IMM's dynamics still cost course. The gain is a range aid, as the synthesis said, not a better
+tracker overall.
+
 ## Conditions on the "go"
 
 The fused tracker is the candidate. Before it is used outside this project, each of the following
@@ -92,9 +113,11 @@ needs closing:
 1. **Real or representative data.** Everything here is simulated: one generator family, flat
    earth, a perfectly known ownship and one realistic-error model. Testing on recorded or
    independently simulated data is outside this public repository (OFFICIAL, mock data only).
-2. **A stronger reference.** The gated reference IMM was tuned on white noise and is weaker than
-   the EKF on straight legs. Against the EKF, the fused tracker loses on settled course by
-   1.27–1.41 ×. A fair go needs a reference tuned to the real error.
+2. **A stronger reference.** Re-tuned to the realistic error (spec 027, Annex E), both classical
+   trackers improve (EKF range 15.8%, IMM 15.1%). The fused tracker, rebuilt on the re-tuned IMM,
+   still beats both on range (0.79 × the EKF's), but its course after a manoeuvre is 1.29 × the
+   re-tuned EKF's, over G5's 1.1 limit. It stopped at validation: **this condition is not met.**
+   Against the re-tuned IMM alone it would have gone to the gate.
 3. **The size of the gain.** Range error falls to 0.77–0.82 × the IMM's. That is real but
    moderate, and it comes from the network's range alone.
 4. **Run-to-run spread.** Each model is a single training run.

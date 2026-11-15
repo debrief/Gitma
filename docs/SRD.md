@@ -321,3 +321,7 @@ The repository is public on GitHub from day one; nothing above OFFICIAL enters i
 - [Annex D: The composite solver and gate G9](SRD-annex-D.md) (2026-11-15): after spec 024,
   batch least squares on straight legs and the fused tracker after a manoeuvre, switched by a
   least-squares fit check and judged at G9 (best of both) under realistic bearing error.
+- [Annex E: Re-tuned references under realistic bearing error](SRD-annex-E.md) (2026-11-15):
+  after spec 026, the IMM and EKF re-tuned to realistic error, the fused tracker rebuilt on the
+  re-tuned IMM, and G5 judged against the harder of the two references on fresh seed 231. Stopped at
+  validation (§E.6).
