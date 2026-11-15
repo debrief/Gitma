@@ -223,7 +223,9 @@ least squares win on straight legs; nothing tried beat T2's range under realisti
 result is the fused tracker, a range aid to a classical tracker.
 
 **The project's answer** (2026-11-14, SRD §1): no-go for a stand-alone network; qualified go for a
-learned range aid inside a classical tracker. Report: `site/docs/results/go-no-go.mdx`.
+learned range aid inside a classical tracker. Report: `site/docs/results/go-no-go.mdx`. Spec 024
+(`experiments/20261115-crb/`): on straight legs least squares reaches the Cramér–Rao bound and T2
+is 1.5 × above it; after a manoeuvre only a genie bound exists (T2 2.2 ×).
 
 ### Operational rules from the gates
 

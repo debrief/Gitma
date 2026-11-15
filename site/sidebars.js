@@ -17,6 +17,7 @@ const sidebars = {
         "algorithms/hybrid",
         "algorithms/fused-tracker",
         "algorithms/detection",
+        "algorithms/crb",
         "algorithms/viewer",
       ],
     },
