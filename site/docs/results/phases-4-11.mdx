@@ -65,9 +65,12 @@ Three phases tried to beat it on range, and all failed:
 | 9 | Explicit bias state in the IMM | 1.37 × |
 | 11 | T2 retrained on the error | 1.021 × |
 
-- **A plausible reading.** The drifting bias is nearly unobservable from the bearings, since
-  phase 9 found the geometry rotates to absorb it. If so, T2 sits near what this data allows.
-- **Not tested.** This was never checked against a bound.
+- **The bias does remove information.** Spec 024 computed Cramér–Rao bounds: on straight legs
+  the bias raises the range bound 2.8 × (2.4% to 6.9%).
+- **But T2 is not at the limit** (amended 2026-11-15, spec 024). On straight legs T2 is 1.51 × the
+  bound, while batch least squares reaches it. T2's robustness is mostly slack: it starts
+  2.5 × above the bound on clean data, so it has less to lose. After a manoeuvre only a genie bound
+  exists, and T2 is 2.2 × above it, which leaves the question open.
 - **What retraining did.** It traded white-noise accuracy for nothing on the realistic error.
 
 ### 4. Accuracy and a coherent track pull in different directions
@@ -114,8 +117,9 @@ not a learned tracker that replaces one.
 | Straight legs | The EKF or batch least squares |
 | Range alone, under realistic error | T2's range reported directly |
 
-Further gains on range under this error model probably need more information in the data, not
-another model.
+Further gains on straight legs need no new model: batch least squares already reaches the bound
+there. After manoeuvres, whether a better estimator could get closer to the limit is open
+(spec 024).
 
 Records: SRD Annex C §C.10–C.19; `experiments/` from `20261031-p4-val` to `20261114-p11-val`;
 specs 012–023.

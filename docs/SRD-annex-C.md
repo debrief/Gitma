@@ -793,3 +793,8 @@ scoring.
 Reserved seeds (201–228) stay reserved. Annex C §C.6 (incremental if passed) is satisfied by the
 4b, 4c and 7 passes, and nothing further is planned under this annex.
 
+**Amendment (2026-11-15, spec 024).** The synthesis's untested reading, that T2 sits near what the
+data allow, was checked against Cramér–Rao bounds (`experiments/20261115-crb/`). On straight legs
+it does not: T2 is 1.51 × the bound under realistic error, and batch least squares reaches it. The
+bias does remove information (the range bound rises 2.8 ×). After a manoeuvre only a genie bound
+exists, and T2 is 2.2 × above it.

@@ -49,6 +49,21 @@ The network is strong exactly where classical methods are weak, and weak where t
 This is why every pass after G2 combines the network with a classical estimator. It is also why
 "usable" depends on what the estimate is for.
 
+## Distance from the information limit (spec 024)
+
+Cramér–Rao bounds computed under the exact bearing-error model (seed 217 validation) sharpen the
+answer:
+
+- **Straight legs.** Batch least squares reaches the bound on range, course and speed, with white
+  noise and with realistic error. T2 is 1.5 × the bound in range under realistic error and
+  2.5 × with white noise. Its robustness to the error is mostly slack, not extra information.
+- **After manoeuvres.** Only a genie bound (manoeuvre known) can be computed. T2 is 2.2 × above
+  it, the fused tracker 2.5 × and the IMM 3.3 ×. Nothing reaches it, and how close a better
+  estimator could get is open.
+
+That strengthens the stand-alone no-go. It also places the open room after manoeuvres, where the
+qualified go already looks.
+
 ## Conditions on the "go"
 
 The fused tracker is the candidate. Before it is used outside this project, each of the following
