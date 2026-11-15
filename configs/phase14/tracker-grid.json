@@ -1,0 +1,19 @@
+{
+  "description": "Spec 027 (SRD Annex E §E.2): the declared re-tuning grid for the classical references under realistic bearing error (phase-7 ranges), scored on seed 217's validation split at σ = 1° with the guarded initialisation (level 1). Objective as decision 29: median range error over every G5 row. Centred on the frozen -g1 settings and widened upward in r_scale (correlated error is absorbed by a larger measurement variance) and in process noise; the edge rule in scripts/research/spec027-tune.mjs extends r_scale and p0_scale by doubling if a winner sits on their upper edge.",
+  "sigma_deg": 1,
+  "ekf": {
+    "sigma_a": [0.003, 0.01, 0.03, 0.1, 0.3],
+    "p0_scale": [4, 16],
+    "r_scale": [4, 8, 16, 32, 64]
+  },
+  "imm": {
+    "sigma_cv": [0, 0.003, 0.01, 0.03],
+    "sigma_ct": [0.03, 0.1, 0.3],
+    "sigma_omega": [0.003, 0.01, 0.03],
+    "switch": [0.0003, 0.001, 0.003],
+    "p0_scale": [4, 16],
+    "r_scale": [8, 16, 32, 64]
+  },
+  "stage1_scenarios": 400,
+  "stage2_top": 12
+}
