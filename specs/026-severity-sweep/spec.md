@@ -53,3 +53,10 @@ holds, grows, shrinks or crosses over.
   `sweep.json`, `inputs.sha256` and `results.md`.
 - `scripts/research/spec026-sweep.mjs`.
 - A results section on the go/no-go report, and a blog post.
+
+## Outcome (2026-11-15)
+
+`experiments/20261115-p13-sweep/results.md`. (1) The fused tracker's range advantage over the IMM
+holds at every severity (0.84, 0.79, 0.78, 0.77 ×) and levels off above ×0.5. (2) Least squares
+stays within 3% of the bound on straight legs at every severity. (3) T2 alone ties the fused
+tracker at ×0.5 and beats it from ×1 (0.95 ×; 0.80 × at ×2).

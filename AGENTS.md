@@ -237,7 +237,9 @@ than least squares gains on straight legs. Range is 0.964 × and speed 0.85 ×. 
 generated and stay reserved. **The re-armed variant (§D.7) also stopped at validation**
 (`experiments/20261115-p12b-val/validation.md`): best score −0.031, worse than the first design. Its
 new legs, anchored to the fused range, pass the fit check while wrong. Without another ownship manoeuvre, a
-short leg's bearings do not fix velocity. `tma-solve --workers n` streams per-timestep least squares in parallel.
+short leg's bearings do not fix velocity. **Spec 026** (`experiments/20261115-p13-sweep/results.md`): over error severity ×0–×2 the fused
+tracker keeps 0.77–0.84 × the IMM's range; least squares stays at the bound; T2 alone beats the
+fused tracker from ≈ ×0.5 (0.80 × at ×2). `tma-solve --workers n` streams per-timestep least squares in parallel.
 
 ### Operational rules from the gates
 

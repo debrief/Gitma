@@ -64,6 +64,26 @@ answer:
 That strengthens the stand-alone no-go. It also places the open room after manoeuvres, where the
 qualified go already looks.
 
+## Sensitivity to bearing-error severity (spec 026)
+
+The realistic error model was scaled ×0 (white noise), ×0.5, ×1 and ×2 on seed 217's validation
+split, with every estimator frozen (`experiments/20261115-p13-sweep/results.md`):
+
+| Median range error, all G5 rows | ×0 | ×0.5 | ×1 | ×2 |
+| --- | --- | --- | --- | --- |
+| Fused tracker / IMM | 0.84 | 0.79 | 0.78 | 0.77 |
+| T2 / fused tracker | 1.05 | 0.99 | 0.95 | 0.80 |
+| Least squares / bound, straight legs | 1.03 | 1.00 | 1.01 | 1.01 |
+
+- **The fused tracker's gain over the IMM holds at every severity,** but levels off above ×0.5.
+- **Least squares stays at the bound on straight legs** at every severity.
+- **T2 alone overtakes the fused tracker from about ×0.5,** and by 20% at ×2. The fusion and the
+  IMM were tuned on white noise, and the IMM degrades fastest.
+- **The composite's fit check breaks at ×2:** correlated error trips it on straight legs.
+
+So the qualified go holds, with two sharper conditions: the fusion and the reference both need
+re-tuning to the error level that real data show.
+
 ## Conditions on the "go"
 
 The fused tracker is the candidate. Before it is used outside this project, each of the following
