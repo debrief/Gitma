@@ -231,8 +231,10 @@ is 1.5 × above it; after a manoeuvre only a genie bound exists (T2 2.2 ×).
 squares while its constant-velocity fit holds (a residual check, window W, threshold c, latching)
 and the frozen `-g1` fused tracker after that. It is judged by **G9** (`tma-g9`): better than the
 fused tracker overall, and within 1.1 × of least squares on straight legs, under realistic error.
-W and c are chosen on seed-217 validation (`experiments/20261115-p12-val/`); seeds 229–230 are
-reserved for decision 41. `tma-solve --workers n` streams per-timestep least squares in parallel.
+**Stopped at validation** (`experiments/20261115-p12-val/validation.md`): best variant W 6, c 8,
+score −0.0134. Overall course is 1.013 × the fused tracker's, because detection lag costs more after a manoeuvre
+than least squares gains on straight legs. Range is 0.964 × and speed 0.85 ×. Seeds 229–230 were never
+generated and stay reserved. `tma-solve --workers n` streams per-timestep least squares in parallel.
 
 ### Operational rules from the gates
 

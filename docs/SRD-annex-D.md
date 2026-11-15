@@ -125,3 +125,24 @@ stand either way.
   The fresh test seed protects the verdict, not the choice of design.
 - **Cost.** Least squares at every timestep takes about 0.2 s per scenario on one core, which is
   why `tma-solve --workers` was added.
+
+## D.6 Outcome (2026-11-15): stopped at validation
+
+`experiments/20261115-p12-val/validation.md`.
+
+- **No variant is carried.** The best score is −0.0134 (W 6, c 8). The binding check is overall
+  course against the fused tracker: 1.013 [0.993, 1.039].
+- **The other gated checks pass on that variant:**
+  - range against the fused tracker, 0.964;
+  - straight-leg range, course and speed against least squares, 1.02 / 1.07 / 1.04.
+- **Reported:** speed against the fused tracker is 0.85.
+- **Why it fails.**
+  - On straight legs the composite keeps least squares' accuracy, with course 4 × better than
+    the fused tracker's.
+  - After a manoeuvre it reports least squares' stale fit until the check trips. Course there is
+    12% worse than the fused tracker's.
+  - Most G5 rows come after a manoeuvre, so overall course misses.
+  - The threshold only trades early false alarms against late detection.
+- **Seeds.** 229–230 were never generated, and no G9 was scored. Earlier verdicts stand.
+- **Next.** The owner decides.
+
