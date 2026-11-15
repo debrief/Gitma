@@ -78,3 +78,12 @@ is judged against the reference chosen in §E.3, both by name, with spec 015's b
   classical tracker re-tuned to the same error.
 - **Stop or fail:** the go/no-go report records that the fused tracker's gain does not survive a
   re-tuned reference, and the owner decides.
+
+## E.6 Outcome (2026-11-15)
+
+**Stopped at validation** (`experiments/20261115-p14-val/validation.md`). Re-tuned EKF
+`ekf-sa0.03-p16-r64-g1` (range 15.8%), re-tuned IMM `imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1`
+(15.1%). The best fused variant (k 4, M 12, range 12.5%) beats both on range (0.79 × the EKF's)
+but its settled course is 1.29 × the EKF's (limit 1.1): score −0.173. Against the re-tuned IMM
+alone 15 of 24 variants would have been carried. Seeds 231–232 were not generated and stay
+reserved; decision 42 was not committed.

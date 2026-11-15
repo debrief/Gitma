@@ -239,12 +239,16 @@ generated and stay reserved. **The re-armed variant (§D.7) also stopped at vali
 new legs, anchored to the fused range, pass the fit check while wrong. Without another ownship manoeuvre, a
 short leg's bearings do not fix velocity. **Spec 026** (`experiments/20261115-p13-sweep/results.md`): over error severity ×0–×2 the fused
 tracker keeps 0.77–0.84 × the IMM's range; least squares stays at the bound; T2 alone beats the
-fused tracker from ≈ ×0.5 (0.80 × at ×2). `tma-solve --workers n` streams per-timestep least squares in parallel.
+fused tracker from ≈ ×0.5 (0.80 × at ×2). **Annex E** (spec 027,
+`experiments/20261115-p14-val/validation.md`): references re-tuned to realistic error (EKF
+`ekf-sa0.03-p16-r64-g1`, IMM `imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1`); the fused tracker on the
+re-tuned IMM beats both on range (0.79 × the EKF) but **stopped at validation** on settled course
+(1.29 × the EKF, score −0.173). Seeds 231–232 never generated, stay reserved. `tma-solve --workers n` streams per-timestep least squares in parallel.
 
 ### Operational rules from the gates
 
 - **Seeds.** 201–228 are reserved (used or deliberately never generated); 900 is the viewer's
-  phase-3 preview. 229–230 are reserved for Annex D's G9 (decision 41); the next free seed is 231. Validation splits reused across phases: seed 211
+  phase-3 preview. 229–230 are reserved for Annex D's G9 (decision 41); 231–232 are reserved for Annex E (never generated); the next free seed is 233. Validation splits reused across phases: seed 211
   (phases 4–6), seed 217 (phases 7–11).
 - **Frozen references** (decision 32, from phase 5): IMM `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1`,
   EKF `ekf-sa0.03-p4-r8-g1`. Frozen T2: `experiments/20261101-p4b-models/` (normalisation from seed
