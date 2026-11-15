@@ -227,10 +227,17 @@ learned range aid inside a classical tracker. Report: `site/docs/results/go-no-g
 (`experiments/20261115-crb/`): on straight legs least squares reaches the Cramér–Rao bound and T2
 is 1.5 × above it; after a manoeuvre only a genie bound exists (T2 2.2 ×).
 
+**Annex D** (owner 2026-11-15, spec 025): the **composite solver**, which reports batch least
+squares while its constant-velocity fit holds (a residual check, window W, threshold c, latching)
+and the frozen `-g1` fused tracker after that. It is judged by **G9** (`tma-g9`): better than the
+fused tracker overall, and within 1.1 × of least squares on straight legs, under realistic error.
+W and c are chosen on seed-217 validation (`experiments/20261115-p12-val/`); seeds 229–230 are
+reserved for decision 41. `tma-solve --workers n` streams per-timestep least squares in parallel.
+
 ### Operational rules from the gates
 
 - **Seeds.** 201–228 are reserved (used or deliberately never generated); 900 is the viewer's
-  phase-3 preview. The next fresh seed is 229. Validation splits reused across phases: seed 211
+  phase-3 preview. 229–230 are reserved for Annex D's G9 (decision 41); the next free seed is 231. Validation splits reused across phases: seed 211
   (phases 4–6), seed 217 (phases 7–11).
 - **Frozen references** (decision 32, from phase 5): IMM `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1`,
   EKF `ekf-sa0.03-p4-r8-g1`. Frozen T2: `experiments/20261101-p4b-models/` (normalisation from seed

@@ -6,6 +6,10 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  CLASSICAL,
+  classicalPredict,
+  compositeName,
+  compositePredict,
   fileDigest,
   fusedPredict,
   type ImmParams,
@@ -142,6 +146,74 @@ describe("tma-g5 bindings (spec 015)", () => {
       expect(requireRecomputed(hybrid, given, scenarios, sample, d)?.estimator).toBe(hybridEst);
       // A network's own file is bound by its weights, not re-computed.
       expect(requireRecomputed(t2, given, scenarios, sample, d)).toBeNull();
+    });
+
+    it("re-computes the composite solver and its least-squares input (spec 025)", () => {
+      const sub = scenarios.slice(0, 4);
+      const ids = sub.map((s) => s.metadata.index);
+      const writeSub = (
+        name: string,
+        estimator: string,
+        make: (s: Scenario) => Prediction,
+        provenance: Parameters<typeof openPredictionWriter>[4] = {},
+      ): string => {
+        const out = join(dir, name);
+        const w = openPredictionWriter(out, estimator, "per_timestep", truth, provenance);
+        for (const s of scenarios) w.write(make(s));
+        w.commit();
+        return out;
+      };
+      const lsqOf = new Map(
+        scenarios.map((s) => [s.metadata.index, classicalPredict(s, "per_timestep")]),
+      );
+      const lsqPath = writeSub(
+        "lsq.ndjson",
+        CLASSICAL,
+        (s) => lsqOf.get(s.metadata.index) as Prediction,
+      );
+      const fused = openPredictionSet(fusedPath, truth);
+      const lsq = openPredictionSet(lsqPath, truth);
+      const p = { window: 30, threshold: 4 };
+      const compEst = compositeName(CLASSICAL, fusedEst, p);
+      const compInputs = {
+        inputs: [
+          { estimator: CLASSICAL, sha256: fileDigest(lsqPath) },
+          { estimator: fusedEst, sha256: fileDigest(fusedPath) },
+        ],
+      };
+
+      const fusedOf = (s: Scenario): Prediction =>
+        fusedPredict(s, REF, network(s), { k: 4, every: 6 });
+      const comp = openPredictionSet(
+        writeSub(
+          "composite.ndjson",
+          compEst,
+          (s) => compositePredict(s, lsqOf.get(s.metadata.index) as Prediction, fusedOf(s), p),
+          compInputs,
+        ),
+        truth,
+      );
+      const given = [comp, lsq, fused, t2];
+      const d = digestCache();
+      expect(requireRecomputed(lsq, given, scenarios, ids, d)?.estimator).toBe(CLASSICAL);
+      expect(requireRecomputed(comp, given, scenarios, ids, d)?.estimator).toBe(compEst);
+      // Rows made at another threshold, under this name, are refused.
+      const c8 = openPredictionSet(
+        writeSub(
+          "composite-c8.ndjson",
+          compEst,
+          (s) =>
+            compositePredict(s, lsqOf.get(s.metadata.index) as Prediction, fusedOf(s), {
+              window: 30,
+              threshold: 0.5,
+            }),
+          compInputs,
+        ),
+        truth,
+      );
+      expect(() =>
+        requireRecomputed(c8, [c8, lsq, fused, t2], scenarios, ids, digestCache()),
+      ).toThrow(/differs/);
     });
 
     it("refuses a file whose rows were not made with the settings its name declares", () => {

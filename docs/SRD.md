@@ -318,3 +318,6 @@ The repository is public on GitHub from day one; nothing above OFFICIAL enters i
   phase 3 closed, two learned trackers (a learned-gain filter and a pure recurrent tracker) on
   targets with up to three turns and a speed change, judged against re-tuned references at G5.
   Accepted 2026-10-30; its §C.7 amendments are applied above (§2, §3, §4, §5, §7, §8).
+- [Annex D: The composite solver and gate G9](SRD-annex-D.md) (2026-11-15): after spec 024,
+  batch least squares on straight legs and the fused tracker after a manoeuvre, switched by a
+  least-squares fit check and judged at G9 (best of both) under realistic bearing error.

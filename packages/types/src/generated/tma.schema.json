@@ -722,7 +722,8 @@
         "G5",
         "G8",
         "G7",
-        "G6"
+        "G6",
+        "G9"
       ],
       "title": "GateId",
       "type": "string"
@@ -2405,5 +2406,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.22.0"
+  "version": "0.23.0"
 }
