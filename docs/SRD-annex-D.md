@@ -146,3 +146,59 @@ stand either way.
 - **Seeds.** 229–230 were never generated, and no G9 was scored. Earlier verdicts stand.
 - **Next.** The owner decides.
 
+## D.7 The re-armed composite (owner decisions 2026-11-15, after §D.6)
+
+The owner chose to let the composite return to least squares on a new straight leg:
+
+- **D5, the new-leg fit:** anchored to the fused tracker.
+- **D6, the hand-back rule:** a mature leg that passes the fit check.
+- **D7, the gate:** G9 unchanged, on seeds 229–230, which were never generated.
+
+The rest of this section was written by the implementing agent.
+
+- **The estimator** (`compositePredict` with `leg` and `priorSd`; name suffix `-l<L>-p<σ_p>`).
+  Until the first switch it is §D.1's composite, row for row. After a switch at sample s, a leg
+  starts at ℓ = s.
+  - **While on the fused tracker:** once the leg holds L samples, a constant-velocity track is
+    fitted to the bearings [ℓ, i]. Its weighted cost is Σ (r_j/σ)² plus
+    ((log range at ℓ − the fused tracker's log range at ℓ)/σ_p)².
+    - If the fit converges, is plausible and passes the same fit check (W, c), the composite
+      reports it and stays on the leg.
+    - If it converges and fails the check, ℓ advances by W samples. The leg's start was probably
+      still inside the manoeuvre.
+  - **While on a leg:** a failed check returns to the fused tracker and starts a new leg there.
+    A non-converged or implausible fit gives the fused row.
+  - **The anchor's role.** It supplies range, which the new leg's bearings alone rarely
+    determine without another ownship manoeuvre.
+- **What it can and cannot fix.**
+  - It helps rows long after a manoeuvre, where the fused tracker lags least squares' accuracy
+    (§D.6: course 4 × worse on straight legs).
+  - It does not shorten the detection delay that cost §D.1's design G9. A pass is not assured.
+- **Validation and selection.**
+  - **Data:** seed 217 again, its seventh selection.
+  - **The grid:** §D.6's four best (W, c) pairs (6, 8), (60, 3), (30, 4) and (12, 6), × L ∈
+    {18, 36, 60} samples (3, 6 and 10 min) × σ_p ∈ {0.1, 0.2}: 24 variants. Restricting to those
+    pairs is itself a choice made on §D.6's results.
+  - **The score and rule** are §D.2's. Ties go to the larger c, then the larger W, the larger L
+    and the larger σ_p.
+  - **Pre-registration.** The script (`scripts/research/spec025-rearm-grid.mjs`) and `run.sh`
+    (`experiments/20261115-p12b-val/`) are committed before any variant is scored.
+- **The gate** is §D.3's G9, unchanged. Decision 41 is committed only if a variant is carried,
+  and only then is seed 229 generated.
+
+## D.8 Outcome of §D.7 (2026-11-15): stopped at validation
+
+`experiments/20261115-p12b-val/validation.md`.
+
+- **No variant is carried.** The best score is −0.031 (W 60, c 3, L 36), worse than §D.6's
+  −0.013. The chosen variant fails overall course against the fused tracker: 1.034 [1.008, 1.063].
+- **Why.**
+  - **Re-armed legs are worse than the fused tracker on the rows they cover:** range 31% against
+    16%, course 49° against 35°, and speed 5.9 kt against 3.0 kt.
+  - **The fit check passes legs that are wrong.** Without another ownship manoeuvre a short leg's
+    bearings fit many tracks. The range anchor fixes range, not velocity.
+  - **Re-arming leaves detection delay as it was.** 44% of rows after a manoeuvre still report the
+    original least-squares fit.
+- **Seeds.** 229–230 were never generated, and no G9 was scored. §D.6's result stands as Annex D's.
+- **Next.** The owner decides.
+

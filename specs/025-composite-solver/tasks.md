@@ -6,3 +6,11 @@
 - [-] T004 G9 on seed 229; agent panel; write-up
 
 T003 and T004 do not apply: Annex D stopped at validation. Seeds 229–230 were never generated.
+
+## Re-arm (§D.7)
+
+- [x] T005 Re-armed composite (`leg`, `priorSd`; anchored leg fit), name and CLI options, tests
+- [x] T006 Re-arm grid on seed 217 (`experiments/20261115-p12b-val/`), committed before running: **not carried** (best −0.031; leg rows worse than the fused tracker)
+- [-] T007 Decision 41 and plan (if carried); seed 229; G9; agent panel; write-up
+
+T007 does not apply: §D.7 stopped at validation. Seeds 229–230 were never generated.

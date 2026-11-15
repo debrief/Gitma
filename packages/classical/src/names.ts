@@ -110,7 +110,7 @@ export function parseCourseRateName(name: string, network: string): number | nul
   return courseRateName(network, w) === name ? w : null;
 }
 
-const COMPOSITE_RE = new RegExp(String.raw`^-w(\d+)-c${NUM}$`);
+const COMPOSITE_RE = new RegExp(String.raw`^-w(\d+)-c${NUM}(?:-l(\d+)-p${NUM})?$`);
 
 /**
  * The composite's settings (spec 025) that `name` declares for these classical and fused input
@@ -125,7 +125,12 @@ export function parseCompositeName(
   if (!name.startsWith(prefix)) return null;
   const m = COMPOSITE_RE.exec(name.slice(prefix.length));
   if (m === null) return null;
-  const p: CompositeParams = { window: Number(m[1]), threshold: Number(m[2]) };
+  const p: CompositeParams = {
+    window: Number(m[1]),
+    threshold: Number(m[2]),
+    ...(m[3] === undefined ? {} : { leg: Number(m[3]), priorSd: Number(m[4]) }),
+  };
   if (!(p.window >= 1) || !(p.threshold > 0)) return null;
+  if (p.leg !== undefined && (!(p.leg >= 1) || !((p.priorSd ?? 0) > 0))) return null;
   return compositeName(classical, fused, p) === name ? p : null;
 }
