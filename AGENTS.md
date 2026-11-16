@@ -213,7 +213,7 @@ named estimator on range. The full history, with every number, is in
 | G2 | Failed three times on speed (2, 2b, 2c); iteration 3 stopped; passed on iteration 4's re-score | `20261025-i4-g2-rescore` |
 | G3 | Passed, for the classical/LSTM hybrid | `20261028-i5-g3` |
 | G4 | Phases 3 and 3b stopped at validation (held-course control) | `20261029-p3a-val`, `20261030-p3b-val` |
-| G5 | Phase 4 stopped; passed for the 4b hybrid, the 4c fused tracker, and the fused tracker under realistic error (7) | `20261101-p4h-g5`, `20261102-p4f-g5`, `20261108-p7-g5` |
+| G5 | Phase 4 stopped; passed for the 4b hybrid, the 4c fused tracker, the fused tracker under realistic error (7), and the EKF-fused tracker against the re-tuned EKF (15) | `20261101-p4h-g5`, `20261102-p4f-g5`, `20261108-p7-g5`, `20261116-p15-g5` |
 | G6 | Phase 5 stopped at validation | `20261105-p5-research` |
 | G7 | Inconclusive on seed 215; passed on the re-score (seed 216) | `20261106-p6v-g7` |
 | G8 | Phases 8, 9 and 11 stopped; passed for the phase-10 hybrid | `20261112-p10-g8` |
@@ -244,7 +244,11 @@ fused tracker from ≈ ×0.5 (0.80 × at ×2). **Annex E** (spec 027,
 `experiments/20261115-p14-val/validation.md`): references re-tuned to realistic error (EKF
 `ekf-sa0.03-p16-r64-g1`, IMM `imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1`); the fused tracker on the
 re-tuned IMM beats both on range (0.79 × the EKF) but **stopped at validation** on settled course
-(1.29 × the EKF, score −0.173). Seeds 231–232 never generated, stay reserved. `tma-solve --workers n` streams per-timestep least squares in parallel.
+(1.29 × the EKF, score −0.173). Seeds 231–232 never generated, stay reserved. **Annex F** (spec 028): T2's range fused into
+the EKF (`fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3`) **passed G5** on seed 233 against the
+re-tuned EKF: range 0.78 ×, course 0.82 ×, settled course 1.043 [1.013, 1.078]. Not shown better
+than the re-tuned IMM on course (0.99 ×); half the course gain is σa (a plain σa-0.07 EKF fails);
+on straight legs the EKF is still better (course 1.57 ×). Seed 234 never generated, stays reserved. `tma-solve --workers n` streams per-timestep least squares in parallel.
 
 ### Operational rules from the gates
 

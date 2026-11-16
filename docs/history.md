@@ -251,3 +251,10 @@ beat.
 is `site/docs/results/phases-4-11.mdx`: T2's learned range is the consistent gain, the classical
 EKF and batch least squares win on straight legs, and nothing tried beat T2's range under
 realistic error. The usable result is the fused tracker, a range aid to a classical tracker.
+
+**Annexes E and F** (2026-11-15/16). The references were re-tuned to realistic error (Annex E); the
+fused tracker on the re-tuned IMM stopped at validation on settled course against the re-tuned EKF
+(1.29 ×). T2's range fused into the EKF instead (Annex F, spec 028) passed G5 on seed 233 against
+the re-tuned EKF: range 0.782 [0.767, 0.795], course 0.819 [0.809, 0.830], settled course 1.043
+[1.013, 1.078]. A plain EKF at the same σa fails; against the re-tuned IMM course is level (0.99 ×);
+on straight legs the EKF stays better (course 1.57 ×). `experiments/20261116-p15-g5/`.

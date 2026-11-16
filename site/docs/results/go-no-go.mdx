@@ -105,6 +105,32 @@ after a manoeuvre (best 1.29 ×, limit 1.1), so it stopped before the gate. The 
 the IMM's dynamics still cost course. The gain is a range aid, as the synthesis said, not a better
 tracker overall.
 
+## T2's range fused into the EKF (spec 028)
+
+Annex F fused T2's range into the EKF instead, with the EKF's process noise σa tuned with the
+fusion weights, and **passed G5 on fresh seed 233** against the re-tuned EKF
+(`experiments/20261116-p15-g5/`):
+
+| Seed 233 test, median over G5 rows | Range | Course | Settled course, straight legs | Settled course, after a manoeuvre |
+| --- | --- | --- | --- | --- |
+| **EKF-fused** (σa 0.07, k 4, M 3) | **12.8%** | 28.9° | 5.2° | **22.1°** |
+| Re-tuned EKF (σa 0.03, the reference) | 16.3% | 35.3° | **3.3°** | 32.9° |
+| Re-tuned IMM | 15.8% | 29.2° | 7.8° | 24.2° |
+| IMM-fused (Annex E's best) | 12.6% | 27.6° | 7.4° | 21.0° |
+| T2 | **12.0%** | **26.0°** | 15.8° | 21.6° |
+| Least squares | 17.6% | 46.4° | **2.2°** | 61.0° |
+| Naive | 40.0% | 90.3° | 90.8° | 89.8° |
+
+- **The gate:** overall range 0.78 × and course 0.82 × the reference; settled course 1.043
+  [1.013, 1.078] against a 1.1 limit, so within the margin but significantly worse.
+- **The network is needed.** A plain EKF at σa 0.07 fails the same gate on range (1.03 ×) and
+  settled course (1.12 ×). But about half the overall-course gain comes from raising σa, which the
+  range-tuned reference never did; the range gain is T2's.
+- **Straight legs are still the classical trackers'.** Before any manoeuvre the fused tracker's
+  course is 1.57 × the EKF's and 2.4 × least squares'. The pooled settled check passes because
+  rows after a manoeuvre, where it is much better, make up 45% of settled rows.
+- **Against the re-tuned IMM** (not gated) course is level (0.99 ×); range is 0.81 ×.
+
 ## Conditions on the "go"
 
 The fused tracker is the candidate. Before it is used outside this project, each of the following
@@ -113,11 +139,11 @@ needs closing:
 1. **Real or representative data.** Everything here is simulated: one generator family, flat
    earth, a perfectly known ownship and one realistic-error model. Testing on recorded or
    independently simulated data is outside this public repository (OFFICIAL, mock data only).
-2. **A stronger reference.** Re-tuned to the realistic error (spec 027, Annex E), both classical
-   trackers improve (EKF range 15.8%, IMM 15.1%). The fused tracker, rebuilt on the re-tuned IMM,
-   still beats both on range (0.79 × the EKF's), but its course after a manoeuvre is 1.29 × the
-   re-tuned EKF's, over G5's 1.1 limit. It stopped at validation: **this condition is not met.**
-   Against the re-tuned IMM alone it would have gone to the gate.
+2. **A stronger reference.** Re-tuned to the realistic error (Annexes E and F), the fused
+   tracker on the IMM stopped at validation, but **T2's range fused into the EKF passed G5 against
+   the re-tuned EKF** (seed 233). **Partly met:** it is not shown better than the re-tuned IMM on
+   course, part of its course gain is process-noise tuning, and on straight legs the EKF and least
+   squares stay better.
 3. **The size of the gain.** Range error falls to 0.77–0.82 × the IMM's. That is real but
    moderate, and it comes from the network's range alone.
 4. **Run-to-run spread.** Each model is a single training run.

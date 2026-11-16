@@ -78,3 +78,23 @@ scenario-clustered paired bootstrap, 97.5% intervals, FR-015 verdict, spec 015's
 - **Pass:** the qualified go's reference condition is met by the EKF-fused tracker.
 - **Stop or fail:** the go/no-go report records that no fusion of T2's range tried here beats both
   re-tuned classical trackers, and the owner decides.
+
+## F.6 Outcome (2026-11-16)
+
+**G5 passed on seed 233** (`experiments/20261116-p15-g5/`, panel `review.md`). Validation
+carried `fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3` (score 0.015, five of 96 variants above
+0); the reference is the re-tuned EKF. Against it: overall range 0.782 [0.767, 0.795], course
+0.819 [0.809, 0.830]; settled range 0.837, course 1.043 [1.013, 1.078], speed 0.973. The forecast
+had a pass at about 10%.
+
+What the pass does not show (panel round 1):
+
+- **Against the re-tuned IMM** (reported): range 0.81 ×, overall course 0.991 [0.976, 1.005].
+- **About half the course gain is σa.** A plain EKF at σa 0.07 fails the same gate (range 1.027,
+  settled course 1.123); the range gain is T2's.
+- **On straight legs before any manoeuvre** the fused tracker is worse than the reference EKF:
+  course 1.57 ×, range 1.10 ×. The pooled settled check passes because the after-manoeuvre rows
+  (course 0.67 ×) make up 45% of settled rows.
+- **T2 alone** keeps the lowest overall range and course.
+
+Seed 234 was not generated and stays reserved.
