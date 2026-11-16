@@ -81,6 +81,7 @@ pnpm tma-track --in <split.f32pack> --out <pred.ndjson> --filter imm --sigma-cv 
 pnpm tma-hybrid --truth <test.f32pack> --classical <classical.ndjson> --network <lstm.ndjson> --out <hybrid.ndjson>
 pnpm tma-fuse-track --truth <split.f32pack> --network <t2.ndjson> --out <fused.ndjson> --sigma-cv 0.01 \
   --sigma-ct 0.03 --sigma-omega 0.01 --switch 0.001 --p0-scale 4 --r-scale 8   # fused tracker (spec 014; k 4, every 6)
+  # or --filter ekf --sigma-a <a> [--p0-scale --r-scale --guarded-init]: fused into the EKF (spec 028)
 pnpm tma-g3 --truth <test.f32pack> --hybrid <hybrid.ndjson> --classical <classical.ndjson> \
   --decision <committed decision.json> [--plan <plan.json>] [--model <frozen model> --network <lstm.ndjson>] \
   --experiment experiments/<id>   # G3 (spec 009, bindings spec 015); validation: diagnostic only
@@ -248,7 +249,7 @@ re-tuned IMM beats both on range (0.79 × the EKF) but **stopped at validation**
 ### Operational rules from the gates
 
 - **Seeds.** 201–228 are reserved (used or deliberately never generated); 900 is the viewer's
-  phase-3 preview. 229–230 are reserved for Annex D's G9 (decision 41); 231–232 are reserved for Annex E (never generated); the next free seed is 233. Validation splits reused across phases: seed 211
+  phase-3 preview. 229–230 are reserved for Annex D's G9 (decision 41); 231–232 are reserved for Annex E (never generated); 233–234 for Annex F (decision 43); the next free seed is 235. Validation splits reused across phases: seed 211
   (phases 4–6), seed 217 (phases 7–11).
 - **Frozen references** (decision 32, from phase 5): IMM `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1`,
   EKF `ekf-sa0.03-p4-r8-g1`. Frozen T2: `experiments/20261101-p4b-models/` (normalisation from seed

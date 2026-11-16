@@ -5,7 +5,7 @@
 // so an ambiguous or non-canonical name is refused rather than read loosely.
 import { type CompositeParams, compositeName } from "./composite.js";
 import { ekfName, type TrackerScales } from "./ekf.js";
-import { type FusionParams, fusedName } from "./fused.js";
+import { type FusionParams, fusedEkfName, fusedName } from "./fused.js";
 import { type CusumParams, courseRateName, cusumName } from "./detect.js";
 import { trackerHybridName } from "./hybrid.js";
 import { type ImmParams, immName } from "./imm.js";
@@ -70,6 +70,22 @@ export function parseFusedName(
   if (imm === null) return null;
   const fusion: FusionParams = { k: Number(m[1]), every: Number(m[2]) };
   return fusedName(network, imm, fusion) === name ? { imm, fusion } : null;
+}
+
+/** The EKF-fused tracker's settings `name` declares over `network` (spec 028), or null. */
+export function parseFusedEkfName(
+  name: string,
+  network: string,
+): { sigmaA: number; scales: TrackerScales; fusion: FusionParams } | null {
+  const prefix = `fused-${network}-`;
+  if (!name.startsWith(prefix)) return null;
+  const rest = name.slice(prefix.length);
+  const m = FUSION_RE.exec(rest);
+  if (m === null) return null;
+  const ekf = parseEkfName(rest.slice(0, m.index));
+  if (ekf === null) return null;
+  const fusion: FusionParams = { k: Number(m[1]), every: Number(m[2]) };
+  return fusedEkfName(network, ekf.sigmaA, ekf.scales, fusion) === name ? { ...ekf, fusion } : null;
 }
 
 /** The tracker hybrid's course threshold (degrees) `name` declares over its inputs, or null. */

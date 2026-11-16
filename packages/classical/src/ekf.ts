@@ -324,6 +324,40 @@ export function ekfUpdate(st: EkfState, z: number, ox: number, oy: number, r2: n
   return { t: st.t, x: xn, p: symmetrise(p) };
 }
 
+/**
+ * Log-range update (spec 028, the EKF form of the IMM's `immRangeUpdate`): a range measurement
+ * `range` with log-range standard deviation `sdLog`, z = ln(range), h(x) = ln ρ,
+ * H = [dx/ρ², dy/ρ², 0, 0], R = sdLog², Joseph form.
+ */
+export function ekfRangeUpdate(
+  st: EkfState,
+  range: number,
+  sdLog: number,
+  ox: number,
+  oy: number,
+): EkfState {
+  const [x = 0, y = 0] = st.x;
+  const dx = x - ox;
+  const dy = y - oy;
+  const rho2 = dx * dx + dy * dy;
+  const r2 = sdLog * sdLog;
+  const h = [dx / rho2, dy / rho2, 0, 0];
+  const ph = new Float64Array(4);
+  for (let i = 0; i < 4; i++)
+    for (let k = 0; k < 2; k++) ph[i] = (ph[i] ?? 0) + (st.p[4 * i + k] ?? 0) * (h[k] ?? 0);
+  const s = r2 + (h[0] ?? 0) * (ph[0] ?? 0) + (h[1] ?? 0) * (ph[1] ?? 0);
+  const kGain = ph.map((v) => v / s);
+  const nu = Math.log(range) - 0.5 * Math.log(rho2);
+  const xn = st.x.map((v, i) => v + (kGain[i] ?? 0) * nu);
+  const ikh = new Float64Array(16);
+  for (let i = 0; i < 4; i++)
+    for (let j = 0; j < 4; j++) ikh[4 * i + j] = (i === j ? 1 : 0) - (kGain[i] ?? 0) * (h[j] ?? 0);
+  const p = mul(mul(ikh, st.p), transpose(ikh)).map(
+    (v, k) => v + r2 * (kGain[Math.floor(k / 4)] ?? 0) * (kGain[k % 4] ?? 0),
+  );
+  return { t: st.t, x: xn, p: symmetrise(p) };
+}
+
 /** Within `PLAUSIBLE` (speed and range), and finite. */
 function plausibleState(d: BearingData, x: Float64Array, i: number): boolean {
   const [px = NaN, py = NaN, vx = NaN, vy = NaN] = x;
@@ -371,8 +405,15 @@ export const EKF_REINIT_EVERY = 6;
  * non-converged and the filter re-initialises from the batch solution on the samples so far, at
  * once and then every `EKF_REINIT_EVERY` samples until it succeeds; rows without a state are
  * non-converged. Measurement noise is the scenario's σ (floored at `EKF_MIN_SIGMA_RAD`).
+ * `extra`, if given, applies further measurements after the bearing update at sample i (the
+ * EKF-fused tracker's range, spec 028).
  */
-export function ekfPredict(s: Scenario, sigmaA: number, scales: TrackerScales = {}): Prediction {
+export function ekfPredict(
+  s: Scenario,
+  sigmaA: number,
+  scales: TrackerScales = {},
+  extra?: (i: number, st: EkfState) => EkfState,
+): Prediction {
   if (!(sigmaA >= 0)) throw new Error(`EKF process noise must be ≥ 0, got ${String(sigmaA)}`);
   const { p0Scale = 1, rScale = 1, guardedInit = 0 } = scales;
   if (!(p0Scale > 0) || !(rScale > 0)) throw new Error("EKF scales must be > 0");
@@ -390,6 +431,7 @@ export function ekfPredict(s: Scenario, sigmaA: number, scales: TrackerScales = 
       st = ekfPredictStep(st, d.t[i] ?? 0, sigmaA);
       if (d.valid[i] === 1)
         st = ekfUpdate(st, d.bearing[i] ?? 0, d.ownX[i] ?? 0, d.ownY[i] ?? 0, r2);
+      if (extra !== undefined) st = extra(i, st);
       if (plausibleState(d, st.x, i)) {
         rows.push(stateRow(d, st.x, i, true));
         continue;

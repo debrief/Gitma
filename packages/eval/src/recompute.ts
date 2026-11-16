@@ -12,9 +12,11 @@ import {
   compositePredict,
   ekfPredict,
   fileDigest,
+  fusedEkfPredict,
   fusedPredict,
   immPredict,
   parseEkfName,
+  parseFusedEkfName,
   parseFusedName,
   parseCompositeName,
   parseImmName,
@@ -116,9 +118,17 @@ export function recipeFor(
     return { kind: "recompute", run: (s) => ekfPredict(s, ekf.sigmaA, ekf.scales) };
   if (name.startsWith("fused-") && inputs.length === 1 && inputs[0] !== undefined) {
     const f = parseFusedName(name, inputs[0].estimator);
-    if (f === null) throw new UsageError(`${where}: ${name} is not a canonical fused-tracker name`);
+    const fe = f === null ? parseFusedEkfName(name, inputs[0].estimator) : null;
+    if (f === null && fe === null)
+      throw new UsageError(`${where}: ${name} is not a canonical fused-tracker name`);
     const net = input(0);
-    return { kind: "recompute", run: (s) => fusedPredict(s, f.imm, rowsOf(net, s), f.fusion) };
+    if (f !== null)
+      return { kind: "recompute", run: (s) => fusedPredict(s, f.imm, rowsOf(net, s), f.fusion) };
+    if (fe !== null)
+      return {
+        kind: "recompute",
+        run: (s) => fusedEkfPredict(s, fe.sigmaA, fe.scales, rowsOf(net, s), fe.fusion),
+      };
   }
   if (name.startsWith("hybrid-") && inputs.length === 2) {
     const [t, n] = inputs;

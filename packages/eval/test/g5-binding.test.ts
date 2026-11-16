@@ -11,6 +11,8 @@ import {
   compositeName,
   compositePredict,
   fileDigest,
+  fusedEkfName,
+  fusedEkfPredict,
   fusedPredict,
   type ImmParams,
   immName,
@@ -214,6 +216,36 @@ describe("tma-g5 bindings (spec 015)", () => {
       expect(() =>
         requireRecomputed(c8, [c8, lsq, fused, t2], scenarios, ids, digestCache()),
       ).toThrow(/differs/);
+    });
+
+    it("re-computes the EKF-fused tracker and refuses rows made at other settings (spec 028)", () => {
+      const sc = { p0Scale: 16, rScale: 64, guardedInit: 1 as const };
+      const est = fusedEkfName(NET, 0.03, sc, { k: 4, every: 12 });
+      const inputs = { inputs: [{ estimator: NET, sha256: fileDigest(t2Path) }] };
+      const ok = openPredictionSet(
+        write(
+          "fe.ndjson",
+          est,
+          (s) => fusedEkfPredict(s, 0.03, sc, network(s), { k: 4, every: 12 }),
+          inputs,
+        ),
+        truth,
+      );
+      expect(requireRecomputed(ok, [ok, t2], scenarios, sample, digestCache())?.estimator).toBe(
+        est,
+      );
+      const bad = openPredictionSet(
+        write(
+          "fe-k2.ndjson",
+          est,
+          (s) => fusedEkfPredict(s, 0.03, sc, network(s), { k: 2, every: 12 }),
+          inputs,
+        ),
+        truth,
+      );
+      expect(() => requireRecomputed(bad, [bad, t2], scenarios, sample, digestCache())).toThrow(
+        /differs/,
+      );
     });
 
     it("refuses a file whose rows were not made with the settings its name declares", () => {
