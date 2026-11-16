@@ -23,7 +23,7 @@ to realistic bearing error, where the IMM fusion failed on course after a manoeu
 
 - [x] T001 FR-001–FR-004 with tests; Annex F, the grid, `spec028-rows.mjs`,
       `spec028-fuse-grid.mjs`, `run.sh`, committed before any scoring
-- [ ] T002 Validation (`experiments/20261116-p15-val/`): grid, select; `validation.md`
+- [x] T002 Validation (`experiments/20261116-p15-val/`): grid, select; `validation.md`
 - [ ] T003 If carried: decision 43 (seed 233), plan, data from a clean tree
 - [ ] T004 If carried: G5 on seed 233, panel review, write-ups
 - [ ] T005 Algorithm note, go/no-go report, blog post, AGENTS.md

@@ -125,6 +125,15 @@ export const RESERVED_TEST_SEEDS = {
   // Annex D (spec 025): the composite solver's G9 test and its re-score, under decision 41.
   229: { for: "Annex D composite G9 (spec 025, fresh test, 400,000)", plans: [] },
   230: { for: "Annex D G9 re-score, if needed (spec 025, fresh test, 1,100,000)" },
+  // Annex E (spec 027) stopped at validation; its seeds stay unused.
+  231: { for: "Annex E G5 (spec 027; never generated)", plans: [] },
+  232: { for: "Annex E G5 re-score (spec 027; never generated)" },
+  // Annex F (spec 028): the EKF-fused tracker's G5 test and its re-score, under decision 43.
+  233: {
+    for: "Annex F EKF-fused G5 (spec 028, fresh test, 400,000)",
+    plan: "configs/phase4/x/plan.json",
+  },
+  234: { for: "Annex F G5 re-score, if needed (spec 028, fresh test, 1,100,000)" },
 };
 
 class PlanError extends Error {}

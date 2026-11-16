@@ -1,0 +1,29 @@
+{
+  "id": "p4x",
+  "description": "Spec 028 (phase 15, SRD Annex F, decision 43): the frozen T2's range fused into the EKF (sigma_a 0.07, P0 x16, R x64, guarded init 1; k 4, every 3), judged at G5 against the re-tuned EKF ekf-sa0.03-p16-r64-g1 (Annex E) on fresh seed 233 (400,000; its 40,000-scenario test split, generated alone) with realistic bearing error (configs/phase7-ranges.json). Nothing is trained; seed 211 supplies T2's normalisation.",
+  "dataset": {
+    "seed": "211",
+    "count": 100000,
+    "ranges": "configs/phase4-ranges.json",
+    "heldout_ranges": "configs/phase4-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "870aff4e5f14d76b9da8b39e68c32cc64a9344ba97c2b535ef468c707db59208",
+      "validation.f32pack": "afefe28892e1e361029d799414f3637ea0211c500ed75acb85c79f1592d3c127",
+      "test.f32pack": "05f1ce53be676c9b4b1a597396f01af35b55fa048cad8fa751b2bb262fd70d77",
+      "heldout.f32pack": "9fb7293ab9fae55389789082bc4bc4d5673d3fd56de7c90362de873919e69510"
+    },
+    "fresh_test": {
+      "seed": "233",
+      "count": 400000,
+      "ranges": "configs/phase7-ranges.json",
+      "digest": "b4e1a68116a521185a7e623249849be22daf48b2c8047395e5bd69351699df78"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/phase4/b",
+  "models": ["tracker"],
+  "evaluate": {
+    "command": "models",
+    "split": "validation"
+  }
+}
