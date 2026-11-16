@@ -111,7 +111,7 @@ Annex F fused T2's range into the EKF instead, with the EKF's process noise σa 
 fusion weights, and **passed G5 on fresh seed 233** against the re-tuned EKF
 (`experiments/20261116-p15-g5/`):
 
-| Seed 233 test, median over G5 rows | Range | Course | Settled course, straight legs | Settled course, after a manoeuvre |
+| Seed 233 test, median over G5 rows | Range | Course | Settled course, before any manoeuvre | Settled course, after a manoeuvre |
 | --- | --- | --- | --- | --- |
 | **EKF-fused** (σa 0.07, k 4, M 3) | **12.8%** | 28.9° | 5.2° | **22.1°** |
 | Re-tuned EKF (σa 0.03, the reference) | 16.3% | 35.3° | **3.3°** | 32.9° |
@@ -124,7 +124,7 @@ fusion weights, and **passed G5 on fresh seed 233** against the re-tuned EKF
 - **The gate:** overall range 0.78 × and course 0.82 × the reference; settled course 1.043
   [1.013, 1.078] against a 1.1 limit, so within the margin but significantly worse.
 - **The network is needed.** A plain EKF at σa 0.07 fails the same gate on range (1.03 ×) and
-  settled course (1.12 ×). But about half the overall-course gain comes from raising σa, which the
+  settled course (1.12 ×) (post hoc, reported). But about half the overall-course gain comes from raising σa, which the
   range-tuned reference never did; the range gain is T2's.
 - **Straight legs are still the classical trackers'.** Before any manoeuvre the fused tracker's
   course is 1.57 × the EKF's and 2.4 × least squares'. The pooled settled check passes because
@@ -147,8 +147,10 @@ needs closing:
 3. **The size of the gain.** Range error falls to 0.77–0.82 × the IMM's. That is real but
    moderate, and it comes from the network's range alone.
 4. **Run-to-run spread.** Each model is a single training run.
-5. **Consistency.** The fused tracker's stated uncertainty passes pooled coverage only, and its
-   covariance is not calibrated (NEES median 1.1, where 3.36 is expected).
+5. **Consistency.** The IMM fusion's stated uncertainty passes pooled coverage only, and its
+   covariance is not calibrated (NEES median 1.1, where 3.36 is expected). The EKF fusion's
+   covariance was not evaluated; T2's correlated errors (0.97 at one fusion interval, 0.77 at
+   300 s) make its k 4, M 3 weighting about 2 × overconfident by zig + 20 min.
 
 ## How much to trust this answer
 

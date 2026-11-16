@@ -90,11 +90,13 @@ had a pass at about 10%.
 What the pass does not show (panel round 1):
 
 - **Against the re-tuned IMM** (reported): range 0.81 ×, overall course 0.991 [0.976, 1.005].
-- **About half the course gain is σa.** A plain EKF at σa 0.07 fails the same gate (range 1.027,
+- **About half the course gain is σa.** A plain EKF at σa 0.07 fails the same gate (post hoc, reported) (range 1.027,
   settled course 1.123); the range gain is T2's.
 - **On straight legs before any manoeuvre** the fused tracker is worse than the reference EKF:
   course 1.57 ×, range 1.10 ×. The pooled settled check passes because the after-manoeuvre rows
   (course 0.67 ×) make up 45% of settled rows.
 - **T2 alone** keeps the lowest overall range and course.
+- **The covariance is not calibrated.** T2's errors are correlated in time, so k 4, M 3 is about
+  2 × overconfident by zig + 20 min; nothing here supports a G7 claim.
 
 Seed 234 was not generated and stays reserved.
