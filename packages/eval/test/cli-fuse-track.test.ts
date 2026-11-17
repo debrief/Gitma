@@ -91,6 +91,32 @@ describe("tma-fuse-track", () => {
     expect(p.byIndex.size).toBe(n);
   });
 
+  it("fuses into the EKF with --filter ekf (spec 028)", () => {
+    const out = join(dir, "fused-ekf.ndjson");
+    const args = ["--truth", truth, "--network", net, "--out", out, "--filter", "ekf"];
+    expect(
+      runCli(fuse, [
+        ...args,
+        "--sigma-a",
+        "0.03",
+        "--p0-scale",
+        "16",
+        "--r-scale",
+        "64",
+        "--k",
+        "2",
+        "--every",
+        "3",
+      ]),
+    ).toBe(0);
+    expect(openPredictionSet(out, truth).estimator).toBe(
+      "fused-lstm-gaussian-ekf-sa0.03-p16-r64-k2-m3",
+    );
+    expect(runCli(fuse, [...args])).not.toBe(0);
+    expect(runCli(fuse, [...args, "--sigma-a", "0.03", ...imm])).not.toBe(0);
+    expect(runCli(fuse, [...args.slice(0, 6), ...imm, "--sigma-a", "0.03"])).not.toBe(0);
+  });
+
   it("refuses missing options and bad fusion settings", () => {
     const out = join(dir, "bad.ndjson");
     expect(runCli(fuse, ["--truth", truth, "--network", net, "--out", out])).not.toBe(0);

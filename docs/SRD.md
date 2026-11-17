@@ -325,3 +325,6 @@ The repository is public on GitHub from day one; nothing above OFFICIAL enters i
   after spec 026, the IMM and EKF re-tuned to realistic error, the fused tracker rebuilt on the
   re-tuned IMM, and G5 judged against the harder of the two references on fresh seed 231. Stopped at
   validation (§E.6).
+- [Annex F: The network's range fused into the EKF](SRD-annex-F.md) (2026-11-16): after Annex E,
+  T2's range fused into the re-tuned EKF over σa × k × M, judged by G5 against the harder of the
+  two re-tuned references on fresh seed 233.

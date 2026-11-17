@@ -1,0 +1,77 @@
+{
+  "checks": [
+    {
+      "ci_high": 0.7950638431849464,
+      "ci_level": 0.975,
+      "ci_low": 0.7673750865005795,
+      "detail": "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep / ekf-sa0.03-p16-r64-g1:per_timestep median range_rel on σ = 1° rows at zig + 5/10/15/20 min 0.7817 vs limit 1; 97.5% CI [0.7674, 0.7951] (scenario-clustered paired bootstrap, 2000 resamples, 66387 rows in 19868 scenarios)",
+      "name": "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep:g5-range",
+      "result": "pass",
+      "threshold": 1,
+      "value": 0.7816595250305919
+    },
+    {
+      "ci_high": 0.829808446753696,
+      "ci_level": 0.975,
+      "ci_low": 0.8089779412134478,
+      "detail": "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep / ekf-sa0.03-p16-r64-g1:per_timestep median course_deg on σ = 1° rows at zig + 5/10/15/20 min 0.8190 vs limit 1; 97.5% CI [0.8090, 0.8298] (scenario-clustered paired bootstrap, 2000 resamples, 66387 rows in 19868 scenarios)",
+      "name": "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep:g5-course",
+      "result": "pass",
+      "threshold": 1,
+      "value": 0.8190162731028621
+    },
+    {
+      "ci_high": 0.9249380793453157,
+      "ci_level": 0.975,
+      "ci_low": 0.8898731290363578,
+      "detail": "reported, not gated: fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep / ekf-sa0.03-p16-r64-g1:per_timestep median speed_kt on σ = 1° rows at zig + 5/10/15/20 min 0.9076 vs limit 1; 97.5% CI [0.8899, 0.9249] (scenario-clustered paired bootstrap, 2000 resamples, 66387 rows in 19868 scenarios)",
+      "name": "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep:g5-speed-reported",
+      "result": "pass",
+      "threshold": 1,
+      "value": 0.9075550272924827
+    },
+    {
+      "ci_high": 0.8598826951463239,
+      "ci_level": 0.975,
+      "ci_low": 0.8136730343466155,
+      "detail": "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep / ekf-sa0.03-p16-r64-g1:per_timestep median range_rel on settled σ = 1° rows at zig + 5/10/15/20 min 0.8372 vs limit 1.1; 97.5% CI [0.8137, 0.8599] (scenario-clustered paired bootstrap, 2000 resamples, 29599 rows in 15519 scenarios)",
+      "name": "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep:g5-settled-range",
+      "result": "pass",
+      "threshold": 1.1,
+      "value": 0.8371855506597699
+    },
+    {
+      "ci_high": 1.0780134555303564,
+      "ci_level": 0.975,
+      "ci_low": 1.0126091060586637,
+      "detail": "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep / ekf-sa0.03-p16-r64-g1:per_timestep median course_deg on settled σ = 1° rows at zig + 5/10/15/20 min 1.0429 vs limit 1.1; 97.5% CI [1.0126, 1.0780] (scenario-clustered paired bootstrap, 2000 resamples, 29599 rows in 15519 scenarios)",
+      "name": "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep:g5-settled-course",
+      "result": "pass",
+      "threshold": 1.1,
+      "value": 1.0428616140069404
+    },
+    {
+      "ci_high": 1.0012972368431228,
+      "ci_level": 0.975,
+      "ci_low": 0.9473836105272262,
+      "detail": "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep / ekf-sa0.03-p16-r64-g1:per_timestep median speed_kt on settled σ = 1° rows at zig + 5/10/15/20 min 0.9729 vs limit 1.1; 97.5% CI [0.9474, 1.0013] (scenario-clustered paired bootstrap, 2000 resamples, 29599 rows in 15519 scenarios)",
+      "name": "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep:g5-settled-speed",
+      "result": "pass",
+      "threshold": 1.1,
+      "value": 0.9728501831077735
+    },
+    {
+      "ci_high": -0.05351039643464776,
+      "ci_level": 0.975,
+      "ci_low": -0.06141791607021774,
+      "detail": "reported, not gated: gross-error rate (range error > 50% or no converged estimate) fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep 5.982% vs ekf-sa0.03-p16-r64-g1:per_timestep 11.733% on σ = 1° rows at zig + 5/10/15/20 min; difference -5.751 pp, 97.5% CI [-6.142, -5.351] pp",
+      "name": "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3:per_timestep:g5-gross-reported",
+      "result": "pass",
+      "threshold": 0,
+      "value": -0.05751125973458659
+    }
+  ],
+  "decided_by": "agent review panel, rounds 1-2 (no rejections, no open blocker or major; experiments/20261116-p15-g5/review.md)",
+  "gate": "G5",
+  "result": "pass"
+}

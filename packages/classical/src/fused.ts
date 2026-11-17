@@ -6,6 +6,7 @@
 // inflate the network's information because its errors are correlated in time and with the
 // bearings the IMM already uses. Causal: sample i reads the network's row at sample i only.
 import type { Prediction, PredictionRow, Scenario } from "@tma/types";
+import { ekfName, ekfPredict, ekfRangeUpdate, type TrackerScales } from "./ekf.js";
 import { type ImmParams, immName, immPredict, immRangeUpdate } from "./imm.js";
 
 /** Fusion settings: every parameter the decision record freezes beside the IMM's. */
@@ -52,6 +53,37 @@ export function fusedPredict(
   network: Prediction,
   f: FusionParams = FUSION_DEFAULT,
 ): Prediction {
+  const rows = checkInputs(s, network, f);
+  const first = s.metadata.zig_index + 1;
+  const own = s.ownship.states;
+  const p = immPredict(s, params, undefined, (i, st) => {
+    const m = measurementAt(rows, own, first, f, i);
+    return m === null ? st : immRangeUpdate(st, m.range, f.k * m.sd, m.ox, m.oy).st;
+  });
+  return { ...p, estimator: fusedName(network.estimator, params, f) };
+}
+
+/** The network's range measurement at sample i under the fusion schedule, or null. */
+function measurementAt(
+  rows: Map<number, PredictionRow>,
+  own: Scenario["ownship"]["states"],
+  first: number,
+  f: FusionParams,
+  i: number,
+): { range: number; sd: number; ox: number; oy: number } | null {
+  if ((i - first) % f.every !== 0) return null;
+  const r = rows.get(i);
+  const o = own[i];
+  const sd = r?.log_range_sd;
+  if (r === undefined || o === undefined || sd == null || !usableRange(r)) return null;
+  return { range: r.range_m, sd, ox: o.x_m, oy: o.y_m };
+}
+
+function checkInputs(
+  s: Scenario,
+  network: Prediction,
+  f: FusionParams,
+): Map<number, PredictionRow> {
   if (!(f.k > 0) || !Number.isInteger(f.every) || f.every < 1)
     throw new Error(
       `fusion needs k > 0 and an integer every ≥ 1, got k ${String(f.k)}, every ${String(f.every)}`,
@@ -63,16 +95,36 @@ export function fusedPredict(
   if (network.mode !== "per_timestep")
     throw new Error(`scenario ${String(s.metadata.index)}: fusion needs per-timestep network rows`);
   const dt = s.metadata.parameters.dt_s;
-  const rows = new Map(network.rows.map((r) => [Math.round(r.timestamp_s / dt), r]));
+  return new Map(network.rows.map((r) => [Math.round(r.timestamp_s / dt), r]));
+}
+
+/** Estimator name of the EKF-fused tracker (spec 028). */
+export const fusedEkfName = (
+  network: string,
+  sigmaA: number,
+  scales: TrackerScales,
+  f: FusionParams,
+): string => `fused-${network}-${ekfName(sigmaA, scales)}-k${String(f.k)}-m${String(f.every)}`;
+
+/**
+ * EKF-fused tracker estimate for one scenario (spec 028, SRD Annex F): `ekfPredict`'s rows
+ * (re-initialisation included) with the network's range fused in on the same schedule and with the
+ * same rules as `fusedPredict`. A constant-velocity EKF has no manoeuvre model; the range
+ * measurement is what lets it recover after a turn.
+ */
+export function fusedEkfPredict(
+  s: Scenario,
+  sigmaA: number,
+  scales: TrackerScales,
+  network: Prediction,
+  f: FusionParams = FUSION_DEFAULT,
+): Prediction {
+  const rows = checkInputs(s, network, f);
   const first = s.metadata.zig_index + 1;
   const own = s.ownship.states;
-  const p = immPredict(s, params, undefined, (i, st) => {
-    if ((i - first) % f.every !== 0) return st;
-    const r = rows.get(i);
-    const o = own[i];
-    const sd = r?.log_range_sd;
-    if (r === undefined || o === undefined || sd == null || !usableRange(r)) return st;
-    return immRangeUpdate(st, r.range_m, f.k * sd, o.x_m, o.y_m).st;
+  const p = ekfPredict(s, sigmaA, scales, (i, st) => {
+    const m = measurementAt(rows, own, first, f, i);
+    return m === null ? st : ekfRangeUpdate(st, m.range, f.k * m.sd, m.ox, m.oy);
   });
-  return { ...p, estimator: fusedName(network.estimator, params, f) };
+  return { ...p, estimator: fusedEkfName(network.estimator, sigmaA, scales, f) };
 }

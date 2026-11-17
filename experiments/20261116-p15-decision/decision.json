@@ -1,0 +1,26 @@
+{
+  "carried_models": [
+    "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3"
+  ],
+  "carried_set_rule": "One estimator is judged: the EKF-fused tracker named in carried_models (Annex F \u00a7F.3's selection: the frozen T2's range fused into the EKF at sigma_a 0.07, P0 x16, R x64, guarded init 1, k 4, every 3), with T2 bound by model_digests and the fused file tied to T2's prediction file by tma-g5's prediction chain and re-computed from its name (spec 015). G5 exactly as Annex C \u00a7C.5 (five gated checks against reference_estimator, the re-tuned EKF, the reference the carried variant's validation margin was smaller against; 97.5% intervals, scenario-clustered bootstrap); pass if every gated check passes, fail if any fails, otherwise inconclusive, with one re-score on seed 234 (1,100,000; 110,000-scenario test split, phase-7 ranges). The re-tuned IMM is reported, not gated.",
+  "change": "Phase 15 (SRD Annex F, owner decision F1 2026-11-16): fuse the frozen T2's range into the EKF instead of the IMM, after Annex E's IMM fusion stopped on settled course against the re-tuned EKF. Nothing is trained; the EKF's P0 and R are Annex E's re-tuned values; sigma_a, k and M were selected on seed 217 validation.",
+  "decided_at": "2026-11-16T19:18:10Z",
+  "fresh_test_count": 400000,
+  "git_commit": "65666f468c83b9a11389a7c23614c851e95d1756",
+  "model_digests": [
+    {
+      "manifest_sha256": "b951f8c848b08b34f27f517e1d9f16ec4b79b69d055c3a0466f90ed0b4f59e96",
+      "model": "lstm-gaussian",
+      "model_json_sha256": "c5ab6e3fd71bb08dae18df56e64f89269b174d72eb7440894f323368a0ac1310",
+      "weights_sha256": "05e36db5cf1225e9b38c1608e924d3cda4debc217949f5305a0a9f24d1f971f2"
+    }
+  ],
+  "phase_a_experiment": "20261116-p15-val",
+  "plans": [
+    "configs/phase4/x/plan.json"
+  ],
+  "rationale": "On seed 217 validation (experiments/20261116-p15-val): best of 96 variants by the pre-registered score, 0.015 (tie rule: k 4, M 3 over k 3, M 6 at 0.018). tma-g5 diagnostic against the re-tuned EKF: overall range 0.790 [0.759, 0.820], course 0.798 [0.778, 0.820]; settled range 0.867 [0.823, 0.916], course 1.083 [0.997, 1.169], speed 1.024 [0.971, 1.085]: inconclusive on settled course. Against the re-tuned IMM (reported): overall course 0.983, the other check with a thin margin. Forecast before scoring: P(pass on seed 233) about 10%, P(fail) under 5%, otherwise inconclusive; P(pass over both looks) about 25%. The settled-course interval should narrow to about +/-0.04 at 40,000 scenarios, and the point was selected from 96 variants on the same split, so it is more likely to rise than fall.",
+  "reference_estimator": "ekf-sa0.03-p16-r64-g1",
+  "stalled": false,
+  "test_seed": "233"
+}

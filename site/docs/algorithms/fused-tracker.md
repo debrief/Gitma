@@ -146,3 +146,17 @@ sample). Weighting T2 more degrades course and velocity without closing the gap.
 improve range against the IMM, to 0.740 from 0.777. Phase 8 stopped at validation
 (`experiments/20261110-p8-research/`).
 
+
+## Fused into the EKF (spec 028, Annex F)
+
+The same range measurement can feed the constant-velocity EKF instead of the IMM
+(`tma-fuse-track --filter ekf --sigma-a <a>`, `fusedEkfPredict`). After each bearing update, every
+M samples from zig_index + 1, the EKF takes z = ln ρ̂ (T2's range) with
+
+H = [dx/ρ², dy/ρ², 0, 0],  R = (k · sd_log)²,
+
+where (dx, dy) is the target's position relative to ownship and sd_log is T2's stated log-range sd,
+in the Joseph form. The update moves the estimate along the line of sight only. Rows T2 cannot
+state (not converged, range ≤ 0, no positive finite sd) add nothing. The EKF has no manoeuvre
+model, so its process noise σa sets how fast it recovers after a turn; Annex F tunes σa with k
+and M.
