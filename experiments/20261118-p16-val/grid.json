@@ -1,0 +1,4097 @@
+{
+  "rows": 16711,
+  "settled_rows": 7509,
+  "straight_rows": 4205,
+  "references": {
+    "imm": "imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1",
+    "ekf": "ekf-sa0.03-p16-r64-g1"
+  },
+  "rule": "score = min over both references of the smallest margin over six checks (G5's five and straight-leg course, limit 1.1); largest score; ties within 0.005 to the smaller hi, then the larger eta, then the smaller fade; reference = the one with the smaller margin (ties: EKF); carried if score > 0",
+  "medians": {
+    "imm": {
+      "all": [
+        0.15117038892725568,
+        28.60916941413636,
+        2.5376028427552453
+      ],
+      "settled": [
+        0.1341002181453173,
+        11.685005669787774,
+        2.1032685080048332
+      ],
+      "straight": [
+        0.09898277822053142,
+        7.468238121518662,
+        1.4328017605561159
+      ]
+    },
+    "ekf": {
+      "all": [
+        0.1579314479524454,
+        35.23858517349658,
+        2.3071663297278318
+      ],
+      "settled": [
+        0.1364562766587332,
+        8.269064141324318,
+        1.7827089610419056
+      ],
+      "straight": [
+        0.08745311151447639,
+        3.1006053548623087,
+        1.080344202194049
+      ]
+    },
+    "t2": {
+      "all": [
+        0.12164923663274184,
+        25.07833044345495,
+        2.874890568446907
+      ],
+      "settled": [
+        0.11860731482044881,
+        17.6548915327024,
+        2.6400620685025373
+      ],
+      "straight": [
+        0.10375045139543558,
+        15.354593103268824,
+        2.4178583730116774
+      ]
+    },
+    "phase15": {
+      "all": [
+        0.12472185037981741,
+        28.131411342072308,
+        2.10466395186554
+      ],
+      "settled": [
+        0.11828304750241235,
+        8.957437926634881,
+        1.82598950280999
+      ],
+      "straight": [
+        0.10062976582912346,
+        5.030352361444351,
+        1.4367735154170453
+      ]
+    }
+  },
+  "phase15": {
+    "estimator": "fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3",
+    "vs": {
+      "imm": {
+        "points": [
+          {
+            "check": "overall range",
+            "point": 0.8250415393178256,
+            "limit": 1,
+            "margin": 0.17495846068217435
+          },
+          {
+            "check": "overall course",
+            "point": 0.9833005263051089,
+            "limit": 1,
+            "margin": 0.01669947369489111
+          },
+          {
+            "check": "settled range",
+            "point": 0.8820496277957973,
+            "limit": 1.1,
+            "margin": 0.1981367020038207
+          },
+          {
+            "check": "settled course",
+            "point": 0.7665754026799345,
+            "limit": 1.1,
+            "margin": 0.3031132702909687
+          },
+          {
+            "check": "settled speed",
+            "point": 0.8681675667469243,
+            "limit": 1.1,
+            "margin": 0.21075675750279615
+          },
+          {
+            "check": "straight-leg course",
+            "point": 0.6735661449987927,
+            "limit": 1.1,
+            "margin": 0.38766714091018845
+          }
+        ],
+        "margin": 0.01669947369489111
+      },
+      "ekf": {
+        "points": [
+          {
+            "check": "overall range",
+            "point": 0.7897214392498465,
+            "limit": 1,
+            "margin": 0.2102785607501535
+          },
+          {
+            "check": "overall course",
+            "point": 0.7983127359843699,
+            "limit": 1,
+            "margin": 0.20168726401563009
+          },
+          {
+            "check": "settled range",
+            "point": 0.8668201302181892,
+            "limit": 1.1,
+            "margin": 0.21198169980164627
+          },
+          {
+            "check": "settled course",
+            "point": 1.0832468793984127,
+            "limit": 1.1,
+            "margin": 0.015230109637806728
+          },
+          {
+            "check": "settled speed",
+            "point": 1.0242779627599947,
+            "limit": 1.1,
+            "margin": 0.06883821567273214
+          },
+          {
+            "check": "straight-leg course",
+            "point": 1.6223774991408857,
+            "limit": 1.1,
+            "margin": -0.47488863558262323
+          }
+        ],
+        "margin": -0.47488863558262323
+      }
+    }
+  },
+  "variants": [
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-a0.07-e0.03",
+      "fade": 0,
+      "hi": 0.07,
+      "eta": 0.03,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8253062464705565,
+              "limit": 1,
+              "margin": 0.1746937535294435
+            },
+            {
+              "check": "overall course",
+              "point": 1.060969026902559,
+              "limit": 1,
+              "margin": -0.0609690269025589
+            },
+            {
+              "check": "settled range",
+              "point": 0.8721670094162761,
+              "limit": 1.1,
+              "margin": 0.20712090053065813
+            },
+            {
+              "check": "settled course",
+              "point": 0.7215049439205793,
+              "limit": 1.1,
+              "margin": 0.34408641461765527
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8045069309007625,
+              "limit": 1.1,
+              "margin": 0.2686300628174887
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5717055539703096,
+              "limit": 1.1,
+              "margin": 0.48026767820880945
+            }
+          ],
+          "margin": -0.0609690269025589
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7899748142663422,
+              "limit": 1,
+              "margin": 0.2100251857336578
+            },
+            {
+              "check": "overall course",
+              "point": 0.8613695040354782,
+              "limit": 1,
+              "margin": 0.13863049596452182
+            },
+            {
+              "check": "settled range",
+              "point": 0.8571081454492138,
+              "limit": 1.1,
+              "margin": 0.2208107768643512
+            },
+            {
+              "check": "settled course",
+              "point": 1.019557862462252,
+              "limit": 1.1,
+              "margin": 0.07312921594340725
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9491701277174535,
+              "limit": 1.1,
+              "margin": 0.13711806571140603
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.3770321352730222,
+              "limit": 1.1,
+              "margin": -0.25184739570274733
+            }
+          ],
+          "margin": -0.25184739570274733
+        }
+      },
+      "medians": {
+        "all": [
+          0.12476186626304756,
+          30.353442633806704,
+          2.022481531097873
+        ],
+        "settled": [
+          0.11695778622187164,
+          8.430789360491879,
+          1.6920940922351944
+        ],
+        "straight": [
+          0.09944164245586014,
+          4.269633212445012,
+          1.3050491300051463
+        ]
+      },
+      "range_vs_t2": 1.025586922832099,
+      "score": -0.25184739570274733
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-a0.07-e0.06",
+      "fade": 0,
+      "hi": 0.07,
+      "eta": 0.06,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8272726482199003,
+              "limit": 1,
+              "margin": 0.17272735178009968
+            },
+            {
+              "check": "overall course",
+              "point": 1.1009787197977383,
+              "limit": 1,
+              "margin": -0.10097871979773831
+            },
+            {
+              "check": "settled range",
+              "point": 0.8760110309886842,
+              "limit": 1.1,
+              "margin": 0.20362633546483264
+            },
+            {
+              "check": "settled course",
+              "point": 0.7280644942564479,
+              "limit": 1.1,
+              "margin": 0.3381231870395929
+            },
+            {
+              "check": "settled speed",
+              "point": 0.7872033111965517,
+              "limit": 1.1,
+              "margin": 0.284360626184953
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5360265443344527,
+              "limit": 1.1,
+              "margin": 0.5127031415141339
+            }
+          ],
+          "margin": -0.10097871979773831
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7918570341857407,
+              "limit": 1,
+              "margin": 0.20814296581425928
+            },
+            {
+              "check": "overall course",
+              "point": 0.8938521952845769,
+              "limit": 1,
+              "margin": 0.10614780471542307
+            },
+            {
+              "check": "settled range",
+              "point": 0.8608857960200585,
+              "limit": 1.1,
+              "margin": 0.21737654907267412
+            },
+            {
+              "check": "settled course",
+              "point": 1.0288271560069515,
+              "limit": 1.1,
+              "margin": 0.06470258544822598
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9287550407942982,
+              "limit": 1.1,
+              "margin": 0.1556772356415472
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.291094291076668,
+              "limit": 1.1,
+              "margin": -0.17372208279697088
+            }
+          ],
+          "margin": -0.17372208279697088
+        }
+      },
+      "medians": {
+        "all": [
+          0.1250591279802831,
+          31.498086716052462,
+          1.9770440993504699
+        ],
+        "settled": [
+          0.11747327035328686,
+          8.507437743357762,
+          1.655699933836836
+        ],
+        "straight": [
+          0.09895779605908825,
+          4.003173872544473,
+          1.258793247956179
+        ]
+      },
+      "range_vs_t2": 1.028030519894142,
+      "score": -0.17372208279697088
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-a0.07-e0.12",
+      "fade": 0,
+      "hi": 0.07,
+      "eta": 0.12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.829810043652156,
+              "limit": 1,
+              "margin": 0.17018995634784395
+            },
+            {
+              "check": "overall course",
+              "point": 1.1395998935213976,
+              "limit": 1,
+              "margin": -0.13959989352139757
+            },
+            {
+              "check": "settled range",
+              "point": 0.8836835192178207,
+              "limit": 1.1,
+              "margin": 0.19665134616561758
+            },
+            {
+              "check": "settled course",
+              "point": 0.7243889950128244,
+              "limit": 1.1,
+              "margin": 0.3414645499883415
+            },
+            {
+              "check": "settled speed",
+              "point": 0.7627906402817444,
+              "limit": 1.1,
+              "margin": 0.30655396338023244
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5032558513868464,
+              "limit": 1.1,
+              "margin": 0.5424946805574125
+            }
+          ],
+          "margin": -0.13959989352139757
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7942858034988154,
+              "limit": 1,
+              "margin": 0.2057141965011846
+            },
+            {
+              "check": "overall course",
+              "point": 0.9252075887146168,
+              "limit": 1,
+              "margin": 0.07479241128538316
+            },
+            {
+              "check": "settled range",
+              "point": 0.868425810817749,
+              "limit": 1.1,
+              "margin": 0.21052199016568274
+            },
+            {
+              "check": "settled course",
+              "point": 1.0236333119676473,
+              "limit": 1.1,
+              "margin": 0.06942426184759345
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8999525816977832,
+              "limit": 1.1,
+              "margin": 0.18186128936565166
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.212161531073496,
+              "limit": 1.1,
+              "margin": -0.10196502824863254
+            }
+          ],
+          "margin": -0.10196502824863254
+        }
+      },
+      "medians": {
+        "all": [
+          0.12544270703463944,
+          32.60300641808542,
+          1.9463943868682398
+        ],
+        "settled": [
+          0.11850215269853145,
+          8.464489513856721,
+          1.6043535319054358
+        ],
+        "straight": [
+          0.09713760418505789,
+          3.7584345342045764,
+          1.213762724116348
+        ]
+      },
+      "range_vs_t2": 1.0311836761734072,
+      "score": -0.13959989352139757
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-a0.1-e0.03",
+      "fade": 0,
+      "hi": 0.1,
+      "eta": 0.03,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8334747396844852,
+              "limit": 1,
+              "margin": 0.16652526031551484
+            },
+            {
+              "check": "overall course",
+              "point": 1.0425329492782254,
+              "limit": 1,
+              "margin": -0.042532949278225374
+            },
+            {
+              "check": "settled range",
+              "point": 0.8857906294605684,
+              "limit": 1.1,
+              "margin": 0.19473579139948333
+            },
+            {
+              "check": "settled course",
+              "point": 0.7656460064017284,
+              "limit": 1.1,
+              "margin": 0.3039581759984288
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8369197357864697,
+              "limit": 1.1,
+              "margin": 0.23916387655775487
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.6487722879489599,
+              "limit": 1.1,
+              "margin": 0.41020701095549106
+            }
+          ],
+          "margin": -0.042532949278225374
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7977936135752112,
+              "limit": 1,
+              "margin": 0.20220638642478883
+            },
+            {
+              "check": "overall course",
+              "point": 0.8464017956133074,
+              "limit": 1,
+              "margin": 0.15359820438669258
+            },
+            {
+              "check": "settled range",
+              "point": 0.8704965396264749,
+              "limit": 1.1,
+              "margin": 0.20863950943047743
+            },
+            {
+              "check": "settled course",
+              "point": 1.0819335505144283,
+              "limit": 1.1,
+              "margin": 0.016424044986883445
+            },
+            {
+              "check": "settled speed",
+              "point": 0.987411272661477,
+              "limit": 1.1,
+              "margin": 0.10235338848956645
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.5626580549656792,
+              "limit": 1.1,
+              "margin": -0.42059823178698097
+            }
+          ],
+          "margin": -0.42059823178698097
+        }
+      },
+      "medians": {
+        "all": [
+          0.1259967005591468,
+          29.82600176571998,
+          2.0620016505857266
+        ],
+        "settled": [
+          0.11878471664174016,
+          8.946577925854562,
+          1.7602669240074074
+        ],
+        "straight": [
+          0.10066322877253538,
+          4.845185933045305,
+          1.4035458698643464
+        ]
+      },
+      "range_vs_t2": 1.035737700019688,
+      "score": -0.42059823178698097
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-a0.1-e0.06",
+      "fade": 0,
+      "hi": 0.1,
+      "eta": 0.06,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8308584828888139,
+              "limit": 1,
+              "margin": 0.16914151711118608
+            },
+            {
+              "check": "overall course",
+              "point": 1.0961132922777945,
+              "limit": 1,
+              "margin": -0.09611329227779453
+            },
+            {
+              "check": "settled range",
+              "point": 0.8821364150521553,
+              "limit": 1.1,
+              "margin": 0.19805780449804067
+            },
+            {
+              "check": "settled course",
+              "point": 0.7542097559721017,
+              "limit": 1.1,
+              "margin": 0.3143547672980894
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8011821719988039,
+              "limit": 1.1,
+              "margin": 0.2716525709101783
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5724408642273389,
+              "limit": 1.1,
+              "margin": 0.4795992143387829
+            }
+          ],
+          "margin": -0.09611329227779453
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.795289358960549,
+              "limit": 1,
+              "margin": 0.20471064103945102
+            },
+            {
+              "check": "overall course",
+              "point": 0.889902097983424,
+              "limit": 1,
+              "margin": 0.11009790201657599
+            },
+            {
+              "check": "settled range",
+              "point": 0.8669054190029546,
+              "limit": 1.1,
+              "margin": 0.2119041645427686
+            },
+            {
+              "check": "settled course",
+              "point": 1.0657729972973506,
+              "limit": 1.1,
+              "margin": 0.031115457002408583
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9452475240575093,
+              "limit": 1.1,
+              "margin": 0.14068406903862796
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.3788032320312982,
+              "limit": 1.1,
+              "margin": -0.2534574836648164
+            }
+          ],
+          "margin": -0.2534574836648164
+        }
+      },
+      "medians": {
+        "all": [
+          0.1256012000018116,
+          31.358890875862187,
+          2.005535068058813
+        ],
+        "settled": [
+          0.1182946856924222,
+          8.812945274743262,
+          1.685101231539996
+        ],
+        "straight": [
+          0.09981163011223726,
+          4.275124684537701,
+          1.32522953766726
+        ]
+      },
+      "range_vs_t2": 1.032486544745042,
+      "score": -0.2534574836648164
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-a0.1-e0.12",
+      "fade": 0,
+      "hi": 0.1,
+      "eta": 0.12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8302154419438407,
+              "limit": 1,
+              "margin": 0.16978455805615933
+            },
+            {
+              "check": "overall course",
+              "point": 1.1393381137291743,
+              "limit": 1,
+              "margin": -0.13933811372917426
+            },
+            {
+              "check": "settled range",
+              "point": 0.8844888732048548,
+              "limit": 1.1,
+              "margin": 0.1959192061774048
+            },
+            {
+              "check": "settled course",
+              "point": 0.7321491616728664,
+              "limit": 1.1,
+              "margin": 0.33440985302466697
+            },
+            {
+              "check": "settled speed",
+              "point": 0.766593827334867,
+              "limit": 1.1,
+              "margin": 0.3030965206046664
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5133649955735055,
+              "limit": 1.1,
+              "margin": 0.5333045494786315
+            }
+          ],
+          "margin": -0.13933811372917426
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7946738466543677,
+              "limit": 1,
+              "margin": 0.2053261533456323
+            },
+            {
+              "check": "overall course",
+              "point": 0.9249950574115569,
+              "limit": 1,
+              "margin": 0.07500494258844315
+            },
+            {
+              "check": "settled range",
+              "point": 0.8692172595366348,
+              "limit": 1.1,
+              "margin": 0.2098024913303321
+            },
+            {
+              "check": "settled course",
+              "point": 1.0345991951524118,
+              "limit": 1.1,
+              "margin": 0.05945527713417114
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9044396425325534,
+              "limit": 1.1,
+              "margin": 0.17778214315222426
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.2365108072147961,
+              "limit": 1.1,
+              "margin": -0.12410073383163274
+            }
+          ],
+          "margin": -0.12410073383163274
+        }
+      },
+      "medians": {
+        "all": [
+          0.12550399125206385,
+          32.595517115660506,
+          1.949023994462279
+        ],
+        "settled": [
+          0.11861015084387692,
+          8.555167105277809,
+          1.6123526554643206
+        ],
+        "straight": [
+          0.0977677597324212,
+          3.8339320301953124,
+          1.2280554802319914
+        ]
+      },
+      "range_vs_t2": 1.0316874542415706,
+      "score": -0.13933811372917426
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-a0.2-e0.03",
+      "fade": 0,
+      "hi": 0.2,
+      "eta": 0.03,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8356961526654401,
+              "limit": 1,
+              "margin": 0.16430384733455994
+            },
+            {
+              "check": "overall course",
+              "point": 1.0414571811580622,
+              "limit": 1,
+              "margin": -0.041457181158062184
+            },
+            {
+              "check": "settled range",
+              "point": 0.8929031947226932,
+              "limit": 1.1,
+              "margin": 0.1882698229793699
+            },
+            {
+              "check": "settled course",
+              "point": 0.8205318251004801,
+              "limit": 1.1,
+              "margin": 0.25406197718138185
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8684593060087049,
+              "limit": 1.1,
+              "margin": 0.2104915399920865
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.724141589294468,
+              "limit": 1.1,
+              "margin": 0.34168946427775637
+            }
+          ],
+          "margin": -0.041457181158062184
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7999199276732123,
+              "limit": 1,
+              "margin": 0.2000800723267877
+            },
+            {
+              "check": "overall course",
+              "point": 0.8455284111613339,
+              "limit": 1,
+              "margin": 0.15447158883866607
+            },
+            {
+              "check": "settled range",
+              "point": 0.8774862991053233,
+              "limit": 1.1,
+              "margin": 0.20228518263152437
+            },
+            {
+              "check": "settled course",
+              "point": 1.1594926420542775,
+              "limit": 1.1,
+              "margin": -0.05408422004934309
+            },
+            {
+              "check": "settled speed",
+              "point": 1.024622161401086,
+              "limit": 1.1,
+              "margin": 0.06852530781719464
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.744195472688983,
+              "limit": 1.1,
+              "margin": -0.5856322478990753
+            }
+          ],
+          "margin": -0.5856322478990753
+        }
+      },
+      "medians": {
+        "all": [
+          0.12633251242344581,
+          29.795224933319904,
+          2.10721013870404
+        ],
+        "settled": [
+          0.1197385131949639,
+          9.58791902854042,
+          1.8266031088118417
+        ],
+        "straight": [
+          0.1022567568250358,
+          5.408061822546056,
+          1.499653068526002
+        ]
+      },
+      "range_vs_t2": 1.0384981930042254,
+      "score": -0.5856322478990753
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-a0.2-e0.06",
+      "fade": 0,
+      "hi": 0.2,
+      "eta": 0.06,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8322053495896675,
+              "limit": 1,
+              "margin": 0.16779465041033248
+            },
+            {
+              "check": "overall course",
+              "point": 1.0933031882701643,
+              "limit": 1,
+              "margin": -0.09330318827016426
+            },
+            {
+              "check": "settled range",
+              "point": 0.8855529556039571,
+              "limit": 1.1,
+              "margin": 0.19495185854185726
+            },
+            {
+              "check": "settled course",
+              "point": 0.7666852935606281,
+              "limit": 1.1,
+              "margin": 0.30301336949033814
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8075752611275723,
+              "limit": 1.1,
+              "margin": 0.2658406717022071
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5896310278978906,
+              "limit": 1.1,
+              "margin": 0.46397179282009954
+            }
+          ],
+          "margin": -0.09330318827016426
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.796578566180776,
+              "limit": 1,
+              "margin": 0.20342143381922395
+            },
+            {
+              "check": "overall course",
+              "point": 0.887620657306115,
+              "limit": 1,
+              "margin": 0.11237934269388505
+            },
+            {
+              "check": "settled range",
+              "point": 0.8702629694544063,
+              "limit": 1.1,
+              "margin": 0.2088518459505398
+            },
+            {
+              "check": "settled course",
+              "point": 1.083402166084066,
+              "limit": 1.1,
+              "margin": 0.015088939923576414
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9527901927304415,
+              "limit": 1.1,
+              "margin": 0.13382709751778052
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.4202081258976638,
+              "limit": 1.1,
+              "margin": -0.2910982962706033
+            }
+          ],
+          "margin": -0.2910982962706033
+        }
+      },
+      "medians": {
+        "all": [
+          0.1258048063648128,
+          31.27849613423655,
+          2.0060596919214233
+        ],
+        "settled": [
+          0.11875284452572114,
+          8.958722002198844,
+          1.6985476145734024
+        ],
+        "straight": [
+          0.10060616371429829,
+          4.4035049201772605,
+          1.3420647730322686
+        ]
+      },
+      "range_vs_t2": 1.0341602614788008,
+      "score": -0.2910982962706033
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-a0.2-e0.12",
+      "fade": 0,
+      "hi": 0.2,
+      "eta": 0.12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8297259879543483,
+              "limit": 1,
+              "margin": 0.17027401204565173
+            },
+            {
+              "check": "overall course",
+              "point": 1.1393381137291743,
+              "limit": 1,
+              "margin": -0.13933811372917426
+            },
+            {
+              "check": "settled range",
+              "point": 0.8844888732048548,
+              "limit": 1.1,
+              "margin": 0.1959192061774048
+            },
+            {
+              "check": "settled course",
+              "point": 0.7304668959567171,
+              "limit": 1.1,
+              "margin": 0.3359391854938936
+            },
+            {
+              "check": "settled speed",
+              "point": 0.766593827334867,
+              "limit": 1.1,
+              "margin": 0.3030965206046664
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5132136350666169,
+              "limit": 1.1,
+              "margin": 0.5334421499394393
+            }
+          ],
+          "margin": -0.13933811372917426
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.7942053462327427,
+              "limit": 1,
+              "margin": 0.20579465376725725
+            },
+            {
+              "check": "overall course",
+              "point": 0.9249950574115569,
+              "limit": 1,
+              "margin": 0.07500494258844315
+            },
+            {
+              "check": "settled range",
+              "point": 0.8692172595366348,
+              "limit": 1.1,
+              "margin": 0.2098024913303321
+            },
+            {
+              "check": "settled course",
+              "point": 1.0322219872730998,
+              "limit": 1.1,
+              "margin": 0.06161637520627301
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9044396425325534,
+              "limit": 1.1,
+              "margin": 0.17778214315222426
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.2361462344368175,
+              "limit": 1.1,
+              "margin": -0.12376930403347035
+            }
+          ],
+          "margin": -0.12376930403347035
+        }
+      },
+      "medians": {
+        "all": [
+          0.1254300003021103,
+          32.595517115660506,
+          1.9485137375075667
+        ],
+        "settled": [
+          0.11861015084387692,
+          8.535509820846515,
+          1.6123526554643206
+        ],
+        "straight": [
+          0.09771219969185309,
+          3.832801633887675,
+          1.2277421889500792
+        ]
+      },
+      "range_vs_t2": 1.0310792223117893,
+      "score": -0.13933811372917426
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f0.5-a0.07-e0.03",
+      "fade": 0.5,
+      "hi": 0.07,
+      "eta": 0.03,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8464248947538373,
+              "limit": 1,
+              "margin": 0.1535751052461627
+            },
+            {
+              "check": "overall course",
+              "point": 1.071937277896021,
+              "limit": 1,
+              "margin": -0.071937277896021
+            },
+            {
+              "check": "settled range",
+              "point": 0.8911923035083916,
+              "limit": 1.1,
+              "margin": 0.18982517862873496
+            },
+            {
+              "check": "settled course",
+              "point": 0.7098956738064565,
+              "limit": 1.1,
+              "margin": 0.35464029653958506
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8039668607114692,
+              "limit": 1.1,
+              "margin": 0.26912103571684626
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5490755577017348,
+              "limit": 1.1,
+              "margin": 0.5008404020893321
+            }
+          ],
+          "margin": -0.071937277896021
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8101893713795195,
+              "limit": 1,
+              "margin": 0.18981062862048048
+            },
+            {
+              "check": "overall course",
+              "point": 0.8702743039672511,
+              "limit": 1,
+              "margin": 0.12972569603274886
+            },
+            {
+              "check": "settled range",
+              "point": 0.8758049481944045,
+              "limit": 1.1,
+              "margin": 0.20381368345963236
+            },
+            {
+              "check": "settled course",
+              "point": 1.0031528153145712,
+              "limit": 1.1,
+              "margin": 0.08804289516857168
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9485329442814151,
+              "limit": 1.1,
+              "margin": 0.13769732338053178
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.3225246499660759,
+              "limit": 1.1,
+              "margin": -0.20229513633279617
+            }
+          ],
+          "margin": -0.20229513633279617
+        }
+      },
+      "medians": {
+        "all": [
+          0.12795438053764904,
+          30.667235184655432,
+          2.025667277062171
+        ],
+        "settled": [
+          0.11950908230990315,
+          8.295134973386256,
+          1.6909581796139412
+        ],
+        "straight": [
+          0.09755641937161742,
+          4.100627011622215,
+          1.2458551522207568
+        ]
+      },
+      "range_vs_t2": 1.0518305258580651,
+      "score": -0.20229513633279617
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f0.5-a0.07-e0.06",
+      "fade": 0.5,
+      "hi": 0.07,
+      "eta": 0.06,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8517931203631637,
+              "limit": 1,
+              "margin": 0.14820687963683632
+            },
+            {
+              "check": "overall course",
+              "point": 1.1154175524962189,
+              "limit": 1,
+              "margin": -0.11541755249621888
+            },
+            {
+              "check": "settled range",
+              "point": 0.8984447824922891,
+              "limit": 1.1,
+              "margin": 0.1832320159161009
+            },
+            {
+              "check": "settled course",
+              "point": 0.7177709920808423,
+              "limit": 1.1,
+              "margin": 0.34748091629014344
+            },
+            {
+              "check": "settled speed",
+              "point": 0.7924034974337302,
+              "limit": 1.1,
+              "margin": 0.27963318415115446
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5174974575093102,
+              "limit": 1.1,
+              "margin": 0.5295477659006271
+            }
+          ],
+          "margin": -0.11541755249621888
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8153277827835325,
+              "limit": 1,
+              "margin": 0.18467221721646754
+            },
+            {
+              "check": "overall course",
+              "point": 0.905574658283003,
+              "limit": 1,
+              "margin": 0.09442534171699701
+            },
+            {
+              "check": "settled range",
+              "point": 0.8829322056401522,
+              "limit": 1.1,
+              "margin": 0.19733435850895262
+            },
+            {
+              "check": "settled course",
+              "point": 1.0142814191220684,
+              "limit": 1.1,
+              "margin": 0.07792598261630156
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9348903035811218,
+              "limit": 1.1,
+              "margin": 0.15009972401716207
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.2464644150534412,
+              "limit": 1.1,
+              "margin": -0.133149468230401
+            }
+          ],
+          "margin": -0.133149468230401
+        }
+      },
+      "medians": {
+        "all": [
+          0.12876589729086016,
+          31.911169726865662,
+          1.9905378700075087
+        ],
+        "settled": [
+          0.12048164132373812,
+          8.387158112073838,
+          1.6666373217852533
+        ],
+        "straight": [
+          0.0968962910854217,
+          3.864794239960015,
+          1.2119052219596846
+        ]
+      },
+      "range_vs_t2": 1.0585014822542904,
+      "score": -0.133149468230401
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f0.5-a0.07-e0.12",
+      "fade": 0.5,
+      "hi": 0.07,
+      "eta": 0.12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8581602916050705,
+              "limit": 1,
+              "margin": 0.14183970839492954
+            },
+            {
+              "check": "overall course",
+              "point": 1.1541421011857087,
+              "limit": 1,
+              "margin": -0.1541421011857087
+            },
+            {
+              "check": "settled range",
+              "point": 0.9024696420379098,
+              "limit": 1.1,
+              "margin": 0.17957305269280935
+            },
+            {
+              "check": "settled course",
+              "point": 0.7062324496080169,
+              "limit": 1.1,
+              "margin": 0.3579705003563483
+            },
+            {
+              "check": "settled speed",
+              "point": 0.7793554369159017,
+              "limit": 1.1,
+              "margin": 0.29149505734918035
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.48340064531706145,
+              "limit": 1.1,
+              "margin": 0.5605448678935806
+            }
+          ],
+          "margin": -0.1541421011857087
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8214223748706974,
+              "limit": 1,
+              "margin": 0.17857762512930264
+            },
+            {
+              "check": "overall course",
+              "point": 0.9370139788030799,
+              "limit": 1,
+              "margin": 0.0629860211969201
+            },
+            {
+              "check": "settled range",
+              "point": 0.8868875718298793,
+              "limit": 1.1,
+              "margin": 0.19373857106374615
+            },
+            {
+              "check": "settled course",
+              "point": 0.9979763171284518,
+              "limit": 1.1,
+              "margin": 0.09274880261049843
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9194959933614377,
+              "limit": 1.1,
+              "margin": 0.16409455148960214
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.1643375128867115,
+              "limit": 1.1,
+              "margin": -0.05848864807882855
+            }
+          ],
+          "margin": -0.05848864807882855
+        }
+      },
+      "medians": {
+        "all": [
+          0.12972842504386564,
+          33.01904690080925,
+          1.9704381024090825
+        ],
+        "settled": [
+          0.12102137586681012,
+          8.252330177857786,
+          1.6391937470075635
+        ],
+        "straight": [
+          0.09639184616877118,
+          3.6101511273236,
+          1.1550604653409953
+        ]
+      },
+      "range_vs_t2": 1.066413802788708,
+      "score": -0.1541421011857087
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f0.5-a0.1-e0.03",
+      "fade": 0.5,
+      "hi": 0.1,
+      "eta": 0.03,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8452357096601973,
+              "limit": 1,
+              "margin": 0.15476429033980266
+            },
+            {
+              "check": "overall course",
+              "point": 1.0561053899420694,
+              "limit": 1,
+              "margin": -0.05610538994206937
+            },
+            {
+              "check": "settled range",
+              "point": 0.8928146900171762,
+              "limit": 1.1,
+              "margin": 0.1883502818025672
+            },
+            {
+              "check": "settled course",
+              "point": 0.7655419607806462,
+              "limit": 1.1,
+              "margin": 0.30405276292668537
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8316521234057077,
+              "limit": 1.1,
+              "margin": 0.24395261508572033
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.6276147413244364,
+              "limit": 1.1,
+              "margin": 0.4294411442505124
+            }
+          ],
+          "margin": -0.05610538994206937
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8090510954031847,
+              "limit": 1,
+              "margin": 0.19094890459681535
+            },
+            {
+              "check": "overall course",
+              "point": 0.8574208604368087,
+              "limit": 1,
+              "margin": 0.14257913956319135
+            },
+            {
+              "check": "settled range",
+              "point": 0.8773993225249319,
+              "limit": 1.1,
+              "margin": 0.20236425225006197
+            },
+            {
+              "check": "settled course",
+              "point": 1.0817865237588629,
+              "limit": 1.1,
+              "margin": 0.016557705673761115
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9811964594334345,
+              "limit": 1.1,
+              "margin": 0.10800321869687782
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.5116971688886145,
+              "limit": 1.1,
+              "margin": -0.37427015353510396
+            }
+          ],
+          "margin": -0.37427015353510396
+        }
+      },
+      "medians": {
+        "all": [
+          0.127774610964537,
+          30.214298020035205,
+          2.069969723085605
+        ],
+        "settled": [
+          0.11972664469464718,
+          8.9453621521823,
+          1.7491877207745743
+        ],
+        "straight": [
+          0.10031213128521385,
+          4.68717633678623,
+          1.3402443467669558
+        ]
+      },
+      "range_vs_t2": 1.0503527560167731,
+      "score": -0.37427015353510396
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f0.5-a0.1-e0.06",
+      "fade": 0.5,
+      "hi": 0.1,
+      "eta": 0.06,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8493616551639483,
+              "limit": 1,
+              "margin": 0.15063834483605165
+            },
+            {
+              "check": "overall course",
+              "point": 1.1115750119072203,
+              "limit": 1,
+              "margin": -0.1115750119072203
+            },
+            {
+              "check": "settled range",
+              "point": 0.900899394052672,
+              "limit": 1.1,
+              "margin": 0.18100055086120728
+            },
+            {
+              "check": "settled course",
+              "point": 0.7499457852171045,
+              "limit": 1.1,
+              "margin": 0.3182311043480868
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8023459891029656,
+              "limit": 1.1,
+              "margin": 0.2705945553609404
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5567469288907424,
+              "limit": 1.1,
+              "margin": 0.4938664282811433
+            }
+          ],
+          "margin": -0.1115750119072203
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8130004088210069,
+              "limit": 1,
+              "margin": 0.18699959117899312
+            },
+            {
+              "check": "overall course",
+              "point": 0.9024550127538166,
+              "limit": 1,
+              "margin": 0.09754498724618343
+            },
+            {
+              "check": "settled range",
+              "point": 0.8853444357974545,
+              "limit": 1.1,
+              "margin": 0.19514142200231419
+            },
+            {
+              "check": "settled course",
+              "point": 1.0597475847964422,
+              "limit": 1.1,
+              "margin": 0.03659310473050721
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9466206140670137,
+              "limit": 1.1,
+              "margin": 0.139435805393624
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.341002211668091,
+              "limit": 1.1,
+              "margin": -0.21909291969826453
+            }
+          ],
+          "margin": -0.21909291969826453
+        }
+      },
+      "medians": {
+        "all": [
+          0.12839833175103169,
+          31.80123783217431,
+          2.01859505078705
+        ],
+        "settled": [
+          0.1208108052694475,
+          8.763120752295311,
+          1.6875490514042566
+        ],
+        "straight": [
+          0.09816039881632045,
+          4.157918638380282,
+          1.259217766912143
+        ]
+      },
+      "range_vs_t2": 1.0554799627610103,
+      "score": -0.21909291969826453
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f0.5-a0.1-e0.12",
+      "fade": 0.5,
+      "hi": 0.1,
+      "eta": 0.12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8595515533728186,
+              "limit": 1,
+              "margin": 0.14044844662718137
+            },
+            {
+              "check": "overall course",
+              "point": 1.152642328586759,
+              "limit": 1,
+              "margin": -0.15264232858675908
+            },
+            {
+              "check": "settled range",
+              "point": 0.9038994281712238,
+              "limit": 1.1,
+              "margin": 0.17827324711706932
+            },
+            {
+              "check": "settled course",
+              "point": 0.7127312092439273,
+              "limit": 1.1,
+              "margin": 0.35206253705097523
+            },
+            {
+              "check": "settled speed",
+              "point": 0.7819740391719452,
+              "limit": 1.1,
+              "margin": 0.28911450984368625
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.49036414319892885,
+              "limit": 1.1,
+              "margin": 0.5542144152737011
+            }
+          ],
+          "margin": -0.15264232858675908
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8227540766011434,
+              "limit": 1,
+              "margin": 0.1772459233988566
+            },
+            {
+              "check": "overall course",
+              "point": 0.9357963576030579,
+              "limit": 1,
+              "margin": 0.0642036423969421
+            },
+            {
+              "check": "settled range",
+              "point": 0.8882926712292868,
+              "limit": 1.1,
+              "margin": 0.1924612079733757
+            },
+            {
+              "check": "settled course",
+              "point": 1.0071597074002363,
+              "limit": 1.1,
+              "margin": 0.08440026599978526
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9225854621308704,
+              "limit": 1.1,
+              "margin": 0.16128594351739056
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.1811100635303862,
+              "limit": 1.1,
+              "margin": -0.07373642139126006
+            }
+          ],
+          "margin": -0.07373642139126006
+        }
+      },
+      "medians": {
+        "all": [
+          0.12993874262639576,
+          32.97613965244322,
+          1.9730982976134857
+        ],
+        "settled": [
+          0.12121311049918869,
+          8.328268221049987,
+          1.6447013706676903
+        ],
+        "straight": [
+          0.09645112305365688,
+          3.6621561876640767,
+          1.1673121936377902
+        ]
+      },
+      "range_vs_t2": 1.0681426881344096,
+      "score": -0.15264232858675908
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f0.5-a0.2-e0.03",
+      "fade": 0.5,
+      "hi": 0.2,
+      "eta": 0.03,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.849014697927717,
+              "limit": 1,
+              "margin": 0.150985302072283
+            },
+            {
+              "check": "overall course",
+              "point": 1.0476911929542678,
+              "limit": 1,
+              "margin": -0.047691192954267825
+            },
+            {
+              "check": "settled range",
+              "point": 0.8990905582254471,
+              "limit": 1.1,
+              "margin": 0.1826449470677754
+            },
+            {
+              "check": "settled course",
+              "point": 0.8095386453493947,
+              "limit": 1.1,
+              "margin": 0.2640557769550958
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8586607008484897,
+              "limit": 1.1,
+              "margin": 0.21939936286500947
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.7130880728735783,
+              "limit": 1.1,
+              "margin": 0.35173811556947426
+            }
+          ],
+          "margin": -0.047691192954267825
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8126683048542402,
+              "limit": 1,
+              "margin": 0.18733169514575976
+            },
+            {
+              "check": "overall course",
+              "point": 0.8505896217272313,
+              "limit": 1,
+              "margin": 0.1494103782727687
+            },
+            {
+              "check": "settled range",
+              "point": 0.8835668313884866,
+              "limit": 1.1,
+              "margin": 0.1967574260104668
+            },
+            {
+              "check": "settled course",
+              "point": 1.143958191537867,
+              "limit": 1.1,
+              "margin": -0.039961992307151674
+            },
+            {
+              "check": "settled speed",
+              "point": 1.0130616105168804,
+              "limit": 1.1,
+              "margin": 0.07903489953010882
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.7175715450156765,
+              "limit": 1.1,
+              "margin": -0.5614286772869785
+            }
+          ],
+          "margin": -0.5614286772869785
+        }
+      },
+      "medians": {
+        "all": [
+          0.12834588209068948,
+          29.973574832927277,
+          2.1068861881033647
+        ],
+        "settled": [
+          0.12056823999042758,
+          9.45946366081999,
+          1.8059940111559873
+        ],
+        "straight": [
+          0.1021031775572893,
+          5.325511529834736,
+          1.4411278471318485
+        ]
+      },
+      "range_vs_t2": 1.0550488078948228,
+      "score": -0.5614286772869785
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f0.5-a0.2-e0.06",
+      "fade": 0.5,
+      "hi": 0.2,
+      "eta": 0.06,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8495009603853764,
+              "limit": 1,
+              "margin": 0.15049903961462363
+            },
+            {
+              "check": "overall course",
+              "point": 1.1093776373448627,
+              "limit": 1,
+              "margin": -0.10937763734486272
+            },
+            {
+              "check": "settled range",
+              "point": 0.9025014679424623,
+              "limit": 1.1,
+              "margin": 0.17954412005230705
+            },
+            {
+              "check": "settled course",
+              "point": 0.75708503917493,
+              "limit": 1.1,
+              "margin": 0.3117408734773364
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8043009065731456,
+              "limit": 1.1,
+              "margin": 0.2688173576607768
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5673339332879709,
+              "limit": 1.1,
+              "margin": 0.4842418788291174
+            }
+          ],
+          "margin": -0.10937763734486272
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8131337503737875,
+              "limit": 1,
+              "margin": 0.18686624962621246
+            },
+            {
+              "check": "overall course",
+              "point": 0.9006710290662966,
+              "limit": 1,
+              "margin": 0.09932897093370341
+            },
+            {
+              "check": "settled range",
+              "point": 0.8869188482273282,
+              "limit": 1.1,
+              "margin": 0.1937101379751562
+            },
+            {
+              "check": "settled course",
+              "point": 1.0698360569076142,
+              "limit": 1.1,
+              "margin": 0.027421766447623546
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9489270569248399,
+              "limit": 1.1,
+              "margin": 0.1373390391592365
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.366502480416604,
+              "limit": 1.1,
+              "margin": -0.24227498219691257
+            }
+          ],
+          "margin": -0.24227498219691257
+        }
+      },
+      "medians": {
+        "all": [
+          0.12841939057553456,
+          31.73837277105351,
+          2.0239344425901735
+        ],
+        "settled": [
+          0.1210256437275533,
+          8.846542975270555,
+          1.6916607677550346
+        ],
+        "straight": [
+          0.09828599263129609,
+          4.236984908212349,
+          1.277989290702935
+        ]
+      },
+      "range_vs_t2": 1.0556530737897827,
+      "score": -0.24227498219691257
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f0.5-a0.2-e0.12",
+      "fade": 0.5,
+      "hi": 0.2,
+      "eta": 0.12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.859272293386441,
+              "limit": 1,
+              "margin": 0.14072770661355904
+            },
+            {
+              "check": "overall course",
+              "point": 1.152642328586759,
+              "limit": 1,
+              "margin": -0.15264232858675908
+            },
+            {
+              "check": "settled range",
+              "point": 0.9037863903429691,
+              "limit": 1.1,
+              "margin": 0.17837600877911902
+            },
+            {
+              "check": "settled course",
+              "point": 0.7120531591290096,
+              "limit": 1.1,
+              "margin": 0.352678946246355
+            },
+            {
+              "check": "settled speed",
+              "point": 0.781817152197332,
+              "limit": 1.1,
+              "margin": 0.2892571343660618
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.49012269803990444,
+              "limit": 1.1,
+              "margin": 0.5544339108728141
+            }
+          ],
+          "margin": -0.15264232858675908
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8224867717590753,
+              "limit": 1,
+              "margin": 0.17751322824092475
+            },
+            {
+              "check": "overall course",
+              "point": 0.9357963576030579,
+              "limit": 1,
+              "margin": 0.0642036423969421
+            },
+            {
+              "check": "settled range",
+              "point": 0.8881815851158532,
+              "limit": 1.1,
+              "margin": 0.19256219534922442
+            },
+            {
+              "check": "settled course",
+              "point": 1.006201555510034,
+              "limit": 1.1,
+              "margin": 0.08527131317269634
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9224003643722171,
+              "limit": 1.1,
+              "margin": 0.16145421420707545
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.1805285093709523,
+              "limit": 1.1,
+              "margin": -0.07320773579177475
+            }
+          ],
+          "margin": -0.07320773579177475
+        }
+      },
+      "medians": {
+        "all": [
+          0.12989652678564323,
+          32.97613965244322,
+          1.9708857937971407
+        ],
+        "settled": [
+          0.12119795210176106,
+          8.320345201612772,
+          1.6443713952346701
+        ],
+        "straight": [
+          0.0963132274825152,
+          3.660353017723194,
+          1.1671916969909009
+        ]
+      },
+      "range_vs_t2": 1.067795658905776,
+      "score": -0.15264232858675908
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f1-a0.07-e0.03",
+      "fade": 1,
+      "hi": 0.07,
+      "eta": 0.03,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8657342893343843,
+              "limit": 1,
+              "margin": 0.13426571066561566
+            },
+            {
+              "check": "overall course",
+              "point": 1.080661599781313,
+              "limit": 1,
+              "margin": -0.08066159978131293
+            },
+            {
+              "check": "settled range",
+              "point": 0.8923107295233341,
+              "limit": 1.1,
+              "margin": 0.18880842770605996
+            },
+            {
+              "check": "settled course",
+              "point": 0.7156526699976852,
+              "limit": 1.1,
+              "margin": 0.34940666363846806
+            },
+            {
+              "check": "settled speed",
+              "point": 0.7939291791924683,
+              "limit": 1.1,
+              "margin": 0.27824620073411976
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5305574456565479,
+              "limit": 1.1,
+              "margin": 0.5176750494031382
+            }
+          ],
+          "margin": -0.08066159978131293
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8286721290983626,
+              "limit": 1,
+              "margin": 0.17132787090163737
+            },
+            {
+              "check": "overall course",
+              "point": 0.877357323946938,
+              "limit": 1,
+              "margin": 0.122642676053062
+            },
+            {
+              "check": "settled range",
+              "point": 0.8769040634293767,
+              "limit": 1.1,
+              "margin": 0.20281448779147584
+            },
+            {
+              "check": "settled course",
+              "point": 1.0112880204581947,
+              "limit": 1.1,
+              "margin": 0.08064725412891402
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9366903272902728,
+              "limit": 1.1,
+              "margin": 0.1484633388270248
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.2779212082228233,
+              "limit": 1.1,
+              "margin": -0.16174655292983925
+            }
+          ],
+          "margin": -0.16174655292983925
+        }
+      },
+      "medians": {
+        "all": [
+          0.13087338922634018,
+          30.916830787495208,
+          2.024947077872686
+        ],
+        "settled": [
+          0.11965906348248634,
+          8.36240550652171,
+          1.6698462401816447
+        ],
+        "straight": [
+          0.09323343737891451,
+          3.962329341307797,
+          1.1636249962429763
+        ]
+      },
+      "range_vs_t2": 1.0758258156723661,
+      "score": -0.16174655292983925
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f1-a0.07-e0.06",
+      "fade": 1,
+      "hi": 0.07,
+      "eta": 0.06,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.870742951192722,
+              "limit": 1,
+              "margin": 0.12925704880727795
+            },
+            {
+              "check": "overall course",
+              "point": 1.1291845672874337,
+              "limit": 1,
+              "margin": -0.12918456728743366
+            },
+            {
+              "check": "settled range",
+              "point": 0.9043240860620965,
+              "limit": 1.1,
+              "margin": 0.17788719448900328
+            },
+            {
+              "check": "settled course",
+              "point": 0.716055408384908,
+              "limit": 1.1,
+              "margin": 0.34904053783190186
+            },
+            {
+              "check": "settled speed",
+              "point": 0.7942178335980066,
+              "limit": 1.1,
+              "margin": 0.2779837876381759
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.4978105313988454,
+              "limit": 1.1,
+              "margin": 0.5474449714555951
+            }
+          ],
+          "margin": -0.12918456728743366
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.833466369706845,
+              "limit": 1,
+              "margin": 0.16653363029315504
+            },
+            {
+              "check": "overall course",
+              "point": 0.9167516921096907,
+              "limit": 1,
+              "margin": 0.08324830789030935
+            },
+            {
+              "check": "settled range",
+              "point": 0.8887099969631963,
+              "limit": 1.1,
+              "margin": 0.1920818209425489
+            },
+            {
+              "check": "settled course",
+              "point": 1.0118571296412546,
+              "limit": 1.1,
+              "margin": 0.08012988214431405
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9370308863686939,
+              "limit": 1.1,
+              "margin": 0.14815373966482379
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.1990457224929287,
+              "limit": 1.1,
+              "margin": -0.0900415659026624
+            }
+          ],
+          "margin": -0.0900415659026624
+        }
+      },
+      "medians": {
+        "all": [
+          0.1316305505874702,
+          32.305032585354446,
+          2.019349545176034
+        ],
+        "settled": [
+          0.12127005721499184,
+          8.36711150685985,
+          1.6704533579025103
+        ],
+        "straight": [
+          0.09206656699840868,
+          3.7177675878863203,
+          1.1337028981285011
+        ]
+      },
+      "range_vs_t2": 1.082049951409575,
+      "score": -0.12918456728743366
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f1-a0.07-e0.12",
+      "fade": 1,
+      "hi": 0.07,
+      "eta": 0.12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8782533432181193,
+              "limit": 1,
+              "margin": 0.12174665678188068
+            },
+            {
+              "check": "overall course",
+              "point": 1.1658177425342622,
+              "limit": 1,
+              "margin": -0.16581774253426218
+            },
+            {
+              "check": "settled range",
+              "point": 0.9063787510895556,
+              "limit": 1.1,
+              "margin": 0.1760193171913132
+            },
+            {
+              "check": "settled course",
+              "point": 0.7046016221764473,
+              "limit": 1.1,
+              "margin": 0.3594530707486843
+            },
+            {
+              "check": "settled speed",
+              "point": 0.7899770376522128,
+              "limit": 1.1,
+              "margin": 0.2818390566798066
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.4589762725257358,
+              "limit": 1.1,
+              "margin": 0.582748843158422
+            }
+          ],
+          "margin": -0.16581774253426218
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8406552411963112,
+              "limit": 1,
+              "margin": 0.1593447588036888
+            },
+            {
+              "check": "overall course",
+              "point": 0.9464930881292595,
+              "limit": 1,
+              "margin": 0.053506911870740526
+            },
+            {
+              "check": "settled range",
+              "point": 0.8907291860774273,
+              "limit": 1.1,
+              "margin": 0.1902461944750661
+            },
+            {
+              "check": "settled course",
+              "point": 0.9956717966339131,
+              "limit": 1.1,
+              "margin": 0.09484382124189722
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9320275275722869,
+              "limit": 1.1,
+              "margin": 0.15270224766155743
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.105508022803972,
+              "limit": 1.1,
+              "margin": -0.005007293458156263
+            }
+          ],
+          "margin": -0.005007293458156263
+        }
+      },
+      "medians": {
+        "all": [
+          0.13276589947094566,
+          33.353077302168714,
+          2.01332795697206
+        ],
+        "settled": [
+          0.12154558824338967,
+          8.23327395007345,
+          1.6615338253408476
+        ],
+        "straight": [
+          0.09090687740796839,
+          3.427744095349239,
+          1.1199449617455897
+        ]
+      },
+      "range_vs_t2": 1.0913829231149632,
+      "score": -0.16581774253426218
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f1-a0.1-e0.03",
+      "fade": 1,
+      "hi": 0.1,
+      "eta": 0.03,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.87267286819118,
+              "limit": 1,
+              "margin": 0.12732713180882005
+            },
+            {
+              "check": "overall course",
+              "point": 1.0741967251861286,
+              "limit": 1,
+              "margin": -0.07419672518612863
+            },
+            {
+              "check": "settled range",
+              "point": 0.9014741703129894,
+              "limit": 1.1,
+              "margin": 0.18047802698819154
+            },
+            {
+              "check": "settled course",
+              "point": 0.7647131029677552,
+              "limit": 1.1,
+              "margin": 0.30480627002931354
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8150436980904079,
+              "limit": 1.1,
+              "margin": 0.2590511835541747
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5934831756623279,
+              "limit": 1.1,
+              "margin": 0.4604698403069747
+            }
+          ],
+          "margin": -0.07419672518612863
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8353136667907167,
+              "limit": 1,
+              "margin": 0.16468633320928328
+            },
+            {
+              "check": "overall course",
+              "point": 0.8721086826741924,
+              "limit": 1,
+              "margin": 0.1278913173258076
+            },
+            {
+              "check": "settled range",
+              "point": 0.8859092879521565,
+              "limit": 1.1,
+              "margin": 0.19462792004349413
+            },
+            {
+              "check": "settled course",
+              "point": 1.080615265672391,
+              "limit": 1.1,
+              "margin": 0.017622485752371825
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9616015739548736,
+              "limit": 1.1,
+              "margin": 0.12581675095011502
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.429486558168633,
+              "limit": 1.1,
+              "margin": -0.2995332346987571
+            }
+          ],
+          "margin": -0.2995332346987571
+        }
+      },
+      "medians": {
+        "all": [
+          0.1319222968907244,
+          30.73187609496043,
+          2.0767050221980776
+        ],
+        "settled": [
+          0.1208878828913408,
+          8.935676943939221,
+          1.7142557428413538
+        ],
+        "straight": [
+          0.0960769225222463,
+          4.432273676961354,
+          1.2324851223511004
+        ]
+      },
+      "range_vs_t2": 1.0844482098066661,
+      "score": -0.2995332346987571
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f1-a0.1-e0.06",
+      "fade": 1,
+      "hi": 0.1,
+      "eta": 0.06,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8778839448615334,
+              "limit": 1,
+              "margin": 0.12211605513846657
+            },
+            {
+              "check": "overall course",
+              "point": 1.123598976754957,
+              "limit": 1,
+              "margin": -0.12359897675495701
+            },
+            {
+              "check": "settled range",
+              "point": 0.9134138766127474,
+              "limit": 1.1,
+              "margin": 0.16962374853386605
+            },
+            {
+              "check": "settled course",
+              "point": 0.7458107024365381,
+              "limit": 1.1,
+              "margin": 0.3219902705122381
+            },
+            {
+              "check": "settled speed",
+              "point": 0.811704120861142,
+              "limit": 1.1,
+              "margin": 0.26208716285350736
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5356204774760933,
+              "limit": 1.1,
+              "margin": 0.5130722932035515
+            }
+          ],
+          "margin": -0.12359897675495701
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8403016568155045,
+              "limit": 1,
+              "margin": 0.1596983431844955
+            },
+            {
+              "check": "overall course",
+              "point": 0.9122169156697498,
+              "limit": 1,
+              "margin": 0.08778308433025017
+            },
+            {
+              "check": "settled range",
+              "point": 0.8976428428943952,
+              "limit": 1.1,
+              "margin": 0.18396105191418624
+            },
+            {
+              "check": "settled course",
+              "point": 1.0539043037539733,
+              "limit": 1.1,
+              "margin": 0.04190517840547893
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9576614873956746,
+              "limit": 1.1,
+              "margin": 0.12939864782211408
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.2901162227176202,
+              "limit": 1.1,
+              "margin": -0.17283292974329095
+            }
+          ],
+          "margin": -0.17283292974329095
+        }
+      },
+      "medians": {
+        "all": [
+          0.1327100573777115,
+          32.14523347953283,
+          2.060474123862083
+        ],
+        "settled": [
+          0.12248900011072937,
+          8.714802286559351,
+          1.707231715224989
+        ],
+        "straight": [
+          0.0941177359559282,
+          4.000141268552988,
+          1.1858316013673984
+        ]
+      },
+      "range_vs_t2": 1.090923881243597,
+      "score": -0.17283292974329095
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f1-a0.1-e0.12",
+      "fade": 1,
+      "hi": 0.1,
+      "eta": 0.12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8809184193092986,
+              "limit": 1,
+              "margin": 0.1190815806907014
+            },
+            {
+              "check": "overall course",
+              "point": 1.1653636566566434,
+              "limit": 1,
+              "margin": -0.16536365665664343
+            },
+            {
+              "check": "settled range",
+              "point": 0.9110112582903971,
+              "limit": 1.1,
+              "margin": 0.17180794700872998
+            },
+            {
+              "check": "settled course",
+              "point": 0.716974867721775,
+              "limit": 1.1,
+              "margin": 0.3482046657074773
+            },
+            {
+              "check": "settled speed",
+              "point": 0.7958510446314798,
+              "limit": 1.1,
+              "margin": 0.2764990503350184
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.469226717004324,
+              "limit": 1.1,
+              "margin": 0.5734302572687964
+            }
+          ],
+          "margin": -0.16536365665664343
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.843206225148194,
+              "limit": 1,
+              "margin": 0.156793774851806
+            },
+            {
+              "check": "overall course",
+              "point": 0.9461244291794917,
+              "limit": 1,
+              "margin": 0.05387557082050831
+            },
+            {
+              "check": "settled range",
+              "point": 0.8952817082581859,
+              "limit": 1.1,
+              "margin": 0.18610753794710383
+            },
+            {
+              "check": "settled course",
+              "point": 1.0131564166440894,
+              "limit": 1.1,
+              "margin": 0.07894871214173699
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9389577748337761,
+              "limit": 1.1,
+              "margin": 0.14640202287838547
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.1301976402999407,
+              "limit": 1.1,
+              "margin": -0.02745240027267332
+            }
+          ],
+          "margin": -0.02745240027267332
+        }
+      },
+      "medians": {
+        "all": [
+          0.13316878006016997,
+          33.34008628236735,
+          2.022149238421644
+        ],
+        "settled": [
+          0.12216680846958226,
+          8.37785539442428,
+          1.6738884392361404
+        ],
+        "straight": [
+          0.09145416216998022,
+          3.5042968555667415,
+          1.12708114393329
+        ]
+      },
+      "range_vs_t2": 1.0946947448770727,
+      "score": -0.16536365665664343
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f1-a0.2-e0.03",
+      "fade": 1,
+      "hi": 0.2,
+      "eta": 0.03,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8763684669101467,
+              "limit": 1,
+              "margin": 0.12363153308985331
+            },
+            {
+              "check": "overall course",
+              "point": 1.073257158955125,
+              "limit": 1,
+              "margin": -0.07325715895512497
+            },
+            {
+              "check": "settled range",
+              "point": 0.9122618529554735,
+              "limit": 1.1,
+              "margin": 0.17067104276775147
+            },
+            {
+              "check": "settled course",
+              "point": 0.8124045761368445,
+              "limit": 1.1,
+              "margin": 0.2614503853301415
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8432260633334207,
+              "limit": 1.1,
+              "margin": 0.2334308515150722
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.6680750967609765,
+              "limit": 1.1,
+              "margin": 0.39265900294456685
+            }
+          ],
+          "margin": -0.07325715895512497
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.838851056607047,
+              "limit": 1,
+              "margin": 0.16114894339295305
+            },
+            {
+              "check": "overall course",
+              "point": 0.8713458765244494,
+              "limit": 1,
+              "margin": 0.1286541234755506
+            },
+            {
+              "check": "settled range",
+              "point": 0.8965107101150774,
+              "limit": 1.1,
+              "margin": 0.18499026353174786
+            },
+            {
+              "check": "settled course",
+              "point": 1.1480080352599895,
+              "limit": 1.1,
+              "margin": -0.0436436684181722
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9948515786343113,
+              "limit": 1.1,
+              "margin": 0.095589473968808
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.6091515477270923,
+              "limit": 1.1,
+              "margin": -0.4628650433882657
+            }
+          ],
+          "margin": -0.4628650433882657
+        }
+      },
+      "medians": {
+        "all": [
+          0.13248096198638967,
+          30.704995885481846,
+          2.1031642320604096
+        ],
+        "settled": [
+          0.12233451348698036,
+          9.492952078320561,
+          1.7735308241380727
+        ],
+        "straight": [
+          0.099121783704157,
+          4.989343905667594,
+          1.343729480553909
+        ]
+      },
+      "range_vs_t2": 1.0890406356297058,
+      "score": -0.4628650433882657
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f1-a0.2-e0.06",
+      "fade": 1,
+      "hi": 0.2,
+      "eta": 0.06,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8775508897168208,
+              "limit": 1,
+              "margin": 0.12244911028317917
+            },
+            {
+              "check": "overall course",
+              "point": 1.1226664533911401,
+              "limit": 1,
+              "margin": -0.12266645339114013
+            },
+            {
+              "check": "settled range",
+              "point": 0.9210243482250465,
+              "limit": 1.1,
+              "margin": 0.1627051379772305
+            },
+            {
+              "check": "settled course",
+              "point": 0.7582289564808732,
+              "limit": 1.1,
+              "margin": 0.3107009486537517
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8123036847065387,
+              "limit": 1.1,
+              "margin": 0.2615421048122376
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5421175472098451,
+              "limit": 1.1,
+              "margin": 0.5071658661728682
+            }
+          ],
+          "margin": -0.12266645339114013
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8399828597905092,
+              "limit": 1,
+              "margin": 0.16001714020949076
+            },
+            {
+              "check": "overall course",
+              "point": 0.911459827416441,
+              "limit": 1,
+              "margin": 0.08854017258355895
+            },
+            {
+              "check": "settled range",
+              "point": 0.9051219118561729,
+              "limit": 1.1,
+              "margin": 0.1771618983125702
+            },
+            {
+              "check": "settled course",
+              "point": 1.0714525252258265,
+              "limit": 1.1,
+              "margin": 0.0259522497947033
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9583688623974943,
+              "limit": 1.1,
+              "margin": 0.12875557963864162
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.3057653164623884,
+              "limit": 1.1,
+              "margin": -0.18705937860217114
+            }
+          ],
+          "margin": -0.18705937860217114
+        }
+      },
+      "medians": {
+        "all": [
+          0.13265970930195106,
+          32.11855476063475,
+          2.0652522793598873
+        ],
+        "settled": [
+          0.12350956601412744,
+          8.85990965547627,
+          1.70849275897955
+        ],
+        "straight": [
+          0.09462561415693724,
+          4.048662932416758,
+          1.199231755398777
+        ]
+      },
+      "range_vs_t2": 1.0905100021502787,
+      "score": -0.18705937860217114
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f1-a0.2-e0.12",
+      "fade": 1,
+      "hi": 0.2,
+      "eta": 0.12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8806611513138596,
+              "limit": 1,
+              "margin": 0.11933884868614042
+            },
+            {
+              "check": "overall course",
+              "point": 1.1653636566566434,
+              "limit": 1,
+              "margin": -0.16536365665664343
+            },
+            {
+              "check": "settled range",
+              "point": 0.910516289658839,
+              "limit": 1.1,
+              "margin": 0.1722579184919646
+            },
+            {
+              "check": "settled course",
+              "point": 0.716303831918391,
+              "limit": 1.1,
+              "margin": 0.34881469825600825
+            },
+            {
+              "check": "settled speed",
+              "point": 0.7955963236446078,
+              "limit": 1.1,
+              "margin": 0.27673061486853845
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.4690547787850187,
+              "limit": 1.1,
+              "margin": 0.5735865647408921
+            }
+          ],
+          "margin": -0.16536365665664343
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8429599708180193,
+              "limit": 1,
+              "margin": 0.15704002918198068
+            },
+            {
+              "check": "overall course",
+              "point": 0.9461244291794917,
+              "limit": 1,
+              "margin": 0.05387557082050831
+            },
+            {
+              "check": "settled range",
+              "point": 0.8947952857711277,
+              "limit": 1.1,
+              "margin": 0.18654974020806583
+            },
+            {
+              "check": "settled course",
+              "point": 1.0122081766699929,
+              "limit": 1.1,
+              "margin": 0.07981074848182475
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9386572509447265,
+              "limit": 1.1,
+              "margin": 0.14667522641388506
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.1297835032470107,
+              "limit": 1.1,
+              "margin": -0.02707591204273693
+            }
+          ],
+          "margin": -0.02707591204273693
+        }
+      },
+      "medians": {
+        "all": [
+          0.1331298887572409,
+          33.34008628236735,
+          2.019937198053941
+        ],
+        "settled": [
+          0.12210043306811523,
+          8.370014337257107,
+          1.6733526926061246
+        ],
+        "straight": [
+          0.09145416216998022,
+          3.5030127800027797,
+          1.1263651157815822
+        ]
+      },
+      "range_vs_t2": 1.0943750445320022,
+      "score": -0.16536365665664343
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f2-a0.07-e0.03",
+      "fade": 2,
+      "hi": 0.07,
+      "eta": 0.03,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.9078958315551593,
+              "limit": 1,
+              "margin": 0.0921041684448407
+            },
+            {
+              "check": "overall course",
+              "point": 1.0953094504534293,
+              "limit": 1,
+              "margin": -0.09530945045342931
+            },
+            {
+              "check": "settled range",
+              "point": 0.9139680527794662,
+              "limit": 1.1,
+              "margin": 0.1691199520186671
+            },
+            {
+              "check": "settled course",
+              "point": 0.722862213202337,
+              "limit": 1.1,
+              "margin": 0.34285253345242095
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8105860808201487,
+              "limit": 1.1,
+              "margin": 0.26310356289077397
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5168316541920001,
+              "limit": 1.1,
+              "margin": 0.5301530416436363
+            }
+          ],
+          "margin": -0.09530945045342931
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8690287320290633,
+              "limit": 1,
+              "margin": 0.13097126797093672
+            },
+            {
+              "check": "overall course",
+              "point": 0.889249482481916,
+              "limit": 1,
+              "margin": 0.11075051751808396
+            },
+            {
+              "check": "settled range",
+              "point": 0.8981874506373853,
+              "limit": 1.1,
+              "margin": 0.18346595396601348
+            },
+            {
+              "check": "settled course",
+              "point": 1.0214758182286743,
+              "limit": 1.1,
+              "margin": 0.07138561979211436
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9563424058965075,
+              "limit": 1.1,
+              "margin": 0.13059781282135685
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.2448607354016687,
+              "limit": 1.1,
+              "margin": -0.13169157763788059
+            }
+          ],
+          "margin": -0.13169157763788059
+        }
+      },
+      "medians": {
+        "all": [
+          0.13724696596162764,
+          31.335893628926755,
+          2.0882930920396974
+        ],
+        "settled": [
+          0.1225633152555773,
+          8.446649059744647,
+          1.7048801768160793
+        ],
+        "straight": [
+          0.08971348732394895,
+          3.8598218622442455,
+          1.1295851569453788
+        ]
+      },
+      "range_vs_t2": 1.128218883740103,
+      "score": -0.13169157763788059
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f2-a0.07-e0.06",
+      "fade": 2,
+      "hi": 0.07,
+      "eta": 0.06,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.9199486675132015,
+              "limit": 1,
+              "margin": 0.08005133248679852
+            },
+            {
+              "check": "overall course",
+              "point": 1.1414613670776126,
+              "limit": 1,
+              "margin": -0.1414613670776126
+            },
+            {
+              "check": "settled range",
+              "point": 0.9359234165541797,
+              "limit": 1.1,
+              "margin": 0.1491605304052913
+            },
+            {
+              "check": "settled course",
+              "point": 0.7289903833788874,
+              "limit": 1.1,
+              "margin": 0.33728146965555694
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8097042526285729,
+              "limit": 1.1,
+              "margin": 0.2639052248831156
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.48681746014325744,
+              "limit": 1.1,
+              "margin": 0.5574386725970387
+            }
+          ],
+          "margin": -0.1414613670776126
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.880565585031274,
+              "limit": 1,
+              "margin": 0.11943441496872598
+            },
+            {
+              "check": "overall course",
+              "point": 0.9267188642686008,
+              "limit": 1,
+              "margin": 0.07328113573139916
+            },
+            {
+              "check": "settled range",
+              "point": 0.9197637323866823,
+              "limit": 1.1,
+              "margin": 0.16385115237574344
+            },
+            {
+              "check": "settled course",
+              "point": 1.030135528932883,
+              "limit": 1.1,
+              "margin": 0.06351315551556092
+            },
+            {
+              "check": "settled speed",
+              "point": 0.955302010910369,
+              "limit": 1.1,
+              "margin": 0.13154362644511913
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.1725673853853675,
+              "limit": 1.1,
+              "margin": -0.06597035035033404
+            }
+          ],
+          "margin": -0.06597035035033404
+        }
+      },
+      "medians": {
+        "all": [
+          0.1390689978610813,
+          32.65626163041511,
+          2.0944986693544982
+        ],
+        "settled": [
+          0.12550753432722617,
+          8.518256763003063,
+          1.7030254553512671
+        ],
+        "straight": [
+          0.08877986735833768,
+          3.635668714062767,
+          1.105703184980553
+        ]
+      },
+      "range_vs_t2": 1.143196634113945,
+      "score": -0.1414613670776126
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f2-a0.07-e0.12",
+      "fade": 2,
+      "hi": 0.07,
+      "eta": 0.12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.9224065500331302,
+              "limit": 1,
+              "margin": 0.07759344996686979
+            },
+            {
+              "check": "overall course",
+              "point": 1.1789110294881266,
+              "limit": 1,
+              "margin": -0.17891102948812665
+            },
+            {
+              "check": "settled range",
+              "point": 0.9351745692797905,
+              "limit": 1.1,
+              "margin": 0.149841300654736
+            },
+            {
+              "check": "settled course",
+              "point": 0.7111138259094638,
+              "limit": 1.1,
+              "margin": 0.35353288553685114
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8077484537708952,
+              "limit": 1.1,
+              "margin": 0.26568322384464077
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.4602786130804744,
+              "limit": 1.1,
+              "margin": 0.5815648971995688
+            }
+          ],
+          "margin": -0.17891102948812665
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.882918245386715,
+              "limit": 1,
+              "margin": 0.11708175461328496
+            },
+            {
+              "check": "overall course",
+              "point": 0.9571231421682264,
+              "limit": 1,
+              "margin": 0.04287685783177364
+            },
+            {
+              "check": "settled range",
+              "point": 0.9190278147337021,
+              "limit": 1.1,
+              "margin": 0.16452016842390726
+            },
+            {
+              "check": "settled course",
+              "point": 1.0048741847449,
+              "limit": 1.1,
+              "margin": 0.08647801386827272
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9529945281774942,
+              "limit": 1.1,
+              "margin": 0.13364133802045988
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.1086448906942523,
+              "limit": 1.1,
+              "margin": -0.007858991540229296
+            }
+          ],
+          "margin": -0.007858991540229296
+        }
+      },
+      "medians": {
+        "all": [
+          0.1394405569175564,
+          33.72766536681972,
+          2.0986446809047754
+        ],
+        "settled": [
+          0.12540711374437305,
+          8.309369087616561,
+          1.6989118852059217
+        ],
+        "straight": [
+          0.08763430932439996,
+          3.4374702847273375,
+          1.0967716027542014
+        ]
+      },
+      "range_vs_t2": 1.1462509817346938,
+      "score": -0.17891102948812665
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f2-a0.1-e0.03",
+      "fade": 2,
+      "hi": 0.1,
+      "eta": 0.03,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.9194550740349763,
+              "limit": 1,
+              "margin": 0.08054492596502372
+            },
+            {
+              "check": "overall course",
+              "point": 1.0916539636420934,
+              "limit": 1,
+              "margin": -0.09165396364209344
+            },
+            {
+              "check": "settled range",
+              "point": 0.9419568929621596,
+              "limit": 1.1,
+              "margin": 0.1436755518525823
+            },
+            {
+              "check": "settled course",
+              "point": 0.783253097403068,
+              "limit": 1.1,
+              "margin": 0.28795172963357457
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8387340719507463,
+              "limit": 1.1,
+              "margin": 0.23751448004477613
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5811841055920162,
+              "limit": 1.1,
+              "margin": 0.47165081309816714
+            }
+          ],
+          "margin": -0.09165396364209344
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8800931223327889,
+              "limit": 1,
+              "margin": 0.11990687766721109
+            },
+            {
+              "check": "overall course",
+              "point": 0.8862817004054863,
+              "limit": 1,
+              "margin": 0.11371829959451374
+            },
+            {
+              "check": "settled range",
+              "point": 0.9256930345946578,
+              "limit": 1.1,
+              "margin": 0.15846087764122024
+            },
+            {
+              "check": "settled course",
+              "point": 1.1068141119253565,
+              "limit": 1.1,
+              "margin": -0.006194647204869467
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9895518554490493,
+              "limit": 1.1,
+              "margin": 0.10040740413722796
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.3998625417441337,
+              "limit": 1.1,
+              "margin": -0.2726023106764851
+            }
+          ],
+          "margin": -0.2726023106764851
+        }
+      },
+      "medians": {
+        "all": [
+          0.13899438114300602,
+          31.231313187450105,
+          2.1514592881336583
+        ],
+        "settled": [
+          0.1263166248297109,
+          9.152316884033686,
+          1.7640829601246646
+        ],
+        "straight": [
+          0.091419216402333,
+          4.340421293003023,
+          1.2142076348125548
+        ]
+      },
+      "range_vs_t2": 1.1425832581475956,
+      "score": -0.2726023106764851
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f2-a0.1-e0.06",
+      "fade": 2,
+      "hi": 0.1,
+      "eta": 0.06,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.9314770225385715,
+              "limit": 1,
+              "margin": 0.06852297746142855
+            },
+            {
+              "check": "overall course",
+              "point": 1.1422346420731335,
+              "limit": 1,
+              "margin": -0.14223464207313352
+            },
+            {
+              "check": "settled range",
+              "point": 0.9565638026024361,
+              "limit": 1.1,
+              "margin": 0.1303965430886945
+            },
+            {
+              "check": "settled course",
+              "point": 0.7609358962068941,
+              "limit": 1.1,
+              "margin": 0.3082400943573691
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8264393773966854,
+              "limit": 1.1,
+              "margin": 0.24869147509392245
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5268241913416303,
+              "limit": 1.1,
+              "margin": 0.5210689169621543
+            }
+          ],
+          "margin": -0.14223464207313352
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8916004101751643,
+              "limit": 1,
+              "margin": 0.10839958982483566
+            },
+            {
+              "check": "overall course",
+              "point": 0.9273466634620603,
+              "limit": 1,
+              "margin": 0.0726533365379397
+            },
+            {
+              "check": "settled range",
+              "point": 0.9400477408577402,
+              "limit": 1.1,
+              "margin": 0.14541114467478167
+            },
+            {
+              "check": "settled course",
+              "point": 1.0752776988495567,
+              "limit": 1.1,
+              "margin": 0.0224748192276758
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9750463784271682,
+              "limit": 1.1,
+              "margin": 0.11359420142984714
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.268929147318242,
+              "limit": 1.1,
+              "margin": -0.15357195210749267
+            }
+          ],
+          "margin": -0.15357195210749267
+        }
+      },
+      "medians": {
+        "all": [
+          0.14081174377395794,
+          32.67838438576568,
+          2.130521605390709
+        ],
+        "settled": [
+          0.12827541459890093,
+          8.891540261522598,
+          1.7382239162535698
+        ],
+        "straight": [
+          0.09049732675591077,
+          3.934448509115805,
+          1.152062879525302
+        ]
+      },
+      "range_vs_t2": 1.1575226254733317,
+      "score": -0.15357195210749267
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f2-a0.1-e0.12",
+      "fade": 2,
+      "hi": 0.1,
+      "eta": 0.12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.9272610937804293,
+              "limit": 1,
+              "margin": 0.07273890621957069
+            },
+            {
+              "check": "overall course",
+              "point": 1.1784345019320137,
+              "limit": 1,
+              "margin": -0.1784345019320137
+            },
+            {
+              "check": "settled range",
+              "point": 0.9422964289511955,
+              "limit": 1.1,
+              "margin": 0.14336688277164056
+            },
+            {
+              "check": "settled course",
+              "point": 0.7177417657827856,
+              "limit": 1.1,
+              "margin": 0.34750748565201317
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8141709041206848,
+              "limit": 1.1,
+              "margin": 0.2598446326175593
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.46125313924434985,
+              "limit": 1.1,
+              "margin": 0.5806789643233183
+            }
+          ],
+          "margin": -0.1784345019320137
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.887564965693899,
+              "limit": 1,
+              "margin": 0.11243503430610102
+            },
+            {
+              "check": "overall course",
+              "point": 0.9567362634806679,
+              "limit": 1,
+              "margin": 0.04326373651933213
+            },
+            {
+              "check": "settled range",
+              "point": 0.9260267081442576,
+              "limit": 1.1,
+              "margin": 0.158157538050675
+            },
+            {
+              "check": "settled course",
+              "point": 1.0142401194716288,
+              "limit": 1.1,
+              "margin": 0.07796352775306477
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9605718376879834,
+              "limit": 1.1,
+              "margin": 0.1267528748291061
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.1109921721488425,
+              "limit": 1.1,
+              "margin": -0.009992883771674912
+            }
+          ],
+          "margin": -0.009992883771674912
+        }
+      },
+      "medians": {
+        "all": [
+          0.1401744201839,
+          33.71403230923638,
+          2.1017507137026694
+        ],
+        "settled": [
+          0.1263621566799088,
+          8.386816602615339,
+          1.7124200227708588
+        ],
+        "straight": [
+          0.08888441944200115,
+          3.444748278174809,
+          1.1039244690930097
+        ]
+      },
+      "range_vs_t2": 1.1522835988448128,
+      "score": -0.1784345019320137
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f2-a0.2-e0.03",
+      "fade": 2,
+      "hi": 0.2,
+      "eta": 0.03,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.939806522018246,
+              "limit": 1,
+              "margin": 0.06019347798175401
+            },
+            {
+              "check": "overall course",
+              "point": 1.0914314567872352,
+              "limit": 1,
+              "margin": -0.09143145678723519
+            },
+            {
+              "check": "settled range",
+              "point": 0.9624267552573129,
+              "limit": 1.1,
+              "margin": 0.1250665861297156
+            },
+            {
+              "check": "settled course",
+              "point": 0.826912510492241,
+              "limit": 1.1,
+              "margin": 0.24826135409796277
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8579610995220895,
+              "limit": 1.1,
+              "margin": 0.22003536407082774
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.6384029500208521,
+              "limit": 1.1,
+              "margin": 0.4196336817992254
+            }
+          ],
+          "margin": -0.09143145678723519
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8995733230575367,
+              "limit": 1,
+              "margin": 0.10042667694246332
+            },
+            {
+              "check": "overall course",
+              "point": 0.8861010536435602,
+              "limit": 1,
+              "margin": 0.11389894635643982
+            },
+            {
+              "check": "settled range",
+              "point": 0.9458094635812828,
+              "limit": 1.1,
+              "margin": 0.1401732149261066
+            },
+            {
+              "check": "settled course",
+              "point": 1.1685091817382858,
+              "limit": 1.1,
+              "margin": -0.062281074307532436
+            },
+            {
+              "check": "settled speed",
+              "point": 1.0122362096970428,
+              "limit": 1.1,
+              "margin": 0.07978526391177938
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.5376820661033228,
+              "limit": 1.1,
+              "margin": -0.397892787366657
+            }
+          ],
+          "margin": -0.397892787366657
+        }
+      },
+      "medians": {
+        "all": [
+          0.14207091744986972,
+          31.22494745114366,
+          2.1829951144191666
+        ],
+        "settled": [
+          0.12906163782889557,
+          9.662477373520279,
+          1.8045225617180116
+        ],
+        "straight": [
+          0.09476590291499173,
+          4.767745248235701,
+          1.2664707381575977
+        ]
+      },
+      "range_vs_t2": 1.1678734810213465,
+      "score": -0.397892787366657
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f2-a0.2-e0.06",
+      "fade": 2,
+      "hi": 0.2,
+      "eta": 0.06,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.9333513096871885,
+              "limit": 1,
+              "margin": 0.06664869031281151
+            },
+            {
+              "check": "overall course",
+              "point": 1.1439077408272622,
+              "limit": 1,
+              "margin": -0.1439077408272622
+            },
+            {
+              "check": "settled range",
+              "point": 0.9597636402229266,
+              "limit": 1.1,
+              "margin": 0.12748759979733953
+            },
+            {
+              "check": "settled course",
+              "point": 0.7722803760606223,
+              "limit": 1.1,
+              "margin": 0.2979269308539798
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8327143055140261,
+              "limit": 1.1,
+              "margin": 0.24298699498724902
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.5384647746146023,
+              "limit": 1.1,
+              "margin": 0.5104865685321798
+            }
+          ],
+          "margin": -0.1439077408272622
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8933944589279063,
+              "limit": 1,
+              "margin": 0.10660554107209375
+            },
+            {
+              "check": "overall course",
+              "point": 0.9287050030624666,
+              "limit": 1,
+              "margin": 0.07129499693753338
+            },
+            {
+              "check": "settled range",
+              "point": 0.9431923299777446,
+              "limit": 1.1,
+              "margin": 0.14255242729295953
+            },
+            {
+              "check": "settled course",
+              "point": 1.0913085711642534,
+              "limit": 1.1,
+              "margin": 0.007901298941587904
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9824496388513956,
+              "limit": 1.1,
+              "margin": 0.10686396468054954
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.2969671069442852,
+              "limit": 1.1,
+              "margin": -0.17906100631298644
+            }
+          ],
+          "margin": -0.17906100631298644
+        }
+      },
+      "medians": {
+        "all": [
+          0.14109508049117575,
+          32.72625035146913,
+          2.131439697150278
+        ],
+        "settled": [
+          0.1287045135218383,
+          9.024100572934206,
+          1.7514217749527667
+        ],
+        "straight": [
+          0.090552974047441,
+          4.021383156871727,
+          1.1735261130281451
+        ]
+      },
+      "range_vs_t2": 1.1598517540816204,
+      "score": -0.17906100631298644
+    },
+    {
+      "estimator": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f2-a0.2-e0.12",
+      "fade": 2,
+      "hi": 0.2,
+      "eta": 0.12,
+      "vs": {
+        "imm": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.9263928336477568,
+              "limit": 1,
+              "margin": 0.07360716635224318
+            },
+            {
+              "check": "overall course",
+              "point": 1.1784345019320137,
+              "limit": 1,
+              "margin": -0.1784345019320137
+            },
+            {
+              "check": "settled range",
+              "point": 0.942015289088802,
+              "limit": 1.1,
+              "margin": 0.14362246446472549
+            },
+            {
+              "check": "settled course",
+              "point": 0.7172490103975478,
+              "limit": 1.1,
+              "margin": 0.34795544509313836
+            },
+            {
+              "check": "settled speed",
+              "point": 0.8134735062630294,
+              "limit": 1.1,
+              "margin": 0.26047863066997334
+            },
+            {
+              "check": "straight-leg course",
+              "point": 0.46074504122859006,
+              "limit": 1.1,
+              "margin": 0.5811408716103728
+            }
+          ],
+          "margin": -0.1784345019320137
+        },
+        "ekf": {
+          "points": [
+            {
+              "check": "overall range",
+              "point": 0.8867338758530356,
+              "limit": 1,
+              "margin": 0.11326612414696435
+            },
+            {
+              "check": "overall course",
+              "point": 0.9567362634806679,
+              "limit": 1,
+              "margin": 0.04326373651933213
+            },
+            {
+              "check": "settled range",
+              "point": 0.9257504224518773,
+              "limit": 1.1,
+              "margin": 0.15840870686192976
+            },
+            {
+              "check": "settled course",
+              "point": 1.0135438073652143,
+              "limit": 1.1,
+              "margin": 0.07859653875889615
+            },
+            {
+              "check": "settled speed",
+              "point": 0.9597490365557675,
+              "limit": 1.1,
+              "margin": 0.12750087585839326
+            },
+            {
+              "check": "straight-leg course",
+              "point": 1.1097683475931588,
+              "limit": 1.1,
+              "margin": -0.008880315993780636
+            }
+          ],
+          "margin": -0.008880315993780636
+        }
+      },
+      "medians": {
+        "all": [
+          0.14004316496195388,
+          33.71403230923638,
+          2.0993537573268553
+        ],
+        "settled": [
+          0.1263244557630325,
+          8.381058753145016,
+          1.7109532078193022
+        ],
+        "straight": [
+          0.08888441944200115,
+          3.4409536812040438,
+          1.1034920715101335
+        ]
+      },
+      "range_vs_t2": 1.1512046342283526,
+      "score": -0.1784345019320137
+    }
+  ],
+  "best_score": -0.12918456728743366,
+  "chosen": "fused-lstm-gaussian-ekf-sa0.03-p16-r64-g1-k4-m3-f0.5-a0.07-e0.06",
+  "reference": "ekf-sa0.03-p16-r64-g1",
+  "carried": false
+}

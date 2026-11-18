@@ -131,6 +131,23 @@ fusion weights, and **passed G5 on fresh seed 233** against the re-tuned EKF
   rows after a manoeuvre, where it is much better, make up 45% of settled rows.
 - **Against the re-tuned IMM** (not gated) course is level (0.99 ×); range is 0.81 ×.
 
+## A fading weight and adaptive process noise (spec 029)
+
+Annex G tried to remove the EKF fusion's straight-leg cost: T2's weight fades as the filter's range
+firms up, and σa rises with the recent bearing NIS. The gate would have added straight-leg course
+(within 1.1 × the reference's) to G5. It **stopped at validation** (best score −0.129,
+`experiments/20261118-p16-val/validation.md`):
+
+- Adaptation that fires often recovers overall course (29.8°, still 1.04 × the IMM's) but spends
+  straight-leg course (5.4°, EKF 3.1°); firing rarely does the reverse. Under correlated bearing
+  error the NIS does not separate manoeuvres from noise well enough.
+- The fade moves straight-leg course and range toward the EKF's (3.6°, 8.9%) but gives up the
+  network's range overall (13.9% against 12.5%).
+- Even near the reference's σa, fusing T2 costs straight-leg course (1.2 ×).
+
+So straight legs remain the classical trackers' (and least squares'); the fused tracker's value is
+after manoeuvres and overall, as phase 15 found.
+
 ## Conditions on the "go"
 
 The fused tracker is the candidate. Before it is used outside this project, each of the following

@@ -83,3 +83,12 @@ G5's rules (Annex C §C.5) plus the straight-leg check, on the same rows and boo
   still beats it overall.
 - **Stop or fail:** the straight-leg cost of fusing T2 under this error model is recorded as not
   removed by a fade and adaptive σa; the owner decides.
+
+## G.6 Outcome (2026-11-18)
+
+**Stopped at validation** (`experiments/20261118-p16-val/validation.md`). The best score is −0.129;
+22 variants bind on straight-leg course against the EKF, 14 on overall course against the IMM.
+Against either reference alone nothing passes (best margins −0.005 and −0.041). Adaptation that
+fires often recovers overall course and spends straight-leg course; the fade moves straight-leg
+course toward the EKF's (4.0° → 3.6°, EKF 3.1°) but gives up overall range (12.5% → 13.9%). Seeds
+236–237 were not generated and stay reserved; decision 44 was not committed.

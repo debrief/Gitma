@@ -249,7 +249,10 @@ re-tuned IMM beats both on range (0.79 × the EKF) but **stopped at validation**
 the EKF (`fused-lstm-gaussian-ekf-sa0.07-p16-r64-g1-k4-m3`) **passed G5** on seed 233 against the
 re-tuned EKF: range 0.78 ×, course 0.82 ×, settled course 1.043 [1.013, 1.078]. Not shown better
 than the re-tuned IMM on course (0.99 ×); half the course gain is σa (a plain σa-0.07 EKF fails);
-on straight legs the EKF is still better (course 1.57 ×). Seed 234 never generated, stays reserved. `tma-solve --workers n` streams per-timestep least squares in parallel.
+on straight legs the EKF is still better (course 1.57 ×). Seed 234 never generated, stays reserved. **Annex G** (spec 029,
+`experiments/20261118-p16-val/validation.md`): a range fade and NIS-adaptive σa for the EKF fusion,
+gated with straight-leg course; **stopped at validation** (best −0.129): adaptation trades overall
+course for straight-leg course, the fade trades overall range for it. Seeds 236–237 never generated. `tma-solve --workers n` streams per-timestep least squares in parallel.
 
 ### Operational rules from the gates
 

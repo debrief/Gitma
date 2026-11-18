@@ -23,7 +23,12 @@ gain, and gate that.
 
 - [x] T001 FR-001–FR-004 with tests; Annex G, the grid, the probe, `spec029-rows.mjs`,
       `spec029-fuse-grid.mjs`, `run.sh`, committed before any scoring
-- [ ] T002 Validation (`experiments/20261118-p16-val/`): grid, select; `validation.md`
-- [ ] T003 If carried: decision 44 (seed 236), plan, data from a clean tree
-- [ ] T004 If carried: G5 + straight-leg on seed 236, panel review, write-ups
-- [ ] T005 Algorithm note, go/no-go report, blog post, AGENTS.md
+- [x] T002 Validation (`experiments/20261118-p16-val/`): grid, select; `validation.md`
+- [x] T003 (not carried: skipped) If carried: decision 44 (seed 236), plan, data from a clean tree
+- [x] T004 (not carried: skipped) If carried: G5 + straight-leg on seed 236, panel review, write-ups
+- [x] T005 Algorithm note, go/no-go report, blog post, AGENTS.md
+
+## Outcome
+
+Stopped at validation: best score −0.129, binding on straight-leg course against the EKF or overall
+course against the IMM. See `experiments/20261118-p16-val/validation.md` and Annex G §G.6.
