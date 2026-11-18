@@ -92,7 +92,8 @@ node packages/eval/dist/cli-g5.js --truth <test.f32pack> --tracker <pred> --refe
 node packages/eval/dist/cli-detect.js --truth <split> --out <scores.ndjson> --detector cusum <IMM flags> \
   --kind nis|mean --c <drift> --clip <bound>   # or --detector disagree|crate --network <t2> (spec 017)
 node packages/eval/dist/cli-g6.js --truth <split> --learned <scores>... --cusum <scores>... --experiment <dir> \
-  [--also <pred>... --decision --plan --model]   # G6: validation calibrates; a test split is the gate
+  [--also <pred>... --decision --plan --model] [--rules h]   # G6: validation calibrates; a test split is the gate
+  # Annex H: --detector model --network <det.ndjson> (manoeuvre_detector network, spec 030); --rules h
 node packages/eval/dist/cli-g7.js --truth <split> --tracker <fused -sd> --reference <imm -sd> --experiment <dir> \
   [--also <t2> --decision --plan --model]   # G7 (spec 018): validation fits + two-fold; test is the gate
 ```
@@ -257,7 +258,7 @@ course for straight-leg course, the fade trades overall range for it. Seeds 236�
 ### Operational rules from the gates
 
 - **Seeds.** 201–228 are reserved (used or deliberately never generated); 900 is the viewer's
-  phase-3 preview. 229–230 are reserved for Annex D's G9 (decision 41); 231–232 are reserved for Annex E (never generated); 233–234 for Annex F (decision 43); 235 is Annex G's design probe and 236–237 its gate (decision 44); the next free seed is 238. Validation splits reused across phases: seed 211
+  phase-3 preview. 229–230 are reserved for Annex D's G9 (decision 41); 231–232 are reserved for Annex E (never generated); 233–234 for Annex F (decision 43); 235 is Annex G's design probe and 236–237 its gate (decision 44, never committed); 238 is Annex H's detector training data and 239–240 its G6 test (decision 45); the next free seed is 241. Validation splits reused across phases: seed 211
   (phases 4–6), seed 217 (phases 7–11).
 - **Frozen references** (decision 32, from phase 5): IMM `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1`,
   EKF `ekf-sa0.03-p4-r8-g1`. Frozen T2: `experiments/20261101-p4b-models/` (normalisation from seed

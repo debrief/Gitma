@@ -92,6 +92,11 @@ const better = (a: Summary, b: Summary): boolean =>
   (a.median_delay_s ?? Infinity) < (b.median_delay_s ?? Infinity) ||
   ((a.median_delay_s ?? Infinity) === (b.median_delay_s ?? Infinity) &&
     a.detected_within_5min > b.detected_within_5min);
+/** Annex H's selection (rules h): more detected within 5 min; ties: fewer false alarms; then first. */
+const betterH = (a: Summary, b: Summary): boolean =>
+  a.detected_within_5min > b.detected_within_5min ||
+  (a.detected_within_5min === b.detected_within_5min &&
+    a.false_alarms_per_hour < b.false_alarms_per_hour);
 
 /** A detection set's scores equal `d`'s at every row (the re-computed sample). */
 function sameScores(set: DetectionSet, d: Detection): boolean {
@@ -301,7 +306,7 @@ export function main(argv: string[]): unknown {
     const ls = learned.map(cal);
     const cs = cusum.map(cal);
     const pick = (xs: Summary[]): number =>
-      xs.reduce((bi, x, i, a) => (better(x, a[bi] ?? x) ? i : bi), 0);
+      xs.reduce((bi, x, i, a) => ((rules === "h" ? betterH : better)(x, a[bi] ?? x) ? i : bi), 0);
     const li = pick(ls);
     const ci = pick(cs);
     const bl = ls[li];

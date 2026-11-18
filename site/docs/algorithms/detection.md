@@ -45,3 +45,17 @@ was not carried to a test split. From about 1 false alarm per hour it catches mo
 observation only.
 
 The record is `experiments/20261105-p5-research/validation.md`.
+
+## A trained detector (spec 030, Annex H)
+
+`manoeuvre_detector` networks have T2's architecture with one output logit per row, trained by
+masked binary cross-entropy. The label comes from the stored truth: 1 where the target's course
+changed within the last 30 rows (5 min at dt 10 s), 0 on quiet rows where neither course nor speed
+changed in that span, and no loss elsewhere (a speed change alone) or in a window's first 30 rows.
+Prediction rows carry σ(logit) as `p_manoeuvre`; the detector `pman-<model>`
+(`tma-detect --detector model`) scores each row with it.
+
+G6 under Annex H's rules (`--rules h`) asks the learned detector for more course changes detected
+within 5 min than the CUSUM (lower bound of the difference above 0), a median delay no more than
+1.25 × the CUSUM's over the events both detect, and false alarms no more than 1.25 × the CUSUM's,
+at thresholds set on validation for 0.5 false alarms per quiet hour.
