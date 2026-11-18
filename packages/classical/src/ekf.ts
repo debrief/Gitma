@@ -358,6 +358,21 @@ export function ekfRangeUpdate(
   return { t: st.t, x: xn, p: symmetrise(p) };
 }
 
+/**
+ * The filter's own log-range standard deviation (spec 029): sqrt(H P Hᵀ) with the log-range
+ * Jacobian H = [dx/ρ², dy/ρ², 0, 0] at ownship (ox, oy).
+ */
+export function ekfLogRangeSd(st: EkfState, ox: number, oy: number): number {
+  const [x = 0, y = 0] = st.x;
+  const dx = x - ox;
+  const dy = y - oy;
+  const rho2 = dx * dx + dy * dy;
+  const h0 = dx / rho2;
+  const h1 = dy / rho2;
+  const v = h0 * h0 * (st.p[0] ?? 0) + 2 * h0 * h1 * (st.p[1] ?? 0) + h1 * h1 * (st.p[5] ?? 0);
+  return Math.sqrt(Math.max(v, 0));
+}
+
 /** Within `PLAUSIBLE` (speed and range), and finite. */
 function plausibleState(d: BearingData, x: Float64Array, i: number): boolean {
   const [px = NaN, py = NaN, vx = NaN, vy = NaN] = x;

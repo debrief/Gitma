@@ -24,7 +24,7 @@ const USAGE =
   "usage: tma-fuse-track --truth <split.f32pack> --network <t2.ndjson> --out <fused.ndjson> " +
   "--sigma-cv <m/s²> --sigma-ct <m/s²> --sigma-omega <rad/s/√s> --switch <1/s> " +
   "[--p0-scale k] [--r-scale k] [--guarded-init 1|2] [--report-sd] [--k 4] [--every 6]; " +
-  "or --filter ekf --sigma-a <m/s²> [--p0-scale k] [--r-scale k] [--guarded-init 1|2] [--k] [--every]";
+  "or --filter ekf --sigma-a <m/s²> [--p0-scale k] [--r-scale k] [--guarded-init 1|2] [--k] [--every] [--fade c]";
 
 function num(values: Record<string, unknown>, key: string, positive = false): number {
   const raw = values[key] as string | undefined;
@@ -61,6 +61,7 @@ export function main(argv: string[]): unknown {
       "report-sd": { type: "boolean" },
       k: { type: "string" },
       every: { type: "string" },
+      fade: { type: "string" },
     },
   });
   const { truth, network, out } = values;
@@ -79,6 +80,10 @@ export function main(argv: string[]): unknown {
     every: values.every === undefined ? FUSION_DEFAULT.every : num(values, "every", true),
   };
   if (!Number.isInteger(f.every)) throw new UsageError("--every must be a whole number of samples");
+  if (values.fade !== undefined) {
+    if (filter !== "ekf") throw new UsageError("--fade needs --filter ekf (spec 029)");
+    f.fade = num(values, "fade");
+  }
   let tracker: { name: (net: string) => string; run: (s: Scenario, n: Prediction) => Prediction };
   if (filter === "ekf") {
     if (values["report-sd"] === true) throw new UsageError("--report-sd is for the IMM only");

@@ -150,6 +150,13 @@
           "description": "Any gated criterion failed or was inconclusive on validation.",
           "type": "boolean"
         },
+        "straight_leg_check": {
+          "description": "Whether a G5 decision also gates course on settled rows before any manoeuvre, wholly below 1.1 × the reference's (schema 0.24.0, spec 029); tma-g5 --straight-leg refuses a decision without it, and a decision with it refuses scoring without the flag.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
         "test_seed": {
           "description": "Dataset seed of the test split the decision commits to (the plan's fresh_test seed, or its dataset seed); tma-g2 checks it against the plan.",
           "type": [
@@ -2406,5 +2413,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.23.0"
+  "version": "0.24.0"
 }

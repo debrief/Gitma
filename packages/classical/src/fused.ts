@@ -6,7 +6,7 @@
 // inflate the network's information because its errors are correlated in time and with the
 // bearings the IMM already uses. Causal: sample i reads the network's row at sample i only.
 import type { Prediction, PredictionRow, Scenario } from "@tma/types";
-import { ekfName, ekfPredict, ekfRangeUpdate, type TrackerScales } from "./ekf.js";
+import { ekfLogRangeSd, ekfName, ekfPredict, ekfRangeUpdate, type TrackerScales } from "./ekf.js";
 import { type ImmParams, immName, immPredict, immRangeUpdate } from "./imm.js";
 
 /** Fusion settings: every parameter the decision record freezes beside the IMM's. */
@@ -15,6 +15,12 @@ export interface FusionParams {
   k: number;
   /** Range update every this many samples, from zig_index + 1. */
   every: number;
+  /**
+   * Fade (spec 029, EKF fusion only): when the filter's own log-range sd σ_f falls below
+   * `fade` × the network's inflated sd s = k·sd, the network's sd becomes s · fade · s / σ_f, so
+   * its weight falls as the bearings fix range. Absent or 0: no fade.
+   */
+  fade?: number;
 }
 
 /** Frozen in decision 31 (spec 014 research: the middle of the validation plateau). */
@@ -53,6 +59,8 @@ export function fusedPredict(
   network: Prediction,
   f: FusionParams = FUSION_DEFAULT,
 ): Prediction {
+  if (f.fade !== undefined && f.fade !== 0)
+    throw new Error("the fade (spec 029) applies to the EKF fusion only");
   const rows = checkInputs(s, network, f);
   const first = s.metadata.zig_index + 1;
   const own = s.ownship.states;
@@ -84,6 +92,8 @@ function checkInputs(
   network: Prediction,
   f: FusionParams,
 ): Map<number, PredictionRow> {
+  if (f.fade !== undefined && !(f.fade >= 0 && Number.isFinite(f.fade)))
+    throw new Error(`fusion fade must be a finite number ≥ 0, got ${String(f.fade)}`);
   if (!(f.k > 0) || !Number.isInteger(f.every) || f.every < 1)
     throw new Error(
       `fusion needs k > 0 and an integer every ≥ 1, got k ${String(f.k)}, every ${String(f.every)}`,
@@ -104,7 +114,19 @@ export const fusedEkfName = (
   sigmaA: number,
   scales: TrackerScales,
   f: FusionParams,
-): string => `fused-${network}-${ekfName(sigmaA, scales)}-k${String(f.k)}-m${String(f.every)}`;
+): string =>
+  `fused-${network}-${ekfName(sigmaA, scales)}-k${String(f.k)}-m${String(f.every)}` +
+  (f.fade === undefined || f.fade === 0 ? "" : `-f${String(f.fade)}`);
+
+/**
+ * The network's sd after the fade (spec 029): s = k·sd, unchanged while the filter's own log-range
+ * sd σ_f is at least fade · s, else s · fade · s / σ_f.
+ */
+export function fadedSd(s: number, sigmaF: number, fade: number | undefined): number {
+  if (fade === undefined || fade === 0) return s;
+  const floor = fade * s;
+  return sigmaF >= floor ? s : (s * floor) / Math.max(sigmaF, 1e-12);
+}
 
 /**
  * EKF-fused tracker estimate for one scenario (spec 028, SRD Annex F): `ekfPredict`'s rows
@@ -124,7 +146,9 @@ export function fusedEkfPredict(
   const own = s.ownship.states;
   const p = ekfPredict(s, sigmaA, scales, (i, st) => {
     const m = measurementAt(rows, own, first, f, i);
-    return m === null ? st : ekfRangeUpdate(st, m.range, f.k * m.sd, m.ox, m.oy);
+    if (m === null) return st;
+    const sd = fadedSd(f.k * m.sd, ekfLogRangeSd(st, m.ox, m.oy), f.fade);
+    return ekfRangeUpdate(st, m.range, sd, m.ox, m.oy);
   });
   return { ...p, estimator: fusedEkfName(network.estimator, sigmaA, scales, f) };
 }
