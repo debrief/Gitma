@@ -133,6 +133,24 @@ describe("tma-fuse-track", () => {
     expect(
       runCli(fuse, ["--truth", truth, "--network", net, "--out", faded, ...imm, "--fade", "1"]),
     ).not.toBe(0);
+    const adapted = join(dir, "fused-ekf-adapt.ndjson");
+    expect(
+      runCli(fuse, [
+        ...args.slice(0, 5),
+        adapted,
+        "--filter",
+        "ekf",
+        "--sigma-a",
+        "0.03",
+        "--adapt-hi",
+        "0.1",
+        "--adapt-eta",
+        "2",
+      ]),
+    ).toBe(0);
+    expect(openPredictionSet(adapted, truth).estimator).toBe(
+      "fused-lstm-gaussian-ekf-sa0.03-k4-m6-a0.1-e2",
+    );
     expect(runCli(fuse, [...args, "--sigma-a", "0.03", ...imm])).not.toBe(0);
     expect(runCli(fuse, [...args.slice(0, 6), ...imm, "--sigma-a", "0.03"])).not.toBe(0);
   });

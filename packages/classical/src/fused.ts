@@ -6,7 +6,14 @@
 // inflate the network's information because its errors are correlated in time and with the
 // bearings the IMM already uses. Causal: sample i reads the network's row at sample i only.
 import type { Prediction, PredictionRow, Scenario } from "@tma/types";
-import { ekfLogRangeSd, ekfName, ekfPredict, ekfRangeUpdate, type TrackerScales } from "./ekf.js";
+import {
+  ekfLogRangeSd,
+  ekfName,
+  ekfPredict,
+  ekfRangeUpdate,
+  type ProcessAdapt,
+  type TrackerScales,
+} from "./ekf.js";
 import { type ImmParams, immName, immPredict, immRangeUpdate } from "./imm.js";
 
 /** Fusion settings: every parameter the decision record freezes beside the IMM's. */
@@ -21,6 +28,8 @@ export interface FusionParams {
    * its weight falls as the bearings fix range. Absent or 0: no fade.
    */
   fade?: number;
+  /** Adaptive process noise (spec 029, EKF fusion only); absent: σa fixed. */
+  adapt?: ProcessAdapt;
 }
 
 /** Frozen in decision 31 (spec 014 research: the middle of the validation plateau). */
@@ -59,8 +68,8 @@ export function fusedPredict(
   network: Prediction,
   f: FusionParams = FUSION_DEFAULT,
 ): Prediction {
-  if (f.fade !== undefined && f.fade !== 0)
-    throw new Error("the fade (spec 029) applies to the EKF fusion only");
+  if ((f.fade !== undefined && f.fade !== 0) || f.adapt !== undefined)
+    throw new Error("the fade and adaptive σa (spec 029) apply to the EKF fusion only");
   const rows = checkInputs(s, network, f);
   const first = s.metadata.zig_index + 1;
   const own = s.ownship.states;
@@ -116,7 +125,8 @@ export const fusedEkfName = (
   f: FusionParams,
 ): string =>
   `fused-${network}-${ekfName(sigmaA, scales)}-k${String(f.k)}-m${String(f.every)}` +
-  (f.fade === undefined || f.fade === 0 ? "" : `-f${String(f.fade)}`);
+  (f.fade === undefined || f.fade === 0 ? "" : `-f${String(f.fade)}`) +
+  (f.adapt === undefined ? "" : `-a${String(f.adapt.hi)}-e${String(f.adapt.eta)}`);
 
 /**
  * The network's sd after the fade (spec 029): s = k·sd, unchanged while the filter's own log-range
@@ -144,11 +154,17 @@ export function fusedEkfPredict(
   const rows = checkInputs(s, network, f);
   const first = s.metadata.zig_index + 1;
   const own = s.ownship.states;
-  const p = ekfPredict(s, sigmaA, scales, (i, st) => {
-    const m = measurementAt(rows, own, first, f, i);
-    if (m === null) return st;
-    const sd = fadedSd(f.k * m.sd, ekfLogRangeSd(st, m.ox, m.oy), f.fade);
-    return ekfRangeUpdate(st, m.range, sd, m.ox, m.oy);
-  });
+  const p = ekfPredict(
+    s,
+    sigmaA,
+    scales,
+    (i, st) => {
+      const m = measurementAt(rows, own, first, f, i);
+      if (m === null) return st;
+      const sd = fadedSd(f.k * m.sd, ekfLogRangeSd(st, m.ox, m.oy), f.fade);
+      return ekfRangeUpdate(st, m.range, sd, m.ox, m.oy);
+    },
+    f.adapt,
+  );
   return { ...p, estimator: fusedEkfName(network.estimator, sigmaA, scales, f) };
 }

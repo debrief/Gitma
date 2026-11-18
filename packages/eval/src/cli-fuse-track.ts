@@ -24,7 +24,7 @@ const USAGE =
   "usage: tma-fuse-track --truth <split.f32pack> --network <t2.ndjson> --out <fused.ndjson> " +
   "--sigma-cv <m/s²> --sigma-ct <m/s²> --sigma-omega <rad/s/√s> --switch <1/s> " +
   "[--p0-scale k] [--r-scale k] [--guarded-init 1|2] [--report-sd] [--k 4] [--every 6]; " +
-  "or --filter ekf --sigma-a <m/s²> [--p0-scale k] [--r-scale k] [--guarded-init 1|2] [--k] [--every] [--fade c]";
+  "or --filter ekf --sigma-a <m/s²> [--p0-scale k] [--r-scale k] [--guarded-init 1|2] [--k] [--every] [--fade c] [--adapt-hi a --adapt-eta e]";
 
 function num(values: Record<string, unknown>, key: string, positive = false): number {
   const raw = values[key] as string | undefined;
@@ -62,6 +62,8 @@ export function main(argv: string[]): unknown {
       k: { type: "string" },
       every: { type: "string" },
       fade: { type: "string" },
+      "adapt-hi": { type: "string" },
+      "adapt-eta": { type: "string" },
     },
   });
   const { truth, network, out } = values;
@@ -83,6 +85,11 @@ export function main(argv: string[]): unknown {
   if (values.fade !== undefined) {
     if (filter !== "ekf") throw new UsageError("--fade needs --filter ekf (spec 029)");
     f.fade = num(values, "fade");
+  }
+  if (values["adapt-hi"] !== undefined || values["adapt-eta"] !== undefined) {
+    if (filter !== "ekf")
+      throw new UsageError("--adapt-hi/--adapt-eta need --filter ekf (spec 029)");
+    f.adapt = { hi: num(values, "adapt-hi", true), eta: num(values, "adapt-eta", true) };
   }
   let tracker: { name: (net: string) => string; run: (s: Scenario, n: Prediction) => Prediction };
   if (filter === "ekf") {

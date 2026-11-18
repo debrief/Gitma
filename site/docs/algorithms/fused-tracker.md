@@ -160,3 +160,14 @@ in the Joseph form. The update moves the estimate along the line of sight only. 
 state (not converged, range ≤ 0, no positive finite sd) add nothing. The EKF has no manoeuvre
 model, so its process noise σa sets how fast it recovers after a turn; Annex F tunes σa with k
 and M.
+
+## A fading weight and adaptive process noise (spec 029, Annex G)
+
+Two optional additions to the EKF fusion, aimed at its straight-leg cost:
+
+- **Fade** (`--fade c`). With the filter's own log-range sd σ_f = sqrt(H P Hᵀ) and the network's
+  s = k · sd_log, the range update uses sd s while σ_f ≥ c · s, and s · c · s / σ_f below that, so
+  the network's weight falls as the bearings fix range.
+- **Adaptive σa** (`--adapt-hi a --adapt-eta e`). ε̄ is the exponentially weighted mean of the
+  bearing NIS ν²/S over 6 samples, reset at re-initialisation; each prediction uses
+  σa_eff = min(a, σa · sqrt(max(1, ε̄ / e))).

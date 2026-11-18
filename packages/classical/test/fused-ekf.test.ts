@@ -3,7 +3,13 @@ import { readFileSync } from "node:fs";
 import { generateScenario } from "@tma/sim";
 import type { ParameterRanges, Prediction, PredictionRow, Scenario } from "@tma/types";
 import { describe, expect, it } from "vitest";
-import { type TrackerScales, ekfLogRangeSd, ekfPredict, ekfRangeUpdate } from "../src/ekf.js";
+import {
+  type TrackerScales,
+  adaptedSigmaA,
+  ekfLogRangeSd,
+  ekfPredict,
+  ekfRangeUpdate,
+} from "../src/ekf.js";
 import { fadedSd, fusedEkfName, fusedEkfPredict, fusedName, fusedPredict } from "../src/fused.js";
 import { parseFusedEkfName, parseFusedName } from "../src/names.js";
 import { truthAt } from "./helpers.js";
@@ -160,5 +166,44 @@ describe("EKF-fused tracker", () => {
     expect(() =>
       fusedEkfPredict(s, SA, SC, network(s, 0.1), { k: 4, every: 3, fade: -1 }),
     ).toThrow();
+  });
+
+  it("raises σa with the recent bearing NIS, up to a ceiling (spec 029)", () => {
+    expect(adaptedSigmaA(0.03, 5, undefined)).toBe(0.03);
+    expect(adaptedSigmaA(0.03, 0.5, { hi: 0.1, eta: 1 })).toBe(0.03);
+    expect(adaptedSigmaA(0.03, 4, { hi: 0.1, eta: 1 })).toBeCloseTo(0.06, 12);
+    expect(adaptedSigmaA(0.03, 400, { hi: 0.1, eta: 1 })).toBe(0.1);
+    expect(adaptedSigmaA(0.03, 8, { hi: 0.1, eta: 2 })).toBeCloseTo(0.06, 12);
+    const s = scen[3];
+    if (s === undefined) throw new Error("no scenario");
+    // An unreachable threshold leaves the rows byte-identical to fixed σa.
+    const fixed = fusedEkfPredict(s, SA, SC, network(s, 0.1), { k: 4, every: 3 });
+    const idle = fusedEkfPredict(s, SA, SC, network(s, 0.1), {
+      k: 4,
+      every: 3,
+      adapt: { hi: 0.1, eta: 1e12 },
+    });
+    expect(JSON.stringify(idle.rows)).toBe(JSON.stringify(fixed.rows));
+    expect(idle.estimator).toBe("fused-net-ekf-sa0.03-p16-r64-g1-k4-m3-a0.1-e1000000000000");
+    // A low threshold changes them.
+    const live = fusedEkfPredict(s, SA, SC, network(s, 0.1), {
+      k: 4,
+      every: 3,
+      adapt: { hi: 0.1, eta: 0.01 },
+    });
+    expect(JSON.stringify(live.rows)).not.toBe(JSON.stringify(fixed.rows));
+    // Names round-trip with fade and adapt together.
+    const f = { k: 4, every: 3, fade: 1, adapt: { hi: 0.1, eta: 2 } };
+    const name = fusedEkfName("net", SA, SC, f);
+    expect(name).toBe("fused-net-ekf-sa0.03-p16-r64-g1-k4-m3-f1-a0.1-e2");
+    expect(parseFusedEkfName(name, "net")?.fusion).toEqual(f);
+    // A ceiling below σa, and adapt on the IMM fusion, are refused.
+    expect(() =>
+      fusedEkfPredict(s, SA, SC, network(s, 0.1), { k: 4, every: 3, adapt: { hi: 0.01, eta: 1 } }),
+    ).toThrow();
+    const imm = { sigmaCv: 0.01, sigmaCt: 0.03, sigmaOmega: 0.01, switchPerS: 0.001 };
+    expect(() =>
+      fusedPredict(s, imm, network(s, 0.1), { k: 4, every: 6, adapt: { hi: 0.1, eta: 1 } }),
+    ).toThrow(/EKF fusion only/);
   });
 });

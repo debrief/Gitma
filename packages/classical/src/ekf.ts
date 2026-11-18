@@ -373,6 +373,40 @@ export function ekfLogRangeSd(st: EkfState, ox: number, oy: number): number {
   return Math.sqrt(Math.max(v, 0));
 }
 
+/**
+ * Adaptive process noise (spec 029): σa rises with the filter's recent bearing NIS, so the
+ * filter follows a manoeuvre but holds course on a straight leg. With ε̄ the exponentially
+ * weighted mean of ν²/S over `ADAPT_WINDOW` samples, σa_eff = min(hi, σa · sqrt(max(1, ε̄ / eta))).
+ */
+export interface ProcessAdapt {
+  /** The ceiling on σa_eff (m/s²). */
+  hi: number;
+  /** The NIS level above which σa rises. */
+  eta: number;
+}
+
+/** Samples in the adaptive process noise's NIS average (spec 029). */
+export const ADAPT_WINDOW = 6;
+
+/** σa_eff for the averaged NIS `nisBar` (spec 029). */
+export function adaptedSigmaA(sigmaA: number, nisBar: number, a: ProcessAdapt | undefined): number {
+  if (a === undefined) return sigmaA;
+  return Math.min(a.hi, sigmaA * Math.sqrt(Math.max(1, nisBar / a.eta)));
+}
+
+/** The bearing innovation's ν²/S before the update (spec 029). */
+export function ekfBearingNis(st: EkfState, z: number, ox: number, oy: number, r2: number): number {
+  const [x = 0, y = 0] = st.x;
+  const dx = x - ox;
+  const dy = y - oy;
+  const rho2 = dx * dx + dy * dy;
+  const h0 = dy / rho2;
+  const h1 = -dx / rho2;
+  const s = r2 + h0 * h0 * (st.p[0] ?? 0) + 2 * h0 * h1 * (st.p[1] ?? 0) + h1 * h1 * (st.p[5] ?? 0);
+  const nu = angleDiff(z, bearingOf(dx, dy));
+  return (nu * nu) / s;
+}
+
 /** Within `PLAUSIBLE` (speed and range), and finite. */
 function plausibleState(d: BearingData, x: Float64Array, i: number): boolean {
   const [px = NaN, py = NaN, vx = NaN, vy = NaN] = x;
@@ -428,7 +462,11 @@ export function ekfPredict(
   sigmaA: number,
   scales: TrackerScales = {},
   extra?: (i: number, st: EkfState) => EkfState,
+  adapt?: ProcessAdapt,
 ): Prediction {
+  if (adapt !== undefined && !(adapt.hi >= sigmaA && adapt.eta > 0 && Number.isFinite(adapt.hi)))
+    throw new Error("EKF adaptive process noise needs hi ≥ σa and eta > 0");
+  let nisBar = 1;
   if (!(sigmaA >= 0)) throw new Error(`EKF process noise must be ≥ 0, got ${String(sigmaA)}`);
   const { p0Scale = 1, rScale = 1, guardedInit = 0 } = scales;
   if (!(p0Scale > 0) || !(rScale > 0)) throw new Error("EKF scales must be > 0");
@@ -443,9 +481,14 @@ export function ekfPredict(
   let lastTry = first - 1;
   for (let i = first; i < n; i++) {
     if (st !== null) {
-      st = ekfPredictStep(st, d.t[i] ?? 0, sigmaA);
-      if (d.valid[i] === 1)
+      st = ekfPredictStep(st, d.t[i] ?? 0, adaptedSigmaA(sigmaA, nisBar, adapt));
+      if (d.valid[i] === 1) {
+        if (adapt !== undefined) {
+          const e = ekfBearingNis(st, d.bearing[i] ?? 0, d.ownX[i] ?? 0, d.ownY[i] ?? 0, r2);
+          nisBar += (e - nisBar) / ADAPT_WINDOW;
+        }
         st = ekfUpdate(st, d.bearing[i] ?? 0, d.ownX[i] ?? 0, d.ownY[i] ?? 0, r2);
+      }
       if (extra !== undefined) st = extra(i, st);
       if (plausibleState(d, st.x, i)) {
         rows.push(stateRow(d, st.x, i, true));
@@ -459,6 +502,7 @@ export function ekfPredict(
     }
     if (i - lastTry >= EKF_REINIT_EVERY) {
       st = initialiseAt(d, i, sigma, p0Scale, guardedInit, true);
+      nisBar = 1;
       lastTry = i;
     }
   }

@@ -328,3 +328,6 @@ The repository is public on GitHub from day one; nothing above OFFICIAL enters i
 - [Annex F: The network's range fused into the EKF](SRD-annex-F.md) (2026-11-16): after Annex E,
   T2's range fused into the re-tuned EKF over σa × k × M, judged by G5 against the harder of the
   two re-tuned references on fresh seed 233.
+- [Annex G: A fading range weight and adaptive process noise](SRD-annex-G.md) (2026-11-18): after
+  Annex F, T2's weight fades as the EKF's range firms up and σa adapts to the bearing NIS, judged
+  by G5 plus a straight-leg course check on fresh seed 236.
