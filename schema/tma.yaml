@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.24.0
+version: 0.25.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -132,6 +132,13 @@ enums:
           log-likelihood. The reported estimate is the mean; prediction rows carry the standard
           deviations (log_range_sd, vx_sd_mps, vy_sd_mps), reported and their calibration
           measured, never gated.
+      manoeuvre_detector:
+        description: >-
+          Spec 030 (Annex H): one channel per row, a logit of P(the target's course changed within
+          the last 30 rows, 5 min at dt 10 s), trained by masked binary cross-entropy: label 1
+          where the stored truth course changed within those rows, 0 on quiet rows (neither course
+          nor speed changed), no loss elsewhere or in a window's first 30 rows. Prediction rows
+          carry the probability as p_manoeuvre, are not converged and carry no state estimate.
   FeatureSet:
     description: Model input channel sets (spec 003 R6).
     permissible_values:
@@ -575,7 +582,8 @@ classes:
         range: float
         description: >-
           The estimator's probability that the target's turn has started by this timestep
-          (velocity_two_hypothesis networks only; spec 011). Absent for other estimators.
+          (velocity_two_hypothesis networks only; spec 011), or, from a manoeuvre_detector network
+          (spec 030), that its course changed within the last 5 min. Absent for other estimators.
       log_range_sd:
         range: float
         description: >-
@@ -1126,6 +1134,12 @@ classes:
           The frozen carried models a re-score scores, by manifest id, with the SHA-256 of each
           one's weights.bin, manifest.json and model.json; tma-g2 refuses a re-score whose
           carried set or any of those files differs.
+      g6_rules:
+        range: string
+        description: >-
+          The rule set a G6 decision is judged by (schema 0.25.0): "c12" (Annex C §C.12, the
+          default when absent) or "h" (Annex H, spec 030: detect5 shown better, delay compared on
+          events both detect); tma-g6 --rules must match it.
       detector_thresholds:
         range: DetectorThreshold
         multivalued: true

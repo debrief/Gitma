@@ -64,6 +64,8 @@ export const ChangeDecision = z.strictObject({
   detector_thresholds: z.array(DetectorThreshold).nullish(),
   /** The dataset count whose test split a re-score scores (the plan's dataset.fresh_test.count; schema 0.11.1); tma-g2 refuses a plan with another count. */
   fresh_test_count: z.number().int().nullish(),
+  /** The rule set a G6 decision is judged by (schema 0.25.0): "c12" (Annex C §C.12, the default when absent) or "h" (Annex H, spec 030: detect5 shown better, delay compared on events both detect); tma-g6 --rules must match it. */
+  g6_rules: z.string().nullish(),
   git_commit: z.string(),
   /** The frozen carried models a re-score scores, by manifest id, with the SHA-256 of each one's weights.bin, manifest.json and model.json; tma-g2 refuses a re-score whose carried set or any of those files differs. */
   model_digests: z.array(ModelDigest).nullish(),
@@ -427,7 +429,7 @@ export const StopReason = z.enum(["max_epochs", "early_stopping", "wall_clock", 
 export type StopReason = z.infer<typeof StopReason>;
 
 /** How the model's four output channels encode the target's course and speed (spec 008). */
-export const OutputParameterisation = z.enum(["course_speed", "velocity", "velocity_two_hypothesis", "velocity_gaussian"]);
+export const OutputParameterisation = z.enum(["course_speed", "velocity", "velocity_two_hypothesis", "velocity_gaussian", "manoeuvre_detector"]);
 export type OutputParameterisation = z.infer<typeof OutputParameterisation>;
 
 /** Hyperparameters and seeds for one training run (SRD §4; constitution III). */
@@ -590,7 +592,7 @@ export const PredictionRow = z.strictObject({
   iterations: z.number().int().nullish(),
   /** Standard deviation of the estimator's log range (natural log; about the relative range error), from a velocity_gaussian network (spec 012). Absent for other estimators. */
   log_range_sd: z.number().nullish(),
-  /** The estimator's probability that the target's turn has started by this timestep (velocity_two_hypothesis networks only; spec 011). Absent for other estimators. */
+  /** The estimator's probability that the target's turn has started by this timestep (velocity_two_hypothesis networks only; spec 011), or, from a manoeuvre_detector network (spec 030), that its course changed within the last 5 min. Absent for other estimators. */
   p_manoeuvre: z.number().nullish(),
   range_m: z.number(),
   speed_mps: z.number(),

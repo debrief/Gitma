@@ -39,6 +39,33 @@ export function outputsToPrediction(
   // Rows of the window (240, or 360 for generator 0.5.0): whatever the output holds, at least n.
   if (out.length % width !== 0 || out.length / width < n)
     throw new Error(`expected a multiple of ${String(width)} outputs covering ${String(n)} rows`);
+  // Manoeuvre detector (spec 030): the probability only, no state estimate.
+  if (spec.parameterisation === "manoeuvre_detector") {
+    const rows: PredictionRow[] = [];
+    for (let i = first; i < n; i++) {
+      const own = s.ownship.states[i];
+      if (own === undefined) throw new Error(`no sample ${String(i)}`);
+      const z = out[i * width] ?? NaN;
+      const p = 1 / (1 + Math.exp(-z));
+      rows.push({
+        timestamp_s: own.timestamp_s,
+        range_m: 0,
+        course_rad: 0,
+        speed_mps: 0,
+        x_m: 0,
+        y_m: 0,
+        converged: false,
+        ...(Number.isFinite(p) ? { p_manoeuvre: f32(p) } : {}),
+      });
+    }
+    return {
+      record: "prediction",
+      scenario_index: s.metadata.index,
+      estimator,
+      mode: "per_timestep",
+      rows,
+    };
+  }
   const two = spec.parameterisation === "velocity_two_hypothesis";
   // Gaussian (spec 012): means in channels 0–2, log-variances in 3–5; the mean is reported.
   const gauss = spec.parameterisation === "velocity_gaussian";

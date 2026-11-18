@@ -93,6 +93,26 @@ export function gaussianLossParts(
   return { num: perRow.mul(weight).sum(), den: weight.sum() };
 }
 
+/**
+ * Detector loss parts (spec 030, manoeuvre_detector): binary cross-entropy of the one output logit
+ * against the label (target channel 0), counted where the label mask (channel 1) and the row weight
+ * are both set.
+ */
+export function detectorLossParts(
+  yTrue: tf.Tensor,
+  yPred: tf.Tensor,
+): { num: tf.Scalar; den: tf.Scalar } {
+  const label = yTrue.slice([0, 0, 0], [-1, -1, 1]).squeeze([2]);
+  const mask = yTrue.slice([0, 0, 1], [-1, -1, 1]).squeeze([2]);
+  const weight = yTrue.slice([0, 0, NO], [-1, -1, 1]).squeeze([2]).mul(mask);
+  const z = yPred.slice([0, 0, 0], [-1, -1, 1]).squeeze([2]);
+  const bce = tf
+    .relu(z)
+    .sub(z.mul(label))
+    .add(tf.log1p(tf.exp(tf.neg(tf.abs(z)))));
+  return { num: bce.mul(weight).sum(), den: weight.sum() };
+}
+
 /** The loss parts a config trains with (validation loss uses the same). */
 export function lossPartsFor(
   config: TrainingConfig,
@@ -104,6 +124,8 @@ export function lossPartsFor(
   }
   if (outputSpec(config).parameterisation === "velocity_gaussian")
     return (y, p) => gaussianLossParts(w, y, p);
+  if (outputSpec(config).parameterisation === "manoeuvre_detector")
+    return (y, p) => detectorLossParts(y, p);
   return (y, p) => lossParts(w, y, p);
 }
 

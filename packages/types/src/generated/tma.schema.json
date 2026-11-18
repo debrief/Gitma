@@ -95,6 +95,13 @@
             "null"
           ]
         },
+        "g6_rules": {
+          "description": "The rule set a G6 decision is judged by (schema 0.25.0): \"c12\" (Annex C §C.12, the default when absent) or \"h\" (Annex H, spec 030: detect5 shown better, delay compared on events both detect); tma-g6 --rules must match it.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "git_commit": {
           "type": "string"
         },
@@ -1304,7 +1311,8 @@
         "course_speed",
         "velocity",
         "velocity_two_hypothesis",
-        "velocity_gaussian"
+        "velocity_gaussian",
+        "manoeuvre_detector"
       ],
       "title": "OutputParameterisation",
       "type": "string"
@@ -1782,7 +1790,7 @@
           ]
         },
         "p_manoeuvre": {
-          "description": "The estimator's probability that the target's turn has started by this timestep (velocity_two_hypothesis networks only; spec 011). Absent for other estimators.",
+          "description": "The estimator's probability that the target's turn has started by this timestep (velocity_two_hypothesis networks only; spec 011), or, from a manoeuvre_detector network (spec 030), that its course changed within the last 5 min. Absent for other estimators.",
           "type": [
             "number",
             "null"
@@ -2413,5 +2421,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.24.0"
+  "version": "0.25.0"
 }

@@ -19,11 +19,13 @@ import { dirname, join, relative, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import {
   courseRateDetect,
+  modelDetect,
   cusumDetect,
   disagreementDetect,
   fileDigest,
   immPredict,
   parseCourseRateName,
+  isModelDetectorName,
   parseCusumName,
   parseImmName,
 } from "@tma/classical";
@@ -52,6 +54,7 @@ import {
   DETECT_WITHIN_S,
   detectorOutcome,
   G6_FA_PER_HOUR,
+  type G6Rules,
   g6Checks,
   g6Events,
   g6Verdict,
@@ -104,6 +107,8 @@ export interface G6Binding {
   truthPath: string;
   learned: DetectionSet;
   cusum: DetectionSet;
+  /** The rule set this scoring applies (Annex H); absent means c12. */
+  rules?: G6Rules;
 }
 
 /**
@@ -165,6 +170,10 @@ export function requireG6Binding(
       `${b.decisionPath}: a G6 decision binds its frozen network by model_digests`,
     );
   requireFrozenModels(d, b.modelDirs, b.decisionPath);
+  // Annex H (spec 030): the decision fixes the rule set; --rules must name the same one.
+  const want = d.g6_rules ?? "c12";
+  if (want !== (b.rules ?? "c12"))
+    throw new UsageError(`${b.decisionPath} is judged by G6 rules ${want}: pass --rules ${want}`);
   return { decision: d, learned: lt, cusum: ct };
 }
 
@@ -216,6 +225,9 @@ export function requireDetectionChain(
         `${tracker.path ?? tracker.label}: ${tracker.estimator} is not a canonical IMM name`,
       );
     remake = (s) => disagreementDetect(netRows(s), immPredict(s, ip));
+  } else if (isModelDetectorName(learned.detector, network.estimator)) {
+    // Spec 030: a trained detector's probability, re-read from its bound prediction file.
+    remake = (s) => modelDetect(netRows(s));
   } else {
     const win = parseCourseRateName(learned.detector, network.estimator);
     if (win === null)
@@ -247,6 +259,11 @@ export function requireDetectionChain(
 }
 
 export function main(argv: string[]): unknown {
+  const rulesOf = (v: string | undefined): G6Rules => {
+    if (v === undefined || v === "c12") return "c12";
+    if (v === "h") return "h";
+    throw new UsageError("--rules must be c12 or h (Annex H, spec 030)");
+  };
   const { values } = parseArgs({
     args: argv,
     strict: true,
@@ -257,12 +274,14 @@ export function main(argv: string[]): unknown {
       also: { type: "string", multiple: true },
       experiment: { type: "string" },
       decision: { type: "string" },
+      rules: { type: "string" },
       plan: { type: "string", multiple: true },
       model: { type: "string", multiple: true },
       "repeat-of": { type: "string" },
     },
   });
   const { truth, experiment } = values;
+  const rules = rulesOf(values.rules);
   const learnedPaths = values.learned ?? [];
   const cusumPaths = values.cusum ?? [];
   if (!truth || !experiment || learnedPaths.length === 0 || cusumPaths.length === 0)
@@ -295,6 +314,9 @@ export function main(argv: string[]): unknown {
         scenarios,
         { label: lset.detector, scores: lset.byIndex, threshold: bl.threshold },
         { label: cset.detector, scores: cset.byIndex, threshold: bc.threshold },
+        undefined,
+        undefined,
+        rules,
       ),
     );
     mkdirSync(experiment, { recursive: true });
@@ -328,6 +350,7 @@ export function main(argv: string[]): unknown {
     decisionPath: values.decision,
     planPaths: values.plan,
     modelDirs: values.model,
+    rules,
     truthPath: truth,
     learned: l,
     cusum: c,
@@ -354,6 +377,9 @@ export function main(argv: string[]): unknown {
       scenarios,
       { label: l.detector, scores: l.byIndex, threshold: bound.learned },
       { label: c.detector, scores: c.byIndex, threshold: bound.cusum },
+      undefined,
+      undefined,
+      rules,
     ),
   );
   const scoring: GateScoring = {

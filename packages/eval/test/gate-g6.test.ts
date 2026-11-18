@@ -2,7 +2,7 @@
 // events, delays (with the armed rule), false alarms on quiet rows, calibration, and the checks.
 import { readFileSync } from "node:fs";
 import { generateScenario } from "@tma/sim";
-import type { ParameterRanges, Scenario } from "@tma/types";
+import type { GateCheck, ParameterRanges, Scenario } from "@tma/types";
 import { describe, expect, it } from "vitest";
 import {
   calibrateThreshold,
@@ -150,5 +150,31 @@ describe("G6 scoring (spec 017)", () => {
     expect(d?.result).toBe("inconclusive");
     expect(d?.value).toBeUndefined();
     expect(d?.detail).toMatch(/undefined/);
+  });
+});
+
+describe("G6 under Annex H's rules (spec 030)", () => {
+  it("requires detect5 to be shown better and compares delay on events both detect", () => {
+    // Both catch every event; one 1 sample later: detect5 is equal, so not shown better.
+    const a = { label: "a", scores: after(2), threshold: 0.5 };
+    const b = { label: "b", scores: after(1), threshold: 0.5 };
+    const tie = g6Checks(scen, a, b, 300, undefined, "h");
+    const by: Record<string, GateCheck | undefined> = Object.fromEntries(
+      tie.map((c) => [c.name.split(":")[1] ?? "", c]),
+    );
+    expect(by["g6-delay-joint"]?.result).toBe("fail"); // 20 s against 10 s: ratio 2 > 1.25
+    const same = g6Checks(scen, a, { ...a, label: "a2" }, 300, undefined, "h");
+    expect(same.find((c) => c.name === "a:g6-delay-joint")?.result).toBe("pass"); // ratio 1
+    expect(by["g6-detect5"]?.result).toBe("fail"); // difference 0, interval at or below 0
+    expect(by["g6-delay"]).toBeUndefined();
+    // A detector that catches all against one that catches none: detect5 shown better, and no
+    // event is caught by both, so the delay check cannot be judged.
+    const none = { label: "none", scores: scores(() => 0), threshold: 0.5 };
+    const better = g6Checks(scen, b, none, 300, undefined, "h");
+    const bb: Record<string, GateCheck | undefined> = Object.fromEntries(
+      better.map((c) => [c.name.split(":")[1] ?? "", c]),
+    );
+    expect(bb["g6-detect5"]?.result).toBe("pass");
+    expect(bb["g6-delay-joint"]?.result).toBe("inconclusive");
   });
 });
