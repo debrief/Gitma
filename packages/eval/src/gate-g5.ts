@@ -53,6 +53,14 @@ export function settledRow(m: ScenarioMetadata, k: number): boolean {
   return (k - last) * m.parameters.dt_s >= G5_SETTLE_S;
 }
 
+/**
+ * A settled row before any manoeuvre (spec 029, SRD Annex G): settled, and no manoeuvre has ended at
+ * or before row k. The target has held its first leg, so this is straight-leg accuracy.
+ */
+export function straightRow(m: ScenarioMetadata, k: number): boolean {
+  return settledRow(m, k) && !(m.manoeuvres ?? []).some((x) => x.end_index <= k);
+}
+
 export interface G5Row {
   s: Scenario;
   k: number;
@@ -111,6 +119,7 @@ export function g5Checks(
   resamples = BOOTSTRAP_RESAMPLES,
   seed = BOOTSTRAP_SEED,
   beat?: PredictionSet,
+  straight = false,
 ): GateCheck[] {
   const all = g5Rows(truth);
   if (all.length === 0) throw new Error("G5: no σ = 1° rows at zig + 5–20 min");
@@ -158,6 +167,12 @@ export function g5Checks(
   ratio("g5-settled-range", settled, "range_rel", G5_SETTLED_RATIO, true, sw);
   ratio("g5-settled-course", settled, "course_deg", G5_SETTLED_RATIO, true, sw);
   ratio("g5-settled-speed", settled, "speed_kt", G5_SETTLED_RATIO, true, sw);
+  // Spec 029 (SRD Annex G): course on settled rows before any manoeuvre, wholly below 1.1.
+  if (straight) {
+    const legs = settled.filter((r) => straightRow(r.s.metadata, r.k));
+    if (legs.length === 0) throw new Error("G5: no settled rows before any manoeuvre");
+    ratio(STRAIGHT_CHECK, legs, "course_deg", G5_SETTLED_RATIO, true, `${sw} before any manoeuvre`);
+  }
   const gross = (set: PredictionSet): Uint8Array =>
     Uint8Array.from(all, (r) =>
       errorOf(r.s, rowAt(set, r.s, r.k), "range_rel") <= GROSS_RANGE_REL ? 0 : 1,
@@ -182,6 +197,9 @@ export function g5Checks(
 /** The G8 check (spec 020): tracker / network median range error over all G5 rows, wholly below 1. */
 export const G8_CHECK = "g8-range-vs-network";
 
+/** The straight-leg check (spec 029): course on settled rows before any manoeuvre, below 1.1. */
+export const STRAIGHT_CHECK = "g5-straight-course";
+
 const GATED = [
   "g5-range",
   "g5-course",
@@ -191,8 +209,13 @@ const GATED = [
 ];
 
 /** One tracker's result: pass if every gated check passes, fail if any fails, else inconclusive. */
-export function trackerResult(checks: GateCheck[], label: string, g8 = false): GateResult {
-  const want = g8 ? [...GATED, G8_CHECK] : GATED;
+export function trackerResult(
+  checks: GateCheck[],
+  label: string,
+  g8 = false,
+  straight = false,
+): GateResult {
+  const want = [...GATED, ...(g8 ? [G8_CHECK] : []), ...(straight ? [STRAIGHT_CHECK] : [])];
   const gated = checks.filter((c) => want.some((g) => c.name === `${label}:${g}`));
   if (gated.length !== want.length) throw new Error(`G5: ${label} lacks gated checks`);
   if (gated.some((c) => c.result === "fail")) return "fail";
@@ -203,8 +226,13 @@ export function trackerResult(checks: GateCheck[], label: string, g8 = false): G
  * The G5 verdict over one or two trackers: pass if any tracker passes; fail if every tracker
  * fails; otherwise inconclusive (Annex C §C.5).
  */
-export function g5Verdict(checks: GateCheck[], labels: string[], g8 = false): GateVerdict {
-  const results = labels.map((l) => trackerResult(checks, l, g8));
+export function g5Verdict(
+  checks: GateCheck[],
+  labels: string[],
+  g8 = false,
+  straight = false,
+): GateVerdict {
+  const results = labels.map((l) => trackerResult(checks, l, g8, straight));
   const result: GateResult = results.includes("pass")
     ? "pass"
     : results.every((r) => r === "fail")

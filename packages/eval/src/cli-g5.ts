@@ -30,7 +30,7 @@ import { type DigestOf, digestCache, requireRecomputed, sampleScenarios } from "
 import { manoeuvreBand } from "./slices.js";
 
 const USAGE =
-  "usage: tma-g5 --truth <split.f32pack> --tracker <pred.ndjson> [--tracker <pred.ndjson>] --reference <pred.ndjson> [--also <pred.ndjson>]... --experiment <dir> [--decision <decision.json> (--plan <plan.json> --model <model dir>)... [--repeat-of <earlier experiment>]] [--beat <network.ndjson>] (bindings required on a test split; --beat: G8, spec 020)";
+  "usage: tma-g5 --truth <split.f32pack> --tracker <pred.ndjson> [--tracker <pred.ndjson>] --reference <pred.ndjson> [--also <pred.ndjson>]... --experiment <dir> [--decision <decision.json> (--plan <plan.json> --model <model dir>)... [--repeat-of <earlier experiment>]] [--beat <network.ndjson>] [--straight-leg] (bindings required on a test split; --beat: G8, spec 020; --straight-leg: spec 029)";
 
 export interface G5Binding {
   decisionPath: string;
@@ -217,6 +217,24 @@ export function requireBeat(
   );
 }
 
+/**
+ * Spec 029 (SRD Annex G): a decision with `straight_leg_check` is scored only with --straight-leg,
+ * and --straight-leg on a test split needs a decision that names it.
+ */
+export function requireStraight(
+  d: { straight_leg_check?: boolean | null | undefined },
+  straight: boolean,
+  decisionPath: string,
+): void {
+  const want = d.straight_leg_check === true;
+  if (want === straight) return;
+  throw new UsageError(
+    want
+      ? `${decisionPath} requires --straight-leg (spec 029)`
+      : `${decisionPath} has no straight_leg_check: --straight-leg needs a decision that names it`,
+  );
+}
+
 /** A G5 scoring already recorded under the experiments root. */
 interface PriorScoring {
   dir: string;
@@ -385,6 +403,7 @@ export function main(argv: string[]): unknown {
       model: { type: "string", multiple: true },
       "repeat-of": { type: "string" },
       beat: { type: "string" },
+      "straight-leg": { type: "boolean" },
     },
   });
   const { truth, reference, experiment } = values;
@@ -396,6 +415,8 @@ export function main(argv: string[]): unknown {
   const also = (values.also ?? []).map((p) => openPredictionSet(p, truth));
   // G8 (spec 020): the carried tracker must also beat this network's median range error.
   const beat = values.beat === undefined ? undefined : openPredictionSet(values.beat, truth);
+  // Spec 029: the straight-leg check (course on settled rows before any manoeuvre, below 1.1).
+  const straight = values["straight-leg"] === true;
   if (beat !== undefined && sets.length !== 1)
     throw new UsageError("--beat judges one tracker: give one --tracker");
   const gate = readDataset(truth).header.split === "test";
@@ -417,6 +438,7 @@ export function main(argv: string[]): unknown {
       reference: ref.estimator,
     });
     requireBeat(d, beat?.estimator, values.decision);
+    requireStraight(d, straight, values.decision);
     requirePredictionChain(
       beat === undefined ? sets : [...sets, beat],
       [ref, ...also, ...(beat === undefined ? [] : [beat])],
@@ -457,12 +479,13 @@ export function main(argv: string[]): unknown {
     scoring = { ...scoring, recomputed };
   }
   const checks = sets.flatMap((t) =>
-    g5Checks(scenarios, t, ref, BOOTSTRAP_RESAMPLES, BOOTSTRAP_SEED, beat),
+    g5Checks(scenarios, t, ref, BOOTSTRAP_RESAMPLES, BOOTSTRAP_SEED, beat, straight),
   );
   const judged = g5Verdict(
     checks,
     sets.map((t) => t.label),
     beat !== undefined,
+    straight,
   );
   const verdict = gate
     ? judged

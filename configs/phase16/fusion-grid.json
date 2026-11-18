@@ -1,0 +1,9 @@
+{
+  "spec": "029",
+  "annex": "G",
+  "ekf": { "sigma_a": 0.03, "p0_scale": 16, "r_scale": 64, "guarded_init": 1 },
+  "fusion": { "k": 4, "every": 3 },
+  "fade": [0, 0.5, 1, 2],
+  "adapt_hi": [0.07, 0.1, 0.2],
+  "adapt_eta": [0.03, 0.06, 0.12]
+}

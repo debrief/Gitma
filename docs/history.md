@@ -258,3 +258,8 @@ fused tracker on the re-tuned IMM stopped at validation on settled course agains
 the re-tuned EKF: range 0.782 [0.767, 0.795], course 0.819 [0.809, 0.830], settled course 1.043
 [1.013, 1.078]. A plain EKF at the same σa fails; against the re-tuned IMM course is level (0.99 ×);
 on straight legs the EKF stays better (course 1.57 ×). `experiments/20261116-p15-g5/`.
+
+**Annex G** (2026-11-18, spec 029). A fading range weight and NIS-adaptive process noise for the EKF
+fusion, gated on G5 plus straight-leg course, stopped at validation (best score −0.129). Adaptation
+trades overall course for straight-leg course; the fade trades overall range for it; fusing T2
+costs straight-leg course even at the reference's σa. `experiments/20261118-p16-val/`.

@@ -4,7 +4,15 @@ import { degToRad, generateScenario } from "@tma/sim";
 import type { ParameterRanges, Prediction, PredictionRow, Scenario } from "@tma/types";
 import { describe, expect, it } from "vitest";
 import { bootstrapClusteredQuantileRatio, bootstrapQuantileRatio } from "../src/bootstrap.js";
-import { g5Checks, g5Rows, g5Verdict, settledRow, trackerResult } from "../src/gate-g5.js";
+import {
+  STRAIGHT_CHECK,
+  g5Checks,
+  g5Rows,
+  g5Verdict,
+  settledRow,
+  straightRow,
+  trackerResult,
+} from "../src/gate-g5.js";
 import { set, truthRow } from "./helpers.js";
 
 const RANGES = {
@@ -77,6 +85,10 @@ describe("G5 rows and settled rows", () => {
     expect(settledRow(m, 70)).toBe(false); // 100 s after it ended
     expect(settledRow(m, 90)).toBe(true); // 300 s after
     expect(settledRow(m, 120)).toBe(false); // 150 s after the second
+    // Spec 029: straight-leg rows are settled rows before any manoeuvre has ended.
+    expect(straightRow(m, 49)).toBe(true);
+    expect(straightRow(m, 90)).toBe(false); // settled, but after the first manoeuvre
+    expect(straightRow(m, 55)).toBe(false);
   });
 });
 
@@ -151,5 +163,26 @@ describe("G8: G5 plus beating a network on range (spec 020)", () => {
       pass.map((c) => c.name).filter((n) => !n.endsWith("g8-range-vs-network")),
     );
     expect(() => g5Verdict(g5Checks(SCEN, t, ref, 300), ["F"], true)).toThrow(/lacks gated/);
+  });
+
+  it("gates course on straight legs only when asked (spec 029)", () => {
+    // Worse by 1.6 on straight legs only; better elsewhere: pooled settled rows can still pass.
+    const legErr =
+      (onLeg: number, off: number) =>
+      (r: PredictionRow, i: number, s: Scenario): PredictionRow => {
+        const f = straightRow(s.metadata, i) ? onLeg : off;
+        return { ...r, course_rad: r.course_rad + 0.05 * f * (1 + (i % 2)) };
+      };
+    const base = mk("ref", legErr(1, 1));
+    const t = mk("T2", legErr(1.6, 0.3));
+    const plain = g5Checks(SCEN, t, base, 300);
+    expect(plain.some((c) => c.name === `T2:${STRAIGHT_CHECK}`)).toBe(false);
+    const withLeg = g5Checks(SCEN, t, base, 300, undefined, undefined, true);
+    const leg = withLeg.find((c) => c.name === `T2:${STRAIGHT_CHECK}`);
+    expect(leg?.result).toBe("fail");
+    expect(trackerResult(withLeg, "T2", false, true)).toBe("fail");
+    expect(g5Verdict(withLeg, ["T2"], false, true).result).toBe("fail");
+    // Asked for, but missing: refused.
+    expect(() => trackerResult(plain, "T2", false, true)).toThrow(/lacks gated checks/);
   });
 });

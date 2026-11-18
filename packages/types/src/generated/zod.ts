@@ -80,6 +80,8 @@ export const ChangeDecision = z.strictObject({
   rescore_of: z.string().nullish(),
   /** Any gated criterion failed or was inconclusive on validation. */
   stalled: z.boolean(),
+  /** Whether a G5 decision also gates course on settled rows before any manoeuvre, wholly below 1.1 × the reference's (schema 0.24.0, spec 029); tma-g5 --straight-leg refuses a decision without it, and a decision with it refuses scoring without the flag. */
+  straight_leg_check: z.boolean().nullish(),
   /** Dataset seed of the test split the decision commits to (the plan's fresh_test seed, or its dataset seed); tma-g2 checks it against the plan. */
   test_seed: z.string().nullish(),
 });

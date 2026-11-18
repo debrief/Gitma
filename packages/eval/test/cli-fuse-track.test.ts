@@ -113,6 +113,44 @@ describe("tma-fuse-track", () => {
       "fused-lstm-gaussian-ekf-sa0.03-p16-r64-k2-m3",
     );
     expect(runCli(fuse, [...args])).not.toBe(0);
+    // Spec 029: --fade with the EKF names its suffix; with the IMM it is refused.
+    const faded = join(dir, "fused-ekf-fade.ndjson");
+    expect(
+      runCli(fuse, [
+        ...args.slice(0, 5),
+        faded,
+        "--filter",
+        "ekf",
+        "--sigma-a",
+        "0.03",
+        "--fade",
+        "0.5",
+      ]),
+    ).toBe(0);
+    expect(openPredictionSet(faded, truth).estimator).toBe(
+      "fused-lstm-gaussian-ekf-sa0.03-k4-m6-f0.5",
+    );
+    expect(
+      runCli(fuse, ["--truth", truth, "--network", net, "--out", faded, ...imm, "--fade", "1"]),
+    ).not.toBe(0);
+    const adapted = join(dir, "fused-ekf-adapt.ndjson");
+    expect(
+      runCli(fuse, [
+        ...args.slice(0, 5),
+        adapted,
+        "--filter",
+        "ekf",
+        "--sigma-a",
+        "0.03",
+        "--adapt-hi",
+        "0.1",
+        "--adapt-eta",
+        "2",
+      ]),
+    ).toBe(0);
+    expect(openPredictionSet(adapted, truth).estimator).toBe(
+      "fused-lstm-gaussian-ekf-sa0.03-k4-m6-a0.1-e2",
+    );
     expect(runCli(fuse, [...args, "--sigma-a", "0.03", ...imm])).not.toBe(0);
     expect(runCli(fuse, [...args.slice(0, 6), ...imm, "--sigma-a", "0.03"])).not.toBe(0);
   });

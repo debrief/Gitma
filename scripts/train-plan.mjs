@@ -134,6 +134,11 @@ export const RESERVED_TEST_SEEDS = {
     plan: "configs/phase4/x/plan.json",
   },
   234: { for: "Annex F G5 re-score, if needed (spec 028, fresh test, 1,100,000)" },
+  // Annex G (spec 029): 235 is the design probe (never a gate split); 236 the G5 + straight-leg
+  // test and 237 its re-score, under decision 44.
+  235: { for: "Annex G design probe (spec 029; never a gate split)" },
+  236: { for: "Annex G G5 + straight-leg (spec 029, fresh test, 400,000)", plans: [] },
+  237: { for: "Annex G re-score, if needed (spec 029, fresh test, 1,100,000)" },
 };
 
 class PlanError extends Error {}

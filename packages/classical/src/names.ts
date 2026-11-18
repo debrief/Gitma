@@ -18,6 +18,7 @@ const IMM_RE = new RegExp(
 );
 const EKF_RE = new RegExp(String.raw`^ekf-sa${NUM}${SCALES}$`);
 const FUSION_RE = new RegExp(String.raw`-k${NUM}-m(\d+)$`);
+const FUSION_FADE_RE = new RegExp(String.raw`-k${NUM}-m(\d+)(?:-f${NUM})?(?:-a${NUM}-e${NUM})?$`);
 const HYBRID_RE = new RegExp(String.raw`^${NUM}$`);
 
 const scales = (
@@ -80,11 +81,18 @@ export function parseFusedEkfName(
   const prefix = `fused-${network}-`;
   if (!name.startsWith(prefix)) return null;
   const rest = name.slice(prefix.length);
-  const m = FUSION_RE.exec(rest);
+  const m = FUSION_FADE_RE.exec(rest);
   if (m === null) return null;
   const ekf = parseEkfName(rest.slice(0, m.index));
   if (ekf === null) return null;
-  const fusion: FusionParams = { k: Number(m[1]), every: Number(m[2]) };
+  const fusion: FusionParams = {
+    k: Number(m[1]),
+    every: Number(m[2]),
+    ...(m[3] === undefined ? {} : { fade: Number(m[3]) }),
+    ...(m[4] === undefined || m[5] === undefined
+      ? {}
+      : { adapt: { hi: Number(m[4]), eta: Number(m[5]) } }),
+  };
   return fusedEkfName(network, ekf.sigmaA, ekf.scales, fusion) === name ? { ...ekf, fusion } : null;
 }
 
