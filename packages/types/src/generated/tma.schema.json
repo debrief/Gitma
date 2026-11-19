@@ -2215,6 +2215,13 @@
             "null"
           ]
         },
+        "detector_onset_rows": {
+          "description": "Spec 031 (Annex I), manoeuvre_detector only: the early-alarm label. Label 1 only in the first this-many rows after a course change begins (a stored course change preceded by 30 rows of steady course); 0 on quiet rows; no loss elsewhere. Absent: spec 030's 5-min window label.",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "feature_set": {
           "anyOf": [
             {
@@ -2421,5 +2428,5 @@
   ],
   "title": "tma",
   "type": "object",
-  "version": "0.25.0"
+  "version": "0.26.0"
 }
