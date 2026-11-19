@@ -1,0 +1,23 @@
+{
+  "id": "p18a",
+  "description": "Spec 031 (phase 18, SRD Annex I): the manoeuvre detector of spec 030 retrained with the early-alarm label (detector_onset_rows 12: label 1 only in the first 2 min after a course change begins; quiet rows 0; the rest of a turn unweighted), T2's architecture, from scratch on generator 0.6.0 data with realistic bearing error (seed 241, configs/phase7-ranges.json). Normalisation from this dataset's train split. The evaluation job only commits the model; validation (seed 217) and G6 under rules h (fresh seed 242) follow under a later decision.",
+  "dataset": {
+    "seed": "241",
+    "count": 100000,
+    "ranges": "configs/phase7-ranges.json",
+    "heldout_ranges": "configs/phase7-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "8298a3d571dc1ed00fe57a7657f3b94f2f769bab2f71eb813b1ee16c2f401eb4",
+      "validation.f32pack": "abfc36109463cbc12fbe5e0367a7f1a75fad8a14b47a04bed368adc72249827e",
+      "test.f32pack": "fb4757e3f08e1fb684a271114b14acc0501aa6d9bce560e329ab25ea14316697",
+      "heldout.f32pack": "d8c0c811ca6fbb227c130b43888f8e6f49379afd347975bb04ff05f4dae7fb2e"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/phase18/a",
+  "models": ["detector"],
+  "evaluate": {
+    "command": "models",
+    "split": "validation"
+  }
+}
