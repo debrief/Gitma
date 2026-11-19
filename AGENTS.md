@@ -92,7 +92,8 @@ node packages/eval/dist/cli-g5.js --truth <test.f32pack> --tracker <pred> --refe
 node packages/eval/dist/cli-detect.js --truth <split> --out <scores.ndjson> --detector cusum <IMM flags> \
   --kind nis|mean --c <drift> --clip <bound>   # or --detector disagree|crate --network <t2> (spec 017)
 node packages/eval/dist/cli-g6.js --truth <split> --learned <scores>... --cusum <scores>... --experiment <dir> \
-  [--also <pred>... --decision --plan --model]   # G6: validation calibrates; a test split is the gate
+  [--also <pred>... --decision --plan --model] [--rules h]   # G6: validation calibrates; a test split is the gate
+  # Annex H: --detector model --network <det.ndjson> (manoeuvre_detector network, spec 030); --rules h
 node packages/eval/dist/cli-g7.js --truth <split> --tracker <fused -sd> --reference <imm -sd> --experiment <dir> \
   [--also <t2> --decision --plan --model]   # G7 (spec 018): validation fits + two-fold; test is the gate
 ```
@@ -215,7 +216,7 @@ named estimator on range. The full history, with every number, is in
 | G3 | Passed, for the classical/LSTM hybrid | `20261028-i5-g3` |
 | G4 | Phases 3 and 3b stopped at validation (held-course control) | `20261029-p3a-val`, `20261030-p3b-val` |
 | G5 | Phase 4 stopped; passed for the 4b hybrid, the 4c fused tracker, the fused tracker under realistic error (7), and the EKF-fused tracker against the re-tuned EKF (15) | `20261101-p4h-g5`, `20261102-p4f-g5`, `20261108-p7-g5`, `20261116-p15-g5` |
-| G6 | Phase 5 stopped at validation | `20261105-p5-research` |
+| G6 | Phase 5 and phase 17 (trained detector, rules h) stopped at validation | `20261105-p5-research`, `20261118-p17-val` |
 | G7 | Inconclusive on seed 215; passed on the re-score (seed 216) | `20261106-p6v-g7` |
 | G8 | Phases 8, 9 and 11 stopped; passed for the phase-10 hybrid | `20261112-p10-g8` |
 
@@ -252,12 +253,16 @@ than the re-tuned IMM on course (0.99 ×); half the course gain is σa (a plain 
 on straight legs the EKF is still better (course 1.57 ×). Seed 234 never generated, stays reserved. **Annex G** (spec 029,
 `experiments/20261118-p16-val/validation.md`): a range fade and NIS-adaptive σa for the EKF fusion,
 gated with straight-leg course; **stopped at validation** (best −0.129): adaptation trades overall
-course for straight-leg course, the fade trades overall range for it. Seeds 236–237 never generated. `tma-solve --workers n` streams per-timestep least squares in parallel.
+course for straight-leg course, the fade trades overall range for it. Seeds 236–237 never generated. **Annex H** (spec 030,
+`experiments/20261118-p17-val/validation.md`): a trained manoeuvre detector (`manoeuvre_detector`,
+`experiments/20261118-p17a-models/`) at G6 rules h against the best re-tuned CUSUM; **stopped at
+validation**: 11.1% against 12.2% detected within 5 min at 0.5/h, slower (1.46 ×), no better than T2's
+course change. Seeds 239–240 never generated. `tma-solve --workers n` streams per-timestep least squares in parallel.
 
 ### Operational rules from the gates
 
 - **Seeds.** 201–228 are reserved (used or deliberately never generated); 900 is the viewer's
-  phase-3 preview. 229–230 are reserved for Annex D's G9 (decision 41); 231–232 are reserved for Annex E (never generated); 233–234 for Annex F (decision 43); 235 is Annex G's design probe and 236–237 its gate (decision 44); the next free seed is 238. Validation splits reused across phases: seed 211
+  phase-3 preview. 229–230 are reserved for Annex D's G9 (decision 41); 231–232 are reserved for Annex E (never generated); 233–234 for Annex F (decision 43); 235 is Annex G's design probe and 236–237 its gate (decision 44, never committed); 238 is Annex H's detector training data and 239–240 its G6 test (decision 45, never committed); the next free seed is 241. Validation splits reused across phases: seed 211
   (phases 4–6), seed 217 (phases 7–11).
 - **Frozen references** (decision 32, from phase 5): IMM `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1`,
   EKF `ekf-sa0.03-p4-r8-g1`. Frozen T2: `experiments/20261101-p4b-models/` (normalisation from seed

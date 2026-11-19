@@ -331,3 +331,6 @@ The repository is public on GitHub from day one; nothing above OFFICIAL enters i
 - [Annex G: A fading range weight and adaptive process noise](SRD-annex-G.md) (2026-11-18): after
   Annex F, T2's weight fades as the EKF's range firms up and σa adapts to the bearing NIS, judged
   by G5 plus a straight-leg course check on fresh seed 236.
+- [Annex H: A trained manoeuvre detector](SRD-annex-H.md) (2026-11-18): after Annexes D and G, a
+  detector network trained on realistic error (seed 238), judged at G6 under revised rules
+  against the best re-tuned CUSUM on fresh seed 239.

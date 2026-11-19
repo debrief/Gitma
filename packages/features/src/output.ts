@@ -11,13 +11,18 @@ export interface OutputSpec {
   velocityScaleMps: number;
 }
 
-/** Output channels per row: 4, 7 for velocity_two_hypothesis, 6 for velocity_gaussian. */
+/**
+ * Output channels per row: 4, 7 for velocity_two_hypothesis, 6 for velocity_gaussian, 1 for
+ * manoeuvre_detector.
+ */
 export const outputWidth = (spec: OutputSpec): number =>
   spec.parameterisation === "velocity_two_hypothesis"
     ? 7
     : spec.parameterisation === "velocity_gaussian"
       ? 6
-      : 4;
+      : spec.parameterisation === "manoeuvre_detector"
+        ? 1
+        : 4;
 
 export const COURSE_SPEED: OutputSpec = { parameterisation: "course_speed", velocityScaleMps: 1 };
 
@@ -28,6 +33,7 @@ export function outputSpec(config: {
 }): OutputSpec {
   const p = config.output_parameterisation ?? "course_speed";
   if (p === "course_speed") return COURSE_SPEED;
+  if (p === "manoeuvre_detector") return { parameterisation: p, velocityScaleMps: 1 };
   const v = config.velocity_scale_mps;
   if (typeof v !== "number" || !Number.isFinite(v) || !(v > 0))
     throw new Error(`output_parameterisation ${p} needs a positive velocity_scale_mps`);
@@ -44,6 +50,34 @@ export function turnedLabel(stored: ArrayLike<number>, s: number): number {
   return stored[s + 1] !== stored[1] || stored[s + 2] !== stored[2] ? 1 : 0;
 }
 
+/** Rows a detector label looks back (spec 030): 5 min at dt 10 s. */
+export const DETECTOR_LOOKBACK_ROWS = 30;
+
+/**
+ * The manoeuvre detector's label and loss mask at row `r` of a window's stored targets (stride
+ * `nt`), spec 030. Label 1 if the stored course changed within the last `DETECTOR_LOOKBACK_ROWS`
+ * rows; label 0 on quiet rows, where neither course nor speed changed (G5's and G6's settled rows);
+ * mask 0 elsewhere (a speed change alone) and in a window's first rows, which lack the history.
+ * Stored truth is float32 and bit-identical while the target holds course and speed.
+ */
+export function detectorLabel(
+  stored: ArrayLike<number>,
+  r: number,
+  nt: number,
+): { label: number; mask: number } {
+  if (r < DETECTOR_LOOKBACK_ROWS) return { label: 0, mask: 0 };
+  const at = (row: number, c: number): number => stored[row * nt + c] ?? NaN;
+  let course = false;
+  let speed = false;
+  for (let j = 1; j <= DETECTOR_LOOKBACK_ROWS; j++) {
+    const q = r - j;
+    if (at(q, 1) !== at(r, 1) || at(q, 2) !== at(r, 2)) course = true;
+    if (at(q, 3) !== at(r, 3)) speed = true;
+  }
+  if (course) return { label: 1, mask: 1 };
+  return { label: 0, mask: speed ? 0 : 1 };
+}
+
 /**
  * Training targets for one row: the first four stored target channels (log_range_km, course_sin,
  * course_cos, speed / speed_scale_mps), re-encoded for `spec`, written to out[o .. o + 3]. With
@@ -56,7 +90,16 @@ export function encodeTargets(
   spec: OutputSpec,
   out: Float32Array,
   o: number,
+  nt = 6,
 ): void {
+  if (spec.parameterisation === "manoeuvre_detector") {
+    const { label, mask } = detectorLabel(stored, Math.round(s / nt), nt);
+    out[o] = label;
+    out[o + 1] = mask;
+    out[o + 2] = 0;
+    out[o + 3] = 0;
+    return;
+  }
   const logR = stored[s] ?? 0;
   const sin = stored[s + 1] ?? 0;
   const cos = stored[s + 2] ?? 0;

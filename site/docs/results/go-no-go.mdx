@@ -148,6 +148,28 @@ firms up, and σa rises with the recent bearing NIS. The gate would have added s
 So straight legs remain the classical trackers' (and least squares'); the fused tracker's value is
 after manoeuvres and overall, as phase 15 found.
 
+## A trained manoeuvre detector (spec 030)
+
+Three designs failed on telling a manoeuvre from correlated bearing error, so Annex H trained a
+detector network for it (T2's architecture, realistic-error data) and judged it at a revised G6
+against the best CUSUM re-tuned to the same error. It **stopped at validation**
+(`experiments/20261118-p17-val/validation.md`):
+
+| At 0.5 false alarms per quiet hour | Course changes detected within 5 min |
+| --- | --- |
+| Best re-tuned CUSUM | 12.2% |
+| Trained detector | 11.1% |
+| T2's own course change (untrained) | 10.7% |
+
+- Under realistic error every detector is weak at a strict false-alarm rate (phase 5 reached 28%
+  under white noise).
+- Training for the label did not beat T2's untrained course change, and it was slower than the
+  CUSUM on the turns both caught.
+- From about 2 false alarms per hour the learned signals catch slightly more than the CUSUM.
+
+So manoeuvre detection, the weak point behind the composite solver and adaptive process noise,
+is not fixed by a trained detector at a strict operating point.
+
 ## Conditions on the "go"
 
 The fused tracker is the candidate. Before it is used outside this project, each of the following

@@ -11,6 +11,8 @@ import {
   cusumDetect,
   cusumName,
   courseRateName,
+  modelDetect,
+  modelDetectorName,
   disagreementDetect,
   disagreementName,
   fileDigest,
@@ -82,7 +84,7 @@ export function main(argv: string[]): unknown {
     const q = { kind, c: num(values, "c", true), clip: num(values, "clip", true) } as const;
     name = cusumName(p, q);
     make = (s) => cusumDetect(s, p, q);
-  } else if (detector === "disagree" || detector === "crate") {
+  } else if (detector === "disagree" || detector === "crate" || detector === "model") {
     if (!values.network) throw new UsageError(`--detector ${detector} needs --network\n${USAGE}`);
     const n = openPredictionSet(values.network, truth);
     inputs = [{ estimator: n.estimator, sha256: fileDigest(values.network) }];
@@ -94,7 +96,10 @@ export function main(argv: string[]): unknown {
         );
       return p;
     };
-    if (detector === "disagree") {
+    if (detector === "model") {
+      name = modelDetectorName(n.estimator);
+      make = (s) => modelDetect(net(s));
+    } else if (detector === "disagree") {
       if (!values.tracker) throw new UsageError(`--detector disagree needs --tracker\n${USAGE}`);
       const t = openPredictionSet(values.tracker, truth);
       inputs.push({ estimator: t.estimator, sha256: fileDigest(values.tracker) });
@@ -113,7 +118,7 @@ export function main(argv: string[]): unknown {
       name = courseRateName(n.estimator, w);
       make = (s) => courseRateDetect(net(s), w);
     }
-  } else throw new UsageError(`--detector must be cusum, disagree or crate\n${USAGE}`);
+  } else throw new UsageError(`--detector must be cusum, disagree, crate or model\n${USAGE}`);
   const w = openDetectionWriter(out, name, truth, inputs);
   try {
     for (const s of scenarioSource(truth)) w.write(make(s));

@@ -40,6 +40,8 @@ export const disagreementName = (network: string, tracker: string): string =>
 /** Name of the course-rate detector over `w` samples. */
 export const courseRateName = (network: string, w: number): string =>
   `crate-${network}-w${String(w)}`;
+/** A trained detector network's own probability (spec 030). */
+export const modelDetectorName = (network: string): string => `pman-${network}`;
 
 const RAD = 180 / Math.PI;
 const wrapAbsDeg = (a: number): number => Math.abs(Math.atan2(Math.sin(a), Math.cos(a))) * RAD;
@@ -136,4 +138,18 @@ export function courseRateDetect(network: Prediction, w: number): Detection {
     };
   });
   return detection(network.scenario_index, courseRateName(network.estimator, w), rows);
+}
+
+/**
+ * A trained manoeuvre-detector network's probability as the score (spec 030): each row's
+ * p_manoeuvre, or 0 where the network states none.
+ */
+export function modelDetect(network: Prediction): Detection {
+  if (network.mode !== "per_timestep")
+    throw new Error(`scenario ${String(network.scenario_index)}: detectors need per-timestep rows`);
+  const rows = network.rows.map((n): DetectionRow => ({
+    timestamp_s: n.timestamp_s,
+    score: n.p_manoeuvre != null && Number.isFinite(n.p_manoeuvre) ? f32(n.p_manoeuvre) : 0,
+  }));
+  return detection(network.scenario_index, modelDetectorName(network.estimator), rows);
 }

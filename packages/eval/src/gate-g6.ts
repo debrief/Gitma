@@ -34,6 +34,15 @@ export const G6_FA_PER_HOUR = 0.5;
 export const G6_DETECT_MARGIN = -0.02;
 /** Largest test false-alarm ratio (learned / CUSUM) the gate allows. */
 export const G6_FA_RATIO = 1.25;
+/**
+ * G6 rule sets: "c12" as spec 017 pinned them (Annex C §C.12); "h" as Annex H revises them
+ * (spec 030): detect5 must be shown better (lower bound > 0), the delay is compared on the events
+ * both detectors catch (non-inferior: upper bound ≤ `G6_H_DELAY_RATIO`), false alarms as before.
+ */
+export type G6Rules = "c12" | "h";
+/** Annex H's largest delay ratio (learned / CUSUM) among events both detect. */
+export const G6_H_DELAY_RATIO = 1.25;
+
 /** Interval level: one detector is judged. */
 export const G6_LEVEL = 0.95;
 
@@ -242,6 +251,7 @@ export function g6Checks(
   cusum: { label: string; scores: Scores; threshold: number },
   resamples = BOOTSTRAP_RESAMPLES,
   seed = BOOTSTRAP_SEED,
+  rules: G6Rules = "c12",
 ): GateCheck[] {
   const { events, scenarios } = g6Events(truth);
   if (events.length === 0) throw new Error("G6: no σ = 1° course-change events");
@@ -256,27 +266,41 @@ export function g6Checks(
     return remap.size - 1;
   });
   const checks: GateCheck[] = [];
-  const d = bootstrapClusteredQuantileRatio(a.delays, b.delays, cl, 0.5, G6_LEVEL, resamples, seed);
-  // Both medians infinite (each detector misses at least half the events): the ratio is
-  // undefined, so the check cannot be judged either way (spec 017 R2).
-  const undefinedRatio = !Number.isFinite(d.ratio) || !Number.isFinite(d.lo);
-  const delayResult: GateResult = undefinedRatio
-    ? "inconclusive"
-    : d.ratio < 1 && d.hi < 1
-      ? "pass"
-      : d.lo >= 1
-        ? "fail"
-        : "inconclusive";
-  checks.push({
-    name: `${learned.label}:g6-delay`,
-    result: delayResult,
-    threshold: 1,
-    ci_level: G6_LEVEL,
-    ...(undefinedRatio ? {} : { value: d.ratio, ci_low: d.lo, ci_high: d.hi }),
-    detail: undefinedRatio
-      ? `${learned.label} / ${cusum.label} median detection delay over ${String(events.length)} course-change events in ${String(d.clusters)} scenarios is undefined: at these thresholds at least one detector misses half the events or more (median +∞)`
-      : `${learned.label} / ${cusum.label} median detection delay over ${String(events.length)} course-change events in ${String(d.clusters)} scenarios (misses +∞) ${d.ratio.toFixed(4)} vs limit 1; ${String(G6_LEVEL * 100)}% CI [${d.lo.toFixed(4)}, ${d.hi.toFixed(4)}]`,
-  });
+  if (rules === "h")
+    checks.push(
+      jointDelayCheck(a.delays, b.delays, cl, learned.label, cusum.label, resamples, seed),
+    );
+  else {
+    const d = bootstrapClusteredQuantileRatio(
+      a.delays,
+      b.delays,
+      cl,
+      0.5,
+      G6_LEVEL,
+      resamples,
+      seed,
+    );
+    // Both medians infinite (each detector misses at least half the events): the ratio is
+    // undefined, so the check cannot be judged either way (spec 017 R2).
+    const undefinedRatio = !Number.isFinite(d.ratio) || !Number.isFinite(d.lo);
+    const delayResult: GateResult = undefinedRatio
+      ? "inconclusive"
+      : d.ratio < 1 && d.hi < 1
+        ? "pass"
+        : d.lo >= 1
+          ? "fail"
+          : "inconclusive";
+    checks.push({
+      name: `${learned.label}:g6-delay`,
+      result: delayResult,
+      threshold: 1,
+      ci_level: G6_LEVEL,
+      ...(undefinedRatio ? {} : { value: d.ratio, ci_low: d.lo, ci_high: d.hi }),
+      detail: undefinedRatio
+        ? `${learned.label} / ${cusum.label} median detection delay over ${String(events.length)} course-change events in ${String(d.clusters)} scenarios is undefined: at these thresholds at least one detector misses half the events or more (median +∞)`
+        : `${learned.label} / ${cusum.label} median detection delay over ${String(events.length)} course-change events in ${String(d.clusters)} scenarios (misses +∞) ${d.ratio.toFixed(4)} vs limit 1; ${String(G6_LEVEL * 100)}% CI [${d.lo.toFixed(4)}, ${d.hi.toFixed(4)}]`,
+    });
+  }
   const within = (x: Float64Array): Uint8Array =>
     Uint8Array.from(x, (v) => (v <= DETECT_WITHIN_S ? 1 : 0));
   const wa = within(a.delays);
@@ -285,13 +309,24 @@ export function g6Checks(
   const rate = (w: Uint8Array): number => w.reduce((t, x) => t + x, 0) / w.length;
   checks.push({
     name: `${learned.label}:g6-detect5`,
-    result: r.lo >= G6_DETECT_MARGIN ? "pass" : r.hi < G6_DETECT_MARGIN ? "fail" : "inconclusive",
+    result:
+      rules === "h"
+        ? r.lo > 0
+          ? "pass"
+          : r.hi <= 0
+            ? "fail"
+            : "inconclusive"
+        : r.lo >= G6_DETECT_MARGIN
+          ? "pass"
+          : r.hi < G6_DETECT_MARGIN
+            ? "fail"
+            : "inconclusive",
     value: r.difference,
-    threshold: G6_DETECT_MARGIN,
+    threshold: rules === "h" ? 0 : G6_DETECT_MARGIN,
     ci_low: r.lo,
     ci_high: r.hi,
     ci_level: G6_LEVEL,
-    detail: `detected within ${String(DETECT_WITHIN_S)} s: ${learned.label} ${pct(rate(wa))} vs ${cusum.label} ${pct(rate(wb))}; difference ${(r.difference * 100).toFixed(2)} pp, ${String(G6_LEVEL * 100)}% CI [${(r.lo * 100).toFixed(2)}, ${(r.hi * 100).toFixed(2)}] pp, margin ${String(G6_DETECT_MARGIN * 100)} pp`,
+    detail: `detected within ${String(DETECT_WITHIN_S)} s: ${learned.label} ${pct(rate(wa))} vs ${cusum.label} ${pct(rate(wb))}; difference ${(r.difference * 100).toFixed(2)} pp, ${String(G6_LEVEL * 100)}% CI [${(r.lo * 100).toFixed(2)}, ${(r.hi * 100).toFixed(2)}] pp, ${rules === "h" ? "superiority: lower bound > 0 (Annex H)" : `margin ${String(G6_DETECT_MARGIN * 100)} pp`}`,
   });
   const f = bootstrapSumRatio(a.onsets, b.onsets, G6_LEVEL, resamples, seed);
   const hours = a.hours.reduce((t, x) => t + x, 0);
@@ -307,6 +342,61 @@ export function g6Checks(
     detail: `false alarms on ${hours.toFixed(1)} quiet hours: ${learned.label} ${(sum(a.onsets) / hours).toFixed(3)}/h vs ${cusum.label} ${(sum(b.onsets) / hours).toFixed(3)}/h (thresholds ${learned.threshold.toPrecision(6)} and ${cusum.threshold.toPrecision(6)}, set on validation for ${String(G6_FA_PER_HOUR)}/h); ratio ${f.ratio.toFixed(4)}, ${String(G6_LEVEL * 100)}% CI [${f.lo.toFixed(4)}, ${f.hi.toFixed(4)}], limit ${String(G6_FA_RATIO)}`,
   });
   return checks;
+}
+
+/**
+ * Annex H's delay check: the median delay ratio learned / CUSUM over the events both detect within
+ * their windows (finite delays), scenario-clustered; pass if the upper bound ≤ G6_H_DELAY_RATIO,
+ * fail if the lower bound exceeds it. Phase 5 found the all-event medians undefined (+∞).
+ */
+function jointDelayCheck(
+  a: Float64Array,
+  b: Float64Array,
+  cl: Int32Array,
+  learned: string,
+  cusum: string,
+  resamples: number,
+  seed: bigint,
+): GateCheck {
+  const both: number[] = [];
+  for (let i = 0; i < a.length; i++)
+    if (Number.isFinite(a[i] ?? Infinity) && Number.isFinite(b[i] ?? Infinity)) both.push(i);
+  const name = `${learned}:g6-delay-joint`;
+  if (both.length === 0)
+    return {
+      name,
+      result: "inconclusive",
+      threshold: G6_H_DELAY_RATIO,
+      ci_level: G6_LEVEL,
+      detail: `no course-change event is detected by both ${learned} and ${cusum}`,
+    };
+  const remap = new Map<number, number>();
+  const sub = Int32Array.from(both, (i) => {
+    const c = cl[i] ?? 0;
+    const v = remap.get(c);
+    if (v !== undefined) return v;
+    remap.set(c, remap.size);
+    return remap.size - 1;
+  });
+  const d = bootstrapClusteredQuantileRatio(
+    Float64Array.from(both, (i) => a[i] ?? NaN),
+    Float64Array.from(both, (i) => b[i] ?? NaN),
+    sub,
+    0.5,
+    G6_LEVEL,
+    resamples,
+    seed,
+  );
+  return {
+    name,
+    result: d.hi <= G6_H_DELAY_RATIO ? "pass" : d.lo > G6_H_DELAY_RATIO ? "fail" : "inconclusive",
+    value: d.ratio,
+    threshold: G6_H_DELAY_RATIO,
+    ci_low: d.lo,
+    ci_high: d.hi,
+    ci_level: G6_LEVEL,
+    detail: `${learned} / ${cusum} median detection delay over the ${String(both.length)} course-change events both detect (${String(d.clusters)} scenarios) ${d.ratio.toFixed(4)}, ${String(G6_LEVEL * 100)}% CI [${d.lo.toFixed(4)}, ${d.hi.toFixed(4)}], limit ${String(G6_H_DELAY_RATIO)} (Annex H)`,
+  };
 }
 
 /** G6: pass if all three checks pass, fail if any fails, otherwise inconclusive. */

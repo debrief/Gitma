@@ -2,7 +2,7 @@ import * as tf from "@tensorflow/tfjs-node";
 import { openFeatures } from "@tma/features";
 import { describe, expect, it } from "vitest";
 import { epochOrder, labelMap, makeBatch, permutation } from "../src/batches.js";
-import { makeLoss } from "../src/loss.js";
+import { detectorLossParts, makeLoss } from "../src/loss.js";
 import { tinyConfig, tinyFeatures } from "./helpers.js";
 
 describe("masked loss", () => {
@@ -23,6 +23,33 @@ describe("masked loss", () => {
     prow(5)[0] = 100; // unweighted row: ignored
     const l = makeLoss(cfg)(tf.tensor3d(yTrue), tf.tensor3d(yPred));
     expect(l.dataSync()[0]).toBeCloseTo(6, 6);
+  });
+});
+
+describe("detector loss (spec 030)", () => {
+  it("is binary cross-entropy where the label mask and row weight are both set", () => {
+    // Rows: (label 1, mask 1, w 1, z 0), (label 0, mask 1, w 1, z 2), (label 1, mask 0, w 1),
+    // (label 0, mask 1, w 0).
+    const y = tf.tensor3d(
+      [
+        [
+          [1, 1, 0, 0, 1],
+          [0, 1, 0, 0, 1],
+          [1, 0, 0, 0, 1],
+          [0, 1, 0, 0, 0],
+        ],
+      ],
+      [1, 4, 5],
+    );
+    const p = tf.tensor3d([[[0], [2], [-9], [5]]], [1, 4, 1]);
+    const { num, den } = detectorLossParts(y, p);
+    const want = Math.log(2) + Math.log(1 + Math.exp(2));
+    expect(num.dataSync()[0]).toBeCloseTo(want, 5);
+    expect(den.dataSync()[0]).toBe(2);
+    const loss = makeLoss(
+      tinyConfig("instantaneous", { output_parameterisation: "manoeuvre_detector" }),
+    );
+    expect(loss(y, p).dataSync()[0]).toBeCloseTo(want / 2, 5);
   });
 });
 

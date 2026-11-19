@@ -126,6 +126,10 @@ export function parseCusumName(name: string): { imm: ImmParams; cusum: CusumPara
   return cusumName(imm, cusum) === name ? { imm, cusum } : null;
 }
 
+/** Whether `name` is the model detector (spec 030) over `network`. */
+export const isModelDetectorName = (name: string, network: string): boolean =>
+  name === `pman-${network}`;
+
 /** The course-rate detector's window `name` declares over `network`, or null. */
 export function parseCourseRateName(name: string, network: string): number | null {
   const prefix = `crate-${network}-w`;

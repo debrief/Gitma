@@ -1,0 +1,23 @@
+{
+  "id": "p17a",
+  "description": "Spec 030 (phase 17, SRD Annex H): a dedicated manoeuvre detector, T2's architecture (2 x 128 LSTM, derived features) with the manoeuvre_detector head (one logit; label: the stored course changed within the last 5 min; quiet rows 0; masked BCE), trained from scratch on generator 0.6.0 data with realistic bearing error (seed 238, configs/phase7-ranges.json). Normalisation from this dataset's train split (inputs only). The evaluation job only commits the model; validation (seed 217) and G6 under Annex H's rules (fresh seed 239) are scored with tma-detect and tma-g6 under a later decision that freezes the detector by digest.",
+  "dataset": {
+    "seed": "238",
+    "count": 100000,
+    "ranges": "configs/phase7-ranges.json",
+    "heldout_ranges": "configs/phase7-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "c9579b3348342d4747eb3de30d8e36ac91e9504a8004df0149ddc9657431924d",
+      "validation.f32pack": "334395cde326c70c3942646865046884b4dd0031ad0be259b01a085ce058b6cd",
+      "test.f32pack": "9627345d0fd3edbd1ca463db831a9a9f86db6afb3e2b76eff220e326a5b6c956",
+      "heldout.f32pack": "e75c84f876ee6796f6c44735edd22d3d658530b251c397fd4ff182f016224452"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/phase17/a",
+  "models": ["detector"],
+  "evaluate": {
+    "command": "models",
+    "split": "validation"
+  }
+}

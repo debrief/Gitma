@@ -173,7 +173,7 @@ export function makeBatch(
         (w.inputs[r * ni + WINDOW_MASK] ?? 0) * (lw.inputs[r * ni + WINDOW_MASK] ?? 0);
       const weight = causal ? windowMask * (lw.lossMask[r] ?? 0) : windowMask;
       const o = (j * rows + r) * NY;
-      encodeTargets(lw.targets, r * NT, file.norm, spec, y, o);
+      encodeTargets(lw.targets, r * NT, file.norm, spec, y, o, NT);
       y[o + NO] = weight;
     }
   }

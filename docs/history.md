@@ -263,3 +263,9 @@ on straight legs the EKF stays better (course 1.57 ×). `experiments/20261116-p1
 fusion, gated on G5 plus straight-leg course, stopped at validation (best score −0.129). Adaptation
 trades overall course for straight-leg course; the fade trades overall range for it; fusing T2
 costs straight-leg course even at the reference's σa. `experiments/20261118-p16-val/`.
+
+**Annex H** (2026-11-18/19, spec 030). A manoeuvre detector network trained on realistic-error data
+(seed 238) stopped at validation at G6 under revised rules: at 0.5 false alarms per quiet hour it
+caught 11.1% of course changes within 5 min against the best re-tuned CUSUM's 12.2%, and was slower
+on the turns both caught (1.46 ×); T2's untrained course change caught 10.7%.
+`experiments/20261118-p17-val/`.
