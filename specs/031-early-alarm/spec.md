@@ -20,6 +20,11 @@ judged the first.
 
 - [x] T001 FR-001 with tests
 - [x] T002 FR-002–FR-003, Annex I, committed before training; training on GitHub Actions
-- [ ] T003 Validation (seed 217); `validation.md`
-- [ ] T004 If carried: decision 46 (seed 242), G6 on test, panel review
-- [ ] T005 Write-ups
+- [x] T003 Validation (seed 217); `validation.md`
+- [x] T004 (not carried: skipped) If carried: decision 46 (seed 242), G6 on test, panel review
+- [x] T005 Write-ups
+
+## Outcome
+
+Stopped at validation: detect5 −7.1 pp [−8.0, −6.3]; delay on turns both detect 0.50 ×. See
+`experiments/20261119-p18-val/validation.md` and Annex I §I.6.

@@ -1,0 +1,138 @@
+{
+  "truth": "data/p17val/validation.f32pack",
+  "events": 7433,
+  "detectors": [
+    {
+      "detector": "pman-det-onset",
+      "rates": {
+        "1": {
+          "threshold": 0.4392653042793275,
+          "achieved": 0.9992035334153911,
+          "detected_within_5min": 0.09296381003632449,
+          "detected_within_10min": 0.09309834521727432,
+          "median_delay_detected_s": 70
+        },
+        "2": {
+          "threshold": 0.41618646235466006,
+          "achieved": 1.999493157627973,
+          "detected_within_5min": 0.17651015740616172,
+          "detected_within_10min": 0.17677922776806135,
+          "median_delay_detected_s": 70
+        },
+        "5": {
+          "threshold": 0.03930633893609048,
+          "achieved": 4.999275939468528,
+          "detected_within_5min": 0.04480021525628952,
+          "detected_within_10min": 0.04480021525628952,
+          "median_delay_detected_s": 0
+        },
+        "0.5": {
+          "threshold": 0.45536684408187866,
+          "achieved": 0.49960176670769557,
+          "detected_within_5min": 0.05004708731333243,
+          "detected_within_10min": 0.05004708731333243,
+          "median_delay_detected_s": 70
+        }
+      }
+    },
+    {
+      "detector": "pman-det-lstm",
+      "rates": {
+        "1": {
+          "threshold": 0.6509439941406251,
+          "achieved": 0.9992035334153911,
+          "detected_within_5min": 0.20489708058657338,
+          "detected_within_10min": 0.21781245795775594,
+          "median_delay_detected_s": 170
+        },
+        "2": {
+          "threshold": 0.5991266409873963,
+          "achieved": 1.999493157627973,
+          "detected_within_5min": 0.3512713574599758,
+          "detected_within_10min": 0.35261670926947397,
+          "median_delay_detected_s": 160
+        },
+        "5": {
+          "threshold": 0.046698411649465574,
+          "achieved": 4.999275939468528,
+          "detected_within_5min": 0.050181622494282256,
+          "detected_within_10min": 0.050181622494282256,
+          "median_delay_detected_s": 0
+        },
+        "0.5": {
+          "threshold": 0.6602575551033021,
+          "achieved": 0.49960176670769557,
+          "detected_within_5min": 0.11072245392170052,
+          "detected_within_10min": 0.11731467778824163,
+          "median_delay_detected_s": 180
+        }
+      }
+    },
+    {
+      "detector": "crate-lstm-gaussian-w6",
+      "rates": {
+        "1": {
+          "threshold": 100.98493487281505,
+          "achieved": 0.9992035334153911,
+          "detected_within_5min": 0.2040898695008745,
+          "detected_within_10min": 0.22870980761469123,
+          "median_delay_detected_s": 150
+        },
+        "2": {
+          "threshold": 73.95022383651713,
+          "achieved": 1.999493157627973,
+          "detected_within_5min": 0.3453518094981838,
+          "detected_within_10min": 0.3806000269070362,
+          "median_delay_detected_s": 140
+        },
+        "5": {
+          "threshold": 48.60553631317542,
+          "achieved": 4.999275939468528,
+          "detected_within_5min": 0.5998923718552401,
+          "detected_within_10min": 0.6394457150544868,
+          "median_delay_detected_s": 120
+        },
+        "0.5": {
+          "threshold": 133.13649702670892,
+          "achieved": 0.49960176670769557,
+          "detected_within_5min": 0.1068209336741558,
+          "detected_within_10min": 0.12202340912148527,
+          "median_delay_detected_s": 160
+        }
+      }
+    },
+    {
+      "detector": "cusum-mean-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.25-x3",
+      "rates": {
+        "1": {
+          "threshold": 0.6240123298526695,
+          "achieved": 0.9992035334153911,
+          "detected_within_5min": 0.22198304856720033,
+          "detected_within_10min": 0.23974169245257634,
+          "median_delay_detected_s": 140
+        },
+        "2": {
+          "threshold": 0.38092660419956803,
+          "achieved": 1.999493157627973,
+          "detected_within_5min": 0.33270550248890085,
+          "detected_within_10min": 0.3628413830216602,
+          "median_delay_detected_s": 130
+        },
+        "5": {
+          "threshold": 0.21654747324362517,
+          "achieved": 4.999275939468528,
+          "detected_within_5min": 0.5101574061617112,
+          "detected_within_10min": 0.5635678729987892,
+          "median_delay_detected_s": 120
+        },
+        "0.5": {
+          "threshold": 1.248599397937618,
+          "achieved": 0.49960176670769557,
+          "detected_within_5min": 0.12148526839768599,
+          "detected_within_10min": 0.13049912552132384,
+          "median_delay_detected_s": 150
+        }
+      }
+    }
+  ]
+}

@@ -52,3 +52,12 @@ an onset label has fewer positives (about 12 rows per turn) to learn from.
 - **Pass:** a trained detector beats the re-tuned CUSUM at a strict operating point; wiring it into
   the fused tracker becomes the next design.
 - **Stop or fail:** the label is recorded as not the limit; the owner decides.
+
+## I.6 Outcome (2026-11-19)
+
+**Stopped at validation** (`experiments/20261119-p18-val/validation.md`). The early-alarm detector
+(epoch 18 of 25, `experiments/20261119-p18a-models/`) is fast but blind: at 0.5 false alarms per
+quiet hour it catches 5.0% of course changes within 5 min against the CUSUM's 12.2% (−7.1 pp
+[−8.0, −6.3]: fail), with half the CUSUM's delay on the turns both catch (0.50: pass). Phase 17's
+window-label detector caught 11.1%. Seeds 242–243 were not generated and stay reserved; decision 46
+was not committed.

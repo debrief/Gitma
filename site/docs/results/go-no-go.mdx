@@ -167,8 +167,12 @@ against the best CUSUM re-tuned to the same error. It **stopped at validation**
   CUSUM on the turns both caught.
 - From about 2 false alarms per hour the learned signals catch slightly more than the CUSUM.
 
+Retrained to fire in the first 2 minutes of a turn (spec 031, Annex I), the detector became fast
+(median delay 70 s, half the CUSUM's) but caught only 5.0% of turns within 5 min, and also stopped
+at validation (`experiments/20261119-p18-val/validation.md`).
+
 So manoeuvre detection, the weak point behind the composite solver and adaptive process noise,
-is not fixed by a trained detector at a strict operating point.
+is not fixed by a trained detector at a strict operating point, with either label.
 
 ## Conditions on the "go"
 
