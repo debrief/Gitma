@@ -1,0 +1,171 @@
+{
+  "truth": "data/p17val/validation.f32pack",
+  "events": 7433,
+  "detectors": [
+    {
+      "detector": "pman-det-lstm",
+      "rates": {
+        "1": {
+          "threshold": 0.6509439941406251,
+          "achieved": 0.9992035334153911,
+          "detected_within_5min": 0.20489708058657338,
+          "detected_within_10min": 0.21781245795775594,
+          "median_delay_detected_s": 170
+        },
+        "2": {
+          "threshold": 0.5991266409873963,
+          "achieved": 1.999493157627973,
+          "detected_within_5min": 0.3512713574599758,
+          "detected_within_10min": 0.35261670926947397,
+          "median_delay_detected_s": 160
+        },
+        "5": {
+          "threshold": 0.046698411649465574,
+          "achieved": 4.999275939468528,
+          "detected_within_5min": 0.050181622494282256,
+          "detected_within_10min": 0.050181622494282256,
+          "median_delay_detected_s": 0
+        },
+        "0.5": {
+          "threshold": 0.6602575551033021,
+          "achieved": 0.49960176670769557,
+          "detected_within_5min": 0.11072245392170052,
+          "detected_within_10min": 0.11731467778824163,
+          "median_delay_detected_s": 180
+        }
+      }
+    },
+    {
+      "detector": "crate-lstm-gaussian-w6",
+      "rates": {
+        "1": {
+          "threshold": 100.98493487281505,
+          "achieved": 0.9992035334153911,
+          "detected_within_5min": 0.2040898695008745,
+          "detected_within_10min": 0.22870980761469123,
+          "median_delay_detected_s": 150
+        },
+        "2": {
+          "threshold": 73.95022383651713,
+          "achieved": 1.999493157627973,
+          "detected_within_5min": 0.3453518094981838,
+          "detected_within_10min": 0.3806000269070362,
+          "median_delay_detected_s": 140
+        },
+        "5": {
+          "threshold": 48.60553631317542,
+          "achieved": 4.999275939468528,
+          "detected_within_5min": 0.5998923718552401,
+          "detected_within_10min": 0.6394457150544868,
+          "median_delay_detected_s": 120
+        },
+        "0.5": {
+          "threshold": 133.13649702670892,
+          "achieved": 0.49960176670769557,
+          "detected_within_5min": 0.1068209336741558,
+          "detected_within_10min": 0.12202340912148527,
+          "median_delay_detected_s": 160
+        }
+      }
+    },
+    {
+      "detector": "cusum-mean-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.25-x3",
+      "rates": {
+        "1": {
+          "threshold": 0.6240123298526695,
+          "achieved": 0.9992035334153911,
+          "detected_within_5min": 0.22198304856720033,
+          "detected_within_10min": 0.23974169245257634,
+          "median_delay_detected_s": 140
+        },
+        "2": {
+          "threshold": 0.38092660419956803,
+          "achieved": 1.999493157627973,
+          "detected_within_5min": 0.33270550248890085,
+          "detected_within_10min": 0.3628413830216602,
+          "median_delay_detected_s": 130
+        },
+        "5": {
+          "threshold": 0.21654747324362517,
+          "achieved": 4.999275939468528,
+          "detected_within_5min": 0.5101574061617112,
+          "detected_within_10min": 0.5635678729987892,
+          "median_delay_detected_s": 120
+        },
+        "0.5": {
+          "threshold": 1.248599397937618,
+          "achieved": 0.49960176670769557,
+          "detected_within_5min": 0.12148526839768599,
+          "detected_within_10min": 0.13049912552132384,
+          "median_delay_detected_s": 150
+        }
+      }
+    },
+    {
+      "detector": "cusum-nis-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.1-x5",
+      "rates": {
+        "1": {
+          "threshold": 0.30620510671950185,
+          "achieved": 0.9992035334153911,
+          "detected_within_5min": 0.2071841786627203,
+          "detected_within_10min": 0.2260191039956949,
+          "median_delay_detected_s": 140
+        },
+        "2": {
+          "threshold": 0.1771393853018497,
+          "achieved": 1.999493157627973,
+          "detected_within_5min": 0.319251984393919,
+          "detected_within_10min": 0.3510022870980761,
+          "median_delay_detected_s": 130
+        },
+        "5": {
+          "threshold": 0.08861638398359797,
+          "achieved": 4.999275939468528,
+          "detected_within_5min": 0.48728642540024214,
+          "detected_within_10min": 0.5428494551325171,
+          "median_delay_detected_s": 130
+        },
+        "0.5": {
+          "threshold": 0.6473159173946894,
+          "achieved": 0.49960176670769557,
+          "detected_within_5min": 0.11919817032153908,
+          "detected_within_10min": 0.12794295708327727,
+          "median_delay_detected_s": 150
+        }
+      }
+    },
+    {
+      "detector": "cusum-mean-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-c0.25-x3",
+      "rates": {
+        "1": {
+          "threshold": 4.963057771251388,
+          "achieved": 0.9992035334153911,
+          "detected_within_5min": 0.18700390152024754,
+          "detected_within_10min": 0.2005919547961792,
+          "median_delay_detected_s": 150
+        },
+        "2": {
+          "threshold": 3.6164946062175023,
+          "achieved": 1.999493157627973,
+          "detected_within_5min": 0.31023812727028116,
+          "detected_within_10min": 0.3360688820126463,
+          "median_delay_detected_s": 140
+        },
+        "5": {
+          "threshold": 2.301374516466441,
+          "achieved": 4.999275939468528,
+          "detected_within_5min": 0.46885510561011706,
+          "detected_within_10min": 0.5143279967711557,
+          "median_delay_detected_s": 120
+        },
+        "0.5": {
+          "threshold": 6.330852884115736,
+          "achieved": 0.49960176670769557,
+          "detected_within_5min": 0.09269473967442486,
+          "detected_within_10min": 0.09995963944571505,
+          "median_delay_detected_s": 170
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "chosen": {
+    "cusum": "cusum-mean-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.25-x3",
+    "learned": "crate-lstm-gaussian-w6"
+  },
+  "cusum": [
+    {
+      "detected_within_5min": 0.0827391362841383,
+      "detector": "cusum-mean-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-c0.1-x3",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.8966769810305395,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 10.638507388903871
+    },
+    {
+      "detected_within_5min": 0.09269473967442486,
+      "detector": "cusum-mean-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-c0.25-x3",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.9000403605542849,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 6.330852884115736
+    },
+    {
+      "detected_within_5min": 0.08058657338894121,
+      "detector": "cusum-mean-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-c0.5-x3",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.9145701600968653,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 3.1147345210232613
+    },
+    {
+      "detected_within_5min": 0.07076550517960446,
+      "detector": "cusum-mean-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-c1-x3",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.9233149468586035,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 0.8246136953756213
+    },
+    {
+      "detected_within_5min": 0.04143683573254406,
+      "detector": "cusum-nis-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-c0.05-x5",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.9242566931252523,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 33.112252136892465
+    },
+    {
+      "detected_within_5min": 0.050988833579981165,
+      "detector": "cusum-nis-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-c0.1-x5",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.9200861025158079,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 26.191419655661797
+    },
+    {
+      "detected_within_5min": 0.07789586976994484,
+      "detector": "cusum-nis-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-c0.25-x5",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.91107224539217,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 10.580927881080145
+    },
+    {
+      "detected_within_5min": 0.0782994753127943,
+      "detector": "cusum-nis-imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1-c0.5-x5",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.9167227229920625,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 4.577351767850436
+    },
+    {
+      "detected_within_5min": 0.10964617247410198,
+      "detector": "cusum-mean-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.1-x3",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.8707116911072246,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 4.583439822531176
+    },
+    {
+      "detected_within_5min": 0.12148526839768599,
+      "detector": "cusum-mean-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.25-x3",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.8695008744786762,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 1.248599397937618
+    },
+    {
+      "detected_within_5min": 0.10937710211220233,
+      "detector": "cusum-mean-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.5-x3",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.8832234629355576,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 0.15734351938160168
+    },
+    {
+      "detected_within_5min": 0.01076281447598547,
+      "detector": "cusum-mean-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c1-x3",
+      "events": 7433,
+      "false_alarms_per_hour": 0.11295344290782683,
+      "median_delay_s": null,
+      "missed": 0.9878918337145164,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 1.1912591960845674e-22
+    },
+    {
+      "detected_within_5min": 0.11193327055024889,
+      "detector": "cusum-nis-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.05-x5",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.8767657742499664,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 1.5515219605423933
+    },
+    {
+      "detected_within_5min": 0.11919817032153908,
+      "detector": "cusum-nis-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.1-x5",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.8720570429167227,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 0.6473159173946894
+    },
+    {
+      "detected_within_5min": 0.11314408717879726,
+      "detector": "cusum-nis-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.25-x5",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.8787838019642137,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 0.18044001236376447
+    },
+    {
+      "detected_within_5min": 0.07372527916050046,
+      "detector": "cusum-nis-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.5-x5",
+      "events": 7433,
+      "false_alarms_per_hour": 0.3605821446672933,
+      "median_delay_s": null,
+      "missed": 0.9219695950491054,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 2.6948052502613624e-22
+    }
+  ],
+  "learned": [
+    {
+      "detected_within_5min": 0.1068209336741558,
+      "detector": "crate-lstm-gaussian-w6",
+      "events": 7433,
+      "false_alarms_per_hour": 0.49960176670769557,
+      "median_delay_s": null,
+      "missed": 0.8779765908785148,
+      "quiet_hours": 920.7333333333355,
+      "threshold": 133.13649702670892
+    }
+  ],
+  "target_false_alarms_per_hour": 0.5
+}

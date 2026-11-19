@@ -87,3 +87,13 @@ better, not merely no worse.
   becomes the next design, under its own annex.
 - **Stop or fail:** manoeuvre detection under this error model is recorded as not improved by a
   trained detector at this operating point; the owner decides.
+
+## H.6 Outcome (2026-11-19)
+
+**Stopped at validation** (`experiments/20261118-p17-val/validation.md`). The detector trained to
+epoch 26 of 33 (`experiments/20261118-p17a-models/`). At 0.5 false alarms per quiet hour it detects
+11.1% of course changes within 5 min against the best re-tuned CUSUM's 12.2% (difference −1.08 pp
+[−2.05, −0.15]: fail) and is slower on the events both detect (1.46 [1.29, 1.75]: fail). It is no
+better than T2's untrained course change (10.7%). From 2 false alarms per hour the learned signals
+catch slightly more than the CUSUM (reported). Seeds 239–240 were not generated and stay
+reserved; decision 45 was not committed.

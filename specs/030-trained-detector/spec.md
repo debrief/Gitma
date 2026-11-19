@@ -23,6 +23,11 @@ against the best re-tuned CUSUM at G6 under revised rules.
 
 - [x] T001 FR-001–FR-003 with tests; end-to-end smoke (train, predict, detect)
 - [x] T002 FR-004: Annex H, plan, config, run.sh committed; training on GitHub Actions
-- [ ] T003 Validation (seed 217): calibrate, select the CUSUM, G6 diagnostic; `validation.md`
-- [ ] T004 If carried: decision 45 (seed 239), G6 on test, panel review
-- [ ] T005 Write-ups: algorithm note, go/no-go report, blog, AGENTS.md
+- [x] T003 Validation (seed 217): calibrate, select the CUSUM, G6 diagnostic; `validation.md`
+- [x] T004 (not carried: skipped) If carried: decision 45 (seed 239), G6 on test, panel review
+- [x] T005 Write-ups: algorithm note, go/no-go report, blog, AGENTS.md
+
+## Outcome
+
+Stopped at validation: detect5 −1.08 pp [−2.05, −0.15] and joint delay 1.46 × against the best
+re-tuned CUSUM. See `experiments/20261118-p17-val/validation.md` and Annex H §H.6.
