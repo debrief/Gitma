@@ -18,6 +18,7 @@ import {
 } from "./ekf.js";
 import { bearingData, PLAUSIBLE } from "./estimate.js";
 import type { BearingData } from "./lsq.js";
+import { invert, matmul, matvec, transposeN } from "./matrix.js";
 
 export const IMM = "imm";
 const N = 5;
@@ -274,6 +275,7 @@ export function immStep(
   t: number,
   z: { bearing: number; ox: number; oy: number; r2: number } | null,
   params: ImmParams,
+  record?: (mixed: readonly [Gaussian, Gaussian], predicted: readonly [Gaussian, Gaussian]) => void,
 ): ImmState {
   const tau = t - st.t;
   const sw = Math.min(0.5, params.switchPerS * tau);
@@ -308,6 +310,7 @@ export function immStep(
     processNoise(tau, params.sigmaCt, params.sigmaOmega, n, bias),
     bias?.tau,
   );
+  record?.([m0, m1], [cv, ct]);
   let like = [1, 1];
   let nis: number | null = null;
   let innovation: number | null = null;
@@ -536,6 +539,154 @@ export function immPredict(
     record: "prediction",
     scenario_index: s.metadata.index,
     estimator: immName(params),
+    mode: "per_timestep",
+    rows,
+  };
+}
+
+/** Estimator name of the IMM's fixed-interval smoother (spec 032). */
+export const immSmoothName = (p: ImmParams): string => `imms-${immName(p).slice(IMM.length + 1)}`;
+
+/**
+ * The IMM's fixed-interval smoother (spec 032, SRD Annex J). `immPredict`'s forward pass (no bias
+ * state), recording at each plausible step the mixed priors x̄ⱼ(k), P̄ⱼ(k) each model was predicted
+ * from and the predictions xₚⱼ(k+1), Pₚⱼ(k+1). Backward over each run of consecutive plausible
+ * steps, per model j, an exact RTS step through the forward recursion:
+ *   x̄ⱼ(k|N) = x̄ⱼ(k) + P̄ⱼ(k) Fⱼᵀ Pₚⱼ(k+1)⁻¹ (xⱼ(k+1|N) − xₚⱼ(k+1)),
+ * then model-conditioned estimates xᵢ(k|N) = xᵢ(k) + Σⱼ wⱼ|ᵢ (x̄ⱼ(k|N) − x̄ⱼ(k)) with
+ * wⱼ|ᵢ ∝ πᵢⱼ μⱼ(k+1|N) / cⱼ, smoothed probabilities μᵢ(k|N) = μᵢ(k) Σⱼ πᵢⱼ μⱼ(k+1|N) / cⱼ (Kim),
+ * and the reported estimate Σᵢ μᵢ(k|N) xᵢ(k|N). Without switching it is each model's RTS smoother.
+ * Row i uses every bearing of the window.
+ */
+export function immSmooth(s: Scenario, params: ImmParams): Prediction {
+  if (hasBias(params)) throw new Error("the IMM smoother (spec 032) has no bias state");
+  for (const [k, v] of Object.entries(params))
+    if (k !== "reportSd" && !(typeof v === "number" && v >= 0))
+      throw new Error(`IMM ${k} must be ≥ 0`);
+  if (params.p0Scale === 0 || params.rScale === 0) throw new Error("IMM scales must be > 0");
+  const level = params.guardedInit ?? 0;
+  const d = bearingData(s);
+  const n = s.metadata.samples;
+  const sigma = s.metadata.parameters.noise_sigma_rad;
+  const p0Scale = params.p0Scale ?? 1;
+  const r2 = Math.max(sigma, EKF_MIN_SIGMA_RAD) ** 2 * (params.rScale ?? 1);
+  const first = s.metadata.zig_index + 1;
+  interface Step {
+    i: number;
+    st: ImmState;
+    seg: number;
+    /** Mixed priors at the previous step and the predictions into this one (null at a start). */
+    mixed: readonly [Gaussian, Gaussian] | null;
+    pred: readonly [Gaussian, Gaussian] | null;
+  }
+  const steps: Step[] = [];
+  let seg = 0;
+  let st = first - 1 < n ? immInitialise(d, first - 1, sigma, p0Scale, level, false) : null;
+  let lastTry = first - 1;
+  for (let i = first; i < n; i++) {
+    if (st !== null) {
+      const z =
+        d.valid[i] === 1
+          ? { bearing: d.bearing[i] ?? 0, ox: d.ownX[i] ?? 0, oy: d.ownY[i] ?? 0, r2 }
+          : null;
+      let mixed: readonly [Gaussian, Gaussian] | null = null;
+      let pred: readonly [Gaussian, Gaussian] | null = null;
+      st = immStep(st, d.t[i] ?? 0, z, params, (m, p) => {
+        mixed = m;
+        pred = p;
+      });
+      if (plausible(d, immEstimate(st).x, i)) {
+        steps.push({ i, st, seg, mixed, pred });
+        continue;
+      }
+      st = null;
+      seg++;
+      lastTry = i - EKF_REINIT_EVERY;
+    }
+    if (i - lastTry >= EKF_REINIT_EVERY) {
+      st = immInitialise(d, i, sigma, p0Scale, level, true);
+      if (st !== null) seg++;
+      lastTry = i;
+    }
+  }
+  const motions = [cvMotion, ctMotion] as const;
+  const smoothed = new Map<number, { x: [Float64Array, Float64Array]; mu: [number, number] }>();
+  for (let k = steps.length - 1; k >= 0; k--) {
+    const cur = steps[k];
+    if (cur === undefined) continue;
+    const next = steps[k + 1];
+    const later = next === undefined || next.seg !== cur.seg ? undefined : smoothed.get(next.i);
+    const filtered = cur.st.models;
+    if (later === undefined || next === undefined || next.mixed === null || next.pred === null) {
+      smoothed.set(cur.i, { x: [filtered[0].x, filtered[1].x], mu: [cur.st.mu[0], cur.st.mu[1]] });
+      continue;
+    }
+    const tau = next.st.t - cur.st.t;
+    const sw = Math.min(0.5, params.switchPerS * tau);
+    const pi = [
+      [1 - sw, sw],
+      [sw, 1 - sw],
+    ];
+    const mu = cur.st.mu;
+    const c = [0, 1].map((j) => mu[0] * (pi[0]?.[j] ?? 0) + mu[1] * (pi[1]?.[j] ?? 0));
+    const ratio = [0, 1].map((j) => (later.mu[j] ?? 0) / ((c[j] ?? 0) > 0 ? (c[j] ?? 1) : 1));
+    // Per model j: the RTS correction of its mixed prior.
+    const delta = [0, 1].map((j) => {
+      const m = next.mixed?.[j];
+      const p = next.pred?.[j];
+      const motion = motions[j];
+      const target = later.x[j];
+      if (m === undefined || p === undefined || motion === undefined || target === undefined)
+        return new Float64Array(N);
+      const jac = jacobian((x: Float64Array) => motion(x, tau), m.x);
+      const ppInv = invert(p.p, N);
+      if (ppInv === null) return new Float64Array(N);
+      const gain = matmul(matmul(m.p, transposeN(jac, N), N), ppInv, N);
+      return matvec(
+        gain,
+        Float64Array.from(target, (v, a) => v - (p.x[a] ?? 0)),
+        N,
+      );
+    });
+    const muS = [0, 1].map(
+      (i) =>
+        (mu[i] ?? 0) * ((pi[i]?.[0] ?? 0) * (ratio[0] ?? 0) + (pi[i]?.[1] ?? 0) * (ratio[1] ?? 0)),
+    );
+    const muTot = (muS[0] ?? 0) + (muS[1] ?? 0);
+    const muN: [number, number] =
+      muTot > 0 && Number.isFinite(muTot)
+        ? [(muS[0] ?? 0) / muTot, (muS[1] ?? 0) / muTot]
+        : [mu[0], mu[1]];
+    const xs = [0, 1].map((i) => {
+      const g = filtered[i];
+      if (g === undefined) return new Float64Array(N);
+      const ws = [0, 1].map((j) => (pi[i]?.[j] ?? 0) * (ratio[j] ?? 0));
+      const wt = (ws[0] ?? 0) + (ws[1] ?? 0);
+      const out = Float64Array.from(g.x);
+      for (const j of [0, 1]) {
+        const wj = wt > 0 ? (ws[j] ?? 0) / wt : j === i ? 1 : 0;
+        const dj = delta[j];
+        if (wj === 0 || dj === undefined) continue;
+        for (let a = 0; a < N; a++) out[a] = (out[a] ?? 0) + wj * (dj[a] ?? 0);
+      }
+      return out;
+    });
+    smoothed.set(cur.i, { x: [xs[0] ?? filtered[0].x, xs[1] ?? filtered[1].x], mu: muN });
+  }
+  const rows: PredictionRow[] = [];
+  for (let i = first; i < n; i++) {
+    const sm = smoothed.get(i);
+    if (sm === undefined) {
+      rows.push(row(d, new Float64Array(N), i, false));
+      continue;
+    }
+    const x = Float64Array.from(sm.x[0], (v, a) => sm.mu[0] * v + sm.mu[1] * (sm.x[1][a] ?? 0));
+    rows.push(row(d, x, i, plausible(d, x, i)));
+  }
+  return {
+    record: "prediction",
+    scenario_index: s.metadata.index,
+    estimator: immSmoothName(params),
     mode: "per_timestep",
     rows,
   };
