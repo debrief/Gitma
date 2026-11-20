@@ -7,6 +7,30 @@
     <link rel="alternate" href="https://debrief.github.io/Gitma/blog"/>
     <subtitle>TMA via ML Blog</subtitle>
     <entry>
+        <title type="html"><![CDATA[Teaching the detector to fire early: faster, but blind]]></title>
+        <id>https://debrief.github.io/Gitma/blog/2026/11/19/early-alarm</id>
+        <link href="https://debrief.github.io/Gitma/blog/2026/11/19/early-alarm"/>
+        <updated>2026-11-19T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Our trained manoeuvre detector had been taught that the whole five minutes after a turn count as]]></summary>
+        <content type="html"><![CDATA[<p>Our trained manoeuvre detector had been taught that the whole five minutes after a turn count as
+"manoeuvring", which rewards a late, lingering alarm. So we retrained it to fire only in the first
+two minutes of a turn, and judged it exactly as before.</p>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-we-found">What we found<a href="https://debrief.github.io/Gitma/blog/2026/11/19/early-alarm#what-we-found" class="hash-link" aria-label="Direct link to What we found" title="Direct link to What we found" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>It became fast.</strong> When it fires, it does so about 70 seconds into a turn: half the delay of the
+classical CUSUM detector on the turns both catch.</li>
+<li class=""><strong>It became blind.</strong> Allowing one false alarm every two hours, it caught only 5% of turns within
+five minutes, against 12% for the CUSUM and 11% for the earlier version.</li>
+<li class=""><strong>The two labels bracket the classical detector.</strong> One is about as complete but slower, the other
+faster but far less complete. Neither beats it.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-it-means">What it means<a href="https://debrief.github.io/Gitma/blog/2026/11/19/early-alarm#what-it-means" class="hash-link" aria-label="Direct link to What it means" title="Direct link to What it means" translate="no">​</a></h2>
+<p>Under realistic bearing error, the turns that can be detected at all at a strict false-alarm rate
+are the ones a well-tuned classical detector already finds. The limit is the error, not how the
+network was taught. Manoeuvre detection stays the weak point of every design that relied on it.</p>
+<p>Results: <code>experiments/20261119-p18-val/validation.md</code>.</p>]]></content>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[A trained manoeuvre detector: no better than the classical one]]></title>
         <id>https://debrief.github.io/Gitma/blog/2026/11/19/trained-detector</id>
         <link href="https://debrief.github.io/Gitma/blog/2026/11/19/trained-detector"/>
@@ -1488,113 +1512,5 @@ filter or a batch fit is better, especially on speed.</li>
 does not.</li>
 </ul>
 <p>Real or recorded data remain the untested step.</p>]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Phase 3b: two hypotheses fix the course, not the speed]]></title>
-        <id>https://debrief.github.io/Gitma/blog/2026/10/30/phase-3b</id>
-        <link href="https://debrief.github.io/Gitma/blog/2026/10/30/phase-3b"/>
-        <updated>2026-10-30T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[Phase 3 found a network that beats a tuned IMM tracker after a target turns, but that averages]]></summary>
-        <content type="html"><![CDATA[<p>Phase 3 found a network that beats a tuned IMM tracker after a target turns, but that averages
-"turned" and "not turned" on targets that hold course. Phase 3b gave the network a way out. It
-outputs two estimates and the probability that the target has turned, and reports the more
-probable estimate.</p>
-<p><strong>It half worked.</strong> On the same validation split:</p>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<table><thead><tr><th>Measure</th><th>Phase 3b</th><th>Phase 3a</th><th>IMM tracker</th><th>Limit</th></tr></thead><tbody><tr><td>After a turn: median range error</td><td>10.3%</td><td>10.5%</td><td>13.6%</td><td>below the IMM</td></tr><tr><td>After a turn: median course error</td><td>14.5°</td><td>14.4°</td><td>24.1°</td><td>below the IMM</td></tr><tr><td>Held course: course error</td><td>6.1°</td><td>11.1°</td><td>5.0°</td><td>10°</td></tr><tr><td>Held course: speed error</td><td><strong>1.15 kt</strong></td><td>1.60 kt</td><td>0.71 kt</td><td>1 kt</td></tr></tbody></table>
-<p>The speed interval, [1.05, 1.25] kt, lies wholly above the limit. The pre-registered rule
-therefore stopped phase 3b at validation, and its test split was never scored. Under SRD Annex
-B, this was the last phase-3 attempt.</p>
-<p>Records: <a class="" href="https://debrief.github.io/Gitma/docs/results/phase-3">results</a> and the
-<a href="https://github.com/debrief/Gitma/blob/main/experiments/20261030-p3b-val/validation.md" target="_blank" rel="noopener noreferrer" class="">validation record</a>.</p>
-<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-was-tested">What was tested<a href="https://debrief.github.io/Gitma/blog/2026/10/30/phase-3b#what-was-tested" class="hash-link" aria-label="Direct link to What was tested" title="Direct link to What was tested" translate="no">​</a></h2>
-<p>Only the network's output changed. The data, the frozen IMM reference and the gate were all as
-in phase 3.</p>
-<ul>
-<li class=""><strong>The network</strong> gives a held-course estimate, a turned estimate, and P(turned).</li>
-<li class=""><strong>The flag's training.</strong> The training label is the truth: has the target's course changed yet?</li>
-<li class=""><strong>The forecast</strong> in the decision record, written before training, was held-course course about
-6° and speed about 0.95 kt (0.8–1.2), with a 40% chance of reaching the test split.</li>
-</ul>
-<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-happened">What happened<a href="https://debrief.github.io/Gitma/blog/2026/10/30/phase-3b#what-happened" class="hash-link" aria-label="Direct link to What happened" title="Direct link to What happened" translate="no">​</a></h2>
-<ul>
-<li class=""><strong>Course: fixed.</strong> Held-course course error fell from 11.1° to 6.1°, as forecast. It no longer
-grows with time.</li>
-<li class=""><strong>After a turn: unchanged.</strong> The network still beats the IMM by about a quarter on range and
-40% on course.</li>
-<li class=""><strong>Speed: not fixed.</strong> Speed fell from 1.60 to 1.15 kt, inside the forecast band but above the
-limit.</li>
-</ul>
-<p>The flag explains the speed failure:</p>
-<ul>
-<li class=""><strong>It detects real turns well.</strong> The median delay is 70 s, and it misses 0.5%.</li>
-<li class=""><strong>It also false-alarms.</strong> On 29–31% of held-course rows five and ten minutes after the zig,
-it calls "turned". In this data, those minutes are when targets usually start to turn.</li>
-<li class=""><strong>A false alarm is costly.</strong> The turned estimate is biased slow, so each one costs about
-1.8 kt.</li>
-<li class=""><strong>Even without false alarms, speed sits at the limit.</strong> Where the network says "held", its
-speed error is 1.00 kt, so a perfect flag would leave it there too. The IMM manages 0.71 kt and
-batch least squares 0.31 kt.</li>
-</ul>
-<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="reading-it-critically">Reading it critically<a href="https://debrief.github.io/Gitma/blog/2026/10/30/phase-3b#reading-it-critically" class="hash-link" aria-label="Direct link to Reading it critically" title="Direct link to Reading it critically" translate="no">​</a></h2>
-<ul>
-<li class=""><strong>Switching moves the failure rather than removing it.</strong> An averaged output blurs every
-estimate a little. A switched output is sharp, but sometimes sharply wrong: held-course course
-P90 rose from 34° to 51°.</li>
-<li class=""><strong>No threshold tuning.</strong> A stricter threshold than 0.5 would cut false alarms but slow
-detection. Choosing it on this split would make validation a training signal, so it was not
-done.</li>
-<li class=""><strong>Two changes at once.</strong> The output form and its supervision changed together, as declared,
-so this result cannot separate them.</li>
-<li class=""><strong>The finding is consistent.</strong> Two different network designs beat a tuned tracker after a
-turn, and both give back accuracy on targets that hold course. Neither dominates the tracker,
-and dominating it is what gate G4 asks.</li>
-</ul>
-<h2 class="anchor anchorTargetStickyNavbar_FE5u" id="what-next">What next<a href="https://debrief.github.io/Gitma/blog/2026/10/30/phase-3b#what-next" class="hash-link" aria-label="Direct link to What next" title="Direct link to What next" translate="no">​</a></h2>
-<p>SRD Annex B §B.5's second branch applies, as it did for phase 3:</p>
-<ol>
-<li class="">publish the negative result, which this post does;</li>
-<li class="">the owner then decides separately whether an end-to-end learned tracker is a new project.</li>
-</ol>
-<p>Real or recorded data stay deferred either way.</p>]]></content>
     </entry>
 </feed>
