@@ -1,0 +1,37 @@
+{
+  "checks": [
+    {
+      "ci_high": 0.6153846153846154,
+      "ci_level": 0.95,
+      "ci_low": 0.4375,
+      "detail": "pman-det-onset / cusum-mean-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.25-x3 median detection delay over the 90 course-change events both detect (90 scenarios) 0.5000, 95% CI [0.4375, 0.6154], limit 1.25 (Annex H)",
+      "name": "pman-det-onset:g6-delay-joint",
+      "result": "pass",
+      "threshold": 1.25,
+      "value": 0.5
+    },
+    {
+      "ci_high": -0.0631166373834302,
+      "ci_level": 0.95,
+      "ci_low": -0.08025942440210783,
+      "detail": "detected within 300 s: pman-det-onset 5.00% vs cusum-mean-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.25-x3 12.15%; difference -7.14 pp, 95% CI [-8.03, -6.31] pp, superiority: lower bound > 0 (Annex H)",
+      "name": "pman-det-onset:g6-detect5",
+      "result": "fail",
+      "threshold": 0,
+      "value": -0.07143818108435356
+    },
+    {
+      "ci_high": 1.1466346153846154,
+      "ci_level": 0.95,
+      "ci_low": 0.8765432098765432,
+      "detail": "false alarms on 920.7 quiet hours: pman-det-onset 0.500/h vs cusum-mean-imm-cv0-ct0.03-w0.01-s0.001-p32-r64-g1-c0.25-x3 0.500/h (thresholds 0.455367 and 1.24860, set on validation for 0.5/h); ratio 1.0000, 95% CI [0.8765, 1.1466], limit 1.25",
+      "name": "pman-det-onset:g6-false-alarms",
+      "result": "pass",
+      "threshold": 1.25,
+      "value": 1
+    }
+  ],
+  "decided_by": "validation diagnostic (spec 017): not a gate decision",
+  "gate": "G6",
+  "result": "fail"
+}

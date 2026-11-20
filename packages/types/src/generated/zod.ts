@@ -437,6 +437,8 @@ export const TrainingConfig = z.strictObject({
   batch_size: z.number().int(),
   /** Batches per length-bucketing group (default 16). */
   bucket_batches: z.number().int().nullish(),
+  /** Spec 031 (Annex I), manoeuvre_detector only: the early-alarm label. Label 1 only in the first this-many rows after a course change begins (a stored course change preceded by 30 rows of steady course); 0 on quiet rows; no loss elsewhere. Absent: spec 030's 5-min window label. */
+  detector_onset_rows: z.number().int().nullish(),
   /** Input channel set; absent means raw. Must match the features files. */
   feature_set: FeatureSet.nullish(),
   /** Estimator name used in predictions. */

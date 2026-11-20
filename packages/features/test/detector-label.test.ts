@@ -8,6 +8,7 @@ import { NT } from "../src/layout.js";
 import {
   DETECTOR_LOOKBACK_ROWS,
   detectorLabel,
+  detectorOnsetLabel,
   encodeTargets,
   outputSpec,
   outputWidth,
@@ -62,5 +63,37 @@ describe("detector label (spec 030)", () => {
     expect(r?.converged).toBe(false);
     expect(r?.p_manoeuvre).toBeCloseTo(1 / (1 + Math.exp(-2)), 6);
     expect(p.rows[1]?.p_manoeuvre).toBeCloseTo(0.5, 6);
+  });
+});
+
+describe("early-alarm label (spec 031)", () => {
+  const t = stored(200);
+  it("is 1 only in the first onset rows after a turn begins, 0 on quiet rows, masked otherwise", () => {
+    expect(detectorOnsetLabel(t, 39, NT, 12)).toEqual({ label: 0, mask: 1 }); // quiet
+    expect(detectorOnsetLabel(t, 40, NT, 12)).toEqual({ label: 1, mask: 1 }); // turn begins
+    expect(detectorOnsetLabel(t, 51, NT, 12)).toEqual({ label: 1, mask: 1 }); // 11 rows on
+    expect(detectorOnsetLabel(t, 52, NT, 12)).toEqual({ label: 0, mask: 0 }); // past the onset
+    expect(detectorOnsetLabel(t, 71, NT, 12)).toEqual({ label: 0, mask: 0 }); // still unsettled
+    expect(detectorOnsetLabel(t, 72, NT, 12)).toEqual({ label: 0, mask: 1 }); // quiet again
+    expect(detectorOnsetLabel(t, 125, NT, 12)).toEqual({ label: 0, mask: 0 }); // speed only
+    expect(detectorOnsetLabel(t, 10, NT, 12)).toEqual({ label: 0, mask: 0 }); // no history
+  });
+
+  it("is chosen by detector_onset_rows, which must lie in 1..30", () => {
+    const spec = outputSpec({
+      output_parameterisation: "manoeuvre_detector",
+      detector_onset_rows: 12,
+    });
+    expect(spec.detectorOnsetRows).toBe(12);
+    const out = new Float32Array(4);
+    const norm = { speed_scale_mps: 10 } as NormalisationConstants;
+    encodeTargets(t, 60 * NT, norm, spec, out, 0, NT);
+    expect(Array.from(out)).toEqual([0, 0, 0, 0]); // the window label would give 1, 1
+    expect(() =>
+      outputSpec({ output_parameterisation: "manoeuvre_detector", detector_onset_rows: 0 }),
+    ).toThrow();
+    expect(() =>
+      outputSpec({ output_parameterisation: "manoeuvre_detector", detector_onset_rows: 31 }),
+    ).toThrow();
   });
 });

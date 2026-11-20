@@ -9,6 +9,8 @@ export interface OutputSpec {
   parameterisation: OutputParameterisation;
   /** m/s; used by velocity and velocity_two_hypothesis. */
   velocityScaleMps: number;
+  /** manoeuvre_detector only (spec 031): the early-alarm label's onset rows; absent: spec 030. */
+  detectorOnsetRows?: number;
 }
 
 /**
@@ -30,10 +32,19 @@ export const COURSE_SPEED: OutputSpec = { parameterisation: "course_speed", velo
 export function outputSpec(config: {
   output_parameterisation?: OutputParameterisation | null | undefined;
   velocity_scale_mps?: number | null | undefined;
+  detector_onset_rows?: number | null | undefined;
 }): OutputSpec {
   const p = config.output_parameterisation ?? "course_speed";
   if (p === "course_speed") return COURSE_SPEED;
-  if (p === "manoeuvre_detector") return { parameterisation: p, velocityScaleMps: 1 };
+  if (p === "manoeuvre_detector") {
+    const k = config.detector_onset_rows;
+    if (k == null) return { parameterisation: p, velocityScaleMps: 1 };
+    if (!Number.isInteger(k) || k < 1 || k > DETECTOR_LOOKBACK_ROWS)
+      throw new Error(
+        `detector_onset_rows must be an integer in 1..${String(DETECTOR_LOOKBACK_ROWS)}`,
+      );
+    return { parameterisation: p, velocityScaleMps: 1, detectorOnsetRows: k };
+  }
   const v = config.velocity_scale_mps;
   if (typeof v !== "number" || !Number.isFinite(v) || !(v > 0))
     throw new Error(`output_parameterisation ${p} needs a positive velocity_scale_mps`);
@@ -79,6 +90,32 @@ export function detectorLabel(
 }
 
 /**
+ * The early-alarm label (spec 031): 1 in the first `onset` rows after a course change begins,
+ * where a change begins at a row whose stored course differs from the row before after
+ * `DETECTOR_LOOKBACK_ROWS` rows of steady course; 0 on quiet rows (as `detectorLabel`); mask 0
+ * elsewhere (the rest of a turn, the 5 min after it, a speed change alone, a window's first rows).
+ */
+export function detectorOnsetLabel(
+  stored: ArrayLike<number>,
+  r: number,
+  nt: number,
+  onset: number,
+): { label: number; mask: number } {
+  const w = detectorLabel(stored, r, nt);
+  if (w.mask === 0 || w.label === 0) return w;
+  const at = (row: number, c: number): number => stored[row * nt + c] ?? NaN;
+  const changed = (q: number): boolean => at(q, 1) !== at(q - 1, 1) || at(q, 2) !== at(q - 1, 2);
+  // The most recent course-change row q ≤ r within the onset window that begins a turn.
+  for (let q = r; q > r - onset && q >= 1; q--) {
+    if (!changed(q)) continue;
+    let steady = q - 1 >= DETECTOR_LOOKBACK_ROWS;
+    for (let j = 1; steady && j <= DETECTOR_LOOKBACK_ROWS; j++) if (changed(q - j)) steady = false;
+    if (steady) return { label: 1, mask: 1 };
+  }
+  return { label: 0, mask: 0 };
+}
+
+/**
  * Training targets for one row: the first four stored target channels (log_range_km, course_sin,
  * course_cos, speed / speed_scale_mps), re-encoded for `spec`, written to out[o .. o + 3]. With
  * velocity_two_hypothesis the fourth is the turn label (`turnedLabel`).
@@ -93,7 +130,11 @@ export function encodeTargets(
   nt = 6,
 ): void {
   if (spec.parameterisation === "manoeuvre_detector") {
-    const { label, mask } = detectorLabel(stored, Math.round(s / nt), nt);
+    const r = Math.round(s / nt);
+    const { label, mask } =
+      spec.detectorOnsetRows === undefined
+        ? detectorLabel(stored, r, nt)
+        : detectorOnsetLabel(stored, r, nt, spec.detectorOnsetRows);
     out[o] = label;
     out[o + 1] = mask;
     out[o + 2] = 0;

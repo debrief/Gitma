@@ -334,3 +334,6 @@ The repository is public on GitHub from day one; nothing above OFFICIAL enters i
 - [Annex H: A trained manoeuvre detector](SRD-annex-H.md) (2026-11-18): after Annexes D and G, a
   detector network trained on realistic error (seed 238), judged at G6 under revised rules
   against the best re-tuned CUSUM on fresh seed 239.
+- [Annex I: The detector's early-alarm label](SRD-annex-I.md) (2026-11-19): after Annex H, the
+  detector retrained to fire in the first 2 min of a turn (seed 241), judged as Annex H on fresh
+  seed 242.

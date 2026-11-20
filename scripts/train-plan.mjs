@@ -61,7 +61,7 @@ export const RESERVED_SEEDS = {
 /** Dataset seeds owned by one iteration's plans: its test split decided that iteration's gate. */
 export const ITERATION_DATASET_SEEDS = { 201: "2", 204: "3", 205: "4" };
 /** Dataset seeds owned by one phase's plans (spec 010: phase 3, gate G4). */
-export const PHASE_DATASET_SEEDS = { 208: "3", 211: "4", 226: "11", 238: "17" };
+export const PHASE_DATASET_SEEDS = { 208: "3", 211: "4", 226: "11", 238: "17", 241: "18" };
 /**
  * Seeds whose test split has already decided a gate: a fresh test split may use one only in the
  * plan that decided it (so the committed plan of record still validates), never in another.
@@ -144,6 +144,11 @@ export const RESERVED_TEST_SEEDS = {
   238: { for: "phase 17 detector training dataset (spec 030; its own test split is never scored)" },
   239: { for: "Annex H G6 (spec 030, fresh test, 400,000)", plans: [] },
   240: { for: "Annex H G6 re-score, if needed (spec 030, fresh test, 1,100,000)" },
+  // Annex I (spec 031): 241 is the early-alarm detector's training dataset; 242 the G6 test and
+  // 243 its re-score, under decision 46.
+  241: { for: "phase 18 detector training dataset (spec 031; its own test split is never scored)" },
+  242: { for: "Annex I G6 (spec 031, fresh test, 400,000)", plans: [] },
+  243: { for: "Annex I G6 re-score, if needed (spec 031, fresh test, 1,100,000)" },
 };
 
 class PlanError extends Error {}

@@ -269,3 +269,8 @@ costs straight-leg course even at the reference's σa. `experiments/20261118-p16
 caught 11.1% of course changes within 5 min against the best re-tuned CUSUM's 12.2%, and was slower
 on the turns both caught (1.46 ×); T2's untrained course change caught 10.7%.
 `experiments/20261118-p17-val/`.
+
+**Annex I** (2026-11-19, spec 031). The detector retrained with an early-alarm label (positive only
+in the first 2 min of a turn) stopped at validation: median delay 70 s (0.50 × the CUSUM's on turns
+both catch) but 5.0% of course changes within 5 min at 0.5 false alarms per quiet hour, against the
+CUSUM's 12.2% and phase 17's 11.1%. `experiments/20261119-p18-val/`.

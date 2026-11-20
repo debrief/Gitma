@@ -6,7 +6,7 @@ description: >-
   principle I). Frame: local flat-earth Cartesian, x east, y north, metres, origin at ownship's
   window-start position. Bearings and courses are true, clockwise from north, radians in [0, 2π).
   Speeds in m/s. Times in seconds since window start. All stored floats are float32-rounded.
-version: 0.25.0
+version: 0.26.0
 license: Apache-2.0
 prefixes:
   linkml: https://w3id.org/linkml/
@@ -886,6 +886,13 @@ classes:
       loss_weight_speed:
         range: float
         required: true
+      detector_onset_rows:
+        range: integer
+        description: >-
+          Spec 031 (Annex I), manoeuvre_detector only: the early-alarm label. Label 1 only in the
+          first this-many rows after a course change begins (a stored course change preceded by
+          30 rows of steady course); 0 on quiet rows; no loss elsewhere. Absent: spec 030's
+          5-min window label.
       loss_weight_manoeuvre:
         range: float
         description: >-
