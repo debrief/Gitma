@@ -61,7 +61,14 @@ export const RESERVED_SEEDS = {
 /** Dataset seeds owned by one iteration's plans: its test split decided that iteration's gate. */
 export const ITERATION_DATASET_SEEDS = { 201: "2", 204: "3", 205: "4" };
 /** Dataset seeds owned by one phase's plans (spec 010: phase 3, gate G4). */
-export const PHASE_DATASET_SEEDS = { 208: "3", 211: "4", 226: "11", 238: "17", 241: "18" };
+export const PHASE_DATASET_SEEDS = {
+  208: "3",
+  211: "4",
+  226: "11",
+  238: "17",
+  241: "18",
+  244: "19",
+};
 /**
  * Seeds whose test split has already decided a gate: a fresh test split may use one only in the
  * plan that decided it (so the committed plan of record still validates), never in another.
@@ -149,6 +156,13 @@ export const RESERVED_TEST_SEEDS = {
   241: { for: "phase 18 detector training dataset (spec 031; its own test split is never scored)" },
   242: { for: "Annex I G6 (spec 031, fresh test, 400,000)", plans: [] },
   243: { for: "Annex I G6 re-score, if needed (spec 031, fresh test, 1,100,000)" },
+  // Annex J (spec 032): 244 is the time-late network's training dataset; 245 the gate's test and
+  // 246 its re-score, under decision 47.
+  244: {
+    for: "phase 19 time-late training dataset (spec 032; its own test split is never scored)",
+  },
+  245: { for: "Annex J time-late gate (spec 032, fresh test, 400,000)", plans: [] },
+  246: { for: "Annex J re-score, if needed (spec 032, fresh test, 1,100,000)" },
 };
 
 class PlanError extends Error {}
