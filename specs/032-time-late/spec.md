@@ -17,6 +17,11 @@
 
 - [x] T001 FR-001 with tests
 - [x] T002 FR-002–FR-004, Annex J, committed before training and tuning
-- [ ] T003 Tuning and training; validation; `validation.md`
-- [ ] T004 If carried: decision 47 (seed 245), the gate, panel review
-- [ ] T005 Write-ups: algorithm note, go/no-go report, blog, AGENTS.md
+- [x] T003 Tuning and training; validation; `validation.md`
+- [x] T004 (not carried: skipped) If carried: decision 47 (seed 245), the gate, panel review
+- [x] T005 Write-ups: algorithm note, go/no-go report, blog, AGENTS.md
+
+## Outcome
+
+Stopped at validation: the reference is the forward EKF (margin −1.695; straight-leg course
+2.97 ×). See `experiments/20261120-p19-val/validation.md` and Annex J §J.7.

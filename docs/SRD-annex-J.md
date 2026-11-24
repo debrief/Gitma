@@ -84,3 +84,14 @@ and the network's range errors are correlated in time, which smoothing does not 
   answer gains a time-late "go".
 - **Stop or fail:** time-late reconstruction joins real-time tracking: the network's range is the
   gain, classical methods hold the straight legs. The owner decides.
+
+## J.7 Outcome (2026-11-24)
+
+**Stopped at validation** (`experiments/20261120-p19-val/validation.md`). The time-late network
+(`experiments/20261123-p19a-models/`, 49 epochs, stopped at the 48 h cap) has the lowest overall
+range and course of any estimator on seed 217's G5 rows: 0.73 × and 0.48 × the forward EKF's, and
+0.67 × the real-time T2's course. It clears the IMM smoother (margin 0.206) but not the other three
+candidates. The reference is the forward EKF (margin −1.695): on straight legs its course is
+2.97 × the EKF's (9.2° against 3.1°; least squares 2.0°), and settled course 1.52 ×. Both tuned
+smoothers were weaker than the forward filters; the forward EKF, not the smoother tuning, set the
+verdict. Seeds 245–246 were not generated and stay reserved; decision 47 was not committed.

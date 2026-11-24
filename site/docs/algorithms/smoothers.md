@@ -34,3 +34,11 @@ w_j|i ∝ π_ij μ_j(k+1|N) / c_j. The smoothed model probabilities are Kim's,
 With a constant-velocity model, smoothing across a later target turn drags the earlier straight leg
 toward the post-turn bearings, and a drifting bearing bias does not average out; the smoothers are
 therefore tuned for smoothing, not with the forward trackers' settings.
+
+## Result (spec 032)
+
+Tuned on median range over seed 217's G5 rows, both smoothers came out worse than Annex E's forward
+EKF and IMM under realistic bearing error (range 0.199 and 0.178 against 0.158 and 0.151), and the
+EKF smoother's straight-leg course was 7.1° against the forward EKF's 3.1°. The time-late network
+beat the IMM smoother on all six checks but stopped at validation against the forward EKF
+(`experiments/20261120-p19-val/validation.md`).

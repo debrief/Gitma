@@ -274,3 +274,10 @@ on the turns both caught (1.46 ×); T2's untrained course change caught 10.7%.
 in the first 2 min of a turn) stopped at validation: median delay 70 s (0.50 × the CUSUM's on turns
 both catch) but 5.0% of course changes within 5 min at 0.5 false alarms per quiet hour, against the
 CUSUM's 12.2% and phase 17's 11.1%. `experiments/20261119-p18-val/`.
+
+**Annex J** (2026-11-24, spec 032). A time-late network (`t2-tl`, T2's architecture over the whole
+window) against tuned EKF RTS and IMM smoothers and the re-tuned forward EKF and IMM stopped at
+validation. It had the lowest overall range (0.115) and course (16.9°) of any estimator, but its
+straight-leg course was 9.2° against the forward EKF's 3.1° (2.97 ×) and least squares' 2.0°;
+margin −1.695 against the forward EKF. The tuned smoothers were worse than the forward filters.
+`experiments/20261120-p19-val/`.
