@@ -167,6 +167,11 @@ scenario with no manoeuvre: where the constant-velocity model is right again (SR
 targets swapped for another's. It should do no better than the naive baseline; if it does, the
 inputs leak the answer.
 
+**Smoother (fixed-interval)** — A classical time-late estimator: a forward filter followed by a
+backward pass that revises every state with the later bearings. Spec 032 uses an EKF
+Rauch–Tung–Striebel smoother (`ekfs-…`) and an IMM smoother (`imms-…`); see
+[smoothers](algorithms/smoothers.md).
+
 **Two-hypothesis output** — Phase 3b's network output (spec 011): an estimate assuming the target
 has held course, one assuming it has turned, and the probability that it has turned. The more
 probable estimate is reported, so the network does not average the two (as phase 3's single
