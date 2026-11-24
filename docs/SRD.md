@@ -337,3 +337,6 @@ The repository is public on GitHub from day one; nothing above OFFICIAL enters i
 - [Annex I: The detector's early-alarm label](SRD-annex-I.md) (2026-11-19): after Annex H, the
   detector retrained to fire in the first 2 min of a turn (seed 241), judged as Annex H on fresh
   seed 242.
+- [Annex J: A time-late network against classical smoothers](SRD-annex-J.md) (2026-11-20): a
+  bidirectional T2 trained on realistic error (seed 244), judged against tuned EKF and IMM smoothers
+  and the re-tuned forward trackers on fresh seed 245.

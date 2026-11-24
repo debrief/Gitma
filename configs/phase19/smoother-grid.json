@@ -1,0 +1,20 @@
+{
+  "spec": "032",
+  "annex": "J",
+  "guarded_init": 1,
+  "ekf_smooth": {
+    "sigma_a": [0.003, 0.01, 0.03, 0.1, 0.3],
+    "p0_scale": [16],
+    "r_scale": [16, 32, 64, 128]
+  },
+  "imm_smooth": {
+    "sigma_cv": [0, 0.003, 0.01],
+    "sigma_ct": [0.03, 0.1, 0.3],
+    "sigma_omega": [0.003, 0.01, 0.03],
+    "switch": [0.0003, 0.001, 0.003],
+    "p0_scale": [32],
+    "r_scale": [32, 64, 128]
+  },
+  "stage1_scenarios": 400,
+  "stage2_top": 12
+}

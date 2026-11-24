@@ -7,6 +7,7 @@ import { angleDiff, bearingOf, f32, f32Angle } from "@tma/sim";
 import type { Prediction, PredictionRow, Scenario } from "@tma/types";
 import { bearingData, PLAUSIBLE } from "./estimate.js";
 import { type BearingData, normalEquations, solve4, solveBatch } from "./lsq.js";
+import { invert, matmul, matvec, transposeN } from "./matrix.js";
 
 export const EKF = "ekf";
 
@@ -510,6 +511,102 @@ export function ekfPredict(
     record: "prediction",
     scenario_index: s.metadata.index,
     estimator: ekfName(sigmaA, scales),
+    mode: "per_timestep",
+    rows,
+  };
+}
+
+/** Estimator name of the EKF's fixed-interval RTS smoother (spec 032). */
+export const ekfSmoothName = (sigmaA: number, scales: TrackerScales = {}): string =>
+  `ekfs-sa${String(sigmaA)}${scaleSuffix(scales)}`;
+
+/**
+ * The EKF's fixed-interval Rauch–Tung–Striebel smoother (spec 032, SRD Annex J): `ekfPredict`'s
+ * forward pass (initialisation, re-initialisation and plausibility unchanged), then a backward pass
+ * over each run of consecutive plausible states, x_s(k) = x_f(k) + G (x_s(k+1) − x_p(k+1)) with
+ * G = P_f(k) Fᵀ P_p(k+1)⁻¹. Row i therefore uses every bearing of the window (time-late). Rows the
+ * forward pass reports non-converged stay so; a smoothed state outside `PLAUSIBLE` is reported
+ * non-converged.
+ */
+export function ekfSmooth(s: Scenario, sigmaA: number, scales: TrackerScales = {}): Prediction {
+  if (!(sigmaA >= 0)) throw new Error(`EKF process noise must be ≥ 0, got ${String(sigmaA)}`);
+  const { p0Scale = 1, rScale = 1, guardedInit = 0 } = scales;
+  if (!(p0Scale > 0) || !(rScale > 0)) throw new Error("EKF scales must be > 0");
+  const d = bearingData(s);
+  const n = s.metadata.samples;
+  const sigma = s.metadata.parameters.noise_sigma_rad;
+  const r2 = Math.max(sigma, EKF_MIN_SIGMA_RAD) ** 2 * rScale;
+  const first = s.metadata.zig_index + 1;
+  // Forward pass, recording each plausible step: filtered and predicted moments, transition.
+  interface Step {
+    i: number;
+    xf: Float64Array;
+    pf: Float64Array;
+    xp: Float64Array;
+    pp: Float64Array;
+    f: Float64Array;
+    seg: number;
+  }
+  const steps: Step[] = [];
+  let seg = 0;
+  let st = first - 1 < n ? initialiseAt(d, first - 1, sigma, p0Scale, guardedInit, false) : null;
+  let lastTry = first - 1;
+  for (let i = first; i < n; i++) {
+    if (st !== null) {
+      const tau = (d.t[i] ?? 0) - st.t;
+      const pred = ekfPredictStep(st, d.t[i] ?? 0, sigmaA);
+      let upd = pred;
+      if (d.valid[i] === 1)
+        upd = ekfUpdate(pred, d.bearing[i] ?? 0, d.ownX[i] ?? 0, d.ownY[i] ?? 0, r2);
+      if (plausibleState(d, upd.x, i)) {
+        steps.push({ i, xf: upd.x, pf: upd.p, xp: pred.x, pp: pred.p, f: transition(tau), seg });
+        st = upd;
+        continue;
+      }
+      st = null;
+      seg++;
+      lastTry = i - EKF_REINIT_EVERY;
+    }
+    if (i - lastTry >= EKF_REINIT_EVERY) {
+      st = initialiseAt(d, i, sigma, p0Scale, guardedInit, true);
+      if (st !== null) seg++;
+      lastTry = i;
+    }
+  }
+  // Backward pass per segment.
+  const smoothed = new Map<number, Float64Array>();
+  for (let k = steps.length - 1; k >= 0; k--) {
+    const cur = steps[k];
+    if (cur === undefined) continue;
+    const next = steps[k + 1];
+    const xs = next === undefined || next.seg !== cur.seg ? undefined : smoothed.get(next.i);
+    if (xs === undefined || next === undefined) {
+      smoothed.set(cur.i, cur.xf);
+      continue;
+    }
+    const ppInv = invert(next.pp, 4);
+    if (ppInv === null) {
+      smoothed.set(cur.i, cur.xf);
+      continue;
+    }
+    const g = matmul(matmul(cur.pf, transposeN(next.f, 4), 4), ppInv, 4);
+    const diff = Float64Array.from(xs, (v, j) => v - (next.xp[j] ?? 0));
+    const corr = matvec(g, diff, 4);
+    smoothed.set(
+      cur.i,
+      Float64Array.from(cur.xf, (v, j) => v + (corr[j] ?? 0)),
+    );
+  }
+  const rows: PredictionRow[] = [];
+  for (let i = first; i < n; i++) {
+    const x = smoothed.get(i);
+    if (x === undefined) rows.push(emptyRow(d, i));
+    else rows.push(stateRow(d, x, i, plausibleState(d, x, i)));
+  }
+  return {
+    record: "prediction",
+    scenario_index: s.metadata.index,
+    estimator: ekfSmoothName(sigmaA, scales),
     mode: "per_timestep",
     rows,
   };

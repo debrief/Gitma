@@ -73,7 +73,7 @@ describe("tma-track", () => {
       ]),
     ).toThrow(/> 0/);
     expect(() => track(["--in", truth, "--out", join(dir, "x.ndjson"), "--filter", "ukf"])).toThrow(
-      /ekf or imm/,
+      /ekf, imm, ekf-smooth or imm-smooth/,
     );
   });
 

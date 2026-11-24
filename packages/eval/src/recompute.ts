@@ -11,15 +11,18 @@ import {
   classicalPredict,
   compositePredict,
   ekfPredict,
+  ekfSmooth,
   fileDigest,
   fusedEkfPredict,
   fusedPredict,
   immPredict,
+  immSmooth,
   parseEkfName,
   parseFusedEkfName,
   parseFusedName,
   parseCompositeName,
   parseImmName,
+  parseSmootherName,
   parseTrackerHybridName,
   trackerHybrid,
 } from "@tma/classical";
@@ -110,6 +113,16 @@ export function recipeFor(
       );
     return p;
   };
+  // Spec 032: the fixed-interval smoothers.
+  const smoother = inputs.length === 0 ? parseSmootherName(name) : null;
+  if (smoother !== null)
+    return {
+      kind: "recompute",
+      run: (s) =>
+        smoother.kind === "ekf"
+          ? ekfSmooth(s, smoother.sigmaA, smoother.scales)
+          : immSmooth(s, smoother.imm),
+    };
   const imm = parseImmName(name);
   if (imm !== null && inputs.length === 0)
     return { kind: "recompute", run: (s) => immPredict(s, imm) };

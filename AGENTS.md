@@ -78,6 +78,7 @@ pnpm tma-g2 --data data/i2 --models <carried> --compare-models <other phase> \
   --experiment experiments/<id>   # the gate: checks plan digests, decision ancestry, same rows; exit 3: not passed
 pnpm tma-track --in <split.f32pack> --out <pred.ndjson> --filter imm --sigma-cv <a> --sigma-ct <a> \
   --sigma-omega <w> --switch <p>          # or --filter ekf --sigma-a <a>; per-timestep tracker rows
+  # --filter ekf-smooth | imm-smooth: fixed-interval smoothers, time-late (spec 032)
 pnpm tma-hybrid --truth <test.f32pack> --classical <classical.ndjson> --network <lstm.ndjson> --out <hybrid.ndjson>
 pnpm tma-fuse-track --truth <split.f32pack> --network <t2.ndjson> --out <fused.ndjson> --sigma-cv 0.01 \
   --sigma-ct 0.03 --sigma-omega 0.01 --switch 0.001 --p0-scale 4 --r-scale 8   # fused tracker (spec 014; k 4, every 6)
@@ -259,12 +260,15 @@ course for straight-leg course, the fade trades overall range for it. Seeds 236�
 validation**: 11.1% against 12.2% detected within 5 min at 0.5/h, slower (1.46 ×), no better than T2's
 course change. Seeds 239–240 never generated. **Annex I** (spec 031, `experiments/20261119-p18-val/validation.md`):
 the detector retrained with an early-alarm label (`detector_onset_rows` 12); **stopped at validation**:
-fast (70 s, 0.50 × the CUSUM's delay) but 5.0% within 5 min at 0.5/h. Seeds 242–243 never generated. `tma-solve --workers n` streams per-timestep least squares in parallel.
+fast (70 s, 0.50 × the CUSUM's delay) but 5.0% within 5 min at 0.5/h. Seeds 242–243 never generated. **Annex J** (spec 032, `experiments/20261120-p19-val/validation.md`): a time-late network
+(`t2-tl`, `experiments/20261123-p19a-models/`) against tuned EKF/IMM smoothers and the re-tuned forward
+EKF and IMM; **stopped at validation**: best overall range and course of any estimator, but straight-leg
+course 2.97 × the forward EKF's (margin −1.695). Seeds 245–246 never generated. `tma-solve --workers n` streams per-timestep least squares in parallel.
 
 ### Operational rules from the gates
 
 - **Seeds.** 201–228 are reserved (used or deliberately never generated); 900 is the viewer's
-  phase-3 preview. 229–230 are reserved for Annex D's G9 (decision 41); 231–232 are reserved for Annex E (never generated); 233–234 for Annex F (decision 43); 235 is Annex G's design probe and 236–237 its gate (decision 44, never committed); 238 is Annex H's detector training data and 239–240 its G6 test (decision 45, never committed); 241 is Annex I's training data and 242–243 its G6 test (decision 46, never committed); the next free seed is 244. Validation splits reused across phases: seed 211
+  phase-3 preview. 229–230 are reserved for Annex D's G9 (decision 41); 231–232 are reserved for Annex E (never generated); 233–234 for Annex F (decision 43); 235 is Annex G's design probe and 236–237 its gate (decision 44, never committed); 238 is Annex H's detector training data and 239–240 its G6 test (decision 45, never committed); 241 is Annex I's training data and 242–243 its G6 test (decision 46, never committed); 244 is Annex J's training data and 245–246 its gate (decision 47, never committed); the next free seed is 247. Validation splits reused across phases: seed 211
   (phases 4–6), seed 217 (phases 7–11).
 - **Frozen references** (decision 32, from phase 5): IMM `imm-cv0.01-ct0.03-w0.01-s0.001-p4-r8-g1`,
   EKF `ekf-sa0.03-p4-r8-g1`. Frozen T2: `experiments/20261101-p4b-models/` (normalisation from seed

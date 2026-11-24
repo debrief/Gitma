@@ -57,6 +57,23 @@ export function parseEkfName(name: string): { sigmaA: number; scales: TrackerSca
   return ekfName(out.sigmaA, out.scales) === name ? out : null;
 }
 
+/** The smoother settings `name` declares (spec 032: `ekfs-…` or `imms-…`), or null. */
+export function parseSmootherName(
+  name: string,
+): { kind: "ekf"; sigmaA: number; scales: TrackerScales } | { kind: "imm"; imm: ImmParams } | null {
+  if (name.startsWith("ekfs-")) {
+    const e = parseEkfName(`ekf-${name.slice(5)}`);
+    return e === null ? null : { kind: "ekf", ...e };
+  }
+  if (name.startsWith("imms-")) {
+    const i = parseImmName(`imm-${name.slice(5)}`);
+    return i === null || i.biasSdDeg !== undefined || i.reportSd === true
+      ? null
+      : { kind: "imm", imm: i };
+  }
+  return null;
+}
+
 /** The fused tracker's settings `name` declares over `network`, or null. */
 export function parseFusedName(
   name: string,

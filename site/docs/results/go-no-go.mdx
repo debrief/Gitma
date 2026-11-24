@@ -174,6 +174,23 @@ at validation (`experiments/20261119-p18-val/validation.md`).
 So manoeuvre detection, the weak point behind the composite solver and adaptive process noise,
 is not fixed by a trained detector at a strict operating point, with either label.
 
+## A time-late network (spec 032)
+
+The SRD's question has a second consumer: an analyst reconstructing a track after the event, who
+can use the bearings after each turn. Annex J trained a time-late network over the whole window and
+judged it against tuned EKF and IMM smoothers and the re-tuned forward EKF and IMM, on six checks
+including straight-leg course. It **stopped at validation**
+(`experiments/20261120-p19-val/validation.md`):
+
+- It has the lowest overall range and course of any estimator tried (course 16.9° against the
+  forward EKF's 35.2° and the real-time T2's 25.1°). Seeing the bearings after a turn removes most
+  of the lag after manoeuvres.
+- On straight legs it is 3.0 × the forward EKF on course (9.2° against 3.1°) and 4.6 × least
+  squares (2.0°). The straight-leg gap of the real-time designs is still there.
+
+So the answer is the same for time-late reconstruction as for real-time tracking: the network's
+range and post-manoeuvre course are the gain, and classical methods hold the straight legs.
+
 ## Conditions on the "go"
 
 The fused tracker is the candidate. Before it is used outside this project, each of the following

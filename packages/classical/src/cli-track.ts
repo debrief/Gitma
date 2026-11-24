@@ -2,8 +2,8 @@ import { closeSync, openSync, renameSync, writeSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { canonicalJson, isMain, readDataset, runCli, UsageError } from "@tma/data";
 import type { Prediction, Scenario } from "@tma/types";
-import { ekfName, ekfPredict } from "./ekf.js";
-import { type ImmParams, immName, immPredict } from "./imm.js";
+import { ekfName, ekfPredict, ekfSmooth, ekfSmoothName } from "./ekf.js";
+import { type ImmParams, immName, immPredict, immSmooth, immSmoothName } from "./imm.js";
 import { predictionHeader } from "./predictions.js";
 
 /** A non-negative number option, or a usage error naming it. */
@@ -72,16 +72,21 @@ export function main(argv: string[]): unknown {
     values["bias-sd"] === undefined
       ? {}
       : { biasSdDeg: num(values, "bias-sd"), biasTauS: num(values, "bias-tau") };
-  if (values.filter === "ekf" && values["bias-sd"] !== undefined)
+  // Spec 032: the fixed-interval smoothers (time-late), --filter ekf-smooth | imm-smooth.
+  const smooth = values.filter === "ekf-smooth" || values.filter === "imm-smooth";
+  const kind = smooth ? (values.filter === "ekf-smooth" ? "ekf" : "imm") : values.filter;
+  if (smooth && (values["report-sd"] === true || values["bias-sd"] !== undefined))
+    throw new UsageError("the smoothers take neither --report-sd nor a bias state");
+  if (kind === "ekf" && values["bias-sd"] !== undefined)
     throw new UsageError("--bias-sd is for --filter imm");
   let name: string;
   let predict: (s: Scenario) => Prediction;
-  if (values.filter === "ekf") {
+  if (kind === "ekf") {
     if (values["report-sd"] === true) throw new UsageError("--report-sd is for --filter imm");
     const sigmaA = num(values, "sigma-a");
-    name = ekfName(sigmaA, scales);
-    predict = (s) => ekfPredict(s, sigmaA, scales);
-  } else if (values.filter === "imm") {
+    name = smooth ? ekfSmoothName(sigmaA, scales) : ekfName(sigmaA, scales);
+    predict = smooth ? (s) => ekfSmooth(s, sigmaA, scales) : (s) => ekfPredict(s, sigmaA, scales);
+  } else if (kind === "imm") {
     // --report-sd (spec 018) is an IMM option: the EKF writes no stated sds.
     const p: ImmParams = {
       sigmaCv: num(values, "sigma-cv"),
@@ -92,9 +97,9 @@ export function main(argv: string[]): unknown {
       ...(values["report-sd"] === true ? { reportSd: true } : {}),
       ...bias,
     };
-    name = immName(p);
-    predict = (s) => immPredict(s, p);
-  } else throw new UsageError("--filter must be ekf or imm");
+    name = smooth ? immSmoothName(p) : immName(p);
+    predict = smooth ? (s) => immSmooth(s, p) : (s) => immPredict(s, p);
+  } else throw new UsageError("--filter must be ekf, imm, ekf-smooth or imm-smooth");
   const t0 = performance.now();
   const ds = readDataset(values.in);
   const tmp = `${values.out}.tmp-${String(process.pid)}`;

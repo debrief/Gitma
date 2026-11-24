@@ -19,6 +19,7 @@ const sidebars = {
         "algorithms/composite",
         "algorithms/detection",
         "algorithms/crb",
+        "algorithms/smoothers",
         "algorithms/viewer",
       ],
     },

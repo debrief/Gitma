@@ -1,0 +1,23 @@
+{
+  "id": "p19a",
+  "description": "Spec 032 (phase 19, SRD Annex J): T2's architecture and Gaussian head as a time-late model (model_kind time_late: bidirectional, every row sees the whole window), trained from scratch on generator 0.6.0 data with realistic bearing error (seed 244, configs/phase7-ranges.json). Normalisation from this dataset's train split. The evaluation job only commits the model; validation (seed 217) against tuned classical smoothers and forward trackers, and the gate (fresh seed 245), follow under a later decision.",
+  "dataset": {
+    "seed": "244",
+    "count": 100000,
+    "ranges": "configs/phase7-ranges.json",
+    "heldout_ranges": "configs/phase7-heldout-ranges.json",
+    "digests": {
+      "train.f32pack": "2749dc5b5784b7a711a22109664afdd29a743156c1c2384b2b3d62438f27bf24",
+      "validation.f32pack": "9dd2f6f56133092dbc5cf6cc1114bb6421ab1412d73dce061066aaa4fa93c1f6",
+      "test.f32pack": "7971f664692a778ed37dd9e71d3640788c6d7a5b24895243b6897402f3cde13e",
+      "heldout.f32pack": "701602271c752cc277b5b5f0962c28b921db695f20b18a5577e351a5c4ffb8e2"
+    }
+  },
+  "feature_set": "derived",
+  "configs": "configs/phase19/a",
+  "models": ["tracker"],
+  "evaluate": {
+    "command": "models",
+    "split": "validation"
+  }
+}
